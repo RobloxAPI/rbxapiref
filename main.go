@@ -456,6 +456,15 @@ const BaseDir = RootPath
 
 var pages = []func(api *API) error{
 	func(api *API) error {
+		f, err := os.Create(filepath.Join(BaseDir, "index.html"))
+		if err != nil {
+			return err
+		}
+		err = api.Templates.ExecuteTemplate(f, "index", api.Latest.Metadata.Hash)
+		f.Close()
+		return err
+	},
+	func(api *API) error {
 		type args struct {
 			Patches []Patch
 			Year    int
