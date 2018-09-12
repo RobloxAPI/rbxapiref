@@ -22,10 +22,17 @@ import (
 )
 
 type API struct {
+	Settings  Settings
 	Entities  *Entities
 	Patches   []Patch
 	Latest    *Build
 	Templates *template.Template
+}
+
+type Settings struct {
+	Output     string
+	Configs    map[string]fetch.Config
+	UseConfigs []string
 }
 
 type Metadata struct {
@@ -452,11 +459,9 @@ func makeTemplates(dir string, funcs template.FuncMap) (tmpl *template.Template,
 	return
 }
 
-const BaseDir = RootPath
-
 var pages = []func(api *API) error{
 	func(api *API) error {
-		f, err := os.Create(filepath.Join(BaseDir, "index.html"))
+		f, err := os.Create(filepath.Join(api.Settings.Output, RootPath, "index.html"))
 		if err != nil {
 			return err
 		}
@@ -473,7 +478,7 @@ var pages = []func(api *API) error{
 
 		src := api.Patches
 		if len(src) == 0 {
-			f, err := os.Create(filepath.Join(BaseDir, "updates.html"))
+			f, err := os.Create(filepath.Join(api.Settings.Output, RootPath, "updates.html"))
 			if err != nil {
 				return err
 			}
@@ -521,7 +526,7 @@ var pages = []func(api *API) error{
 					break
 				}
 			}
-			f, err := os.Create(filepath.Join(BaseDir, "updates.html"))
+			f, err := os.Create(filepath.Join(api.Settings.Output, RootPath, "updates.html"))
 			if err != nil {
 				return err
 			}
@@ -531,12 +536,12 @@ var pages = []func(api *API) error{
 				return err
 			}
 		}
-		if err := os.MkdirAll(filepath.Join(BaseDir, "updates"), 0666); err != nil {
+		if err := os.MkdirAll(filepath.Join(api.Settings.Output, RootPath, "updates"), 0666); err != nil {
 			return err
 		}
 		for i, patches := range patchesByYear {
 			year := maxYear - i
-			f, err := os.Create(filepath.Join(BaseDir, "updates", strconv.Itoa(year)+".html"))
+			f, err := os.Create(filepath.Join(api.Settings.Output, RootPath, "updates", strconv.Itoa(year)+".html"))
 			if err != nil {
 				return err
 			}
@@ -556,16 +561,6 @@ func main() {
 	spew.Config.DisablePointerAddresses = true
 	spew.Config.Indent = "\t"
 
-	settings := make(map[string]fetch.Config)
-	if f, err := os.Open("settings.json"); err == nil {
-		err := json.NewDecoder(f).Decode(&settings)
-		f.Close()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-	}
-
 	api := &API{
 		Entities: &Entities{
 			Classes:   make(map[string]*ClassEntity),
@@ -576,14 +571,19 @@ func main() {
 		},
 	}
 
-	configs := []string{
-		"LocalArchive",
-		"Production",
+	if f, err := os.Open("settings.json"); err == nil {
+		err := json.NewDecoder(f).Decode(&api.Settings)
+		f.Close()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	}
+
 	client := &fetch.Client{}
 	prevPatches := []Patch{}
 	{
-		f, err := os.Open(filepath.Join(BaseDir, "patches.json"))
+		f, err := os.Open(filepath.Join(api.Settings.Output, RootPath, "patches.json"))
 		if err == nil {
 			err = json.NewDecoder(f).Decode(&prevPatches)
 			f.Close()
@@ -598,8 +598,8 @@ func main() {
 
 	client.CacheMode = fetch.CacheNone
 	builds := []Build{}
-	for _, cfg := range configs {
-		client.Config = settings[cfg]
+	for _, cfg := range api.Settings.UseConfigs {
+		client.Config = api.Settings.Configs[cfg]
 		bs, err := client.Builds()
 		if err != nil {
 			fmt.Println(cfg, "error fetching builds:", err)
@@ -649,7 +649,7 @@ loop:
 			continue loop
 		}
 		fmt.Println("== NEW ", build.Metadata)
-		client.Config = settings[build.Config]
+		client.Config = api.Settings.Configs[build.Config]
 		root, err := client.APIDump(build.Metadata.Hash)
 		if err != nil {
 			fmt.Println(build.Config, "failed to get build ", build.Metadata.Hash, err)
@@ -664,7 +664,7 @@ loop:
 			if api.Latest.API == nil {
 				// Previous build was cached; fetch its data to compare with
 				// current build.
-				client.Config = settings[api.Latest.Config]
+				client.Config = api.Settings.Configs[api.Latest.Config]
 				root, err := client.APIDump(api.Latest.Metadata.Hash)
 				if err != nil {
 					fmt.Println(api.Latest.Config, "failed to get build ", api.Latest.Metadata.Hash, err)
@@ -685,7 +685,7 @@ loop:
 	}
 	// Ensure that the latest API is present.
 	if api.Latest.API == nil {
-		client.Config = settings[api.Latest.Config]
+		client.Config = api.Settings.Configs[api.Latest.Config]
 		root, err := client.APIDump(api.Latest.Metadata.Hash)
 		if err != nil {
 			fmt.Println(api.Latest.Config, "failed to get build ", api.Latest.Metadata.Hash, err)
@@ -716,7 +716,7 @@ loop:
 	}
 
 	{
-		f, err := os.Create(filepath.Join(BaseDir, "patches.json"))
+		f, err := os.Create(filepath.Join(api.Settings.Output, RootPath, "patches.json"))
 		if err != nil {
 			fmt.Println(err)
 			return
