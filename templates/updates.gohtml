@@ -3,15 +3,120 @@
 <head>
 	<meta charset="utf-8">
 	<title>Roblox Lua API Updates</title>
-	<link href="{{link "res" "updates.css" ""}}" rel="stylesheet" type="text/css" />
-	<script src="{{link "res" "updates.js" ""}}" charset="utf-8"></script>
+	<link href="{{link "res" "root.css" ""}}" rel="stylesheet" type="text/css" />
+	<style id="updates-style">
+		li[diff-field="Parameters"] .diff-values {
+			display: table;
+			padding-left: 4ch;
+		}
+		li[diff-field="Parameters"] .diff-values > span {
+			display: table-row;
+		}
+		li[diff-field="Parameters"] .diff-values > span > span {
+			display: table-cell;
+			padding-right: 1ch;
+		}
+		li[diff-field="Tags"] .diff-values {
+			display: table;
+			padding-left: 4ch;
+		}
+		li[diff-field="Tags"] .diff-values > span {
+			display: table-row;
+		}
+		li[diff-field="Tags"] .diff-values > span > span {
+			display: table-cell;
+			padding-right: 1ch;
+		}
+		a.permalink {
+			display: none;
+		}
+		*:hover > a.permalink {
+			display: inline;
+		}
+		*:hover > a.permalink:before {
+			content : ' ¶ ';
+		}
+		.patch-list.hidden {
+			display: none;
+		}
+	</style>
+	<script src="{{link "res" "root.js" ""}}" charset="utf-8"></script>
+	<script>
+		function toggleList(event) {
+			var parent = event.target.closest(".update");
+			if (parent === null) {
+				return;
+			};
+			var list = parent.querySelector(".patch-list");
+			if (list === null) {
+				return;
+			};
+			if (list.classList.contains("hidden")) {
+				list.classList.remove("hidden");
+			} else {
+				list.classList.add("hidden");
+			};
+		};
+		function toggleAll(show, scroll) {
+			var scrollTo;
+			for (item of document.querySelectorAll("#update-list > li .patch-list")) {
+				var anchor = item.parentElement.querySelector("a.anchor:target");
+				if (anchor !== null) {
+					scrollTo = anchor;
+				}
+				if (show) {
+					item.classList.remove("hidden");
+				} else {
+					if (anchor !== null) {
+						item.classList.remove("hidden");
+					} else {
+						item.classList.add("hidden");
+					};
+				};
+			};
+			if (scroll && scrollTo !== undefined) {
+				scrollTo.scrollIntoView(true);
+			};
+		};
+		document.addEventListener("DOMContentLoaded", function(event) {
+			var controls = document.getElementById("controls");
+			if (controls !== null) {
+				controls.insertAdjacentHTML("beforeBegin", '<label><input type="checkbox" id="expand-all">All changes expanded</label>');
+			};
+
+			var expandAll = document.getElementById("expand-all");
+			if (expandAll !== null) {
+				expandAll.addEventListener("click", function(event) {
+					toggleAll(event.target.checked, false);
+				});
+				toggleAll(expandAll.checked, true);
+			} else {;
+				toggleAll(false, true);
+			};
+
+			for (item of document.querySelectorAll("#update-list > li .patch-list-toggle")) {
+				item.addEventListener("click", toggleList);
+			};
+
+			var list = document.getElementById("update-list");
+			if (list !== null) {
+				var note = document.createElement("div");
+				note.innerText = "Click a date to expand or collapse changes.";
+				list.parentElement.insertBefore(note, list);
+			};
+
+			var style = document.getElementById("updates-style");
+			if (style !== null) {
+				style.sheet.insertRule(".patch-list-toggle {cursor: pointer;}");
+			};
+		});
+	</script>
 </head>
 <body>
 	<header>
 		<h1>{{if not .Year}}Recent {{end}}API Updates{{if .Year}} in {{.Year}}{{end}}</h1>
 	</header>
 	<aside id="controls">
-		<label><input type="checkbox" id="show-all">Show all</label>
 	</aside>
 	<nav>
 		<ul>
@@ -35,10 +140,10 @@
 			{{- with .Patches -}}
 			{{- range . }}
 			<li>
-				<article>
+				<article class="update">
 					<a id="{{.Metadata.Hash}}" class="anchor"></a>
 					<span class="patch-list-toggle"><time datetime="{{.Metadata.Date.Format "2006-01-02 15:04:05-0700" }}">{{.Metadata.Date.Format "2006-01-02 15:04" }}</time> (v{{.Metadata.Version}})</span>
-					<a class="permalink" href="{{link "updates" .Metadata.Date.Year ""}}#{{.Metadata.Hash}}">{{.Metadata.Hash}}</a>
+					<a class="permalink" title="Permanent link" href="{{link "updates" .Metadata.Date.Year ""}}#{{.Metadata.Hash}}">{{.Metadata.Hash}}</a>
 					<ul class="patch-list">
 					{{- range .Actions}}
 						<li{{if .Field}} diff-field="{{.Field}}"{{end}}>

@@ -131,6 +131,22 @@ func (v *Value) MarshalJSON() (b []byte, err error) {
 	case []rbxapijson.Parameter:
 		w.Type = "Parameters"
 		w.Value = v
+	case []rbxapi.Parameter:
+		params := make([]rbxapijson.Parameter, len(v))
+		for i, p := range v {
+			params[i] = rbxapijson.Parameter{
+				Type: rbxapijson.Type{
+					Category: p.GetType().GetCategory(),
+					Name:     p.GetType().GetName(),
+				},
+				Name: p.GetName(),
+			}
+			if d, ok := p.GetDefault(); ok {
+				params[i].Default = &d
+			}
+		}
+		w.Type = "Parameters"
+		w.Value = v
 	}
 	return json.Marshal(&w)
 }
@@ -372,6 +388,15 @@ func toString(v interface{}) string {
 			ss[i] = param.Type.String() + " " + param.Name
 			if param.Default != nil {
 				ss[i] += " = " + *param.Default
+			}
+		}
+		return "(" + strings.Join(ss, ", ") + ")"
+	case []rbxapi.Parameter:
+		ss := make([]string, len(v))
+		for i, param := range v {
+			ss[i] = param.GetType().String() + " " + param.GetName()
+			if d, ok := param.GetDefault(); ok {
+				ss[i] += " = " + d
 			}
 		}
 		return "(" + strings.Join(ss, ", ") + ")"
