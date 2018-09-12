@@ -2,149 +2,99 @@
 <html lang="en-US">
 <head>
 	<meta charset="utf-8">
-	<title>Roblox API Updates</title>
-	<style>
-		li[diff-field="Parameters"] .diff-values {
-			display: table;
-			padding-left: 4ch;
-		}
-		li[diff-field="Parameters"] .diff-values > span {
-			display: table-row;
-		}
-		li[diff-field="Parameters"] .diff-values > span > span {
-			display: table-cell;
-			padding-right: 1ch;
-		}
-		li[diff-field="Tags"] .diff-values {
-			display: table;
-			padding-left: 4ch;
-		}
-		li[diff-field="Tags"] .diff-values > span {
-			display: table-row;
-		}
-		li[diff-field="Tags"] .diff-values > span > span {
-			display: table-cell;
-			padding-right: 1ch;
-		}
-		a.permalink {
-			display: none;
-		}
-		*:hover > a.permalink {
-			display: inline;
-		}
-		*:hover > a.permalink:before {
-			content : ' ¶ ';
-		}
-		.patch-list.hidden {
-			display: none;
-		}
-		.patch-list-toggle {
-			cursor: pointer;
-		}
-	</style>
-	<script>
-		function toggleList(event) {
-			var list = event.target.parentElement.querySelector(".patch-list");
-			if (list === null) {
-				return;
-			};
-			if (list.classList.contains("hidden")) {
-				list.classList.remove("hidden");
-			} else {
-				list.classList.add("hidden");
-			};
-		};
-		function toggleAll(show) {
-			var items = document.querySelectorAll("#update-list > li > .patch-list");
-			if (show) {
-				for (item of items) {
-					item.classList.remove("hidden");
-				};
-			} else {
-				for (item of items) {
-					if (item.parentElement.querySelector("a.anchor:target") === null) {
-						item.classList.add("hidden");
-					} else {
-						item.classList.remove("hidden");
-					};
-				};
-			};
-		};
-		document.addEventListener("DOMContentLoaded", function(event) {
-			var showAll = document.getElementById("show-all");
-			if (showAll !== null) {
-				showAll.onclick = function(event) {
-					toggleAll(event.target.checked);
-				};
-				toggleAll(showAll.checked);
-			} else {;
-				toggleAll(false);
-			};
-			for (item of document.querySelectorAll("#update-list > li > .patch-list-toggle")) {
-				item.onclick = toggleList;
-			};
-		});
-	</script>
+	<title>Roblox Lua API Updates</title>
+	<link href="{{link "res" "updates.css" ""}}" rel="stylesheet" type="text/css" />
+	<script src="{{link "res" "updates.js" ""}}" charset="utf-8"></script>
 </head>
 <body>
-	<label><input type="checkbox" id="show-all">Show all</label>
-	<ul id="update-list">
-		{{- range . }}
-		<li>
-			<a id="{{.Metadata.Hash}}" class="anchor"></a>
-			<span class="patch-list-toggle">{{.Metadata.Date.Format "2006-01-02 15:04" }} (v{{.Metadata.Version}})</span>
-			<a class="permalink" href="{{link "updates" "" ""}}#{{.Metadata.Hash}}">{{.Metadata.Hash}}</a>
-			<ul class="patch-list">
-			{{- range .Actions}}
-				<li{{if .GetField}} diff-field="{{.GetField}}"{{end}}>
-				{{- if and .GetClass .GetMember -}}
-				{{- if eq .GetType 0 -}}
-					{{.GetType.String}} field {{.GetField}} of {{.GetMember.GetMemberType}} <a href="{{link "member" .GetClass.GetName .GetMember.GetName}}">{{.GetClass.GetName}}.{{.GetMember.GetName}}</a>
-					<span class="diff-values"><span><span>from</span> <span>{{tostring .GetPrev}}</span></span> <span><span>to</span> <span>{{tostring .GetNext}}</span></span></span>
-				{{- else -}}
-					{{.GetType.String}} {{.GetMember.GetMemberType}} <a href="{{link "member" .GetClass.GetName .GetMember.GetName}}">{{.GetClass.GetName}}.{{.GetMember.GetName}}</a>
-				{{- end -}}
-				{{- else if .GetClass -}}
-				{{- if eq .GetType 0 -}}
-					{{.GetType.String}} field {{.GetField}} of Class <a href="{{link "class" .GetClass.GetName ""}}">{{.GetClass.GetName}}</a>
-					<span class="diff-values"><span><span>from</span> <span>{{tostring .GetPrev}}</span></span> <span><span>to</span> <span>{{tostring .GetNext}}</span></span></span>
-				{{- else -}}
-					{{.GetType.String}} Class <a href="{{link "class" .GetClass.GetName ""}}">{{.GetClass.GetName}}</a>
-					<ul>
-					{{- range subactions . }}
-						<li>{{.GetType.String}} {{.GetMember.GetMemberType}} <a href="{{link "member" .GetClass.GetName .GetMember.GetName}}">{{.GetMember.GetName}}</a></li>
-					{{- end}}
+	<header>
+		<h1>{{if not .Year}}Recent {{end}}API Updates{{if .Year}} in {{.Year}}{{end}}</h1>
+	</header>
+	<aside id="controls">
+		<label><input type="checkbox" id="show-all">Show all</label>
+	</aside>
+	<nav>
+		<ul>
+		{{- $year := .Year -}}
+		{{- if $year }}
+			<li><a href="{{link "updates" "" ""}}">Recent</a></li>
+		{{- else }}
+			<li class="current">Recent</li>
+		{{- end -}}
+		{{- range .Years -}}
+		{{- if eq $year . }}
+			<li class="current">{{.}}</li>
+		{{- else }}
+			<li><a href="{{link "updates" . ""}}">{{.}}</a></li>
+		{{- end -}}
+		{{- end }}
+		</ul>
+	</nav>
+	<main>
+		<ul id="update-list">
+			{{- with .Patches -}}
+			{{- range . }}
+			<li>
+				<article>
+					<a id="{{.Metadata.Hash}}" class="anchor"></a>
+					<span class="patch-list-toggle"><time datetime="{{.Metadata.Date.Format "2006-01-02 15:04:05-0700" }}">{{.Metadata.Date.Format "2006-01-02 15:04" }}</time> (v{{.Metadata.Version}})</span>
+					<a class="permalink" href="{{link "updates" .Metadata.Date.Year ""}}#{{.Metadata.Hash}}">{{.Metadata.Hash}}</a>
+					<ul class="patch-list">
+					{{- range .Actions}}
+						<li{{if .Field}} diff-field="{{.Field}}"{{end}}>
+						{{- if and .Class .GetMember -}}
+						{{- if eq .Type 0 -}}
+							{{.Type.String}} field {{.Field}} of {{.GetMember.GetMemberType}} <a href="{{link "member" .Class.GetName .GetMember.GetName}}">{{.Class.GetName}}.{{.GetMember.GetName}}</a>
+							<span class="diff-values"><span><span>from</span> <span>{{tostring .GetPrev}}</span></span> <span><span>to</span> <span>{{tostring .GetNext}}</span></span></span>
+						{{- else -}}
+							{{.Type.String}} {{.GetMember.GetMemberType}} <a href="{{link "member" .Class.Name .GetMember.GetName}}">{{.Class.Name}}.{{.GetMember.GetName}}</a>
+						{{- end -}}
+						{{- else if .Class -}}
+						{{- if eq .Type 0 -}}
+							{{.Type.String}} field {{.Field}} of Class <a href="{{link "class" .Class.Name ""}}">{{.Class.Name}}</a>
+							<span class="diff-values"><span><span>from</span> <span>{{tostring .GetPrev}}</span></span> <span><span>to</span> <span>{{tostring .GetNext}}</span></span></span>
+						{{- else -}}
+							{{.Type.String}} Class <a href="{{link "class" .Class.Name ""}}">{{.Class.Name}}</a>
+							<ul>
+							{{- range subactions . }}
+								<li>{{.Type.String}} {{.GetMember.GetMemberType}} <a href="{{link "member" .Class.Name .GetMember.GetName}}">{{.GetMember.GetName}}</a></li>
+							{{- end}}
+							</ul>
+						{{- end -}}
+						{{- else if and .Enum .Item -}}
+						{{- if eq .Type 0 -}}
+							{{.Type.String}} field {{.Field}} of EnumItem <a href="{{link "enumitem" .Enum.Name .Item.Name}}">{{.Enum.Name}}.{{.Item.Name}}</a>
+							<span class="diff-values"><span><span>from</span> <span>{{tostring .GetPrev}}</span></span> <span><span>to</span> <span>{{tostring .GetNext}}</span></span></span>
+						{{- else -}}
+							{{.Type.String}} EnumItem <a href="{{link "enumitem" .Enum.Name .Item.Name}}">{{.Enum.Name}}.{{.Item.Name}}</a>
+						{{- end -}}
+						{{- else if .Enum -}}
+						{{- if eq .Type 0 -}}
+							{{.Type.String}} field {{.Field}} of Enum <a href="{{link "enum" .Enum.Name ""}}">{{.Enum.Name}}</a>
+							<span class="diff-values"><span><span>from</span> <span>{{tostring .GetPrev}}</span></span> <span><span>to</span> <span>{{tostring .GetNext}}</span></span></span>
+						{{- else -}}
+							{{.Type.String}} Enum <a href="{{link "enum" .Enum.Name ""}}">{{.Enum.Name}}</a>
+							<ul>
+							{{- range subactions . }}
+								<li>{{.Type.String}} EnumItem <a href="{{link "enumitem" .Enum.Name .Item.Name}}">{{.Item.Name}}</a></li>
+							{{- end}}
+							</ul>
+						{{- end -}}
+						{{- else -}}
+							{{.String}}
+						{{- end -}}
+						</li>
+						{{- else -}}
+						<li>No changes</li>
+					{{end}}
 					</ul>
-				{{- end -}}
-				{{- else if and .GetEnum .GetItem -}}
-				{{- if eq .GetType 0 -}}
-					{{.GetType.String}} field {{.GetField}} of EnumItem <a href="{{link "enumitem" .GetEnum.GetName .GetItem.GetName}}">{{.GetEnum.GetName}}.{{.GetItem.GetName}}</a>
-					<span class="diff-values"><span><span>from</span> <span>{{tostring .GetPrev}}</span></span> <span><span>to</span> <span>{{tostring .GetNext}}</span></span></span>
-				{{- else -}}
-					{{.GetType.String}} EnumItem <a href="{{link "enumitem" .GetEnum.GetName .GetItem.GetName}}">{{.GetEnum.GetName}}.{{.GetItem.GetName}}</a>
-				{{- end -}}
-				{{- else if .GetEnum -}}
-				{{- if eq .GetType 0 -}}
-					{{.GetType.String}} field {{.GetField}} of Enum <a href="{{link "enum" .GetEnum.GetName ""}}">{{.GetEnum.GetName}}</a>
-					<span class="diff-values"><span><span>from</span> <span>{{tostring .GetPrev}}</span></span> <span><span>to</span> <span>{{tostring .GetNext}}</span></span></span>
-				{{- else -}}
-					{{.GetType.String}} Enum <a href="{{link "enum" .GetEnum.GetName ""}}">{{.GetEnum.GetName}}</a>
-					<ul>
-					{{- range subactions . }}
-						<li>{{.GetType.String}} EnumItem <a href="{{link "enumitem" .GetEnum.GetName .GetItem.GetName}}">{{.GetItem.GetName}}</a></li>
-					{{- end}}
-					</ul>
-				{{- end -}}
-				{{- else -}}
-					{{.String}}
-				{{- end -}}
-				</li>
-				{{- else -}}
-				<li>No changes</li>
-			{{end}}
-			</ul>
-		</li>
-		{{- end}}
-	</ul>
+				</article>
+			</li>
+			{{- else -}}
+			<li>No updates</li>
+			{{- end -}}
+			{{- end}}
+		</ul>
+	</main>
 </body>
 </html>
