@@ -150,14 +150,14 @@
 						{{- if and .Class .GetMember -}}
 						{{- if eq .Type 0 -}}
 							{{.Type.String}} field {{.Field}} of {{.GetMember.GetMemberType}} <a href="{{link "member" .Class.GetName .GetMember.GetName}}">{{.Class.GetName}}.{{.GetMember.GetName}}</a>
-							<span class="diff-values"><span><span>from</span> <span>{{tostring .GetPrev}}</span></span> <span><span>to</span> <span>{{tostring .GetNext}}</span></span></span>
+							<span class="diff-values"><span><span>from</span> <span>{{template "value" .GetPrev}}</span></span> <span><span>to</span> <span>{{template "value" .GetNext}}</span></span></span>
 						{{- else -}}
 							{{.Type.String}} {{.GetMember.GetMemberType}} <a href="{{link "member" .Class.Name .GetMember.GetName}}">{{.Class.Name}}.{{.GetMember.GetName}}</a>
 						{{- end -}}
 						{{- else if .Class -}}
 						{{- if eq .Type 0 -}}
 							{{.Type.String}} field {{.Field}} of Class <a href="{{link "class" .Class.Name ""}}">{{.Class.Name}}</a>
-							<span class="diff-values"><span><span>from</span> <span>{{tostring .GetPrev}}</span></span> <span><span>to</span> <span>{{tostring .GetNext}}</span></span></span>
+							<span class="diff-values"><span><span>from</span> <span>{{template "value" .GetPrev}}</span></span> <span><span>to</span> <span>{{template "value" .GetNext}}</span></span></span>
 						{{- else -}}
 							{{.Type.String}} Class <a href="{{link "class" .Class.Name ""}}">{{.Class.Name}}</a>
 							<ul>
@@ -169,14 +169,14 @@
 						{{- else if and .Enum .Item -}}
 						{{- if eq .Type 0 -}}
 							{{.Type.String}} field {{.Field}} of EnumItem <a href="{{link "enumitem" .Enum.Name .Item.Name}}">{{.Enum.Name}}.{{.Item.Name}}</a>
-							<span class="diff-values"><span><span>from</span> <span>{{tostring .GetPrev}}</span></span> <span><span>to</span> <span>{{tostring .GetNext}}</span></span></span>
+							<span class="diff-values"><span><span>from</span> <span>{{template "value" .GetPrev}}</span></span> <span><span>to</span> <span>{{template "value" .GetNext}}</span></span></span>
 						{{- else -}}
 							{{.Type.String}} EnumItem <a href="{{link "enumitem" .Enum.Name .Item.Name}}">{{.Enum.Name}}.{{.Item.Name}}</a>
 						{{- end -}}
 						{{- else if .Enum -}}
 						{{- if eq .Type 0 -}}
 							{{.Type.String}} field {{.Field}} of Enum <a href="{{link "enum" .Enum.Name ""}}">{{.Enum.Name}}</a>
-							<span class="diff-values"><span><span>from</span> <span>{{tostring .GetPrev}}</span></span> <span><span>to</span> <span>{{tostring .GetNext}}</span></span></span>
+							<span class="diff-values"><span><span>from</span> <span>{{template "value" .GetPrev}}</span></span> <span><span>to</span> <span>{{template "value" .GetNext}}</span></span></span>
 						{{- else -}}
 							{{.Type.String}} Enum <a href="{{link "enum" .Enum.Name ""}}">{{.Enum.Name}}</a>
 							<ul>

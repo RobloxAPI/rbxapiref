@@ -1,0 +1,5 @@
+{{- if eq (type .) "rbxapijson.Type" -}}
+<a{{if .Category}} title="Category: {{.Category}}"{{end}} href="{{link "type" .Category .Name}}">{{.Name}}</a>
+{{- else -}}
+{{- tostring . -}}
+{{- end -}}

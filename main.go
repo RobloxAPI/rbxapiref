@@ -357,7 +357,7 @@ retry:
 				typ, name, member = name, member, ""
 				goto retry
 			}
-			s = path.Join(TypePath, url.PathEscape(name)+FileExt)
+			s = path.Join(TypePath, url.PathEscape(member)+FileExt)
 		}
 		break
 	}
