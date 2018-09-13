@@ -1,5 +1,7 @@
-{{- if eq (type .) "rbxapijson.Type" -}}
+{{- if istype . "rbxapijson.Type" -}}
 <a{{if .Category}} title="Category: {{.Category}}"{{end}} href="{{link "type" .Category .Name}}">{{.Name}}</a>
+{{- else if istype . "[]rbxapijson.Parameter" -}}
+({{range $i, $p := . -}}{{if $i}}, {{end}}{{template "value" $p.Type}} {{$p.Name}}{{if $p.Default}} = {{$p.Default}}{{end}}{{end}})
 {{- else -}}
 {{- tostring . -}}
 {{- end -}}

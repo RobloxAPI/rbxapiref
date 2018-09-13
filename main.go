@@ -114,6 +114,35 @@ type Value struct {
 	V interface{}
 }
 
+func WrapValue(v interface{}) *Value {
+	w := Value{}
+	switch v := v.(type) {
+	case rbxapi.Type:
+		w.V = rbxapijson.Type{
+			Category: v.GetCategory(),
+			Name:     v.GetName(),
+		}
+	case []rbxapi.Parameter:
+		params := make([]rbxapijson.Parameter, len(v))
+		for i, p := range v {
+			params[i] = rbxapijson.Parameter{
+				Type: rbxapijson.Type{
+					Category: p.GetType().GetCategory(),
+					Name:     p.GetType().GetName(),
+				},
+				Name: p.GetName(),
+			}
+			if d, ok := p.GetDefault(); ok {
+				params[i].Default = &d
+			}
+		}
+		w.V = v
+	default:
+		w.V = v
+	}
+	return &w
+}
+
 func (v *Value) MarshalJSON() (b []byte, err error) {
 	var w struct {
 		Type  string
@@ -136,22 +165,6 @@ func (v *Value) MarshalJSON() (b []byte, err error) {
 		w.Type = "strings"
 		w.Value = v
 	case []rbxapijson.Parameter:
-		w.Type = "Parameters"
-		w.Value = v
-	case []rbxapi.Parameter:
-		params := make([]rbxapijson.Parameter, len(v))
-		for i, p := range v {
-			params[i] = rbxapijson.Parameter{
-				Type: rbxapijson.Type{
-					Category: p.GetType().GetCategory(),
-					Name:     p.GetType().GetName(),
-				},
-				Name: p.GetName(),
-			}
-			if d, ok := p.GetDefault(); ok {
-				params[i].Default = &d
-			}
-		}
 		w.Type = "Parameters"
 		w.Value = v
 	}
@@ -212,10 +225,10 @@ func WrapActions(actions []patch.Action) []Action {
 			Field: action.GetField(),
 		}
 		if p := action.GetPrev(); p != nil {
-			c[i].Prev = &Value{p}
+			c[i].Prev = WrapValue(p)
 		}
 		if n := action.GetNext(); n != nil {
-			c[i].Next = &Value{n}
+			c[i].Next = WrapValue(n)
 		}
 		switch action := action.(type) {
 		case patch.Member:
@@ -395,15 +408,6 @@ func toString(v interface{}) string {
 			ss[i] = param.Type.String() + " " + param.Name
 			if param.Default != nil {
 				ss[i] += " = " + *param.Default
-			}
-		}
-		return "(" + strings.Join(ss, ", ") + ")"
-	case []rbxapi.Parameter:
-		ss := make([]string, len(v))
-		for i, param := range v {
-			ss[i] = param.GetType().String() + " " + param.GetName()
-			if d, ok := param.GetDefault(); ok {
-				ss[i] += " = " + d
 			}
 		}
 		return "(" + strings.Join(ss, ", ") + ")"
@@ -701,6 +705,9 @@ loop:
 		"subactions": makeSubactions,
 		"type": func(v interface{}) string {
 			return reflect.TypeOf(v).String()
+		},
+		"istype": func(v interface{}, t string) bool {
+			return reflect.TypeOf(v).String() == t
 		},
 	})
 	if err != nil {
