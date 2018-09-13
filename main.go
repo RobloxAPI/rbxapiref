@@ -1,6 +1,7 @@
 package main
 
 import (
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
@@ -587,9 +588,16 @@ func main() {
 	client := &fetch.Client{}
 	prevPatches := []Patch{}
 	{
-		f, err := os.Open(filepath.Join(api.Settings.Output, RootPath, "patches.json"))
+		f, err := os.Open(filepath.Join(api.Settings.Output, RootPath, "patches.json.gz"))
 		if err == nil {
-			err = json.NewDecoder(f).Decode(&prevPatches)
+			gr, err := gzip.NewReader(f)
+			if err != nil {
+				f.Close()
+				fmt.Println(err)
+				return
+			}
+			err = json.NewDecoder(gr).Decode(&prevPatches)
+			gr.Close()
 			f.Close()
 			if err != nil {
 				fmt.Println(err)
@@ -723,15 +731,18 @@ loop:
 	}
 
 	{
-		f, err := os.Create(filepath.Join(api.Settings.Output, RootPath, "patches.json"))
+		f, err := os.Create(filepath.Join(api.Settings.Output, RootPath, "patches.json.gz"))
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		je := json.NewEncoder(f)
+		gw, _ := gzip.NewWriterLevel(f, gzip.BestCompression)
+		je := json.NewEncoder(gw)
 		je.SetEscapeHTML(false)
-		je.SetIndent("", "\t")
+		je.SetIndent("", "")
 		err = je.Encode(api.Patches)
+		gw.Flush()
+		gw.Close()
 		f.Close()
 		if err != nil {
 			fmt.Println(err)
