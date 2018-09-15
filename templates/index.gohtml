@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<title>Roblox Lua API Reference</title>
-	<link href="{{link "res" "root.css" ""}}" rel="stylesheet" type="text/css" />
-	<script src="{{link "res" "root.js" ""}}" charset="utf-8"></script>
+	<link href="{{link "res" "root.css"}}" rel="stylesheet" type="text/css" />
+	<script src="{{link "res" "root.js"}}" charset="utf-8"></script>
 </head>
 <body>
 	<header>
@@ -13,8 +13,37 @@
 	<p>This site is under construction.</p>
 	<nav>
 		<ul>
-			<li><a href="{{link "updates" "" ""}}#{{.}}">Latest API updates</a></li>
+			<li><a href="{{link "updates"}}#{{.Latest.Info.Hash}}">Latest API updates</a></li>
 		</ul>
 	</nav>
+	<article id="classes">
+		<header>
+			<h2>Classes</h2>
+		</header>
+		<ul id="class-list">
+			{{- define "tree" -}}
+			{{- range . }}
+			<li><a href="{{link "class" .}}">{{.}}</a>
+			{{- if subclasses . }}
+			<ul>
+			{{- template "tree" (subclasses .) }}
+			</ul>
+			{{- end -}}
+			</li>
+			{{- end -}}
+			{{- end -}}
+			{{- template "tree" .TreeRoots }}
+		</ul>
+	</article>
+	<article id="enums">
+		<header>
+			<h2>Enums</h2>
+		</header>
+		<ul id="enum-list">
+			{{- range .Latest.API.Enums }}
+			<li><a href="{{link "enum" .Name}}">{{.Name}}</a></li>
+			{{- end }}
+		</ul>
+	</article>
 </body>
 </html>

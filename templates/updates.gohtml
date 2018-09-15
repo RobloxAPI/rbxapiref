@@ -141,9 +141,9 @@
 			{{- range . }}
 			<li>
 				<article class="update">
-					<a id="{{.Metadata.Hash}}" class="anchor"></a>
-					<span class="patch-list-toggle"><time datetime="{{.Metadata.Date.Format "2006-01-02 15:04:05-0700" }}">{{.Metadata.Date.Format "2006-01-02 15:04" }}</time> (v{{.Metadata.Version}})</span>
-					<a class="permalink" title="Permanent link" href="{{link "updates" .Metadata.Date.Year ""}}#{{.Metadata.Hash}}">{{.Metadata.Hash}}</a>
+					<a id="{{.Info.Hash}}" class="anchor"></a>
+					<span class="patch-list-toggle"><time datetime="{{.Info.Date.Format "2006-01-02 15:04:05-0700" }}">{{.Info.Date.Format "2006-01-02 15:04" }}</time> (v{{.Info.Version}})</span>
+					<a class="permalink" title="Permanent link" href="{{link "updates" .Info.Date.Year}}#{{.Info.Hash}}">{{.Info.Hash}}</a>
 					<ul class="patch-list">
 					{{- range .Actions}}
 						<li{{if .Field}} diff-field="{{.Field}}"{{end}}>
@@ -156,10 +156,10 @@
 						{{- end -}}
 						{{- else if .Class -}}
 						{{- if eq .Type 0 -}}
-							{{.Type.String}} field {{.Field}} of Class <a href="{{link "class" .Class.Name ""}}">{{.Class.Name}}</a>
+							{{.Type.String}} field {{.Field}} of Class <a href="{{link "class" .Class.Name}}">{{.Class.Name}}</a>
 							<span class="diff-values"><span><span>from</span> <span>{{template "value" .GetPrev}}</span></span> <span><span>to</span> <span>{{template "value" .GetNext}}</span></span></span>
 						{{- else -}}
-							{{.Type.String}} Class <a href="{{link "class" .Class.Name ""}}">{{.Class.Name}}</a>
+							{{.Type.String}} Class <a href="{{link "class" .Class.Name}}">{{.Class.Name}}</a>
 							<ul>
 							{{- range subactions . }}
 								<li>{{.Type.String}} {{.GetMember.GetMemberType}} <a href="{{link "member" .Class.Name .GetMember.GetName}}">{{.GetMember.GetName}}</a></li>

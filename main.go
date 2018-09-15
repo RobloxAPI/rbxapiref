@@ -4,387 +4,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/robloxapi/rbxapi"
-	"github.com/robloxapi/rbxapi/patch"
 	"github.com/robloxapi/rbxapi/rbxapijson"
 	"github.com/robloxapi/rbxapi/rbxapijson/diff"
 	"github.com/robloxapi/rbxapiref/fetch"
 	"html/template"
 	"io/ioutil"
-	"net/url"
 	"os"
-	"path"
 	"path/filepath"
 	"reflect"
 	"strconv"
 	"strings"
-	"time"
 )
 
-type API struct {
-	Settings  Settings
-	Entities  *Entities
-	Patches   []Patch
-	Latest    *Build
-	Templates *template.Template
-}
-
-type Settings struct {
-	Output     string
-	Configs    map[string]fetch.Config
-	UseConfigs []string
-}
-
-type Metadata struct {
-	Hash    string
-	Date    time.Time
-	Version fetch.Version
-}
-
-func (a Metadata) Equal(b Metadata) bool {
-	if a.Hash != b.Hash {
-		return false
-	}
-	if a.Version != b.Version {
-		return false
-	}
-	if !a.Date.Equal(b.Date) {
-		return false
-	}
-	return true
-}
-
-func (m Metadata) String() string {
-	return fmt.Sprintf("%s; %s; %s", m.Hash, m.Date, m.Version)
-}
-
-type Build struct {
-	Config   string
-	Metadata Metadata
-	API      *rbxapijson.Root
-}
-
-type Patch struct {
-	Prev     *Metadata `json:",omitempty"`
-	Metadata Metadata
-	Config   string
-	Actions  []Action
-}
-
-type Action struct {
-	Type     patch.Type
-	Class    *rbxapijson.Class    `json:",omitempty"`
-	Property *rbxapijson.Property `json:",omitempty"`
-	Function *rbxapijson.Function `json:",omitempty"`
-	Event    *rbxapijson.Event    `json:",omitempty"`
-	Callback *rbxapijson.Callback `json:",omitempty"`
-	Enum     *rbxapijson.Enum     `json:",omitempty"`
-	Item     *rbxapijson.EnumItem `json:",omitempty"`
-	Field    string               `json:",omitempty"`
-	Prev     *Value               `json:",omitempty"`
-	Next     *Value               `json:",omitempty"`
-}
-
-func (a *Action) SetMember(member rbxapi.Member) {
-	switch member := member.(type) {
-	case *rbxapijson.Property:
-		a.Property = member
-		a.Function = nil
-		a.Event = nil
-		a.Callback = nil
-	case *rbxapijson.Function:
-		a.Property = nil
-		a.Function = member
-		a.Event = nil
-		a.Callback = nil
-	case *rbxapijson.Event:
-		a.Property = nil
-		a.Function = nil
-		a.Event = member
-		a.Callback = nil
-	case *rbxapijson.Callback:
-		a.Property = nil
-		a.Function = nil
-		a.Event = nil
-		a.Callback = member
-	}
-}
-
-type Value struct {
-	V interface{}
-}
-
-func WrapValue(v interface{}) *Value {
-	w := Value{}
-	switch v := v.(type) {
-	case rbxapi.Type:
-		w.V = rbxapijson.Type{
-			Category: v.GetCategory(),
-			Name:     v.GetName(),
-		}
-	case []rbxapi.Parameter:
-		params := make([]rbxapijson.Parameter, len(v))
-		for i, p := range v {
-			params[i] = rbxapijson.Parameter{
-				Type: rbxapijson.Type{
-					Category: p.GetType().GetCategory(),
-					Name:     p.GetType().GetName(),
-				},
-				Name: p.GetName(),
-			}
-			if d, ok := p.GetDefault(); ok {
-				params[i].Default = &d
-			}
-		}
-		w.V = v
-	default:
-		w.V = v
-	}
-	return &w
-}
-
-func (v *Value) MarshalJSON() (b []byte, err error) {
-	var w struct {
-		Type  string
-		Value interface{}
-	}
-	switch v := v.V.(type) {
-	case bool:
-		w.Type = "bool"
-		w.Value = v
-	case int:
-		w.Type = "int"
-		w.Value = v
-	case string:
-		w.Type = "string"
-		w.Value = v
-	case rbxapijson.Type:
-		w.Type = "Type"
-		w.Value = v
-	case []string:
-		w.Type = "strings"
-		w.Value = v
-	case []rbxapijson.Parameter:
-		w.Type = "Parameters"
-		w.Value = v
-	}
-	return json.Marshal(&w)
-}
-
-func (v *Value) UnmarshalJSON(b []byte) (err error) {
-	var w struct{ Type string }
-	if err = json.Unmarshal(b, &w); err != nil {
-		return err
-	}
-	switch w.Type {
-	case "bool":
-		var value struct{ Value bool }
-		if err = json.Unmarshal(b, &value); err != nil {
-			return err
-		}
-		v.V = value.Value
-	case "int":
-		var value struct{ Value int }
-		if err = json.Unmarshal(b, &value); err != nil {
-			return err
-		}
-		v.V = value.Value
-	case "string":
-		var value struct{ Value string }
-		if err = json.Unmarshal(b, &value); err != nil {
-			return err
-		}
-		v.V = value.Value
-	case "Type":
-		var value struct{ Value rbxapijson.Type }
-		if err = json.Unmarshal(b, &value); err != nil {
-			return err
-		}
-		v.V = value.Value
-	case "strings":
-		var value struct{ Value []string }
-		if err = json.Unmarshal(b, &value); err != nil {
-			return err
-		}
-		v.V = value.Value
-	case "Parameters":
-		var value struct{ Value []rbxapijson.Parameter }
-		if err = json.Unmarshal(b, &value); err != nil {
-			return err
-		}
-		v.V = value.Value
-	}
-	return nil
-}
-
-func WrapActions(actions []patch.Action) []Action {
-	c := make([]Action, len(actions))
-	for i, action := range actions {
-		c[i] = Action{
-			Type:  action.GetType(),
-			Field: action.GetField(),
-		}
-		if p := action.GetPrev(); p != nil {
-			c[i].Prev = WrapValue(p)
-		}
-		if n := action.GetNext(); n != nil {
-			c[i].Next = WrapValue(n)
-		}
-		switch action := action.(type) {
-		case patch.Member:
-			class := action.GetClass().(*rbxapijson.Class)
-			members := class.Members
-			class.Members = nil
-			c[i].Class = class.Copy().(*rbxapijson.Class)
-			class.Members = members
-
-			c[i].SetMember(action.GetMember().Copy())
-		case patch.Class:
-			if action.GetType() == patch.Change {
-				class := action.GetClass().(*rbxapijson.Class)
-				members := class.Members
-				class.Members = nil
-				c[i].Class = class.Copy().(*rbxapijson.Class)
-				class.Members = members
-			} else {
-				c[i].Class = action.GetClass().Copy().(*rbxapijson.Class)
-			}
-		case patch.EnumItem:
-			enum := action.GetEnum().(*rbxapijson.Enum)
-			items := enum.Items
-			enum.Items = nil
-			c[i].Enum = enum.Copy().(*rbxapijson.Enum)
-			enum.Items = items
-
-			c[i].Item = action.GetItem().Copy().(*rbxapijson.EnumItem)
-		case patch.Enum:
-			if action.GetType() == patch.Change {
-				enum := action.GetEnum().(*rbxapijson.Enum)
-				items := enum.Items
-				enum.Items = nil
-				c[i].Enum = enum.Copy().(*rbxapijson.Enum)
-				enum.Items = items
-
-			} else {
-				c[i].Enum = action.GetEnum().Copy().(*rbxapijson.Enum)
-			}
-		}
-	}
-	return c
-}
-
-func (a *Action) GetClass() rbxapi.Class { return a.Class }
-func (a *Action) GetMember() rbxapi.Member {
-	switch {
-	case a.Property != nil:
-		return a.Property
-	case a.Function != nil:
-		return a.Function
-	case a.Event != nil:
-		return a.Event
-	case a.Callback != nil:
-		return a.Callback
-	}
-	return nil
-}
-func (a *Action) GetEnum() rbxapi.Enum     { return a.Enum }
-func (a *Action) GetItem() rbxapi.EnumItem { return a.Item }
-func (a *Action) GetType() patch.Type      { return a.Type }
-func (a *Action) GetField() string         { return a.Field }
-func (a *Action) GetPrev() interface{} {
-	if a.Prev != nil {
-		return a.Prev.V
-	}
-	return nil
-}
-func (a *Action) GetNext() interface{} {
-	if a.Next != nil {
-		return a.Next.V
-	}
-	return nil
-}
-func (a *Action) String() string { return "Action" }
-
-type ClassEntity struct {
-	Latest  *rbxapijson.Class
-	Patches []Patch
-}
-
-type MemberEntity struct {
-	Latest  rbxapi.Member
-	Patches []Patch
-}
-
-type EnumEntity struct {
-	Latest  *rbxapijson.Enum
-	Patches []Patch
-}
-
-type EnumItemEntity struct {
-	Latest  *rbxapijson.EnumItem
-	Patches []Patch
-}
-
-type TypeEntity struct {
-	Type rbxapijson.Type
-}
-
-type Entities struct {
-	Classes   map[string]*ClassEntity
-	Members   map[[2]string]*MemberEntity
-	Enums     map[string]*EnumEntity
-	EnumItems map[[2]string]*EnumItemEntity
-	Types     map[string]*TypeEntity
-}
-
-const (
-	RootPath            = "ref"
-	ClassPath           = "class"
-	EnumPath            = "enum"
-	TypePath            = "type"
-	FileExt             = ".html"
-	MemberAnchorPrefix  = "member-"
-	SectionAnchorPrefix = "section-"
-)
-
-func generateLink(typ string, iname, imember interface{}) (s string) {
-	name := toString(iname)
-	member := toString(imember)
-retry:
-	for {
-		switch strings.ToLower(typ) {
-		case "index":
-			s = "index" + FileExt
-		case "res":
-			s = path.Join("res", name)
-		case "updates":
-			if name == "" {
-				s = "updates" + FileExt
-			} else {
-				s = path.Join("updates", name+FileExt)
-			}
-		case "class":
-			s = path.Join(ClassPath, url.PathEscape(name)+FileExt)
-		case "member":
-			s = path.Join(ClassPath, url.PathEscape(name)+FileExt) + (&url.URL{Fragment: MemberAnchorPrefix + member}).String()
-		case "enum":
-			s = path.Join(EnumPath, url.PathEscape(name)+FileExt)
-		case "enumitem":
-			s = path.Join(EnumPath, url.PathEscape(name)+FileExt) + (&url.URL{Fragment: MemberAnchorPrefix + member}).String()
-		case "type":
-			switch strings.ToLower(name) {
-			case "class", "enum":
-				typ, name, member = name, member, ""
-				goto retry
-			}
-			s = path.Join(TypePath, url.PathEscape(member)+FileExt)
-		}
-		break
-	}
-	s = path.Join("/", RootPath, s)
-	return s
-}
-
+// Converts a value into a string. Only handles types found in rbxapi
+// structures.
 func toString(v interface{}) string {
 	switch v := v.(type) {
 	case Value:
@@ -415,6 +48,7 @@ func toString(v interface{}) string {
 	return "<unknown value>"
 }
 
+// Generates a list of actions for each member of the element.
 func makeSubactions(action Action) []Action {
 	if class := action.Class; class != nil {
 		actions := make([]Action, len(class.Members))
@@ -440,7 +74,9 @@ func makeSubactions(action Action) []Action {
 	return nil
 }
 
-func makeTemplates(dir string, funcs template.FuncMap) (tmpl *template.Template, err error) {
+// Compiles templates in specified folder as a single template. Templates are
+// named as the file name without the extension.
+func compileTemplates(dir string, funcs template.FuncMap) (tmpl *template.Template, err error) {
 	fis, err := ioutil.ReadDir(dir)
 	if err != nil {
 		return nil, err
@@ -463,120 +99,18 @@ func makeTemplates(dir string, funcs template.FuncMap) (tmpl *template.Template,
 	return
 }
 
-var pages = []func(api *API) error{
-	func(api *API) error {
-		f, err := os.Create(filepath.Join(api.Settings.Output, RootPath, "index.html"))
-		if err != nil {
-			return err
-		}
-		err = api.Templates.ExecuteTemplate(f, "index", api.Latest.Metadata.Hash)
-		f.Close()
-		return err
-	},
-	func(api *API) error {
-		type args struct {
-			Patches []Patch
-			Year    int
-			Years   []int
-		}
-
-		src := api.Patches
-		if len(src) == 0 {
-			f, err := os.Create(filepath.Join(api.Settings.Output, RootPath, "updates.html"))
-			if err != nil {
-				return err
-			}
-			err = api.Templates.ExecuteTemplate(f, "updates", args{})
-			f.Close()
-			return err
-		}
-		src = src[1:]
-		patches := make([]Patch, len(src))
-		for i := len(src) / 2; i >= 0; i-- {
-			j := len(src) - 1 - i
-			patches[i], patches[j] = src[j], src[i]
-		}
-
-		maxYear := patches[0].Metadata.Date.Year()
-		minYear := patches[len(patches)-1].Metadata.Date.Year()
-		patchesByYear := make([][]Patch, maxYear-minYear+1)
-		years := make([]int, maxYear-minYear+1)
-		for i := range years {
-			years[i] = maxYear - i
-		}
-		{
-			i := 0
-			current := maxYear
-			for j, patch := range patches {
-				year := patch.Metadata.Date.Year()
-				if year < current {
-					if j > i {
-						patchesByYear[maxYear-current] = patches[i:j]
-					}
-					current = year
-					i = j
-				}
-			}
-			if len(patches) > i {
-				patchesByYear[maxYear-current] = patches[i:]
-			}
-		}
-		{
-			i := len(patches)
-			epoch := patches[0].Metadata.Date.AddDate(0, -3, 0)
-			for j, patch := range patches {
-				if patch.Metadata.Date.Before(epoch) {
-					i = j - 1
-					break
-				}
-			}
-			f, err := os.Create(filepath.Join(api.Settings.Output, RootPath, "updates.html"))
-			if err != nil {
-				return err
-			}
-			err = api.Templates.ExecuteTemplate(f, "updates", args{patches[:i], 0, years})
-			f.Close()
-			if err != nil {
-				return err
-			}
-		}
-		if err := os.MkdirAll(filepath.Join(api.Settings.Output, RootPath, "updates"), 0666); err != nil {
-			return err
-		}
-		for i, patches := range patchesByYear {
-			year := maxYear - i
-			f, err := os.Create(filepath.Join(api.Settings.Output, RootPath, "updates", strconv.Itoa(year)+".html"))
-			if err != nil {
-				return err
-			}
-			err = api.Templates.ExecuteTemplate(f, "updates", args{patches, year, years})
-			f.Close()
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	},
-}
-
 func main() {
 	spew.Config.DisableMethods = true
 	spew.Config.DisablePointerMethods = true
 	spew.Config.DisablePointerAddresses = true
 	spew.Config.Indent = "\t"
 
-	api := &API{
-		Entities: &Entities{
-			Classes:   make(map[string]*ClassEntity),
-			Members:   make(map[[2]string]*MemberEntity),
-			Enums:     make(map[string]*EnumEntity),
-			EnumItems: make(map[[2]string]*EnumItemEntity),
-			Types:     make(map[string]*TypeEntity),
-		},
-	}
+	// Initialize root.
+	data := &Data{}
 
+	// Load settings.
 	if f, err := os.Open("settings.json"); err == nil {
-		err := json.NewDecoder(f).Decode(&api.Settings)
+		err := json.NewDecoder(f).Decode(&data.Settings)
 		f.Close()
 		if err != nil {
 			fmt.Println(err)
@@ -584,10 +118,11 @@ func main() {
 		}
 	}
 
+	// Load cache.
 	client := &fetch.Client{}
 	prevPatches := []Patch{}
 	{
-		f, err := os.Open(filepath.Join(api.Settings.Output, RootPath, "patches.json"))
+		f, err := os.Open(filepath.Join(data.Settings.Output, data.Settings.Root, "patches.json"))
 		if err == nil {
 			err = json.NewDecoder(f).Decode(&prevPatches)
 			f.Close()
@@ -597,112 +132,131 @@ func main() {
 			}
 		}
 	}
-	// fmt.Println("== PATCHES ================================")
-	// spew.Dump(prevPatches)
 
+	// Load builds.
 	client.CacheMode = fetch.CacheNone
 	builds := []Build{}
-	for _, cfg := range api.Settings.UseConfigs {
-		client.Config = api.Settings.Configs[cfg]
+	for _, cfg := range data.Settings.UseConfigs {
+		client.Config = data.Settings.Configs[cfg]
 		bs, err := client.Builds()
 		if err != nil {
 			fmt.Println(cfg, "error fetching builds:", err)
 			return
 		}
 		for _, b := range bs {
-			builds = append(builds, Build{Config: cfg, Metadata: Metadata(b)})
+			builds = append(builds, Build{Config: cfg, Info: BuildInfo(b)})
 		}
 	}
 	client.CacheMode = fetch.CacheTemp
-	// fmt.Println("== BUILDS ================================")
-	// spew.Dump(builds)
 
+	// Fetch uncached builds.
 loop:
 	for _, build := range builds {
 		for _, patch := range prevPatches {
-			if !build.Metadata.Equal(patch.Metadata) {
+			if !build.Info.Equal(patch.Info) {
 				// Not relevant; skip.
 				continue
 			}
 			// Current build has a cached version.
-			if api.Latest == nil {
+			if data.Latest == nil {
 				if patch.Prev != nil {
 					// Cached build is now the first, but was not originally;
 					// actions are stale.
-					fmt.Println("== STALE ", patch.Metadata)
+					fmt.Println("== STALE ", patch.Info)
 					break
 				}
 			} else {
 				if patch.Prev == nil {
 					// Cached build was not originally the first, but now is;
 					// actions are stale.
-					fmt.Println("== STALE ", patch.Metadata)
+					fmt.Println("== STALE ", patch.Info)
 					break
 				}
-				if !api.Latest.Metadata.Equal(*patch.Prev) {
+				if !data.Latest.Info.Equal(*patch.Prev) {
 					// Latest build does not match previous build; actions are
 					// stale.
-					fmt.Println("== STALE ", patch.Metadata)
+					fmt.Println("== STALE ", patch.Info)
 					break
 				}
 			}
 			// Cached actions are still fresh; set them directly.
-			api.Patches = append(api.Patches, patch)
-			api.Latest = &Build{Metadata: patch.Metadata, Config: patch.Config}
-			fmt.Println("== CACHED ", patch.Metadata)
+			data.Patches = append(data.Patches, patch)
+			data.Latest = &Build{Info: patch.Info, Config: patch.Config}
 			continue loop
 		}
-		fmt.Println("== NEW ", build.Metadata)
-		client.Config = api.Settings.Configs[build.Config]
-		root, err := client.APIDump(build.Metadata.Hash)
+		fmt.Println("== NEW ", build.Info)
+		client.Config = data.Settings.Configs[build.Config]
+		root, err := client.APIDump(build.Info.Hash)
 		if err != nil {
-			fmt.Println(build.Config, "failed to get build ", build.Metadata.Hash, err)
+			fmt.Println(build.Config, "failed to get build ", build.Info.Hash, err)
 			continue
 		}
 		build.API = root
 		var actions []Action
-		if api.Latest == nil {
+		if data.Latest == nil {
 			// First build; compare with nothing.
 			actions = WrapActions((&diff.Diff{Prev: nil, Next: build.API}).Diff())
 		} else {
-			if api.Latest.API == nil {
+			if data.Latest.API == nil {
 				// Previous build was cached; fetch its data to compare with
 				// current build.
-				client.Config = api.Settings.Configs[api.Latest.Config]
-				root, err := client.APIDump(api.Latest.Metadata.Hash)
+				client.Config = data.Settings.Configs[data.Latest.Config]
+				root, err := client.APIDump(data.Latest.Info.Hash)
 				if err != nil {
-					fmt.Println(api.Latest.Config, "failed to get build ", api.Latest.Metadata.Hash, err)
+					fmt.Println(data.Latest.Config, "failed to get build ", data.Latest.Info.Hash, err)
 					continue
 				}
-				api.Latest.API = root
+				data.Latest.API = root
 			}
-			actions = WrapActions((&diff.Diff{Prev: api.Latest.API, Next: build.API}).Diff())
+			actions = WrapActions((&diff.Diff{Prev: data.Latest.API, Next: build.API}).Diff())
 		}
-		patch := Patch{Metadata: build.Metadata, Config: build.Config, Actions: actions}
-		if api.Latest != nil {
-			prev := api.Latest.Metadata
+		patch := Patch{Stale: true, Info: build.Info, Config: build.Config, Actions: actions}
+		if data.Latest != nil {
+			prev := data.Latest.Info
 			patch.Prev = &prev
 		}
-		api.Patches = append(api.Patches, patch)
+		data.Patches = append(data.Patches, patch)
 		b := build
-		api.Latest = &b
+		data.Latest = &b
 	}
 	// Ensure that the latest API is present.
-	if api.Latest.API == nil {
-		client.Config = api.Settings.Configs[api.Latest.Config]
-		root, err := client.APIDump(api.Latest.Metadata.Hash)
+	if data.Latest.API == nil {
+		client.Config = data.Settings.Configs[data.Latest.Config]
+		root, err := client.APIDump(data.Latest.Info.Hash)
 		if err != nil {
-			fmt.Println(api.Latest.Config, "failed to get build ", api.Latest.Metadata.Hash, err)
+			fmt.Println(data.Latest.Config, "failed to get build ", data.Latest.Info.Hash, err)
 			return
 		}
-		api.Latest.API = root
+		data.Latest.API = root
 	}
 
+	data.GenerateEntities()
+	data.GenerateTree()
+
+	// Compile templates.
 	var err error
-	api.Templates, err = makeTemplates("templates", template.FuncMap{
-		"link":       generateLink,
+	data.Templates, err = compileTemplates("templates", template.FuncMap{
+		"link": func(linkType string, args ...interface{}) string {
+			sargs := make([]string, len(args))
+			for i, arg := range args {
+				switch arg := arg.(type) {
+				case int:
+					sargs[i] = strconv.Itoa(arg)
+				default:
+					sargs[i] = arg.(string)
+				}
+			}
+			return data.FileLink(linkType, sargs...)
+		},
 		"tostring":   toString,
 		"subactions": makeSubactions,
+		"subclasses": func(name string) []string {
+			node := data.Tree[name]
+			if node == nil {
+				return nil
+			}
+			return node.Sub
+		},
 		"type": func(v interface{}) string {
 			return reflect.TypeOf(v).String()
 		},
@@ -718,15 +272,22 @@ loop:
 		return
 	}
 
+	// Generate pages.
+	pages := []func(*Data) error{
+		GenerateIndexPage,
+		GenerateUpdatesPage,
+		GenerateRefPage,
+	}
 	for _, page := range pages {
-		if err := page(api); err != nil {
+		if err := page(data); err != nil {
 			fmt.Println(err)
 			return
 		}
 	}
 
+	// Save cache.
 	{
-		f, err := os.Create(filepath.Join(api.Settings.Output, RootPath, "patches.json"))
+		f, err := os.Create(filepath.Join(data.Settings.Output, data.Settings.Root, "patches.json"))
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -734,7 +295,7 @@ loop:
 		je := json.NewEncoder(f)
 		je.SetEscapeHTML(false)
 		je.SetIndent("", "\t")
-		err = je.Encode(api.Patches)
+		err = je.Encode(data.Patches)
 		f.Close()
 		if err != nil {
 			fmt.Println(err)
