@@ -707,6 +707,9 @@ loop:
 			return reflect.TypeOf(v).String()
 		},
 		"istype": func(v interface{}, t string) bool {
+			if v == nil {
+				return "nil" == t
+			}
 			return reflect.TypeOf(v).String() == t
 		},
 	})
