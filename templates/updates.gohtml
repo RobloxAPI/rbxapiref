@@ -122,7 +122,7 @@
 		<ul>
 		{{- $year := .Year -}}
 		{{- if $year }}
-			<li><a href="{{link "updates" "" ""}}">Recent</a></li>
+			<li><a href="{{link "updates"}}">Recent</a></li>
 		{{- else }}
 			<li class="current">Recent</li>
 		{{- end -}}
@@ -130,7 +130,7 @@
 		{{- if eq $year . }}
 			<li class="current">{{.}}</li>
 		{{- else }}
-			<li><a href="{{link "updates" . ""}}">{{.}}</a></li>
+			<li><a href="{{link "updates" .}}">{{.}}</a></li>
 		{{- end -}}
 		{{- end }}
 		</ul>
