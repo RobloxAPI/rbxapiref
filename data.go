@@ -181,7 +181,7 @@ func (data *Data) GenerateEntities() {
 			ID:      enum.Name,
 			Element: enum,
 		}
-		for _, item := range enum.Items {
+		for _, item := range enum.EnumItems {
 			id := [2]string{enum.Name, item.Name}
 			if data.Entities.EnumItems[id] != nil {
 				continue
@@ -344,7 +344,7 @@ type Action struct {
 	Event    *rbxapijson.Event    `json:",omitempty"`
 	Callback *rbxapijson.Callback `json:",omitempty"`
 	Enum     *rbxapijson.Enum     `json:",omitempty"`
-	Item     *rbxapijson.EnumItem `json:",omitempty"`
+	EnumItem *rbxapijson.EnumItem `json:",omitempty"`
 	Field    string               `json:",omitempty"`
 	Prev     *Value               `json:",omitempty"`
 	Next     *Value               `json:",omitempty"`
@@ -384,19 +384,19 @@ func WrapActions(actions []patch.Action) []Action {
 			}
 		case patch.EnumItem:
 			enum := action.GetEnum().(*rbxapijson.Enum)
-			items := enum.Items
-			enum.Items = nil
+			items := enum.EnumItems
+			enum.EnumItems = nil
 			c[i].Enum = enum.Copy().(*rbxapijson.Enum)
-			enum.Items = items
+			enum.EnumItems = items
 
-			c[i].Item = action.GetItem().Copy().(*rbxapijson.EnumItem)
+			c[i].EnumItem = action.GetEnumItem().Copy().(*rbxapijson.EnumItem)
 		case patch.Enum:
 			if action.GetType() == patch.Change {
 				enum := action.GetEnum().(*rbxapijson.Enum)
-				items := enum.Items
-				enum.Items = nil
+				items := enum.EnumItems
+				enum.EnumItems = nil
 				c[i].Enum = enum.Copy().(*rbxapijson.Enum)
-				enum.Items = items
+				enum.EnumItems = items
 
 			} else {
 				c[i].Enum = action.GetEnum().Copy().(*rbxapijson.Enum)
@@ -443,10 +443,10 @@ func (a *Action) SetMember(member rbxapi.Member) {
 		a.Callback = member
 	}
 }
-func (a *Action) GetEnum() rbxapi.Enum     { return a.Enum }
-func (a *Action) GetItem() rbxapi.EnumItem { return a.Item }
-func (a *Action) GetType() patch.Type      { return a.Type }
-func (a *Action) GetField() string         { return a.Field }
+func (a *Action) GetEnum() rbxapi.Enum         { return a.Enum }
+func (a *Action) GetEnumItem() rbxapi.EnumItem { return a.EnumItem }
+func (a *Action) GetType() patch.Type          { return a.Type }
+func (a *Action) GetField() string             { return a.Field }
 func (a *Action) GetPrev() interface{} {
 	if a.Prev != nil {
 		return a.Prev.V
