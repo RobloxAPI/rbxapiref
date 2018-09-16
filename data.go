@@ -33,11 +33,18 @@ type Data struct {
 
 	Entities *Entities
 	Removed  *Entities
+	Types    []rbxapijson.Type
+	TypeList []TypeCategory
 
 	Tree      map[string]*TreeNode
 	TreeRoots []string
 
 	Templates *template.Template
+}
+
+type TypeCategory struct {
+	Name  string
+	Types []rbxapijson.Type
 }
 
 // FileLink generates a URL, relative to an arbitrary host.
@@ -99,27 +106,119 @@ func (data *Data) PathFromLink(l string) string {
 	return filepath.Join(data.Settings.Output, l)
 }
 
+func addType(types map[string]rbxapijson.Type, t rbxapijson.Type) {
+	switch t.Category {
+	case "Class", "Enum":
+		return
+	}
+	if _, ok := types[t.Name]; ok {
+		return
+	}
+	types[t.Name] = t
+}
+
 func (data *Data) GenerateEntities() {
 	data.Entities = &Entities{
 		Classes:   make(map[string]*ClassEntity),
 		Members:   make(map[[2]string]*MemberEntity),
 		Enums:     make(map[string]*EnumEntity),
 		EnumItems: make(map[[2]string]*EnumItemEntity),
-		Types:     make(map[string]*TypeEntity),
 	}
 	data.Removed = &Entities{
 		Classes:   make(map[string]*ClassEntity),
 		Members:   make(map[[2]string]*MemberEntity),
 		Enums:     make(map[string]*EnumEntity),
 		EnumItems: make(map[[2]string]*EnumItemEntity),
-		Types:     make(map[string]*TypeEntity),
 	}
+	types := map[string]rbxapijson.Type{}
 
 	for _, class := range data.Latest.API.Classes {
+		if data.Entities.Classes[class.Name] != nil {
+			continue
+		}
 		data.Entities.Classes[class.Name] = &ClassEntity{
 			ID:      class.Name,
 			Element: class,
 		}
+		for _, member := range class.Members {
+			id := [2]string{class.Name, member.GetName()}
+			if data.Entities.Members[id] != nil {
+				continue
+			}
+			data.Entities.Members[id] = &MemberEntity{
+				ID:      id,
+				Element: member,
+			}
+			switch member.GetMemberType() {
+			case "Property":
+				member := member.(*rbxapijson.Property)
+				addType(types, member.ValueType)
+			case "Function":
+				member := member.(*rbxapijson.Function)
+				addType(types, member.ReturnType)
+				for _, p := range member.Parameters {
+					addType(types, p.Type)
+				}
+			case "Event":
+				member := member.(*rbxapijson.Event)
+				for _, p := range member.Parameters {
+					addType(types, p.Type)
+				}
+			case "Callback":
+				member := member.(*rbxapijson.Callback)
+				addType(types, member.ReturnType)
+				for _, p := range member.Parameters {
+					addType(types, p.Type)
+				}
+			}
+		}
+	}
+	for _, enum := range data.Latest.API.Enums {
+		if data.Entities.Enums[enum.Name] != nil {
+			continue
+		}
+		data.Entities.Enums[enum.Name] = &EnumEntity{
+			ID:      enum.Name,
+			Element: enum,
+		}
+		for _, item := range enum.Items {
+			id := [2]string{enum.Name, item.Name}
+			if data.Entities.EnumItems[id] != nil {
+				continue
+			}
+			data.Entities.EnumItems[id] = &EnumItemEntity{
+				ID:      id,
+				Element: item,
+			}
+		}
+	}
+
+	data.Types = make([]rbxapijson.Type, 0, len(types))
+	data.TypeList = []TypeCategory{}
+loop:
+	for _, t := range types {
+		data.Types = append(data.Types, t)
+		for i, cat := range data.TypeList {
+			if cat.Name == t.Category {
+				data.TypeList[i].Types = append(data.TypeList[i].Types, t)
+				continue loop
+			}
+		}
+		data.TypeList = append(data.TypeList, TypeCategory{
+			Name:  t.Category,
+			Types: []rbxapijson.Type{t},
+		})
+	}
+	sort.Slice(data.Types, func(i, j int) bool {
+		return data.Types[i].Name < data.Types[j].Name
+	})
+	sort.Slice(data.TypeList, func(i, j int) bool {
+		return data.TypeList[i].Name < data.TypeList[j].Name
+	})
+	for _, cat := range data.TypeList {
+		sort.Slice(cat.Types, func(i, j int) bool {
+			return cat.Types[i].Name < cat.Types[j].Name
+		})
 	}
 }
 
@@ -211,7 +310,6 @@ type Entities struct {
 	Members   map[[2]string]*MemberEntity
 	Enums     map[string]*EnumEntity
 	EnumItems map[[2]string]*EnumItemEntity
-	Types     map[string]*TypeEntity
 }
 
 type ClassEntity struct {
@@ -236,11 +334,6 @@ type EnumItemEntity struct {
 	ID      [2]string
 	Element *rbxapijson.EnumItem
 	Patches []Patch
-}
-
-type TypeEntity struct {
-	ID   string
-	Type rbxapijson.Type
 }
 
 type Action struct {

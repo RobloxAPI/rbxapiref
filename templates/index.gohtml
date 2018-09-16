@@ -45,5 +45,21 @@
 			{{- end }}
 		</ul>
 	</article>
+	<article id="types">
+		<header>
+			<h2>Types</h2>
+		</header>
+		<ul id="type-list">
+		{{- range .TypeList }}
+			<li>{{.Name}}
+				<ul>
+				{{- range .Types }}
+					<li>{{template "value" .}}</li>
+				{{- end }}
+				</ul>
+			</li>
+		{{- end }}
+		</ul>
+	</article>
 </body>
 </html>
