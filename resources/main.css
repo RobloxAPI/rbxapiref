@@ -1,0 +1,39 @@
+.member-list .col-type,
+.member-list .col-icon {
+	text-align: right;
+}
+.member-list .col-member {
+	text-align: left;
+}
+
+.class-icon,
+.member-icon,
+.enum-icon,
+.enum-item-icon {
+	display        : inline-block;
+	vertical-align : middle;
+	height         : 16px;
+	width          : 16px;
+}
+.class-icon {
+	background-image : url('/ref/res/icon-explorer.png');
+	/* background-position sets icon offset */
+}
+.member-icon {
+	background-image : url('/ref/res/icon-objectbrowser.png');
+	/* background-position sets icon offset */
+}
+.enum-icon {
+	background-image    : url('/ref/res/icon-objectbrowser.png');
+	background-position : -144px;
+}
+.enum-item-icon {
+	background-image    : url('/ref/res/icon-objectbrowser.png');
+	background-position : -160px;
+}
+.element-link .class-icon,
+.element-link .member-icon,
+.element-link .enum-icon,
+.element-link .enum-item-icon {
+	margin-right: 0.5ch;
+}

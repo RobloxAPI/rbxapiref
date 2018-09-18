@@ -7,11 +7,13 @@ import (
 	"github.com/robloxapi/rbxapi/patch"
 	"github.com/robloxapi/rbxapi/rbxapijson"
 	"github.com/robloxapi/rbxapiref/fetch"
+	"github.com/robloxapi/rbxfile"
 	"html/template"
 	"net/url"
 	"path"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -28,11 +30,11 @@ const (
 type Data struct {
 	Settings Settings
 
-	Patches []Patch
-	Latest  *Build
+	Patches  []Patch
+	Latest   *Build
+	Metadata ReflectionMetadata
 
 	Entities *Entities
-	Removed  *Entities
 	Types    []rbxapijson.Type
 	TypeList []TypeCategory
 
@@ -55,7 +57,7 @@ retry:
 		case "index":
 			s = "index" + FileExt
 		case "res":
-			s = path.Join("res", args[0])
+			s = path.Join("res", path.Join(args...))
 		case "updates":
 			if len(args) > 0 {
 				s = path.Join("updates", args[0]+FileExt)
@@ -65,8 +67,12 @@ retry:
 		case "class":
 			s = path.Join(ClassPath, url.PathEscape(args[0])+FileExt)
 		case "member":
-			s = path.Join(ClassPath, url.PathEscape(args[0])+FileExt) +
-				(&url.URL{Fragment: MemberAnchorPrefix + args[1]}).String()
+			if len(args) == 1 {
+				return (&url.URL{Fragment: MemberAnchorPrefix + args[0]}).String()
+			} else if len(args) == 2 {
+				s = path.Join(ClassPath, url.PathEscape(args[0])+FileExt) +
+					(&url.URL{Fragment: MemberAnchorPrefix + args[1]}).String()
+			}
 		case "enum":
 			s = path.Join(EnumPath, url.PathEscape(args[0])+FileExt)
 		case "enumitem":
@@ -106,6 +112,90 @@ func (data *Data) PathFromLink(l string) string {
 	return filepath.Join(data.Settings.Output, l)
 }
 
+const IconSize = 16
+
+var memberIconIndex = map[string]int{
+	"Property": 6,
+	"Function": 4,
+	"Event":    11,
+	"Callback": 16,
+}
+
+func (data *Data) Icon(v ...interface{}) template.HTML {
+	if len(v) == 0 {
+		return ""
+	}
+	var class string
+	var title string
+	var index int
+	switch value := v[0].(type) {
+	case string:
+		switch strings.ToLower(value) {
+		case "class":
+			class = "class-icon"
+			title = "Class"
+			meta, ok := data.Metadata.Classes[v[1].(string)]
+			if !ok {
+				goto finish
+			}
+			index = meta.ExplorerImageIndex
+		case "enum":
+			class = "enum-icon"
+			title = "Enum"
+			index = -1
+		case "enumitem":
+			class = "enum-item-icon"
+			title = "EnumItem"
+			index = -1
+		}
+	case *rbxapijson.Class:
+		class = "class-icon"
+		title = "Class"
+		meta, ok := data.Metadata.Classes[value.Name]
+		if !ok {
+			goto finish
+		}
+		index = meta.ExplorerImageIndex
+	case rbxapi.Member:
+		class = "member-icon"
+		title = value.GetMemberType()
+		index = memberIconIndex[title]
+		if len(v) > 1 && v[1].(bool) == false {
+			goto finish
+		}
+		switch v := value.(type) {
+		case interface{ GetSecurity() (string, string) }:
+			r, w := v.GetSecurity()
+			if (r != "" && r != "None") || (w != "" && w != "None") {
+				title = "Protected " + title
+				index++
+			}
+		case interface{ GetSecurity() string }:
+			s := v.GetSecurity()
+			if s != "" && s != "None" {
+				title = "Protected " + title
+				index++
+			}
+		}
+	case *rbxapijson.Enum:
+		class = "enum-icon"
+		title = "Enum"
+		index = -1
+	case *rbxapijson.EnumItem:
+		class = "enum-item-icon"
+		title = "EnumItem"
+		index = -1
+	}
+finish:
+	var style string
+	if index >= 0 {
+		const body = `<span class="%s" style="background-position: %dpx"></span>`
+		style = fmt.Sprintf(` style="background-position: %dpx"`, -index*16)
+	}
+	const body = `<span class="%s" title="%s"%s></span>`
+	return template.HTML(fmt.Sprintf(body, template.HTMLEscapeString(class), template.HTMLEscapeString(title), style))
+}
+
 func addType(types map[string]rbxapijson.Type, t rbxapijson.Type) {
 	switch t.Category {
 	case "Class", "Enum":
@@ -119,12 +209,6 @@ func addType(types map[string]rbxapijson.Type, t rbxapijson.Type) {
 
 func (data *Data) GenerateEntities() {
 	data.Entities = &Entities{
-		Classes:   make(map[string]*ClassEntity),
-		Members:   make(map[[2]string]*MemberEntity),
-		Enums:     make(map[string]*EnumEntity),
-		EnumItems: make(map[[2]string]*EnumItemEntity),
-	}
-	data.Removed = &Entities{
 		Classes:   make(map[string]*ClassEntity),
 		Members:   make(map[[2]string]*MemberEntity),
 		Enums:     make(map[string]*EnumEntity),
@@ -316,24 +400,28 @@ type ClassEntity struct {
 	ID      string
 	Element *rbxapijson.Class
 	Patches []Patch
+	Removed bool
 }
 
 type MemberEntity struct {
 	ID      [2]string
 	Element rbxapi.Member
 	Patches []Patch
+	Removed bool
 }
 
 type EnumEntity struct {
 	ID      string
 	Element *rbxapijson.Enum
 	Patches []Patch
+	Removed bool
 }
 
 type EnumItemEntity struct {
 	ID      [2]string
 	Element *rbxapijson.EnumItem
 	Patches []Patch
+	Removed bool
 }
 
 type Action struct {
@@ -566,4 +654,68 @@ func (v *Value) UnmarshalJSON(b []byte) (err error) {
 		v.V = value.Value
 	}
 	return nil
+}
+
+type ReflectionMetadata struct {
+	Classes map[string]ClassMetadata
+	Enums   map[string]EnumMetadata
+}
+
+type ItemMetadata struct {
+	Name string
+	// Browsable       bool
+	// ClassCategory   string
+	// Constraint      string
+	// Deprecated      bool
+	// EditingDisabled bool
+	// IsBackend       bool
+	// ScriptContext   string
+	// UIMaximum       float64
+	// UIMinimum       float64
+	// UINumTicks      float64
+	// Summary         string
+}
+
+type ClassMetadata struct {
+	ItemMetadata
+	ExplorerImageIndex int
+	// ExplorerOrder      int
+	// Insertable         bool
+	// PreferredParent    string
+	// PreferredParents   string
+}
+
+type EnumMetadata struct {
+	ItemMetadata
+}
+
+func getMetadataValue(p interface{}, v rbxfile.Value) {
+	switch p := p.(type) {
+	case *int:
+		switch v := v.(type) {
+		case rbxfile.ValueInt:
+			*p = int(v)
+		case rbxfile.ValueString:
+			*p, _ = strconv.Atoi(string(v))
+		}
+	}
+}
+
+func (data *Data) GenerateMetadata(rmd *rbxfile.Root) {
+	data.Metadata.Classes = make(map[string]ClassMetadata)
+	data.Metadata.Enums = make(map[string]EnumMetadata)
+	for _, list := range rmd.Instances {
+		switch list.ClassName {
+		case "ReflectionMetadataClasses":
+			for _, class := range list.Children {
+				if class.ClassName != "ReflectionMetadataClass" {
+					continue
+				}
+				meta := ClassMetadata{ItemMetadata: ItemMetadata{Name: class.Name()}}
+				getMetadataValue(&meta.ExplorerImageIndex, class.Properties["ExplorerImageIndex"])
+				data.Metadata.Classes[meta.Name] = meta
+			}
+		case "ReflectionMetadataEnums":
+		}
+	}
 }

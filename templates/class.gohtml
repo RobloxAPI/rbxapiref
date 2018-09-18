@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+	<meta charset="utf-8">
+	<title>{{.Name}}</title>
+	<link href="{{link "res" "main.css"}}" rel="stylesheet" type="text/css" />
+</head>
+<body>
+	<header>
+		<h1>{{icon .Entity.Element}}{{.Name}}</h1>
+	</header>
+{{- if .Superclasses }}
+	<aside>
+		<header>
+			<h2>Inherits</h2>
+		</header>
+		<ul>
+		{{- range .Superclasses }}
+			<li><a class="element-link" href="{{link "class" .}}">{{icon "class" .}}{{.}}</a></li>
+		{{- end }}
+		</ul>
+	</aside>
+{{- end }}
+{{- if .Subclasses }}
+	<aside>
+		<header>
+			<h2>Inherited by</h2>
+		</header>
+		<ul>
+		{{- range .Subclasses }}
+			<li><a class="element-link" href="{{link "class" .}}">{{icon "class" .}}{{.}}</a></li>
+		{{- end }}
+		</ul>
+	</aside>
+{{- end }}
+	<article>
+		<section>
+			<h2>Members</h2>
+		{{- with (index .Members 0).Members}}
+			<table class="member-list">
+				<tr>
+					<th class="col-type">Type</th>
+					<th class="col-icon"></th>
+					<th class="col-member">Member</th>
+				</tr>
+			{{- range . }}
+				<tr>
+				{{if eq .GetMemberType "Property"}}
+					<td class="col-type col-property">{{template "value" .ValueType}}</td>
+					<td class="col-icon col-property">{{icon .}}</td>
+					<td class="col-member col-property {{if .GetTag "Deprecated"}}deprecated{{end}}"><a href="{{link "member" .Name}}">{{.Name}}</a></td>
+				{{else if eq .GetMemberType "Function"}}
+					<td class="col-type col-function">{{template "value" .ReturnType}}</td>
+					<td class="col-icon col-function">{{icon .}}</td>
+					<td class="col-member col-function {{if .GetTag "Deprecated"}}deprecated{{end}}"><a href="{{link "member" .Name}}">{{.Name}}</a> {{template "value" .Parameters}}</td>
+				{{else if eq .GetMemberType "Event"}}
+					<td class="col-type col-event"></td>
+					<td class="col-icon col-event">{{icon .}}</td>
+					<td class="col-member col-event {{if .GetTag "Deprecated"}}deprecated{{end}}"><a href="{{link "member" .Name}}">{{.Name}}</a> {{template "value" .Parameters}}</td>
+				{{else if eq .GetMemberType "Callback"}}
+					<td class="col-type col-callback">{{template "value" .ReturnType}}</td>
+					<td class="col-icon col-callback">{{icon .}}</td>
+					<td class="col-member col-callback {{if .GetTag "Deprecated"}}deprecated{{end}}"><a href="{{link "member" .Name}}">{{.Name}}</a> {{template "value" .Parameters}}</td>
+				{{end}}
+				</tr>
+			{{- end }}
+			</table>
+		{{- end }}
+		{{- if gt (len .Members) 1}}
+			<ul class="inherited-member-list">
+			{{- range $i, $section := .Members }}
+			{{- if $i }}
+				<li>{{len $section.Members}} member{{if gt (len $section.Members) 1}}s{{end}} inherited from <a class="element-link" href="{{link "class" $section.Class}}">{{icon "class" $section.Class}}{{$section.Class}}</a></li>
+			{{- end -}}
+			{{- end }}
+			</ul>
+		{{- end }}
+		</section>
+	</article>
+</body>
+</html>

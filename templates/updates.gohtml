@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<title>Roblox Lua API Updates</title>
-	<link href="{{link "res" "root.css" ""}}" rel="stylesheet" type="text/css" />
+	<link href="{{link "res" "main.css"}}" rel="stylesheet" type="text/css" />
 	<style id="updates-style">
 		li[diff-field="Parameters"] .diff-values {
 			display: table;
@@ -40,7 +40,6 @@
 			display: none;
 		}
 	</style>
-	<script src="{{link "res" "root.js" ""}}" charset="utf-8"></script>
 	<script>
 		function toggleList(event) {
 			var parent = event.target.closest(".update");
@@ -149,39 +148,39 @@
 						<li{{if .Field}} diff-field="{{.Field}}"{{end}}>
 						{{- if and .Class .GetMember -}}
 						{{- if eq .Type 0 -}}
-							{{.Type.String}} field {{.Field}} of {{.GetMember.GetMemberType}} <a href="{{link "member" .Class.GetName .GetMember.GetName}}">{{.Class.GetName}}.{{.GetMember.GetName}}</a>
+							{{.Type.String}} {{.Field}} of <a class="element-link" href="{{link "member" .Class.GetName .GetMember.GetName}}">{{icon .GetMember false}}{{.Class.GetName}}.{{.GetMember.GetName}}</a>
 							<span class="diff-values"><span><span>from</span> <span>{{template "value" .GetPrev}}</span></span> <span><span>to</span> <span>{{template "value" .GetNext}}</span></span></span>
 						{{- else -}}
-							{{.Type.String}} {{.GetMember.GetMemberType}} <a href="{{link "member" .Class.Name .GetMember.GetName}}">{{.Class.Name}}.{{.GetMember.GetName}}</a>
+							{{.Type.String}} <a class="element-link" href="{{link "member" .Class.Name .GetMember.GetName}}">{{icon .GetMember}}{{.Class.Name}}.{{.GetMember.GetName}}</a>
 						{{- end -}}
 						{{- else if .Class -}}
 						{{- if eq .Type 0 -}}
-							{{.Type.String}} field {{.Field}} of Class <a href="{{link "class" .Class.Name}}">{{.Class.Name}}</a>
+							{{.Type.String}} {{.Field}} of <a class="element-link" href="{{link "class" .Class.Name}}">{{icon .Class false}}{{.Class.Name}}</a>
 							<span class="diff-values"><span><span>from</span> <span>{{template "value" .GetPrev}}</span></span> <span><span>to</span> <span>{{template "value" .GetNext}}</span></span></span>
 						{{- else -}}
-							{{.Type.String}} Class <a href="{{link "class" .Class.Name}}">{{.Class.Name}}</a>
+							{{.Type.String}} <a class="element-link" href="{{link "class" .Class.Name}}">{{icon .Class}}{{.Class.Name}}</a>
 							<ul>
 							{{- range subactions . }}
-								<li>{{.Type.String}} {{.GetMember.GetMemberType}} <a href="{{link "member" .Class.Name .GetMember.GetName}}">{{.GetMember.GetName}}</a></li>
+								<li>{{.Type.String}} <a class="element-link" href="{{link "member" .Class.Name .GetMember.GetName}}">{{icon .GetMember}}{{.GetMember.GetName}}</a></li>
 							{{- end}}
 							</ul>
 						{{- end -}}
-						{{- else if and .Enum .Item -}}
+						{{- else if and .Enum .EnumItem -}}
 						{{- if eq .Type 0 -}}
-							{{.Type.String}} field {{.Field}} of EnumItem <a href="{{link "enumitem" .Enum.Name .Item.Name}}">{{.Enum.Name}}.{{.Item.Name}}</a>
+							{{.Type.String}} {{.Field}} of <a class="element-link" href="{{link "enumitem" .Enum.Name .EnumItem.Name}}">{{icon .EnumItem false}}{{.Enum.Name}}.{{.EnumItem.Name}}</a>
 							<span class="diff-values"><span><span>from</span> <span>{{template "value" .GetPrev}}</span></span> <span><span>to</span> <span>{{template "value" .GetNext}}</span></span></span>
 						{{- else -}}
-							{{.Type.String}} EnumItem <a href="{{link "enumitem" .Enum.Name .Item.Name}}">{{.Enum.Name}}.{{.Item.Name}}</a>
+							{{.Type.String}} <a class="element-link" href="{{link "enumitem" .Enum.Name .EnumItem.Name}}">{{icon .EnumItem}}{{.Enum.Name}}.{{.EnumItem.Name}}</a>
 						{{- end -}}
 						{{- else if .Enum -}}
 						{{- if eq .Type 0 -}}
-							{{.Type.String}} field {{.Field}} of Enum <a href="{{link "enum" .Enum.Name ""}}">{{.Enum.Name}}</a>
+							{{.Type.String}} {{.Field}} of <a class="element-link" href="{{link "enum" .Enum.Name}}">{{icon .Enum false}}{{.Enum.Name}}</a>
 							<span class="diff-values"><span><span>from</span> <span>{{template "value" .GetPrev}}</span></span> <span><span>to</span> <span>{{template "value" .GetNext}}</span></span></span>
 						{{- else -}}
-							{{.Type.String}} Enum <a href="{{link "enum" .Enum.Name ""}}">{{.Enum.Name}}</a>
+							{{.Type.String}} <a class="element-link" href="{{link "enum" .Enum.Name}}">{{icon .Enum}}{{.Enum.Name}}</a>
 							<ul>
 							{{- range subactions . }}
-								<li>{{.Type.String}} EnumItem <a href="{{link "enumitem" .Enum.Name .Item.Name}}">{{.Item.Name}}</a></li>
+								<li>{{.Type.String}} <a class="element-link" href="{{link "enumitem" .Enum.Name .EnumItem.Name}}">{{icon .EnumItem}}{{.EnumItem.Name}}</a></li>
 							{{- end}}
 							</ul>
 						{{- end -}}

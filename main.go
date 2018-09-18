@@ -8,6 +8,7 @@ import (
 	"github.com/robloxapi/rbxapi/rbxapijson/diff"
 	"github.com/robloxapi/rbxapiref/fetch"
 	"html/template"
+	"image/png"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -162,20 +163,20 @@ loop:
 				if patch.Prev != nil {
 					// Cached build is now the first, but was not originally;
 					// actions are stale.
-					fmt.Println("== STALE ", patch.Info)
+					fmt.Println("STALE ", patch.Info)
 					break
 				}
 			} else {
 				if patch.Prev == nil {
 					// Cached build was not originally the first, but now is;
 					// actions are stale.
-					fmt.Println("== STALE ", patch.Info)
+					fmt.Println("STALE ", patch.Info)
 					break
 				}
 				if !data.Latest.Info.Equal(*patch.Prev) {
 					// Latest build does not match previous build; actions are
 					// stale.
-					fmt.Println("== STALE ", patch.Info)
+					fmt.Println("STALE ", patch.Info)
 					break
 				}
 			}
@@ -184,7 +185,7 @@ loop:
 			data.Latest = &Build{Info: patch.Info, Config: patch.Config}
 			continue loop
 		}
-		fmt.Println("== NEW ", build.Info)
+		fmt.Println("NEW ", build.Info)
 		client.Config = data.Settings.Configs[build.Config]
 		root, err := client.APIDump(build.Info.Hash)
 		if err != nil {
@@ -230,6 +231,40 @@ loop:
 		data.Latest.API = root
 	}
 
+	// Fetch ReflectionMetadata.
+	{
+		rmd, err := client.ReflectionMetadata(data.Latest.Info.Hash)
+		if err != nil {
+			fmt.Println(data.Latest.Config, "failed to get metadata ", data.Latest.Info.Hash, err)
+			return
+		}
+		data.GenerateMetadata(rmd)
+	}
+
+	// Fetch explorer icons.
+	{
+		icon, err := client.ExplorerIcons(data.Latest.Info.Hash)
+		if err != nil {
+			fmt.Println(data.Latest.Config, "failed to get icons ", data.Latest.Info.Hash, err)
+			return
+		}
+		if err := os.MkdirAll(data.FilePath("res"), 0666); err != nil {
+			fmt.Println(err)
+			return
+		}
+		f, err := os.Create(data.FilePath("res", "icon-explorer.png"))
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		err = png.Encode(f, icon)
+		f.Close()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
+
 	data.GenerateEntities()
 	data.GenerateTree()
 
@@ -248,6 +283,7 @@ loop:
 			}
 			return data.FileLink(linkType, sargs...)
 		},
+		"icon":       data.Icon,
 		"tostring":   toString,
 		"subactions": makeSubactions,
 		"subclasses": func(name string) []string {
@@ -274,6 +310,7 @@ loop:
 
 	// Generate pages.
 	pages := []func(*Data) error{
+		GenerateResPage,
 		GenerateIndexPage,
 		GenerateUpdatesPage,
 		GenerateRefPage,

@@ -3,8 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<title>Roblox Lua API Reference</title>
-	<link href="{{link "res" "root.css"}}" rel="stylesheet" type="text/css" />
-	<script src="{{link "res" "root.js"}}" charset="utf-8"></script>
+	<link href="{{link "res" "main.css"}}" rel="stylesheet" type="text/css" />
 </head>
 <body>
 	<header>
@@ -23,7 +22,7 @@
 		<ul id="class-list">
 			{{- define "tree" -}}
 			{{- range . }}
-			<li><a href="{{link "class" .}}">{{.}}</a>
+			<li><a class="element-link" href="{{link "class" .}}">{{icon "class" .}}{{.}}</a>
 			{{- if subclasses . }}
 			<ul>
 			{{- template "tree" (subclasses .) }}
@@ -41,7 +40,7 @@
 		</header>
 		<ul id="enum-list">
 			{{- range .Latest.API.Enums }}
-			<li><a href="{{link "enum" .Name}}">{{.Name}}</a></li>
+			<li><a class="element-link" href="{{link "enum" .Name}}">{{icon .}}{{.Name}}</a></li>
 			{{- end }}
 		</ul>
 	</article>
