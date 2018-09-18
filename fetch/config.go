@@ -134,10 +134,10 @@ func (uz *unzipper) Close() (err error) {
 }
 
 func handleGlobalFormat(loc Location, resp io.ReadCloser, err error) (string, io.ReadCloser, error) {
-	format := loc.Format
 	if err != nil || resp == nil {
 		return loc.Format, resp, err
 	}
+	format := loc.Format
 	switch format {
 	case ".zip":
 		format = path.Ext(loc.URL.Fragment)
@@ -391,9 +391,7 @@ const cacheDirName = "roblox-fetch"
 func (client *Client) Get(loc Location, hash string) (format string, rc io.ReadCloser, err error) {
 	loc.URL, err = expandHash(loc.URL, hash)
 	defer func() {
-		if err != nil || rc == nil {
-			format, rc, err = handleGlobalFormat(loc, rc, err)
-		}
+		format, rc, err = handleGlobalFormat(loc, rc, err)
 	}()
 	if loc.URL.Scheme == "file" {
 		rc, err = os.Open(loc.URL.Path)
