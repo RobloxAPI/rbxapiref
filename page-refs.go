@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 )
 
 var memberTypeOrder = map[string]int{
@@ -29,8 +30,9 @@ type MemberSection struct {
 }
 
 type EnumPage struct {
-	Name   string
-	Entity *EnumEntity
+	Name    string
+	Entity  *EnumEntity
+	Members [][2]string
 }
 
 type TypePage struct {
@@ -40,24 +42,24 @@ type TypePage struct {
 
 func buildPageData(data *Data, pageSet map[string]interface{}, typ string, args ...string) {
 	link := data.FileLink(typ, args...)
-	if pageSet[link] != nil {
+	if _, ok := pageSet[link]; ok {
 		return
 	}
 	switch typ {
 	case "class":
 		class := args[0]
-		if data.Entities.Classes[class] == nil {
+		entity := data.Entities.Classes[class]
+		if entity == nil {
 			return
 		}
-		page := ClassPage{Name: class}
+		page := ClassPage{Name: class, Entity: entity}
 		tree := data.Tree[class]
 		if tree != nil {
 			page.Superclasses = tree.Super
 			page.Subclasses = tree.Sub
 		}
-		page.Entity = data.Entities.Classes[class]
 		for {
-			entity := data.Entities.Classes[class]
+			entity = data.Entities.Classes[class]
 			if entity == nil || entity.Element == nil {
 				break
 			}
@@ -76,10 +78,61 @@ func buildPageData(data *Data, pageSet map[string]interface{}, typ string, args 
 		}
 		pageSet[link] = &page
 	case "enum":
-		page := EnumPage{Name: args[0]}
-		page.Entity = data.Entities.Enums[args[0]]
+		enum := args[0]
+		entity := data.Entities.Enums[enum]
+		if entity == nil {
+			return
+		}
+		page := EnumPage{Name: enum, Entity: entity}
+		enumType := rbxapijson.Type{Category: "Enum", Name: page.Name}
+		for id, member := range data.Entities.Members {
+			switch member := member.Element.(type) {
+			case *rbxapijson.Property:
+				if member.ValueType == enumType {
+					goto add
+				}
+			case *rbxapijson.Function:
+				if member.ReturnType == enumType {
+					goto add
+				}
+				for _, p := range member.Parameters {
+					if p.Type == enumType {
+						goto add
+					}
+				}
+			case *rbxapijson.Event:
+				for _, p := range member.Parameters {
+					if p.Type == enumType {
+						goto add
+					}
+				}
+			case *rbxapijson.Callback:
+				if member.ReturnType == enumType {
+					goto add
+				}
+				for _, p := range member.Parameters {
+					if p.Type == enumType {
+						goto add
+					}
+				}
+			}
+			continue
+		add:
+			page.Members = append(page.Members, id)
+		}
+		sort.Slice(page.Members, func(i, j int) bool {
+			if page.Members[i][0] == page.Members[j][0] {
+				return page.Members[i][1] < page.Members[j][1]
+			}
+			return page.Members[i][0] < page.Members[j][0]
+		})
 		pageSet[link] = &page
 	case "type":
+		switch t := strings.ToLower(args[0]); t {
+		case "class", "enum":
+			buildPageData(data, pageSet, t, args[1])
+			return
+		}
 		page := TypePage{Name: args[1]}
 		page.Entity = rbxapijson.Type{args[0], args[1]}
 		pageSet[link] = &page
