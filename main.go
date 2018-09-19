@@ -62,8 +62,8 @@ func makeSubactions(action Action) []Action {
 		}
 		return actions
 	} else if enum := action.Enum; enum != nil {
-		actions := make([]Action, len(enum.EnumItems))
-		for i, item := range enum.EnumItems {
+		actions := make([]Action, len(enum.Items))
+		for i, item := range enum.Items {
 			actions[i] = Action{
 				Type:     action.GetType(),
 				Enum:     enum,

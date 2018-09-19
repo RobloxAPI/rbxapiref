@@ -265,7 +265,7 @@ func (data *Data) GenerateEntities() {
 			ID:      enum.Name,
 			Element: enum,
 		}
-		for _, item := range enum.EnumItems {
+		for _, item := range enum.Items {
 			id := [2]string{enum.Name, item.Name}
 			if data.Entities.EnumItems[id] != nil {
 				continue
@@ -472,19 +472,19 @@ func WrapActions(actions []patch.Action) []Action {
 			}
 		case patch.EnumItem:
 			enum := action.GetEnum().(*rbxapijson.Enum)
-			items := enum.EnumItems
-			enum.EnumItems = nil
+			items := enum.Items
+			enum.Items = nil
 			c[i].Enum = enum.Copy().(*rbxapijson.Enum)
-			enum.EnumItems = items
+			enum.Items = items
 
 			c[i].EnumItem = action.GetEnumItem().Copy().(*rbxapijson.EnumItem)
 		case patch.Enum:
 			if action.GetType() == patch.Change {
 				enum := action.GetEnum().(*rbxapijson.Enum)
-				items := enum.EnumItems
-				enum.EnumItems = nil
+				items := enum.Items
+				enum.Items = nil
 				c[i].Enum = enum.Copy().(*rbxapijson.Enum)
-				enum.EnumItems = items
+				enum.Items = items
 
 			} else {
 				c[i].Enum = action.GetEnum().Copy().(*rbxapijson.Enum)
