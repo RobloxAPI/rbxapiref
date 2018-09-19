@@ -52,41 +52,44 @@ type TypeCategory struct {
 // FileLink generates a URL, relative to an arbitrary host.
 func (data *Data) FileLink(linkType string, args ...string) (s string) {
 retry:
-	for {
-		switch strings.ToLower(linkType) {
-		case "index":
-			s = "index" + FileExt
-		case "res":
-			s = path.Join("res", path.Join(args...))
-		case "updates":
-			if len(args) > 0 {
-				s = path.Join("updates", args[0]+FileExt)
-			} else {
-				s = "updates" + FileExt
-			}
-		case "class":
-			s = path.Join(ClassPath, url.PathEscape(args[0])+FileExt)
-		case "member":
-			if len(args) == 1 {
-				return (&url.URL{Fragment: MemberAnchorPrefix + args[0]}).String()
-			} else if len(args) == 2 {
-				s = path.Join(ClassPath, url.PathEscape(args[0])+FileExt) +
-					(&url.URL{Fragment: MemberAnchorPrefix + args[1]}).String()
-			}
-		case "enum":
-			s = path.Join(EnumPath, url.PathEscape(args[0])+FileExt)
-		case "enumitem":
+	switch strings.ToLower(linkType) {
+	case "index":
+		s = "index" + FileExt
+	case "res":
+		s = path.Join("res", path.Join(args...))
+	case "updates":
+		if len(args) > 0 {
+			s = path.Join("updates", args[0]+FileExt)
+		} else {
+			s = "updates" + FileExt
+		}
+	case "class":
+		s = path.Join(ClassPath, url.PathEscape(args[0])+FileExt)
+	case "member":
+		if len(args) == 1 {
+			return (&url.URL{Fragment: MemberAnchorPrefix + args[0]}).String()
+		} else if len(args) == 2 {
+			s = path.Join(ClassPath, url.PathEscape(args[0])+FileExt) +
+				(&url.URL{Fragment: MemberAnchorPrefix + args[1]}).String()
+		}
+	case "enum":
+		s = path.Join(EnumPath, url.PathEscape(args[0])+FileExt)
+	case "enumitem":
+		if len(args) == 1 {
+			return (&url.URL{Fragment: MemberAnchorPrefix + args[0]}).String()
+		} else if len(args) == 2 {
 			s = path.Join(EnumPath, url.PathEscape(args[0])+FileExt) +
 				(&url.URL{Fragment: MemberAnchorPrefix + args[1]}).String()
-		case "type":
-			switch strings.ToLower(args[0]) {
-			case "class", "enum":
-				linkType, args[0], args[1] = args[0], args[1], ""
-				goto retry
-			}
-			s = path.Join(TypePath, url.PathEscape(args[1])+FileExt)
 		}
-		break
+	case "type":
+		switch strings.ToLower(args[0]) {
+		case "class", "enum":
+			a := make([]string, 2)
+			linkType, a[0] = args[0], args[1]
+			args = a
+			goto retry
+		}
+		s = path.Join(TypePath, url.PathEscape(args[1])+FileExt)
 	}
 	s = path.Join("/", data.Settings.Root, s)
 	return s
