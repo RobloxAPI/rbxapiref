@@ -1,7 +1,12 @@
 {{- if istype . "rbxapijson.Type" -}}
 <a{{if .Category}} title="Category: {{.Category}}"{{end}} href="{{link "type" .Category .Name}}">{{.Name}}</a>
 {{- else if istype . "[]rbxapijson.Parameter" -}}
-({{range $i, $p := . -}}{{if $i}}, {{end}}{{template "value" $p.Type}} {{$p.Name}}{{if $p.Default}} = {{$p.Default}}{{end}}{{end}})
+<span class="parameters"><span class="params-open"> (</span>
+{{- range $i, $p := . }}{{if $i}}, </span>{{end}}
+	<span class="parameter">{{template "value" $p.Type}} {{$p.Name}}{{if $p.Default}} = {{$p.Default}}{{end}}
+{{- end }}{{if . }}</span>{{end}}
+	<span class="params-close">)</span>
+</span>
 {{- else -}}
 {{- tostring . -}}
 {{- end -}}

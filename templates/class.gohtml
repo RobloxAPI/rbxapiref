@@ -44,24 +44,24 @@
 					<th class="col-member">Member</th>
 				</tr>
 			{{- range . }}
-				<tr>
-				{{if eq .GetMemberType "Property"}}
+				<tr class="row-{{.GetMemberType}}">
+				{{- if eq .GetMemberType "Property" }}
 					<td class="col-type col-property">{{template "value" .ValueType}}</td>
 					<td class="col-icon col-property">{{icon .}}</td>
 					<td class="col-member col-property {{if .GetTag "Deprecated"}}deprecated{{end}}"><a href="{{link "member" .Name}}">{{.Name}}</a></td>
-				{{else if eq .GetMemberType "Function"}}
+				{{- else if eq .GetMemberType "Function" }}
 					<td class="col-type col-function">{{template "value" .ReturnType}}</td>
 					<td class="col-icon col-function">{{icon .}}</td>
-					<td class="col-member col-function {{if .GetTag "Deprecated"}}deprecated{{end}}"><a href="{{link "member" .Name}}">{{.Name}}</a> {{template "value" .Parameters}}</td>
-				{{else if eq .GetMemberType "Event"}}
+					<td class="col-member col-function {{if .GetTag "Deprecated"}}deprecated{{end}}"><a href="{{link "member" .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+				{{- else if eq .GetMemberType "Event" }}
 					<td class="col-type col-event"></td>
 					<td class="col-icon col-event">{{icon .}}</td>
-					<td class="col-member col-event {{if .GetTag "Deprecated"}}deprecated{{end}}"><a href="{{link "member" .Name}}">{{.Name}}</a> {{template "value" .Parameters}}</td>
-				{{else if eq .GetMemberType "Callback"}}
+					<td class="col-member col-event {{if .GetTag "Deprecated"}}deprecated{{end}}"><a href="{{link "member" .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+				{{- else if eq .GetMemberType "Callback" }}
 					<td class="col-type col-callback">{{template "value" .ReturnType}}</td>
 					<td class="col-icon col-callback">{{icon .}}</td>
-					<td class="col-member col-callback {{if .GetTag "Deprecated"}}deprecated{{end}}"><a href="{{link "member" .Name}}">{{.Name}}</a> {{template "value" .Parameters}}</td>
-				{{end}}
+					<td class="col-member col-callback {{if .GetTag "Deprecated"}}deprecated{{end}}"><a href="{{link "member" .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+				{{- end }}
 				</tr>
 			{{- end }}
 			</table>

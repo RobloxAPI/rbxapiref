@@ -1,9 +1,22 @@
 .member-list .col-type,
 .member-list .col-icon {
+	vertical-align: top;
 	text-align: right;
 }
 .member-list .col-member {
+	vertical-align: top;
 	text-align: left;
+}
+
+.member-list .col-member {
+	padding-left: 2ch;
+	text-indent: -2ch;
+	overflow-x: auto;
+}
+.parameter,
+.params-open,
+.params-close {
+	white-space: nowrap;
 }
 
 .class-icon,
