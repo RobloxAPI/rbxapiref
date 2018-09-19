@@ -131,6 +131,7 @@ func (data *Data) Icon(v ...interface{}) template.HTML {
 	var class string
 	var title string
 	var index int
+retry:
 	switch value := v[0].(type) {
 	case string:
 		switch strings.ToLower(value) {
@@ -142,6 +143,13 @@ func (data *Data) Icon(v ...interface{}) template.HTML {
 				goto finish
 			}
 			index = meta.ExplorerImageIndex
+		case "member":
+			entity := data.Entities.Members[[2]string{v[1].(string), v[2].(string)}]
+			if entity == nil {
+				goto finish
+			}
+			v = []interface{}{entity.Element}
+			goto retry
 		case "enum":
 			class = "enum-icon"
 			title = "Enum"
