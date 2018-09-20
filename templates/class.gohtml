@@ -76,6 +76,16 @@
 			</ul>
 		{{- end }}
 		</section>
+		{{- if .Enums }}
+		<section>
+			<h2>Enums</h2>
+			<ul>
+			{{- range .Enums }}
+				<li><a class="element-link" href="{{link "enum" .}}">{{icon "enum"}}{{.}}</a></li>
+			{{- end }}
+			</ul>
+		</section>
+		{{- end }}
 	</article>
 </body>
 </html>

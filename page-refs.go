@@ -22,6 +22,7 @@ type ClassPage struct {
 	Superclasses []string
 	Subclasses   []string
 	Members      []MemberSection
+	Enums        []string
 }
 
 type MemberSection struct {
@@ -49,7 +50,7 @@ func buildPageData(data *Data, pageSet map[string]interface{}, typ string, args 
 	case "class":
 		class := args[0]
 		entity := data.Entities.Classes[class]
-		if entity == nil {
+		if entity == nil || entity.Element == nil {
 			return
 		}
 		page := ClassPage{Name: class, Entity: entity}
@@ -58,11 +59,45 @@ func buildPageData(data *Data, pageSet map[string]interface{}, typ string, args 
 			page.Superclasses = tree.Super
 			page.Subclasses = tree.Sub
 		}
-		for {
-			entity = data.Entities.Classes[class]
-			if entity == nil || entity.Element == nil {
-				break
+		enums := map[string]struct{}{}
+		for _, member := range entity.Element.Members {
+			switch member := member.(type) {
+			case *rbxapijson.Property:
+				if member.ValueType.Category == "Enum" {
+					enums[member.ValueType.Name] = struct{}{}
+				}
+			case *rbxapijson.Function:
+				if member.ReturnType.Category == "Enum" {
+					enums[member.ReturnType.Name] = struct{}{}
+				}
+				for _, p := range member.Parameters {
+					if p.Type.Category == "Enum" {
+						enums[p.Type.Name] = struct{}{}
+					}
+				}
+			case *rbxapijson.Event:
+				for _, p := range member.Parameters {
+					if p.Type.Category == "Enum" {
+						enums[p.Type.Name] = struct{}{}
+					}
+				}
+			case *rbxapijson.Callback:
+				if member.ReturnType.Category == "Enum" {
+					enums[member.ReturnType.Name] = struct{}{}
+				}
+				for _, p := range member.Parameters {
+					if p.Type.Category == "Enum" {
+						enums[p.Type.Name] = struct{}{}
+					}
+				}
 			}
+		}
+		page.Enums = make([]string, 0, len(enums))
+		for enum := range enums {
+			page.Enums = append(page.Enums, enum)
+		}
+		sort.Strings(page.Enums)
+		for entity != nil && entity.Element != nil {
 			members := make([]rbxapi.Member, len(entity.Element.Members))
 			copy(members, entity.Element.Members)
 			sort.Slice(members, func(i, j int) bool {
@@ -75,6 +110,7 @@ func buildPageData(data *Data, pageSet map[string]interface{}, typ string, args 
 			})
 			page.Members = append(page.Members, MemberSection{class, members})
 			class = entity.Element.Superclass
+			entity = data.Entities.Classes[class]
 		}
 		pageSet[link] = &page
 	case "enum":
