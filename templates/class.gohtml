@@ -69,8 +69,8 @@
 		{{- if gt (len .Members) 1}}
 			<ul class="inherited-member-list">
 			{{- range $i, $section := .Members }}
-			{{- if $i }}
-				<li>{{len $section.Members}} member{{if gt (len $section.Members) 1}}s{{end}} inherited from <a class="element-link" href="{{link "class" $section.Class}}">{{icon "class" $section.Class}}{{$section.Class}}</a></li>
+			{{- if and $i (len $section.Members) }}
+				<li>{{len $section.Members}} member{{if ne (len $section.Members) 1}}s{{end}} inherited from <a class="element-link" href="{{link "class" $section.Class}}">{{icon "class" $section.Class}}{{$section.Class}}</a></li>
 			{{- end -}}
 			{{- end }}
 			</ul>
