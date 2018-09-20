@@ -65,4 +65,25 @@
 .element-link .enum-item-icon {
 	margin-right : 0.5ch;
 }
+
+/* Spinner */
+@keyframes loading-spinner {
+	0% {
+		transform : rotate(0deg);
+	}
+	100% {
+		transform : rotate(360deg);
+	}
+}
+.loading-spinner {
+	animation         : loading-spinner 600ms infinite linear;
+	transform         : rotate(0deg);
+	border-radius     : 50%;
+	border            : 2px solid black;
+	border-left-color : transparent;
+	width             : 14px;
+	height            : 14px;
+	margin            : 1ex;
+	display           : inline-block;
+	vertical-align    : middle;
 }

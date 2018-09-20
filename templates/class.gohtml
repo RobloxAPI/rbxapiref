@@ -4,6 +4,7 @@
 	<meta charset="utf-8">
 	<title>{{.Name}}</title>
 	<link href="{{link "res" "main.css"}}" rel="stylesheet" type="text/css" />
+	<script src="{{link "res" "class.js"}}" charset="utf-8"></script>
 </head>
 <body>
 	<header>
@@ -70,7 +71,7 @@
 			<ul class="inherited-member-list">
 			{{- range $i, $section := .Members }}
 			{{- if and $i (len $section.Members) }}
-				<li>{{len $section.Members}} member{{if ne (len $section.Members) 1}}s{{end}} inherited from <a class="element-link" href="{{link "class" $section.Class}}">{{icon "class" $section.Class}}{{$section.Class}}</a></li>
+				<li class="inherited-members"><a class="member-count">{{len $section.Members}} member{{if ne (len $section.Members) 1}}s{{end}}</a> inherited from <a class="element-link" href="{{link "class" $section.Class}}">{{icon "class" $section.Class}}{{$section.Class}}</a></li>
 			{{- end -}}
 			{{- end }}
 			</ul>
