@@ -1,3 +1,4 @@
+/* Status decorations */
 .deprecated {
 	text-decoration : line-through;
 }
@@ -5,31 +6,34 @@
 	display: none;
 }
 
+/* List alignment */
 .member-list td {
-	vertical-align: top;
+	vertical-align : top;
 }
 .enum-item-list .col-icon,
 .enum-item-list .col-value,
 .member-list .col-type,
 .member-list .col-icon {
-	text-align: right;
+	text-align : right;
 }
 .enum-item-list .col-name,
 .member-list .col-member {
-	text-align: left;
+	text-align : left;
 }
 
+/* Parameter wrapping */
 .member-list .col-member {
-	padding-left: 2ch;
-	text-indent: -2ch;
-	overflow-x: auto;
+	padding-left : 2ch;
+	text-indent  : -2ch;
+	overflow-x   : auto;
 }
 .parameter,
 .params-open,
 .params-close {
-	white-space: nowrap;
+	white-space : nowrap;
 }
 
+/* Icons */
 .class-icon,
 .member-icon,
 .enum-icon,
@@ -59,5 +63,6 @@
 .element-link .member-icon,
 .element-link .enum-icon,
 .element-link .enum-item-icon {
-	margin-right: 0.5ch;
+	margin-right : 0.5ch;
+}
 }
