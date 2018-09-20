@@ -1,3 +1,11 @@
+/* Variables */
+:root {
+	--icon-size    : 16px;
+	--indent       : 4ch;
+	--indent-small : 2ch;
+	--icon-spacing : 0.5ch;
+}
+
 /* Status decorations */
 .deprecated {
 	text-decoration : line-through;
@@ -21,12 +29,13 @@
 	text-align : left;
 }
 
-/* Parameter wrapping */
+/* Wrapping */
 .member-list .col-member {
-	padding-left : 2ch;
-	text-indent  : -2ch;
+	padding-left : var(--indent-small);
+	text-indent  : calc(-1*var(--indent-small));
 	overflow-x   : auto;
 }
+.element-link,
 .parameter,
 .params-open,
 .params-close {
@@ -40,8 +49,8 @@
 .enum-item-icon {
 	display        : inline-block;
 	vertical-align : middle;
-	height         : 16px;
-	width          : 16px;
+	height         : var(--icon-size);
+	width          : var(--icon-size);
 }
 .class-icon {
 	background-image : url('/ref/res/icon-explorer.png');
@@ -63,7 +72,7 @@
 .element-link .member-icon,
 .element-link .enum-icon,
 .element-link .enum-item-icon {
-	margin-right : 0.5ch;
+	margin-right : var(--icon-spacing);
 }
 
 /* Spinner */
