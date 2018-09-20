@@ -1,6 +1,9 @@
 .deprecated {
 	text-decoration : line-through;
 }
+.hidden {
+	display: none;
+}
 
 .member-list td {
 	vertical-align: top;
