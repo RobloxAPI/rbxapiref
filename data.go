@@ -325,13 +325,9 @@ func (data *Data) GenerateTree() {
 		if data.Entities.Classes[super] == nil {
 			data.TreeRoots = append(data.TreeRoots, id)
 		}
-		for super != "" {
+		for class := data.Entities.Classes[super]; class != nil; class = data.Entities.Classes[super] {
 			node.Super = append(node.Super, super)
-			if class := data.Entities.Classes[super]; class != nil {
-				super = class.Element.Superclass
-			} else {
-				super = ""
-			}
+			super = class.Element.Superclass
 		}
 		for subid, sub := range data.Entities.Classes {
 			if sub.Element.Superclass == id {
