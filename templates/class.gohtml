@@ -11,7 +11,7 @@
 		<h1>{{icon .Entity.Element}}{{.Name}}</h1>
 	</header>
 {{- if .Superclasses }}
-	<aside>
+	<aside id="superclasses">
 		<header>
 			<h2>Inherits</h2>
 		</header>
@@ -23,7 +23,7 @@
 	</aside>
 {{- end }}
 {{- if .Subclasses }}
-	<aside>
+	<aside id="subclasses">
 		<header>
 			<h2>Inherited by</h2>
 		</header>
@@ -35,7 +35,7 @@
 	</aside>
 {{- end }}
 	<article>
-		<section>
+		<section id="members">
 			<h2>Members</h2>
 		{{- with (index .Members 0).Members}}
 			<table class="member-list">
@@ -78,7 +78,7 @@
 		{{- end }}
 		</section>
 		{{- if .Enums }}
-		<section>
+		<section id="enums">
 			<h2>Enums</h2>
 			<ul>
 			{{- range .Enums }}
