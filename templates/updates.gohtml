@@ -115,6 +115,9 @@
 	<aside id="controls">
 	</aside>
 	<nav>
+		<a href="{{link "index"}}">Main page</a>
+	</nav>
+	<aside id="updates-nav">
 		<ul>
 		{{- $year := .Year -}}
 		{{- if $year }}
@@ -130,7 +133,7 @@
 		{{- end -}}
 		{{- end }}
 		</ul>
-	</nav>
+	</aside>
 	<main>
 		<ul id="update-list">
 			{{- with .Patches -}}
