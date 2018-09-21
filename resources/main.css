@@ -19,13 +19,12 @@
 .member-list td {
 	vertical-align : top;
 }
-.enum-item-list .col-icon,
-.enum-item-list .col-value,
+.member-list .col-value,
 .member-list .col-type,
 .member-list .col-icon {
 	text-align : right;
 }
-.enum-item-list .col-name,
+.member-list .col-name,
 .member-list .col-member {
 	text-align : left;
 }
