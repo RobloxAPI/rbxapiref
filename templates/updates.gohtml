@@ -39,11 +39,11 @@
 	</style>
 	<script>"use strict";
 		function toggleList(event) {
-			var parent = event.target.closest(".update");
+			let parent = event.target.closest(".update");
 			if (parent === null) {
 				return;
 			};
-			var list = parent.querySelector(".patch-list");
+			let list = parent.querySelector(".patch-list");
 			if (list === null) {
 				return;
 			};
@@ -54,9 +54,9 @@
 			};
 		};
 		function toggleAll(show, scroll) {
-			var scrollTo;
-			for (item of document.querySelectorAll("#update-list > li .patch-list")) {
-				var anchor = item.parentElement.querySelector("a.anchor:target");
+			let scrollTo;
+			for (let item of document.querySelectorAll("#update-list > li .patch-list")) {
+				let anchor = item.parentElement.querySelector("a.anchor:target");
 				if (anchor !== null) {
 					scrollTo = anchor;
 				}
@@ -75,12 +75,12 @@
 			};
 		};
 		document.addEventListener("DOMContentLoaded", function(event) {
-			var controls = document.getElementById("controls");
+			let controls = document.getElementById("controls");
 			if (controls !== null) {
 				controls.insertAdjacentHTML("beforeBegin", '<label><input type="checkbox" id="expand-all">All changes expanded</label>');
 			};
 
-			var expandAll = document.getElementById("expand-all");
+			let expandAll = document.getElementById("expand-all");
 			if (expandAll !== null) {
 				expandAll.addEventListener("click", function(event) {
 					toggleAll(event.target.checked, false);
@@ -90,18 +90,18 @@
 				toggleAll(false, true);
 			};
 
-			for (item of document.querySelectorAll("#update-list > li .patch-list-toggle")) {
+			for (let item of document.querySelectorAll("#update-list > li .patch-list-toggle")) {
 				item.addEventListener("click", toggleList);
 			};
 
-			var list = document.getElementById("update-list");
+			let list = document.getElementById("update-list");
 			if (list !== null) {
-				var note = document.createElement("div");
+				let note = document.createElement("div");
 				note.innerText = "Click a date to expand or collapse changes.";
 				list.parentElement.insertBefore(note, list);
 			};
 
-			var style = document.getElementById("updates-style");
+			let style = document.getElementById("updates-style");
 			if (style !== null) {
 				style.sheet.insertRule(".patch-list-toggle {cursor: pointer;}");
 			};

@@ -4,13 +4,13 @@ function expandMemberList(event) {
 	// Prevent clicked anchor from doing anything else.
 	event.preventDefault();
 
-	var parent = event.target.closest(".inherited-members");
+	let parent = event.target.closest(".inherited-members");
 	if (parent === null) {
 		return;
 	};
 
 	// Attempt to toggle a list that was loaded previously.
-	var list = parent.querySelector("#members .member-list");
+	let list = parent.querySelector("#members .member-list");
 	if (list !== null) {
 		if (list.classList.contains("hidden")) {
 			list.classList.remove("hidden");
@@ -20,11 +20,11 @@ function expandMemberList(event) {
 		return;
 	}
 
-	var link = parent.querySelector("a.element-link");
+	let link = parent.querySelector("a.element-link");
 	if (link === null || link.href.length === 0) {
 		return;
 	};
-	var url = link.href
+	let url = link.href
 
 	// Create a message indicating that data is being loaded. Also use this
 	// message as a "lock", which will usually prevent multiple requests at
@@ -35,7 +35,7 @@ function expandMemberList(event) {
 	parent.insertAdjacentHTML("beforeend", '<div class="loading-message"><div class="loading-spinner"></div>Loading...</div>');
 
 	function clearLoader(event) {
-		var loader = parent.querySelector(".loading-message");
+		let loader = parent.querySelector(".loading-message");
 		if (loader === null) {
 			return;
 		};
@@ -46,7 +46,7 @@ function expandMemberList(event) {
 		if (event.target.response === null) {
 			return;
 		};
-		var list = parent.querySelector(".member-list");
+		let list = parent.querySelector(".member-list");
 		if (list !== null) {
 			return;
 		};
@@ -57,7 +57,7 @@ function expandMemberList(event) {
 		parent.insertBefore(list, null);
 	};
 
-	var req = new XMLHttpRequest();
+	let req = new XMLHttpRequest();
 	req.addEventListener("load", function(event) {
 		onLoaded(event);
 		clearLoader(event);
