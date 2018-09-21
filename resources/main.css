@@ -1,9 +1,10 @@
 /* Variables */
 :root {
-	--icon-size    : 16px;
-	--indent       : 4ch;
-	--indent-small : 2ch;
-	--icon-spacing : 0.5ch;
+	--icon-size           : 16px;
+	--indent              : 4ch;
+	--indent-small        : 2ch;
+	--icon-spacing        : 0.5ch;
+	--member-target-color : gold;
 }
 
 /* Status decorations */
@@ -95,4 +96,15 @@
 	margin            : 1ex;
 	display           : inline-block;
 	vertical-align    : middle;
+}
+
+/* Member list */
+.member-list {
+	border-collapse : collapse;
+}
+.member-list .member-icon {
+	margin : 0 var(--icon-spacing);
+}
+.member-list :target {
+	background-color : var(--member-target-color);
 }
