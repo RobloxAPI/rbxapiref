@@ -215,6 +215,26 @@ func GenerateRefPage(data *Data) error {
 						buildTypePage(data, pageSet, member.Parameters)
 					}
 				}
+				member := action.GetMember()
+				if member == nil {
+					continue
+				}
+				switch member.GetMemberType() {
+				case "Property":
+					member := member.(*rbxapijson.Property)
+					buildTypePage(data, pageSet, member.ValueType)
+				case "Function":
+					member := member.(*rbxapijson.Function)
+					buildTypePage(data, pageSet, member.ReturnType)
+					buildTypePage(data, pageSet, member.Parameters)
+				case "Event":
+					member := member.(*rbxapijson.Event)
+					buildTypePage(data, pageSet, member.Parameters)
+				case "Callback":
+					member := member.(*rbxapijson.Callback)
+					buildTypePage(data, pageSet, member.ReturnType)
+					buildTypePage(data, pageSet, member.Parameters)
+				}
 			case action.Enum != nil:
 				buildPageData(data, pageSet, "enum", action.Enum.Name)
 			}
