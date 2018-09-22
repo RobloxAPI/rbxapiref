@@ -37,8 +37,54 @@ type EnumPage struct {
 }
 
 type TypePage struct {
-	Name   string
-	Entity rbxapijson.Type
+	Name    string
+	Entity  rbxapijson.Type
+	Members [][2]string
+}
+
+func getRelevantMembers(entities map[[2]string]*MemberEntity, typ rbxapijson.Type) (members [][2]string) {
+	for id, member := range entities {
+		switch member := member.Element.(type) {
+		case *rbxapijson.Property:
+			if member.ValueType == typ {
+				goto addMember
+			}
+		case *rbxapijson.Function:
+			if member.ReturnType == typ {
+				goto addMember
+			}
+			for _, p := range member.Parameters {
+				if p.Type == typ {
+					goto addMember
+				}
+			}
+		case *rbxapijson.Event:
+			for _, p := range member.Parameters {
+				if p.Type == typ {
+					goto addMember
+				}
+			}
+		case *rbxapijson.Callback:
+			if member.ReturnType == typ {
+				goto addMember
+			}
+			for _, p := range member.Parameters {
+				if p.Type == typ {
+					goto addMember
+				}
+			}
+		}
+		continue
+	addMember:
+		members = append(members, id)
+	}
+	sort.Slice(members, func(i, j int) bool {
+		if members[i][0] == members[j][0] {
+			return members[i][1] < members[j][1]
+		}
+		return members[i][0] < members[j][0]
+	})
+	return members
 }
 
 func buildPageData(data *Data, pageSet map[string]interface{}, typ string, args ...string) {
@@ -120,48 +166,10 @@ func buildPageData(data *Data, pageSet map[string]interface{}, typ string, args 
 			return
 		}
 		page := EnumPage{Name: enum, Entity: entity}
-		enumType := rbxapijson.Type{Category: "Enum", Name: page.Name}
-		for id, member := range data.Entities.Members {
-			switch member := member.Element.(type) {
-			case *rbxapijson.Property:
-				if member.ValueType == enumType {
-					goto add
-				}
-			case *rbxapijson.Function:
-				if member.ReturnType == enumType {
-					goto add
-				}
-				for _, p := range member.Parameters {
-					if p.Type == enumType {
-						goto add
-					}
-				}
-			case *rbxapijson.Event:
-				for _, p := range member.Parameters {
-					if p.Type == enumType {
-						goto add
-					}
-				}
-			case *rbxapijson.Callback:
-				if member.ReturnType == enumType {
-					goto add
-				}
-				for _, p := range member.Parameters {
-					if p.Type == enumType {
-						goto add
-					}
-				}
-			}
-			continue
-		add:
-			page.Members = append(page.Members, id)
-		}
-		sort.Slice(page.Members, func(i, j int) bool {
-			if page.Members[i][0] == page.Members[j][0] {
-				return page.Members[i][1] < page.Members[j][1]
-			}
-			return page.Members[i][0] < page.Members[j][0]
-		})
+		page.Members = getRelevantMembers(
+			data.Entities.Members,
+			rbxapijson.Type{Category: "Enum", Name: page.Name},
+		)
 		pageSet[link] = &page
 	case "type":
 		switch t := strings.ToLower(args[0]); t {
@@ -171,6 +179,7 @@ func buildPageData(data *Data, pageSet map[string]interface{}, typ string, args 
 		}
 		page := TypePage{Name: args[1]}
 		page.Entity = rbxapijson.Type{args[0], args[1]}
+		page.Members = getRelevantMembers(data.Entities.Members, page.Entity)
 		pageSet[link] = &page
 	}
 }
