@@ -9,7 +9,7 @@
 
 /* Status decorations */
 .deprecated {
-	text-decoration : line-through;
+	text-decoration : line-through rgb(0, 0, 0, 0.5);
 }
 .hidden {
 	display: none;
