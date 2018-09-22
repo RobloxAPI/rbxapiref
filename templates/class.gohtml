@@ -4,50 +4,7 @@
 	<meta charset="utf-8">
 	<title>{{.Name}}</title>
 	<link href="{{link "res" "main.css"}}" rel="stylesheet" type="text/css" />
-	<style>
-		:root {
-			/* Effective padding between grid cells. */
-			--section-spacing: 2ch;
-		}
-
-		main {
-			display       : grid;
-			justify-items : left;
-			align-items   : left;
-			grid-gap      : 0 var(--section-spacing);
-		}
-		#tree-nav {
-			grid-area : nav;
-		}
-		#members {
-			grid-area : members;
-		}
-		#enums {
-			grid-area : enums;
-		}
-
-		@media screen and (width < 80ch) {
-			main {
-				grid-template-columns : auto;
-				grid-template-areas   :
-					"nav    "
-					"members"
-					"enums  ";
-			}
-		}
-		@media screen and (width >= 80ch) {
-			main {
-				grid-template-columns : min-content auto;
-				grid-template-areas   :
-					"nav members"
-					"nav enums  ";
-			}
-			#tree-nav {
-				border-right  : 1px solid lightgray;
-				padding-right : var(--section-spacing);
-			}
-		}
-	</style>
+	<link href="{{link "res" "class.css"}}" rel="stylesheet" type="text/css" />
 	<script src="{{link "res" "class.js"}}" charset="utf-8"></script>
 </head>
 <body>
