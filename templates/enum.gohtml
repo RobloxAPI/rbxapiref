@@ -13,7 +13,7 @@
 		<a href="{{link "index"}}">Main page</a>
 	</nav>
 	<article>
-		<section>
+		<section id="enumitems">
 			<h2>Enum items</h2>
 			<table class="member-list">
 				<tr>
@@ -31,7 +31,8 @@
 			{{- end }}
 			</table>
 		</section>
-		<section>
+		{{- if .Members }}
+		<section id="relevant-members">
 			<h2>Relevant members</h2>
 			<ul>
 			{{- range .Members -}}
@@ -41,6 +42,7 @@
 			{{- end }}
 			</ul>
 		</section>
+		{{- end }}
 	</article>
 </body>
 </html>
