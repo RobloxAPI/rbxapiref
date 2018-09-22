@@ -177,14 +177,33 @@ retry:
 		switch v := value.(type) {
 		case interface{ GetSecurity() (string, string) }:
 			r, w := v.GetSecurity()
-			if (r != "" && r != "None") || (w != "" && w != "None") {
+			if r == "None" {
+				r = ""
+			}
+			if w == "None" {
+				w = ""
+			}
+			switch {
+			case r != "" && w != "":
 				title = "Protected " + title
+				if r == w {
+					title += " (Read/Write: " + r + ")"
+				} else {
+					title += " (Read: " + r + " / Write: " + w + ")"
+				}
 				index++
+			case r != "":
+				title = "Protected " + title + " (Read: " + r + ")"
+				index++
+			case w != "":
+				title = "Protected " + title + " (Write: " + w + ")"
+				index++
+			default:
 			}
 		case interface{ GetSecurity() string }:
 			s := v.GetSecurity()
 			if s != "" && s != "None" {
-				title = "Protected " + title
+				title = "Protected " + title + " (" + s + ")"
 				index++
 			}
 		}
