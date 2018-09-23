@@ -35,17 +35,26 @@ a[href] {
 }
 
 /* Wrapping */
-.member-list .col-member {
-	padding-left : var(--indent-small);
-	text-indent  : calc(-1*var(--indent-small));
-	overflow-x   : auto;
-}
 .element-link,
 .parameter,
 .params-open,
 .params-close {
 	white-space : nowrap;
 }
+@media screen and (width < 80ch) {
+	.parameter {
+		display      : block;
+		padding-left : var(--indent-small);
+	}
+}
+@media screen and (width >= 80ch) {
+	.member-list .col-member {
+		padding-left : var(--indent-small);
+		text-indent  : calc(-1*var(--indent-small));
+		overflow-x   : auto;
+	}
+}
+
 
 /* Icons */
 .class-icon,
