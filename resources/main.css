@@ -1,32 +1,37 @@
 /* Variables */
 :root {
+	--background-color    : #FFFFFF;
+	--text-color          : #333333;
+	--anchor-color        : #3E6DCC;
+	--table-color         : #F4F4F4;
+	--border-color        : #CCCCCC;
+	--member-target-color : gold;
 	--icon-size           : 16px;
 	--indent              : 4ch;
 	--indent-small        : 2ch;
 	--icon-spacing        : 0.5ch;
-	--member-target-color : gold;
+}
+
+/* Main */
+body {
+	font             : 10pt/1.2 "Open Sans","Trebuchet MS","DejaVu Sans",Geneva,sans-serif;
+	color            : var(--text-color);
+	background-color : var(--background-color);
+}
+a {
+	color : var(--anchor-color);
+}
+.hidden {
+	display : none;
 }
 
 /* Status decorations */
-.deprecated {
+.api-deprecated {
 	text-decoration : line-through rgb(0, 0, 0, 0.5);
 }
-.hidden {
-	display: none;
-}
-
-/* List alignment */
-.member-list td {
-	vertical-align : top;
-}
-.member-list .col-value,
-.member-list .col-type,
-.member-list .col-icon {
-	text-align : right;
-}
-.member-list .col-name,
-.member-list .col-member {
-	text-align : left;
+.api-hidden > * {
+	/* TODO: Figure out how to exclude border-top from this.*/
+	opacity : 0.5;
 }
 
 /* Wrapping */
@@ -88,7 +93,7 @@
 	animation         : loading-spinner 600ms infinite linear;
 	transform         : rotate(0deg);
 	border-radius     : 50%;
-	border            : 2px solid black;
+	border            : 2px solid var(--text-color);
 	border-left-color : transparent;
 	width             : 14px;
 	height            : 14px;
@@ -99,11 +104,44 @@
 
 /* Member list */
 .member-list {
-	border-collapse : collapse;
+	--cell-spacing   : 0.75ch;
+	border-collapse  : separate;
+	border-spacing   : 0;
+	background-color : var(--table-color);
+	border           : 1px solid var(--border-color);
+	margin           : 1em;
+	padding          : 0.5em;
+	border-radius    : 0.5em;
 }
-.member-list .member-icon {
-	margin : 0 var(--icon-spacing);
+.member-list td,
+.member-list th {
+	padding: 0.25em 0;
+}
+.member-list td {
+	border-top: 1px solid var(--border-color);
+}
+.member-list th {
+	background-color: var(--border-color);
+}
+.member-list td:first-child,
+.member-list th:first-child {
+	padding-left: var(--cell-spacing);
+}
+.member-list td,
+.member-list th {
+	padding-right: var(--cell-spacing);
 }
 .member-list :target {
 	background-color : var(--member-target-color);
+}
+.member-list td {
+	vertical-align : top;
+}
+.member-list .col-value,
+.member-list .col-type,
+.member-list .col-icon {
+	text-align : right;
+}
+.member-list .col-member {
+	text-align : left;
 }

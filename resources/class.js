@@ -4,13 +4,13 @@ function expandMemberList(event) {
 	// Prevent clicked anchor from doing anything else.
 	event.preventDefault();
 
-	let parent = event.target.closest(".inherited-members");
+	let parent = event.target.closest(".class-base-members");
 	if (parent === null) {
 		return;
 	};
 
 	// Attempt to toggle a list that was loaded previously.
-	let list = parent.querySelector("#members .member-list");
+	let list = parent.querySelector(".member-list");
 	if (list !== null) {
 		if (list.classList.contains("hidden")) {
 			list.classList.remove("hidden");
@@ -70,14 +70,13 @@ function expandMemberList(event) {
 };
 
 document.addEventListener("DOMContentLoaded", function(event) {
-	for (parent of document.getElementsByClassName("inherited-members")) {
+	for (parent of document.getElementsByClassName("class-base-members")) {
 		var count = parent.querySelector("a.member-count");
-		var link = parent.querySelector("a.element-link");
-		if (count === null || link === null) {
-			return;
+		if (count === null) {
+			continue;
 		};
 		count.href = "#";
-		count.title = "Click to expand inherited members.";
+		count.title = "Click to toggle visibility of members.";
 		count.addEventListener("click", expandMemberList);
 	};
 });
