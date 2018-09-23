@@ -18,7 +18,7 @@ body {
 	color            : var(--text-color);
 	background-color : var(--background-color);
 }
-a {
+a[href] {
 	color : var(--anchor-color);
 }
 .hidden {
