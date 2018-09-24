@@ -151,6 +151,8 @@ a[href] {
 .member-list .col-icon {
 	text-align : right;
 }
-.member-list .col-member {
+.member-list .col-member,
+.member-list td[colspan],
+.member-list th[colspan] {
 	text-align : left;
 }

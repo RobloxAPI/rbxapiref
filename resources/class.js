@@ -4,57 +4,80 @@ function expandMemberList(event) {
 	// Prevent clicked anchor from doing anything else.
 	event.preventDefault();
 
-	let parent = event.target.closest(".class-base-members");
-	if (parent === null) {
+	let placehold = event.target.closest(".inherited-members");
+	if (placehold === null) {
+		return;
+	};
+	let head = placehold.closest("thead");
+	if (head === null || !head.parentElement.classList.contains("member-list")) {
 		return;
 	};
 
+	// Get the a subsequent sibling that matches query. Stop when a sibling
+	// matching boundary is encountered.
+	function nextMatching(element, query, boundary) {
+		do {
+			element = element.nextElementSibling;
+			if (element === null) {
+				break;
+			};
+			if (element.matches(query)) {
+				return element;
+			};
+		} while (boundary && !element.matches(boundary));
+		return null;
+	};
+
 	// Attempt to toggle a list that was loaded previously.
-	let list = parent.querySelector(".member-list");
-	if (list !== null) {
-		if (list.classList.contains("hidden")) {
-			list.classList.remove("hidden");
+	let body = nextMatching(head, "tbody.inherited-members-list", "thead");
+	if (body !== null) {
+		if (body.classList.contains("hidden")) {
+			body.classList.remove("hidden");
 		} else {
-			list.classList.add("hidden");
+			body.classList.add("hidden");
 		};
 		return;
 	}
 
-	let link = parent.querySelector("a.element-link");
+	let link = placehold.querySelector("a.element-link");
 	if (link === null || link.href.length === 0) {
 		return;
 	};
 	let url = link.href
 
-	// Create a message indicating that data is being loaded. Also use this
-	// message as a "lock", which will usually prevent multiple requests at
-	// once by this element.
-	if (parent.querySelector(".loading-message") !== null) {
-		return;
+	{
+		// Create a message indicating that data is being loaded. Also use
+		// this message as a "lock", which will usually prevent multiple
+		// requests at once by this element.
+		let loader = nextMatching(head, "tbody.loading-message", "thead")
+		if (loader !== null) {
+			return;
+		};
+		head.insertAdjacentHTML("afterend", '<tbody class="loading-message"><tr><td colspan=3><div class="loading-spinner"></div>Loading...</td></tr></tbody>');
 	};
-	parent.insertAdjacentHTML("beforeend", '<div class="loading-message"><div class="loading-spinner"></div>Loading...</div>');
 
 	function clearLoader(event) {
-		let loader = parent.querySelector(".loading-message");
+		let loader = nextMatching(head, "tbody.loading-message", "thead");
 		if (loader === null) {
 			return;
 		};
-		parent.removeChild(loader);
+		loader.parentElement.removeChild(loader);
 	};
 
 	function onLoaded(event) {
 		if (event.target.response === null) {
 			return;
 		};
-		let list = parent.querySelector(".member-list");
-		if (list !== null) {
+		let body = nextMatching(head, "tbody.inherited-members-list", "thead");
+		if (body !== null) {
 			return;
 		};
-		list = event.target.response.querySelector("#members .member-list");
-		if (list === null) {
+		body = event.target.response.querySelector("#members .member-list tbody");
+		if (body === null) {
 			return;
 		};
-		parent.insertBefore(list, null);
+		body.classList.add("inherited-members-list");
+		head.insertAdjacentElement("afterend", body);
 	};
 
 	let req = new XMLHttpRequest();
@@ -70,7 +93,7 @@ function expandMemberList(event) {
 };
 
 document.addEventListener("DOMContentLoaded", function(event) {
-	for (parent of document.getElementsByClassName("class-base-members")) {
+	for (parent of document.getElementsByClassName("inherited-members")) {
 		var count = parent.querySelector("a.member-count");
 		if (count === null) {
 			continue;
