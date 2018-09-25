@@ -12,7 +12,7 @@ func GenerateResPage(data *Data) error {
 	if err != nil {
 		return err
 	}
-	if err := os.MkdirAll(data.FilePath(data.Settings.Output.Resources), 0666); err != nil {
+	if err := os.MkdirAll(data.FilePath("resource"), 0666); err != nil {
 		return err
 	}
 	for _, fi := range fis {
@@ -23,7 +23,7 @@ func GenerateResPage(data *Data) error {
 		if err != nil {
 			return err
 		}
-		dst, err := os.Create(data.FilePath(data.Settings.Output.Resources, fi.Name()))
+		dst, err := os.Create(data.FilePath("resource", fi.Name()))
 		if err != nil {
 			src.Close()
 			return err

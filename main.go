@@ -256,11 +256,11 @@ loop:
 			fmt.Println(data.Latest.Config, "failed to get icons ", data.Latest.Info.Hash, err)
 			return
 		}
-		if err := os.MkdirAll(data.FilePath(data.Settings.Output.Resources), 0666); err != nil {
+		if err := os.MkdirAll(data.FilePath("resource"), 0666); err != nil {
 			fmt.Println(err)
 			return
 		}
-		f, err := os.Create(data.FilePath(data.Settings.Output.Resources, "icon-explorer.png"))
+		f, err := os.Create(data.FilePath("resource", "icon-explorer.png"))
 		if err != nil {
 			fmt.Println(err)
 			return
