@@ -3,13 +3,14 @@
 </header>
 <section id="enumitems">
 	<h3>Enum items</h3>
+	{{- $enum := .Entity.Element.Name -}}
+	<p>{{$enum}} defines {{len .Entity.Element.Items}} enum {{quantity .Entity.Element.Items "item" "items"}}.</p>
 	<table class="member-list">
 		<tr>
 			<th class="col-icon">{{icon "enum"}}</th>
 			<th class="col-name">Name</th>
 			<th class="col-value">Value</th>
 		</tr>
-	{{- $enum := .Entity.Element.Name -}}
 	{{- range .Entity.Element.Items }}
 		<tr id="member-{{.Name}}" class="row-EnumItem">
 			<td class="col-icon">{{icon "enumitem"}}</td>
@@ -22,6 +23,7 @@
 {{- if .Members }}
 <section id="relevant-members">
 	<h3>Relevant members</h3>
+	<p>{{.Name}} has {{len .Members}} related {{quantity .Members "member" "members"}}.</p>
 	<ul>
 	{{- range .Members -}}
 		{{- $class := (index . 0) -}}

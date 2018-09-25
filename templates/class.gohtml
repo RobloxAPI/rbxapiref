@@ -30,6 +30,7 @@
 {{- if .Members }}
 <section id="members">
 	<h3>Members</h3>
+	<p>{{.Name}} defines {{len (index .Members 0).Members}} {{quantity (index .Members 0).Members "member" "members"}}.</p>
 	<table class="member-list">
 	<thead>
 		<tr>
@@ -84,6 +85,7 @@
 {{- if .Enums }}
 <section id="enums">
 	<h3>Enums</h3>
+	<p>{{.Name}} has {{len .Enums}} related {{quantity .Enums "enum" "enums"}}.</p>
 	<ul>
 	{{- range .Enums }}
 		<li><a class="element-link" href="{{link "enum" .}}">{{icon "enum"}}{{.}}</a></li>

@@ -100,6 +100,31 @@ func compileTemplates(dir string, funcs template.FuncMap) (tmpl *template.Templa
 	return
 }
 
+func reflectIndirect(v reflect.Value) (rv reflect.Value, isNil bool) {
+	for ; v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface; v = v.Elem() {
+		if v.IsNil() {
+			return v, true
+		}
+	}
+	return v, false
+}
+
+func reflectLength(item interface{}) (int, error) {
+	v := reflect.ValueOf(item)
+	if !v.IsValid() {
+		return 0, fmt.Errorf("len of untyped nil")
+	}
+	v, isNil := reflectIndirect(v)
+	if isNil {
+		return 0, fmt.Errorf("len of nil pointer")
+	}
+	switch v.Kind() {
+	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice, reflect.String:
+		return v.Len(), nil
+	}
+	return 0, fmt.Errorf("len of type %s", v.Type())
+}
+
 const SettingsFile = "settings.json"
 
 func main() {
@@ -308,6 +333,13 @@ loop:
 				}
 			}
 			return data.FileLink(linkType, sargs...)
+		},
+		"quantity": func(i interface{}, singular, plural string) string {
+			v, err := reflectLength(i)
+			if err != nil || v == 1 {
+				return singular
+			}
+			return plural
 		},
 		"subactions": makeSubactions,
 		"subclasses": func(name string) []string {

@@ -4,6 +4,7 @@
 {{- if .Members }}
 <section id="relevant-members">
 	<h2>Relevant members</h2>
+	<p>{{.Name}} has {{len .Members}} related {{quantity .Members "member" "members"}}.</p>
 	<ul>
 	{{- range .Members -}}
 		{{- $class := (index . 0) -}}

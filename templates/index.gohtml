@@ -2,6 +2,7 @@
 	<header>
 		<h2>Classes</h2>
 	</header>
+	<p>The API defines {{len .Latest.API.Classes}} {{quantity .Latest.API.Classes "class" "classes"}}.</p>
 	<ul id="class-list">
 		{{- define "tree" -}}
 		{{- range . }}
@@ -21,6 +22,7 @@
 	<header>
 		<h2>Enums</h2>
 	</header>
+	<p>The API defines {{len .Latest.API.Enums}} {{quantity .Latest.API.Enums "enum" "enums"}}.</p>
 	<ul id="enum-list">
 		{{- range .Latest.API.Enums }}
 		<li><a class="element-link" href="{{link "enum" .Name}}">{{icon .}}{{.Name}}</a></li>
@@ -31,6 +33,7 @@
 	<header>
 		<h2>Types</h2>
 	</header>
+	<p>The API defines {{len .Types}} {{quantity .Types "type" "types"}} within {{len .TypeList}} {{quantity .TypeList "category" "categories"}}.</p>
 	<ul id="type-list">
 	{{- range .TypeList }}
 		<li>{{.Name}}
