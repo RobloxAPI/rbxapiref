@@ -24,7 +24,7 @@ main > header {
 }
 @media screen and (width >= 80ch) {
 	main {
-		grid-template-columns : min-content auto;
+		grid-template-columns : max-content auto;
 		grid-template-areas   :
 			"header    header "
 			"enumitems members";
