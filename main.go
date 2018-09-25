@@ -100,6 +100,8 @@ func compileTemplates(dir string, funcs template.FuncMap) (tmpl *template.Templa
 	return
 }
 
+const SettingsFile = "settings.json"
+
 func main() {
 	spew.Config.DisableMethods = true
 	spew.Config.DisablePointerMethods = true
@@ -110,7 +112,7 @@ func main() {
 	data := &Data{}
 
 	// Load settings.
-	if f, err := os.Open("settings.json"); err == nil {
+	if f, err := os.Open(SettingsFile); err == nil {
 		err := json.NewDecoder(f).Decode(&data.Settings)
 		f.Close()
 		if err != nil {
@@ -119,11 +121,17 @@ func main() {
 		}
 	}
 
+	manifestPath := filepath.Join(
+		data.Settings.Output.Root,
+		data.Settings.Output.Sub,
+		data.Settings.Output.Manifest,
+	)
+
 	// Load cache.
 	client := &fetch.Client{}
 	prevPatches := []Patch{}
 	{
-		f, err := os.Open(filepath.Join(data.Settings.Output, data.Settings.Root, "patches.json"))
+		f, err := os.Open(manifestPath)
 		if err == nil {
 			err = json.NewDecoder(f).Decode(&prevPatches)
 			f.Close()
@@ -248,11 +256,11 @@ loop:
 			fmt.Println(data.Latest.Config, "failed to get icons ", data.Latest.Info.Hash, err)
 			return
 		}
-		if err := os.MkdirAll(data.FilePath("res"), 0666); err != nil {
+		if err := os.MkdirAll(data.FilePath(data.Settings.Output.Resources), 0666); err != nil {
 			fmt.Println(err)
 			return
 		}
-		f, err := os.Create(data.FilePath("res", "icon-explorer.png"))
+		f, err := os.Create(data.FilePath(data.Settings.Output.Resources, "icon-explorer.png"))
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -270,7 +278,7 @@ loop:
 
 	// Compile templates.
 	var err error
-	data.Templates, err = compileTemplates("templates", template.FuncMap{
+	data.Templates, err = compileTemplates(data.Settings.Input.Templates, template.FuncMap{
 		"link": func(linkType string, args ...interface{}) string {
 			sargs := make([]string, len(args))
 			for i, arg := range args {
@@ -303,7 +311,7 @@ loop:
 			return reflect.TypeOf(v).String() == t
 		},
 		"embed": func(resource string) (interface{}, error) {
-			b, err := ioutil.ReadFile(filepath.Join("resources", resource))
+			b, err := ioutil.ReadFile(filepath.Join(data.Settings.Input.Resources, resource))
 			switch filepath.Ext(resource) {
 			case ".css":
 				return template.CSS(b), err
@@ -335,7 +343,7 @@ loop:
 
 	// Save cache.
 	{
-		f, err := os.Create(filepath.Join(data.Settings.Output, data.Settings.Root, "patches.json"))
+		f, err := os.Create(manifestPath)
 		if err != nil {
 			fmt.Println(err)
 			return

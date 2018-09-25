@@ -3,19 +3,19 @@
 <head>
 	<meta charset="utf-8">
 	<title>{{if .Title}}{{.Title}} - {{end}}Roblox API Reference</title>
-	<link href="{{link "res" "main.css"}}" rel="stylesheet" type="text/css" />
+	<link href="{{link "resource" "main.css"}}" rel="stylesheet" type="text/css" />
 {{- range .Styles }}
 {{- if .Embed }}
 	<style{{if .ID}} id="{{.ID}}"{{end}}>{{embed .Name}}</style>
 {{- else }}
-	<link{{if .ID}} id="{{.ID}}"{{end}} href="{{link "res" .Name}}" rel="stylesheet" type="text/css" />
+	<link{{if .ID}} id="{{.ID}}"{{end}} href="{{link "resource" .Name}}" rel="stylesheet" type="text/css" />
 {{- end }}
 {{- end }}
 {{- range .Scripts }}
 {{- if .Embed }}
 	<script{{if .ID}} id="{{.ID}}"{{end}}>{{embed .Name -}}</script>
 {{- else }}
-	<script{{if .ID}} id="{{.ID}}"{{end}} src="{{link "res" .Name}}" charset="utf-8"></script>
+	<script{{if .ID}} id="{{.ID}}"{{end}} src="{{link "resource" .Name}}" charset="utf-8"></script>
 {{- end }}
 {{- end }}
 </head>

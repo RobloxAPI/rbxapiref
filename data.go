@@ -56,8 +56,8 @@ retry:
 	switch strings.ToLower(linkType) {
 	case "index":
 		s = "index" + FileExt
-	case "res":
-		s = path.Join("res", path.Join(args...))
+	case "resource":
+		s = path.Join(data.Settings.Output.Resources, path.Join(args...))
 	case "updates":
 		if len(args) > 0 {
 			s = path.Join("updates", args[0]+FileExt)
@@ -92,7 +92,7 @@ retry:
 		}
 		s = path.Join(TypePath, url.PathEscape(args[1])+FileExt)
 	}
-	s = path.Join("/", data.Settings.Root, s)
+	s = path.Join("/", data.Settings.Output.Sub, s)
 	return s
 }
 
@@ -105,7 +105,7 @@ func (data *Data) FilePath(typ string, args ...string) string {
 
 // LinkFromPath transforms a path into a link, if possible.
 func (data *Data) LinkFromPath(p string) string {
-	if l, err := filepath.Rel(data.Settings.Output, p); err == nil {
+	if l, err := filepath.Rel(data.Settings.Output.Root, p); err == nil {
 		return l
 	}
 	return p
@@ -113,7 +113,7 @@ func (data *Data) LinkFromPath(p string) string {
 
 // PathFrom link transforms a link into a path, if possible.
 func (data *Data) PathFromLink(l string) string {
-	return filepath.Join(data.Settings.Output, l)
+	return filepath.Join(data.Settings.Output.Root, l)
 }
 
 const IconSize = 16
@@ -372,17 +372,37 @@ type TreeNode struct {
 }
 
 type Settings struct {
-	// Output is the directory to which generated files will be written.
-	Output string
-	// Root is a path that follows the output directory and precedes a
-	// generated file path.
-	Root string
+	// Input specifies input settings.
+	Input SettingsInput
+	// Output specifies output settings.
+	Output SettingsOutput
 	// Configs maps an identifying name to a fetch configuration.
 	Configs map[string]fetch.Config
 	// UseConfigs specifies the logical concatenation of the fetch configs
 	// defined in the Configs setting. Builds from these configs are read
 	// sequentially.
 	UseConfigs []string
+}
+
+type SettingsInput struct {
+	// Resources is the location of resource files.
+	Resources string
+	// Templates is the location of template files.
+	Templates string
+}
+
+type SettingsOutput struct {
+	// Root is the directory to which generated files will be written.
+	Root string
+	// Sub is a path that follows the output directory and precedes a
+	// generated file path.
+	Sub string
+	// Resources is the path relative to the Base where generated resource
+	// files will be written.
+	Resources string
+	// Manifest is the path relative to the base that points to the manifest
+	// file.
+	Manifest string
 }
 
 type BuildInfo struct {

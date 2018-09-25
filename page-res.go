@@ -8,22 +8,22 @@ import (
 )
 
 func GenerateResPage(data *Data) error {
-	fis, err := ioutil.ReadDir("resources")
+	fis, err := ioutil.ReadDir(data.Settings.Input.Resources)
 	if err != nil {
 		return err
 	}
-	if err := os.MkdirAll(data.FilePath("res"), 0666); err != nil {
+	if err := os.MkdirAll(data.FilePath(data.Settings.Output.Resources), 0666); err != nil {
 		return err
 	}
 	for _, fi := range fis {
 		if fi.IsDir() {
 			continue
 		}
-		src, err := os.Open(filepath.Join("resources", fi.Name()))
+		src, err := os.Open(filepath.Join(data.Settings.Input.Resources, fi.Name()))
 		if err != nil {
 			return err
 		}
-		dst, err := os.Create(data.FilePath("res", fi.Name()))
+		dst, err := os.Create(data.FilePath(data.Settings.Output.Resources, fi.Name()))
 		if err != nil {
 			src.Close()
 			return err
