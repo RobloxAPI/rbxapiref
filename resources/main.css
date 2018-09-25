@@ -47,6 +47,7 @@ a[href] {
 	flex-flow       : wrap row;
 }
 #main-nav li a {
+	display          : inline-block;
 	padding          : 1.5em 1em;
 	background-color : var(--table-color);
 	transition       : filter 100ms linear;
