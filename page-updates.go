@@ -15,8 +15,8 @@ func GenerateUpdatesPage(data *Data) error {
 	page := Page{
 		Template: "updates",
 		Title:    "Updates",
-		Styles:   []Resource{{Name: "updates.css", Embed: true, ID: "updates-style"}},
-		Scripts:  []Resource{{Name: "updates.js", Embed: true}},
+		Styles:   []Resource{{Name: "updates.css", ID: "updates-style"}},
+		Scripts:  []Resource{{Name: "updates.js"}},
 	}
 
 	src := data.Patches
