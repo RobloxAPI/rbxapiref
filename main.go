@@ -279,6 +279,24 @@ loop:
 	// Compile templates.
 	var err error
 	data.Templates, err = compileTemplates(data.Settings.Input.Templates, template.FuncMap{
+		"embed": func(resource string) (interface{}, error) {
+			b, err := ioutil.ReadFile(filepath.Join(data.Settings.Input.Resources, resource))
+			switch filepath.Ext(resource) {
+			case ".css":
+				return template.CSS(b), err
+			case ".js":
+				return template.JS(b), err
+			}
+			return string(b), err
+		},
+		"execute": data.ExecuteTemplate,
+		"icon":    data.Icon,
+		"istype": func(v interface{}, t string) bool {
+			if v == nil {
+				return "nil" == t
+			}
+			return reflect.TypeOf(v).String() == t
+		},
 		"link": func(linkType string, args ...interface{}) string {
 			sargs := make([]string, len(args))
 			for i, arg := range args {
@@ -291,8 +309,6 @@ loop:
 			}
 			return data.FileLink(linkType, sargs...)
 		},
-		"icon":       data.Icon,
-		"tostring":   toString,
 		"subactions": makeSubactions,
 		"subclasses": func(name string) []string {
 			node := data.Tree[name]
@@ -301,26 +317,10 @@ loop:
 			}
 			return node.Sub
 		},
+		"tostring": toString,
 		"type": func(v interface{}) string {
 			return reflect.TypeOf(v).String()
 		},
-		"istype": func(v interface{}, t string) bool {
-			if v == nil {
-				return "nil" == t
-			}
-			return reflect.TypeOf(v).String() == t
-		},
-		"embed": func(resource string) (interface{}, error) {
-			b, err := ioutil.ReadFile(filepath.Join(data.Settings.Input.Resources, resource))
-			switch filepath.Ext(resource) {
-			case ".css":
-				return template.CSS(b), err
-			case ".js":
-				return template.JS(b), err
-			}
-			return string(b), err
-		},
-		"execute": data.ExecuteTemplate,
 	})
 	if err != nil {
 		fmt.Println("failed to open template", err)
