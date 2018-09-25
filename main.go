@@ -116,7 +116,7 @@ func main() {
 		err := json.NewDecoder(f).Decode(&data.Settings)
 		f.Close()
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("failed to open settings file:", err)
 			return
 		}
 	}
@@ -136,7 +136,7 @@ func main() {
 			err = json.NewDecoder(f).Decode(&prevPatches)
 			f.Close()
 			if err != nil {
-				fmt.Println(err)
+				fmt.Println("failed to open manifest:", err)
 				return
 			}
 		}
@@ -257,18 +257,18 @@ loop:
 			return
 		}
 		if err := os.MkdirAll(data.FilePath("resource"), 0666); err != nil {
-			fmt.Println(err)
+			fmt.Println("failed to make resource dir:", err)
 			return
 		}
 		f, err := os.Create(data.FilePath("resource", "icon-explorer.png"))
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("failed to create icons file:", err)
 			return
 		}
 		err = png.Encode(f, icon)
 		f.Close()
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("failed to encode icons file:", err)
 			return
 		}
 	}
@@ -336,7 +336,7 @@ loop:
 	}
 	for _, page := range pages {
 		if err := page(data); err != nil {
-			fmt.Println(err)
+			fmt.Println("page error:", err)
 			return
 		}
 	}
@@ -345,7 +345,7 @@ loop:
 	{
 		f, err := os.Create(manifestPath)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("failed to create manifest file:", err)
 			return
 		}
 		je := json.NewEncoder(f)
@@ -354,7 +354,7 @@ loop:
 		err = je.Encode(data.Patches)
 		f.Close()
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("failed to encode manifest file:", err)
 			return
 		}
 	}
