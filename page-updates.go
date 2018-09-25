@@ -12,6 +12,12 @@ func GenerateUpdatesPage(data *Data) error {
 		Year    int
 		Years   []int
 	}
+	page := Page{
+		Template: "updates",
+		Title:    "Updates",
+		Styles:   []Resource{{Name: "updates.css", Embed: true, ID: "updates-style"}},
+		Scripts:  []Resource{{Name: "updates.js", Embed: true}},
+	}
 
 	src := data.Patches
 	if len(src) == 0 {
@@ -19,7 +25,8 @@ func GenerateUpdatesPage(data *Data) error {
 		if err != nil {
 			return err
 		}
-		err = data.Templates.ExecuteTemplate(f, "updates", args{})
+		page.Data = args{}
+		GeneratePage(data, f, page)
 		f.Close()
 		return err
 	}
@@ -67,7 +74,8 @@ func GenerateUpdatesPage(data *Data) error {
 		if err != nil {
 			return err
 		}
-		err = data.Templates.ExecuteTemplate(f, "updates", args{patches[:i], 0, years})
+		page.Data = args{patches[:i], 0, years}
+		err = GeneratePage(data, f, page)
 		f.Close()
 		if err != nil {
 			return err
@@ -82,7 +90,8 @@ func GenerateUpdatesPage(data *Data) error {
 		if err != nil {
 			return err
 		}
-		err = data.Templates.ExecuteTemplate(f, "updates", args{patches, year, years})
+		page.Data = args{patches, year, years}
+		err = GeneratePage(data, f, page)
 		f.Close()
 		if err != nil {
 			return err

@@ -16,7 +16,7 @@ var memberTypeOrder = map[string]int{
 	"Callback": 3,
 }
 
-type ClassPage struct {
+type ClassPageData struct {
 	Name         string
 	Entity       *ClassEntity
 	Superclasses []string
@@ -30,13 +30,13 @@ type MemberSection struct {
 	Members []rbxapi.Member
 }
 
-type EnumPage struct {
+type EnumPageData struct {
 	Name    string
 	Entity  *EnumEntity
 	Members [][2]string
 }
 
-type TypePage struct {
+type TypePageData struct {
 	Name    string
 	Entity  rbxapijson.Type
 	Members [][2]string
@@ -87,9 +87,9 @@ func getRelevantMembers(entities map[[2]string]*MemberEntity, typ rbxapijson.Typ
 	return members
 }
 
-func buildPageData(data *Data, pageSet map[string]interface{}, typ string, args ...string) {
+func buildPageData(data *Data, pageDataSet map[string]interface{}, typ string, args ...string) {
 	link := data.FileLink(typ, args...)
-	if _, ok := pageSet[link]; ok {
+	if _, ok := pageDataSet[link]; ok {
 		return
 	}
 	switch typ {
@@ -99,11 +99,11 @@ func buildPageData(data *Data, pageSet map[string]interface{}, typ string, args 
 		if entity == nil || entity.Element == nil {
 			return
 		}
-		page := ClassPage{Name: class, Entity: entity}
+		pageData := ClassPageData{Name: class, Entity: entity}
 		tree := data.Tree[class]
 		if tree != nil {
-			page.Superclasses = tree.Super
-			page.Subclasses = tree.Sub
+			pageData.Superclasses = tree.Super
+			pageData.Subclasses = tree.Sub
 		}
 		enums := map[string]struct{}{}
 		for _, member := range entity.Element.Members {
@@ -138,11 +138,11 @@ func buildPageData(data *Data, pageSet map[string]interface{}, typ string, args 
 				}
 			}
 		}
-		page.Enums = make([]string, 0, len(enums))
+		pageData.Enums = make([]string, 0, len(enums))
 		for enum := range enums {
-			page.Enums = append(page.Enums, enum)
+			pageData.Enums = append(pageData.Enums, enum)
 		}
-		sort.Strings(page.Enums)
+		sort.Strings(pageData.Enums)
 		for entity != nil && entity.Element != nil {
 			members := make([]rbxapi.Member, len(entity.Element.Members))
 			copy(members, entity.Element.Members)
@@ -154,49 +154,65 @@ func buildPageData(data *Data, pageSet map[string]interface{}, typ string, args 
 				}
 				return it < jt
 			})
-			page.Members = append(page.Members, MemberSection{class, members})
+			pageData.Members = append(pageData.Members, MemberSection{class, members})
 			class = entity.Element.Superclass
 			entity = data.Entities.Classes[class]
 		}
-		pageSet[link] = &page
+		pageDataSet[link] = &pageData
 	case "enum":
 		enum := args[0]
 		entity := data.Entities.Enums[enum]
 		if entity == nil {
 			return
 		}
-		page := EnumPage{Name: enum, Entity: entity}
-		page.Members = getRelevantMembers(
+		pageData := EnumPageData{Name: enum, Entity: entity}
+		pageData.Members = getRelevantMembers(
 			data.Entities.Members,
-			rbxapijson.Type{Category: "Enum", Name: page.Name},
+			rbxapijson.Type{Category: "Enum", Name: pageData.Name},
 		)
-		pageSet[link] = &page
+		pageDataSet[link] = &pageData
 	case "type":
 		switch t := strings.ToLower(args[0]); t {
 		case "class", "enum":
-			buildPageData(data, pageSet, t, args[1])
+			buildPageData(data, pageDataSet, t, args[1])
 			return
 		}
-		page := TypePage{Name: args[1]}
-		page.Entity = rbxapijson.Type{args[0], args[1]}
-		page.Members = getRelevantMembers(data.Entities.Members, page.Entity)
-		pageSet[link] = &page
+		pageData := TypePageData{Name: args[1]}
+		pageData.Entity = rbxapijson.Type{args[0], args[1]}
+		pageData.Members = getRelevantMembers(data.Entities.Members, pageData.Entity)
+		pageDataSet[link] = &pageData
 	}
 }
 
-func buildTypePage(data *Data, pageSet map[string]interface{}, v interface{}) {
+func buildTypePage(data *Data, pageDataSet map[string]interface{}, v interface{}) {
 	switch v := v.(type) {
 	case rbxapijson.Type:
-		buildPageData(data, pageSet, "type", v.Category, v.Name)
+		buildPageData(data, pageDataSet, "type", v.Category, v.Name)
 	case []rbxapijson.Parameter:
 		for _, p := range v {
-			buildPageData(data, pageSet, "type", p.Type.Category, p.Type.Name)
+			buildPageData(data, pageDataSet, "type", p.Type.Category, p.Type.Name)
 		}
 	}
 }
 
 func GenerateRefPage(data *Data) error {
-	pageSet := map[string]interface{}{}
+	classPage := Page{
+		Template: "class",
+		Styles:   []Resource{{Name: "class.css"}},
+		Scripts:  []Resource{{Name: "class.js"}},
+	}
+	enumPage := Page{
+		Template: "enum",
+		Styles:   []Resource{},
+		Scripts:  []Resource{},
+	}
+	typePage := Page{
+		Template: "type",
+		Styles:   []Resource{},
+		Scripts:  []Resource{},
+	}
+
+	pageDataSet := map[string]interface{}{}
 	for _, patch := range data.Patches {
 		// if !patch.Stale {
 		// 	continue
@@ -204,24 +220,24 @@ func GenerateRefPage(data *Data) error {
 		for _, action := range patch.Actions {
 			switch {
 			case action.Class != nil:
-				buildPageData(data, pageSet, "class", action.Class.Name)
-				buildPageData(data, pageSet, "class", action.Class.Superclass)
+				buildPageData(data, pageDataSet, "class", action.Class.Name)
+				buildPageData(data, pageDataSet, "class", action.Class.Superclass)
 				for _, member := range action.Class.Members {
 					switch member.GetMemberType() {
 					case "Property":
 						member := member.(*rbxapijson.Property)
-						buildTypePage(data, pageSet, member.ValueType)
+						buildTypePage(data, pageDataSet, member.ValueType)
 					case "Function":
 						member := member.(*rbxapijson.Function)
-						buildTypePage(data, pageSet, member.ReturnType)
-						buildTypePage(data, pageSet, member.Parameters)
+						buildTypePage(data, pageDataSet, member.ReturnType)
+						buildTypePage(data, pageDataSet, member.Parameters)
 					case "Event":
 						member := member.(*rbxapijson.Event)
-						buildTypePage(data, pageSet, member.Parameters)
+						buildTypePage(data, pageDataSet, member.Parameters)
 					case "Callback":
 						member := member.(*rbxapijson.Callback)
-						buildTypePage(data, pageSet, member.ReturnType)
-						buildTypePage(data, pageSet, member.Parameters)
+						buildTypePage(data, pageDataSet, member.ReturnType)
+						buildTypePage(data, pageDataSet, member.Parameters)
 					}
 				}
 				member := action.GetMember()
@@ -231,34 +247,34 @@ func GenerateRefPage(data *Data) error {
 				switch member.GetMemberType() {
 				case "Property":
 					member := member.(*rbxapijson.Property)
-					buildTypePage(data, pageSet, member.ValueType)
+					buildTypePage(data, pageDataSet, member.ValueType)
 				case "Function":
 					member := member.(*rbxapijson.Function)
-					buildTypePage(data, pageSet, member.ReturnType)
-					buildTypePage(data, pageSet, member.Parameters)
+					buildTypePage(data, pageDataSet, member.ReturnType)
+					buildTypePage(data, pageDataSet, member.Parameters)
 				case "Event":
 					member := member.(*rbxapijson.Event)
-					buildTypePage(data, pageSet, member.Parameters)
+					buildTypePage(data, pageDataSet, member.Parameters)
 				case "Callback":
 					member := member.(*rbxapijson.Callback)
-					buildTypePage(data, pageSet, member.ReturnType)
-					buildTypePage(data, pageSet, member.Parameters)
+					buildTypePage(data, pageDataSet, member.ReturnType)
+					buildTypePage(data, pageDataSet, member.Parameters)
 				}
 			case action.Enum != nil:
-				buildPageData(data, pageSet, "enum", action.Enum.Name)
+				buildPageData(data, pageDataSet, "enum", action.Enum.Name)
 			}
-			buildTypePage(data, pageSet, action.GetPrev())
-			buildTypePage(data, pageSet, action.GetNext())
+			buildTypePage(data, pageDataSet, action.GetPrev())
+			buildTypePage(data, pageDataSet, action.GetNext())
 		}
 	}
-	pages := make([]string, 0, len(pageSet))
-	for k := range pageSet {
-		pages = append(pages, k)
+	pageDataList := make([]string, 0, len(pageDataSet))
+	for k := range pageDataSet {
+		pageDataList = append(pageDataList, k)
 	}
-	sort.Strings(pages)
+	sort.Strings(pageDataList)
 	dirs := map[string]bool{}
-	for _, link := range pages {
-		page := pageSet[link]
+	for _, link := range pageDataList {
+		pageData := pageDataSet[link]
 		path := data.PathFromLink(link)
 		if dir := filepath.Dir(path); !dirs[dir] {
 			if err := os.MkdirAll(dir, 0666); err != nil {
@@ -270,13 +286,23 @@ func GenerateRefPage(data *Data) error {
 		if err != nil {
 			return err
 		}
-		switch page := page.(type) {
-		case *ClassPage:
-			err = data.Templates.ExecuteTemplate(file, "class", page)
-		case *EnumPage:
-			err = data.Templates.ExecuteTemplate(file, "enum", page)
-		case *TypePage:
-			err = data.Templates.ExecuteTemplate(file, "type", page)
+		var page *Page
+		switch pageData := pageData.(type) {
+		case *ClassPageData:
+			page = &classPage
+			page.Data = pageData
+			page.Title = pageData.Name
+		case *EnumPageData:
+			page = &enumPage
+			page.Data = pageData
+			page.Title = pageData.Name
+		case *TypePageData:
+			page = &typePage
+			page.Data = pageData
+			page.Title = pageData.Name
+		}
+		if page != nil {
+			err = GeneratePage(data, file, *page)
 		}
 		file.Close()
 		if err != nil {

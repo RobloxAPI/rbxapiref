@@ -1,30 +1,17 @@
-<!DOCTYPE html>
-<html lang="en-US">
-<head>
-	<meta charset="utf-8">
-	<title>{{.Name}}</title>
-	<link href="{{link "res" "main.css"}}" rel="stylesheet" type="text/css" />
-</head>
-<body>
-	<header>
-		<h1>{{icon "enum"}}{{.Name}}</h1>
-	</header>
-	<nav>
-		<a href="{{link "index"}}">Main page</a>
-	</nav>
-	<article>
-		{{- if .Members }}
-		<section id="relevant-members">
-			<h2>Relevant members</h2>
-			<ul>
-			{{- range .Members -}}
-				{{- $class := (index . 0) -}}
-				{{- $member := (index . 1) }}
-				<li><a class="element-link" href="{{link "member" $class $member}}">{{icon "member" $class $member}}{{$class}}.{{$member}}</a></li>
-			{{- end }}
-			</ul>
-		</section>
+<header>
+	<h1>{{icon "enum"}}{{.Name}}</h1>
+</header>
+<article>
+	{{- if .Members }}
+	<section id="relevant-members">
+		<h2>Relevant members</h2>
+		<ul>
+		{{- range .Members -}}
+			{{- $class := (index . 0) -}}
+			{{- $member := (index . 1) }}
+			<li><a class="element-link" href="{{link "member" $class $member}}">{{icon "member" $class $member}}{{$class}}.{{$member}}</a></li>
 		{{- end }}
-	</article>
-</body>
-</html>
+		</ul>
+	</section>
+	{{- end }}
+</article>

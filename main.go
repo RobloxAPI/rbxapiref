@@ -302,6 +302,17 @@ loop:
 			}
 			return reflect.TypeOf(v).String() == t
 		},
+		"embed": func(resource string) (interface{}, error) {
+			b, err := ioutil.ReadFile(filepath.Join("resources", resource))
+			switch filepath.Ext(resource) {
+			case ".css":
+				return template.CSS(b), err
+			case ".js":
+				return template.JS(b), err
+			}
+			return string(b), err
+		},
+		"execute": data.ExecuteTemplate,
 	})
 	if err != nil {
 		fmt.Println("failed to open template", err)

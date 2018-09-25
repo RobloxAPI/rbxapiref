@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+	<meta charset="utf-8">
+	<title>{{if .Title}}{{.Title}} - {{end}}Roblox API Reference</title>
+	<link href="{{link "res" "main.css"}}" rel="stylesheet" type="text/css" />
+{{- range .Styles }}
+{{- if .Embed }}
+	<style{{if .ID}} id="{{.ID}}"{{end}}>{{embed .Name}}</style>
+{{- else }}
+	<link{{if .ID}} id="{{.ID}}"{{end}} href="{{link "res" .Name}}" rel="stylesheet" type="text/css" />
+{{- end }}
+{{- end }}
+{{- range .Scripts }}
+{{- if .Embed }}
+	<script{{if .ID}} id="{{.ID}}"{{end}}>{{embed .Name -}}</script>
+{{- else }}
+	<script{{if .ID}} id="{{.ID}}"{{end}} src="{{link "res" .Name}}" charset="utf-8"></script>
+{{- end }}
+{{- end }}
+</head>
+<body>
+	<header id="main-header">
+		<h1><a href="{{link "index"}}">Roblox API Reference</a></h1>
+		<nav id="main-nav">
+			<ul>
+				<li><a href="{{link "updates"}}">Updates</a></li>
+			</ul>
+		</nav>
+	</header>
+	<main>
+{{execute .Template .Data -}}
+	</main>
+</body>
+</html>

@@ -10,6 +10,7 @@
 	--indent              : 4ch;
 	--indent-small        : 2ch;
 	--icon-spacing        : 0.5ch;
+	--section-spacing     : 2ch;
 }
 
 /* Main */
@@ -17,12 +18,42 @@ body {
 	font             : 10pt/1.2 "Open Sans","Trebuchet MS","DejaVu Sans",Geneva,sans-serif;
 	color            : var(--text-color);
 	background-color : var(--background-color);
+	margin           : 0;
+	padding          : 0;
+}
+main {
+	margin: 1em;
 }
 a[href] {
 	color : var(--anchor-color);
 }
 .hidden {
 	display : none;
+}
+#main-header {
+	display          : flex;
+	align-items      : center;
+	flex-flow        : wrap row;
+	background-color : var(--table-color);
+}
+#main-header h1 {
+	margin : 0.5em;
+}
+#main-nav ul {
+	display         : flex;
+	list-style-type : none;
+	margin          : 0;
+	padding         : 0;
+	flex-flow       : wrap row;
+}
+#main-nav li a {
+	padding          : 1.5em 1em;
+	background-color : var(--table-color);
+	transition       : filter 100ms linear;
+}
+#main-nav li:hover {
+	filter     : brightness(0.9);
+	transition : filter 100ms linear;
 }
 
 /* Status decorations */

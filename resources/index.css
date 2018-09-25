@@ -1,0 +1,25 @@
+main article ul {
+	margin-left  : 0;
+	padding-left : var(--indent);
+}
+main article:not(#types) ul {
+	list-style: none;
+}
+main {
+	--indent     : calc(var(--icon-size) + var(--icon-spacing));
+ 	--list-depth : 5;
+ 	--name-width : 24ch;
+ 	--grid-width : calc(
+ 		var(--list-depth)*var(--indent) +
+ 		var(--icon-size) +
+ 		var(--icon-spacing) +
+ 		var(--name-width)
+ 	);
+	display               : grid;
+	grid-template-columns : repeat(auto-fit, minmax(var(--grid-width), 1fr));
+	justify-items         : left;
+	grid-template-rows    : auto 1fr;
+}
+#classes {
+	grid-row-end: span 2;
+}

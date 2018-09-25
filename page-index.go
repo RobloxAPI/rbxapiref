@@ -9,7 +9,12 @@ func GenerateIndexPage(data *Data) error {
 	if err != nil {
 		return err
 	}
-	err = data.Templates.ExecuteTemplate(f, "index", data)
+	err = GeneratePage(data, f, Page{
+		Template: "index",
+		Data:     data,
+		Styles:   []Resource{{Name: "index.css", Embed: true}},
+		Scripts:  []Resource{{Name: "sort-classes.js"}},
+	})
 	f.Close()
 	return err
 }

@@ -1,204 +1,88 @@
-<!DOCTYPE html>
-<html lang="en-US">
-<head>
-	<meta charset="utf-8">
-	<title>Roblox Lua API Updates</title>
-	<link href="{{link "res" "main.css"}}" rel="stylesheet" type="text/css" />
-	<style id="updates-style">
-		li[diff-field="Parameters"] .diff-values {
-			display: table;
-			padding-left: 4ch;
-		}
-		li[diff-field="Parameters"] .diff-values > span {
-			display: table-row;
-		}
-		li[diff-field="Parameters"] .diff-values > span > span {
-			display: table-cell;
-			padding-right: 1ch;
-		}
-		li[diff-field="Tags"] .diff-values {
-			display: table;
-			padding-left: 4ch;
-		}
-		li[diff-field="Tags"] .diff-values > span {
-			display: table-row;
-		}
-		li[diff-field="Tags"] .diff-values > span > span {
-			display: table-cell;
-			padding-right: 1ch;
-		}
-		a.permalink {
-			display: none;
-		}
-		*:hover > a.permalink {
-			display: inline;
-		}
-		*:hover > a.permalink:before {
-			content : ' ¶ ';
-		}
-	</style>
-	<script>"use strict";
-		function toggleList(event) {
-			let parent = event.target.closest(".update");
-			if (parent === null) {
-				return;
-			};
-			let list = parent.querySelector(".patch-list");
-			if (list === null) {
-				return;
-			};
-			if (list.classList.contains("hidden")) {
-				list.classList.remove("hidden");
-			} else {
-				list.classList.add("hidden");
-			};
-		};
-		function toggleAll(show, scroll) {
-			let scrollTo;
-			for (let item of document.querySelectorAll("#update-list > li .patch-list")) {
-				let anchor = item.parentElement.querySelector("a.anchor:target");
-				if (anchor !== null) {
-					scrollTo = anchor;
-				}
-				if (show) {
-					item.classList.remove("hidden");
-				} else {
-					if (anchor !== null) {
-						item.classList.remove("hidden");
-					} else {
-						item.classList.add("hidden");
-					};
-				};
-			};
-			if (scroll && scrollTo !== undefined) {
-				scrollTo.scrollIntoView(true);
-			};
-		};
-		document.addEventListener("DOMContentLoaded", function(event) {
-			let controls = document.getElementById("controls");
-			if (controls !== null) {
-				controls.insertAdjacentHTML("beforeBegin", '<label><input type="checkbox" id="expand-all">All changes expanded</label>');
-			};
-
-			let expandAll = document.getElementById("expand-all");
-			if (expandAll !== null) {
-				expandAll.addEventListener("click", function(event) {
-					toggleAll(event.target.checked, false);
-				});
-				toggleAll(expandAll.checked, true);
-			} else {;
-				toggleAll(false, true);
-			};
-
-			for (let item of document.querySelectorAll("#update-list > li .patch-list-toggle")) {
-				item.addEventListener("click", toggleList);
-			};
-
-			let list = document.getElementById("update-list");
-			if (list !== null) {
-				let note = document.createElement("div");
-				note.innerText = "Click a date to expand or collapse changes.";
-				list.parentElement.insertBefore(note, list);
-			};
-
-			let style = document.getElementById("updates-style");
-			if (style !== null) {
-				style.sheet.insertRule(".patch-list-toggle {cursor: pointer;}");
-			};
-		});
-	</script>
-</head>
-<body>
-	<header>
-		<h1>{{if not .Year}}Recent {{end}}API Updates{{if .Year}} in {{.Year}}{{end}}</h1>
-	</header>
-	<aside id="controls">
-	</aside>
-	<nav>
-		<a href="{{link "index"}}">Main page</a>
-	</nav>
-	<aside id="updates-nav">
-		<ul>
-		{{- $year := .Year -}}
-		{{- if $year }}
-			<li><a href="{{link "updates"}}">Recent</a></li>
-		{{- else }}
-			<li class="current">Recent</li>
+<header>
+	<h2>{{if not .Year}}Recent {{end}}API Updates{{if .Year}} in {{.Year}}{{end}}</h2>
+</header>
+<aside id="update-controls">
+</aside>
+<nav>
+	<ul>
+	{{- $year := .Year -}}
+	{{- if $year }}
+		<li><a href="{{link "updates"}}">Recent</a></li>
+	{{- else }}
+		<li class="current">Recent</li>
+	{{- end -}}
+	{{- range .Years -}}
+	{{- if eq $year . }}
+		<li class="current">{{.}}</li>
+	{{- else }}
+		<li><a href="{{link "updates" .}}">{{.}}</a></li>
+	{{- end -}}
+	{{- end }}
+	</ul>
+</nav>
+<article>
+	<ul id="update-list">
+		{{- with .Patches -}}
+		{{- range . }}
+		<li>
+			<section class="update">
+				<a id="{{.Info.Hash}}" class="anchor"></a>
+				<span class="patch-list-toggle"><time datetime="{{.Info.Date.Format "2006-01-02 15:04:05-0700" }}">{{.Info.Date.Format "2006-01-02 15:04" }}</time> (v{{.Info.Version}})</span>
+				<a class="permalink" title="Permanent link" href="{{link "updates" .Info.Date.Year}}#{{.Info.Hash}}">{{.Info.Hash}}</a>
+				<ul class="patch-list">
+				{{- range .Actions}}
+					<li{{if .Field}} diff-field="{{.Field}}"{{end}}>
+					{{- if and .Class .GetMember -}}
+					{{- if eq .Type 0 -}}
+						{{.Type.String}} {{.Field}} of <a class="element-link" href="{{link "member" .Class.GetName .GetMember.GetName}}">{{icon .GetMember false}}{{.Class.GetName}}.{{.GetMember.GetName}}</a>
+						<span class="diff-values"><span><span>from</span> <span>{{template "value" .GetPrev}}</span></span> <span><span>to</span> <span>{{template "value" .GetNext}}</span></span></span>
+					{{- else -}}
+						{{.Type.String}} <a class="element-link" href="{{link "member" .Class.Name .GetMember.GetName}}">{{icon .GetMember}}{{.Class.Name}}.{{.GetMember.GetName}}</a>
+					{{- end -}}
+					{{- else if .Class -}}
+					{{- if eq .Type 0 -}}
+						{{.Type.String}} {{.Field}} of <a class="element-link" href="{{link "class" .Class.Name}}">{{icon .Class false}}{{.Class.Name}}</a>
+						<span class="diff-values"><span><span>from</span> <span>{{template "value" .GetPrev}}</span></span> <span><span>to</span> <span>{{template "value" .GetNext}}</span></span></span>
+					{{- else -}}
+						{{.Type.String}} <a class="element-link" href="{{link "class" .Class.Name}}">{{icon .Class}}{{.Class.Name}}</a>
+						<ul>
+						{{- range subactions . }}
+							<li>{{.Type.String}} <a class="element-link" href="{{link "member" .Class.Name .GetMember.GetName}}">{{icon .GetMember}}{{.GetMember.GetName}}</a></li>
+						{{- end}}
+						</ul>
+					{{- end -}}
+					{{- else if and .Enum .EnumItem -}}
+					{{- if eq .Type 0 -}}
+						{{.Type.String}} {{.Field}} of <a class="element-link" href="{{link "enumitem" .Enum.Name .EnumItem.Name}}">{{icon .EnumItem false}}{{.Enum.Name}}.{{.EnumItem.Name}}</a>
+						<span class="diff-values"><span><span>from</span> <span>{{template "value" .GetPrev}}</span></span> <span><span>to</span> <span>{{template "value" .GetNext}}</span></span></span>
+					{{- else -}}
+						{{.Type.String}} <a class="element-link" href="{{link "enumitem" .Enum.Name .EnumItem.Name}}">{{icon .EnumItem}}{{.Enum.Name}}.{{.EnumItem.Name}}</a>
+					{{- end -}}
+					{{- else if .Enum -}}
+					{{- if eq .Type 0 -}}
+						{{.Type.String}} {{.Field}} of <a class="element-link" href="{{link "enum" .Enum.Name}}">{{icon .Enum false}}{{.Enum.Name}}</a>
+						<span class="diff-values"><span><span>from</span> <span>{{template "value" .GetPrev}}</span></span> <span><span>to</span> <span>{{template "value" .GetNext}}</span></span></span>
+					{{- else -}}
+						{{.Type.String}} <a class="element-link" href="{{link "enum" .Enum.Name}}">{{icon .Enum}}{{.Enum.Name}}</a>
+						<ul>
+						{{- range subactions . }}
+							<li>{{.Type.String}} <a class="element-link" href="{{link "enumitem" .Enum.Name .EnumItem.Name}}">{{icon .EnumItem}}{{.EnumItem.Name}}</a></li>
+						{{- end}}
+						</ul>
+					{{- end -}}
+					{{- else -}}
+						{{.String}}
+					{{- end -}}
+					</li>
+					{{- else -}}
+					<li>No changes</li>
+				{{end}}
+				</ul>
+			</section>
+		</li>
+		{{- else -}}
+		<li>No updates</li>
 		{{- end -}}
-		{{- range .Years -}}
-		{{- if eq $year . }}
-			<li class="current">{{.}}</li>
-		{{- else }}
-			<li><a href="{{link "updates" .}}">{{.}}</a></li>
-		{{- end -}}
-		{{- end }}
-		</ul>
-	</aside>
-	<main>
-		<ul id="update-list">
-			{{- with .Patches -}}
-			{{- range . }}
-			<li>
-				<article class="update">
-					<a id="{{.Info.Hash}}" class="anchor"></a>
-					<span class="patch-list-toggle"><time datetime="{{.Info.Date.Format "2006-01-02 15:04:05-0700" }}">{{.Info.Date.Format "2006-01-02 15:04" }}</time> (v{{.Info.Version}})</span>
-					<a class="permalink" title="Permanent link" href="{{link "updates" .Info.Date.Year}}#{{.Info.Hash}}">{{.Info.Hash}}</a>
-					<ul class="patch-list">
-					{{- range .Actions}}
-						<li{{if .Field}} diff-field="{{.Field}}"{{end}}>
-						{{- if and .Class .GetMember -}}
-						{{- if eq .Type 0 -}}
-							{{.Type.String}} {{.Field}} of <a class="element-link" href="{{link "member" .Class.GetName .GetMember.GetName}}">{{icon .GetMember false}}{{.Class.GetName}}.{{.GetMember.GetName}}</a>
-							<span class="diff-values"><span><span>from</span> <span>{{template "value" .GetPrev}}</span></span> <span><span>to</span> <span>{{template "value" .GetNext}}</span></span></span>
-						{{- else -}}
-							{{.Type.String}} <a class="element-link" href="{{link "member" .Class.Name .GetMember.GetName}}">{{icon .GetMember}}{{.Class.Name}}.{{.GetMember.GetName}}</a>
-						{{- end -}}
-						{{- else if .Class -}}
-						{{- if eq .Type 0 -}}
-							{{.Type.String}} {{.Field}} of <a class="element-link" href="{{link "class" .Class.Name}}">{{icon .Class false}}{{.Class.Name}}</a>
-							<span class="diff-values"><span><span>from</span> <span>{{template "value" .GetPrev}}</span></span> <span><span>to</span> <span>{{template "value" .GetNext}}</span></span></span>
-						{{- else -}}
-							{{.Type.String}} <a class="element-link" href="{{link "class" .Class.Name}}">{{icon .Class}}{{.Class.Name}}</a>
-							<ul>
-							{{- range subactions . }}
-								<li>{{.Type.String}} <a class="element-link" href="{{link "member" .Class.Name .GetMember.GetName}}">{{icon .GetMember}}{{.GetMember.GetName}}</a></li>
-							{{- end}}
-							</ul>
-						{{- end -}}
-						{{- else if and .Enum .EnumItem -}}
-						{{- if eq .Type 0 -}}
-							{{.Type.String}} {{.Field}} of <a class="element-link" href="{{link "enumitem" .Enum.Name .EnumItem.Name}}">{{icon .EnumItem false}}{{.Enum.Name}}.{{.EnumItem.Name}}</a>
-							<span class="diff-values"><span><span>from</span> <span>{{template "value" .GetPrev}}</span></span> <span><span>to</span> <span>{{template "value" .GetNext}}</span></span></span>
-						{{- else -}}
-							{{.Type.String}} <a class="element-link" href="{{link "enumitem" .Enum.Name .EnumItem.Name}}">{{icon .EnumItem}}{{.Enum.Name}}.{{.EnumItem.Name}}</a>
-						{{- end -}}
-						{{- else if .Enum -}}
-						{{- if eq .Type 0 -}}
-							{{.Type.String}} {{.Field}} of <a class="element-link" href="{{link "enum" .Enum.Name}}">{{icon .Enum false}}{{.Enum.Name}}</a>
-							<span class="diff-values"><span><span>from</span> <span>{{template "value" .GetPrev}}</span></span> <span><span>to</span> <span>{{template "value" .GetNext}}</span></span></span>
-						{{- else -}}
-							{{.Type.String}} <a class="element-link" href="{{link "enum" .Enum.Name}}">{{icon .Enum}}{{.Enum.Name}}</a>
-							<ul>
-							{{- range subactions . }}
-								<li>{{.Type.String}} <a class="element-link" href="{{link "enumitem" .Enum.Name .EnumItem.Name}}">{{icon .EnumItem}}{{.EnumItem.Name}}</a></li>
-							{{- end}}
-							</ul>
-						{{- end -}}
-						{{- else -}}
-							{{.String}}
-						{{- end -}}
-						</li>
-						{{- else -}}
-						<li>No changes</li>
-					{{end}}
-					</ul>
-				</article>
-			</li>
-			{{- else -}}
-			<li>No updates</li>
-			{{- end -}}
-			{{- end}}
-		</ul>
-	</main>
-</body>
-</html>
+		{{- end}}
+	</ul>
+</article>

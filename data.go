@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/robloxapi/rbxapi"
@@ -224,6 +225,12 @@ finish:
 	}
 	const body = `<span class="%s" title="%s"%s></span>`
 	return template.HTML(fmt.Sprintf(body, template.HTMLEscapeString(class), template.HTMLEscapeString(title), style))
+}
+
+func (data *Data) ExecuteTemplate(name string, tdata interface{}) (template.HTML, error) {
+	var buf bytes.Buffer
+	err := data.Templates.ExecuteTemplate(&buf, name, tdata)
+	return template.HTML(buf.String()), err
 }
 
 func addType(types map[string]rbxapijson.Type, t rbxapijson.Type) {

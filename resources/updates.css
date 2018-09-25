@@ -1,0 +1,81 @@
+main {
+	display       : grid;
+	justify-items : start;
+	grid-gap      : 0 var(--section-spacing);
+}
+main > header {
+	grid-area  : header;
+	align-self : baseline;
+}
+#update-controls {
+	grid-area    : controls;
+	justify-self : end;
+	align-self   : baseline;
+}
+#update-controls label {
+	display : flex;
+}
+main > nav  {
+	grid-area : nav;
+}
+main > article {
+	grid-area : content;
+}
+
+@media screen and (width < 80ch) {
+	main {
+		grid-template-columns : auto auto;
+		grid-template-areas   :
+			"header  controls"
+			"nav     controls"
+			"content controls";
+	}
+	main > article {
+		overflow : auto;
+	}
+}
+@media screen and (width >= 80ch) {
+	main {
+		grid-template-columns : min-content auto auto;
+		grid-template-areas   :
+			"header header  controls"
+			"nav    content content "
+			;
+	}
+	main > nav {
+		border-right  : 1px solid lightgray;
+		padding-right : var(--section-spacing);
+	}
+}
+
+li[diff-field="Parameters"] .diff-values {
+	display      : table;
+	padding-left : 4ch;
+}
+li[diff-field="Parameters"] .diff-values > span {
+	display : table-row;
+}
+li[diff-field="Parameters"] .diff-values > span > span {
+	display       : table-cell;
+	padding-right : 1ch;
+}
+li[diff-field="Tags"] .diff-values {
+	display      : table;
+	padding-left : 4ch;
+}
+li[diff-field="Tags"] .diff-values > span {
+	display : table-row;
+}
+li[diff-field="Tags"] .diff-values > span > span {
+	display       : table-cell;
+	padding-right : 1ch;
+}
+a.permalink {
+	display : none;
+}
+*:hover > a.permalink {
+	display : inline;
+}
+*:hover > a.permalink:before {
+	content : ' ¶ ';
+}

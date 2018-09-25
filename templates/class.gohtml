@@ -1,110 +1,93 @@
-<!DOCTYPE html>
-<html lang="en-US">
-<head>
-	<meta charset="utf-8">
-	<title>{{.Name}}</title>
-	<link href="{{link "res" "main.css"}}" rel="stylesheet" type="text/css" />
-	<link href="{{link "res" "class.css"}}" rel="stylesheet" type="text/css" />
-	<script src="{{link "res" "class.js"}}" charset="utf-8"></script>
-</head>
-<body>
-	<header>
-		<h1>{{icon .Entity.Element}}{{.Name}}</h1>
-	</header>
-	<nav>
-		<a href="{{link "index"}}">Main page</a>
-	</nav>
-	<main>
-		<aside id="tree-nav">
-		{{- if .Superclasses }}
-			<section id="superclasses">
-				<header>
-					<h2>Inherits</h2>
-				</header>
-				<ul>
-				{{- range .Superclasses }}
-					<li><a class="element-link" href="{{link "class" .}}">{{icon "class" .}}{{.}}</a></li>
-				{{- end }}
-				</ul>
-			</section>
+<header>
+	<h2>{{icon .Entity.Element}}{{.Name}}</h2>
+</header>
+<nav>
+{{- if .Superclasses }}
+	<section id="superclasses">
+		<header>
+			<h3>Inherits</h3>
+		</header>
+		<ul>
+		{{- range .Superclasses }}
+			<li><a class="element-link" href="{{link "class" .}}">{{icon "class" .}}{{.}}</a></li>
 		{{- end }}
-		{{- if .Subclasses }}
-			<section id="subclasses">
-				<header>
-					<h2>Inherited by</h2>
-				</header>
-				<ul>
-				{{- range .Subclasses }}
-					<li><a class="element-link" href="{{link "class" .}}">{{icon "class" .}}{{.}}</a></li>
-				{{- end }}
-				</ul>
-			</section>
+		</ul>
+	</section>
+{{- end }}
+{{- if .Subclasses }}
+	<section id="subclasses">
+		<header>
+			<h3>Inherited by</h3>
+		</header>
+		<ul>
+		{{- range .Subclasses }}
+			<li><a class="element-link" href="{{link "class" .}}">{{icon "class" .}}{{.}}</a></li>
 		{{- end }}
-		</aside>
-		{{- if .Members }}
-		<section id="members">
-			<h2>Members</h2>
-			<table class="member-list">
-			<thead>
-				<tr>
-					<th class="col-type">Type</th>
-					<th class="col-icon"></th>
-					<th class="col-member">Member</th>
-				</tr>
-			</thead>
-			{{- $class := .Name -}}
-			{{- range $i, $section := .Members -}}
-			{{- if $i -}}
-			{{- if $section.Members }}
-			<thead>
-				<tr>
-					<th class="inherited-members" colspan="3"><a class="member-count">{{len $section.Members}} member{{if ne (len $section.Members) 1}}s{{end}}</a> inherited from <a class="element-link" href="{{link "class" $section.Class}}#members">{{icon "class" $section.Class}}{{$section.Class}}</a></th>
-				</tr>
-			</thead>
-			{{- end -}}
-			{{- else -}}
-			<tbody>
-			{{- range $section.Members }}
-				<tr id="member-{{.GetName}}" class="row-{{.GetMemberType}}">
-				{{- if eq .GetMemberType "Property" }}
-					<td class="col-type">{{template "value" .ValueType}}</td>
-					<td class="col-icon">{{icon .}}</td>
-					<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a></td>
-				{{- else if eq .GetMemberType "Function" }}
-					<td class="col-type">{{template "value" .ReturnType}}</td>
-					<td class="col-icon">{{icon .}}</td>
-					<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
-				{{- else if eq .GetMemberType "Event" }}
-					<td class="col-type"></td>
-					<td class="col-icon">{{icon .}}</td>
-					<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
-				{{- else if eq .GetMemberType "Callback" }}
-					<td class="col-type">{{template "value" .ReturnType}}</td>
-					<td class="col-icon">{{icon .}}</td>
-					<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
-				{{- end }}
-				</tr>
-			{{- else }}
-				<tr>
-					<td colspan="3">No derived members.</td>
-				</tr>
-			{{- end }}
-			</tbody>
-			{{- end -}}
-			{{- end }}
-			</table>
-		</section>
+		</ul>
+	</section>
+{{- end }}
+</nav>
+{{- if .Members }}
+<section id="members">
+	<h3>Members</h3>
+	<table class="member-list">
+	<thead>
+		<tr>
+			<th class="col-type">Type</th>
+			<th class="col-icon"></th>
+			<th class="col-member">Member</th>
+		</tr>
+	</thead>
+	{{- $class := .Name -}}
+	{{- range $i, $section := .Members -}}
+	{{- if $i -}}
+	{{- if $section.Members }}
+	<thead>
+		<tr>
+			<th class="inherited-members" colspan="3"><a class="member-count">{{len $section.Members}} member{{if ne (len $section.Members) 1}}s{{end}}</a> inherited from <a class="element-link" href="{{link "class" $section.Class}}#members">{{icon "class" $section.Class}}{{$section.Class}}</a></th>
+		</tr>
+	</thead>
+	{{- end -}}
+	{{- else -}}
+	<tbody>
+	{{- range $section.Members }}
+		<tr id="member-{{.GetName}}" class="row-{{.GetMemberType}}">
+		{{- if eq .GetMemberType "Property" }}
+			<td class="col-type">{{template "value" .ValueType}}</td>
+			<td class="col-icon">{{icon .}}</td>
+			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a></td>
+		{{- else if eq .GetMemberType "Function" }}
+			<td class="col-type">{{template "value" .ReturnType}}</td>
+			<td class="col-icon">{{icon .}}</td>
+			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+		{{- else if eq .GetMemberType "Event" }}
+			<td class="col-type"></td>
+			<td class="col-icon">{{icon .}}</td>
+			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+		{{- else if eq .GetMemberType "Callback" }}
+			<td class="col-type">{{template "value" .ReturnType}}</td>
+			<td class="col-icon">{{icon .}}</td>
+			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
 		{{- end }}
-		{{- if .Enums }}
-		<section id="enums">
-			<h2>Enums</h2>
-			<ul>
-			{{- range .Enums }}
-				<li><a class="element-link" href="{{link "enum" .}}">{{icon "enum"}}{{.}}</a></li>
-			{{- end }}
-			</ul>
-		</section>
-		{{- end }}
-	</main>
-</body>
-</html>
+		</tr>
+	{{- else }}
+		<tr>
+			<td colspan="3">No derived members.</td>
+		</tr>
+	{{- end }}
+	</tbody>
+	{{- end -}}
+	{{- end }}
+	</table>
+</section>
+{{- end }}
+{{- if .Enums }}
+<section id="enums">
+	<h3>Enums</h3>
+	<ul>
+	{{- range .Enums }}
+		<li><a class="element-link" href="{{link "enum" .}}">{{icon "enum"}}{{.}}</a></li>
+	{{- end }}
+	</ul>
+</section>
+{{- end }}

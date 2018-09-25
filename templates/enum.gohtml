@@ -1,48 +1,35 @@
-<!DOCTYPE html>
-<html lang="en-US">
-<head>
-	<meta charset="utf-8">
-	<title>{{.Name}}</title>
-	<link href="{{link "res" "main.css"}}" rel="stylesheet" type="text/css" />
-</head>
-<body>
-	<header>
-		<h1>{{icon "enum"}}{{.Name}}</h1>
-	</header>
-	<nav>
-		<a href="{{link "index"}}">Main page</a>
-	</nav>
-	<article>
-		<section id="enumitems">
-			<h2>Enum items</h2>
-			<table class="member-list">
-				<tr>
-					<th class="col-icon">{{icon "enum"}}</th>
-					<th class="col-name">Name</th>
-					<th class="col-value">Value</th>
-				</tr>
-			{{- $enum := .Entity.Element.Name -}}
-			{{- range .Entity.Element.Items }}
-				<tr id="member-{{.Name}}" class="row-EnumItem">
-					<td class="col-icon">{{icon "enumitem"}}</td>
-					<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "enumitem" $enum .Name}}">{{.Name}}</a></td>
-					<td class="col-value">{{.Value}}</td>
-				</tr>
-			{{- end }}
-			</table>
-		</section>
-		{{- if .Members }}
-		<section id="relevant-members">
-			<h2>Relevant members</h2>
-			<ul>
-			{{- range .Members -}}
-				{{- $class := (index . 0) -}}
-				{{- $member := (index . 1) }}
-				<li><a class="element-link" href="{{link "member" $class $member}}">{{icon "member" $class $member}}{{$class}}.{{$member}}</a></li>
-			{{- end }}
-			</ul>
-		</section>
+<header>
+	<h1>{{icon "enum"}}{{.Name}}</h1>
+</header>
+<article>
+	<section id="enumitems">
+		<h2>Enum items</h2>
+		<table class="member-list">
+			<tr>
+				<th class="col-icon">{{icon "enum"}}</th>
+				<th class="col-name">Name</th>
+				<th class="col-value">Value</th>
+			</tr>
+		{{- $enum := .Entity.Element.Name -}}
+		{{- range .Entity.Element.Items }}
+			<tr id="member-{{.Name}}" class="row-EnumItem">
+				<td class="col-icon">{{icon "enumitem"}}</td>
+				<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "enumitem" $enum .Name}}">{{.Name}}</a></td>
+				<td class="col-value">{{.Value}}</td>
+			</tr>
 		{{- end }}
-	</article>
-</body>
-</html>
+		</table>
+	</section>
+	{{- if .Members }}
+	<section id="relevant-members">
+		<h2>Relevant members</h2>
+		<ul>
+		{{- range .Members -}}
+			{{- $class := (index . 0) -}}
+			{{- $member := (index . 1) }}
+			<li><a class="element-link" href="{{link "member" $class $member}}">{{icon "member" $class $member}}{{$class}}.{{$member}}</a></li>
+		{{- end }}
+		</ul>
+	</section>
+	{{- end }}
+</article>
