@@ -74,6 +74,7 @@ func GenerateUpdatesPage(data *Data) error {
 		if err != nil {
 			return err
 		}
+		page.Title = "Recent Updates"
 		page.Data = args{patches[:i], 0, years}
 		err = GeneratePage(data, f, page)
 		f.Close()
@@ -90,6 +91,7 @@ func GenerateUpdatesPage(data *Data) error {
 		if err != nil {
 			return err
 		}
+		page.Title = "Updates in " + strconv.Itoa(year)
 		page.Data = args{patches, year, years}
 		err = GeneratePage(data, f, page)
 		f.Close()
