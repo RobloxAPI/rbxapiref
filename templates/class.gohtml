@@ -45,7 +45,7 @@
 	{{- if $section.Members }}
 	<thead>
 		<tr>
-			<th class="inherited-members" colspan="3"><a class="member-count">{{len $section.Members}} member{{if ne (len $section.Members) 1}}s{{end}}</a> inherited from <a class="element-link" href="{{link "class" $section.Class}}#members">{{icon "class" $section.Class}}{{$section.Class}}</a></th>
+			<th class="inherited-members" colspan="3"><a class="member-count">{{len $section.Members}} {{quantity $section.Members "member" "members"}}</a> inherited from <a class="element-link" href="{{link "class" $section.Class}}#members">{{icon "class" $section.Class}}{{$section.Class}}</a></th>
 		</tr>
 	</thead>
 	{{- end -}}
