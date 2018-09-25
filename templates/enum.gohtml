@@ -1,9 +1,9 @@
 <header>
-	<h1>{{icon "enum"}}{{.Name}}</h1>
+	<h2>{{icon "enum"}}{{.Name}}</h2>
 </header>
 <article>
 	<section id="enumitems">
-		<h2>Enum items</h2>
+		<h3>Enum items</h3>
 		<table class="member-list">
 			<tr>
 				<th class="col-icon">{{icon "enum"}}</th>
@@ -22,7 +22,7 @@
 	</section>
 	{{- if .Members }}
 	<section id="relevant-members">
-		<h2>Relevant members</h2>
+		<h3>Relevant members</h3>
 		<ul>
 		{{- range .Members -}}
 			{{- $class := (index . 0) -}}
