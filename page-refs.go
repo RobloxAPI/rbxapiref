@@ -203,7 +203,7 @@ func GenerateRefPage(data *Data) error {
 	}
 	enumPage := Page{
 		Template: "enum",
-		Styles:   []Resource{},
+		Styles:   []Resource{{Name: "enum.css"}},
 		Scripts:  []Resource{},
 	}
 	typePage := Page{
