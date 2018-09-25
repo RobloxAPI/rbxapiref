@@ -16,7 +16,7 @@ main > #enums {
 	grid-area : enums;
 }
 
-@media screen and (width < 80ch) {
+@media screen and (max-width: 80ch) {
 	main {
 		grid-template-columns : auto;
 		grid-template-areas   :
@@ -26,7 +26,7 @@ main > #enums {
 			"enums  ";
 	}
 }
-@media screen and (width >= 80ch) {
+@media screen and (min-width: 80ch) {
 	main {
 		grid-template-columns : min-content auto;
 		grid-template-areas   :

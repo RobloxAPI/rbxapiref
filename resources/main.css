@@ -73,13 +73,13 @@ a[href] {
 .params-close {
 	white-space : nowrap;
 }
-@media screen and (width < 80ch) {
+@media screen and (max-width: 80ch) {
 	.parameter {
 		display      : block;
 		padding-left : var(--indent-small);
 	}
 }
-@media screen and (width >= 80ch) {
+@media screen and (min-width: 80ch) {
 	.member-list .col-member {
 		padding-left : var(--indent-small);
 		text-indent  : calc(-1*var(--indent-small));
