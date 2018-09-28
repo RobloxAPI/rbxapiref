@@ -31,7 +31,8 @@ main {
 	margin-top : 0px;
 }
 a[href] {
-	color : var(--anchor-color);
+	color           : var(--anchor-color);
+	text-decoration : none;
 }
 .hidden {
 	display : none;
