@@ -1,5 +1,10 @@
 /* Variables */
 :root {
+	--font-size           : 10pt;
+	--line-height         : 1.2;
+	--baseline            : calc(var(--font-size) * var(--line-height));
+	--header-step         : 4;
+	--header-height       : calc(var(--header-step) * var(--baseline));
 	--background-color    : #FFFFFF;
 	--text-color          : #333333;
 	--anchor-color        : #3E6DCC;
@@ -8,21 +13,22 @@
 	--member-target-color : gold;
 	--icon-size           : 16px;
 	--indent              : 4ch;
-	--indent-small        : 2ch;
+	--indent-small        : calc(var(--indent)/2);
 	--icon-spacing        : 0.5ch;
 	--section-spacing     : 2ch;
 }
 
 /* Main */
 body {
-	font             : 10pt/1.2 "Open Sans","Trebuchet MS","DejaVu Sans",Geneva,sans-serif;
+	font             : var(--font-size)/var(--line-height) "Open Sans","Trebuchet MS","DejaVu Sans","Geneva",sans-serif;
 	color            : var(--text-color);
 	background-color : var(--background-color);
 	margin           : 0;
 	padding          : 0;
 }
 main {
-	margin: 1em;
+	margin     : var(--baseline);
+	margin-top : 0px;
 }
 a[href] {
 	color : var(--anchor-color);
@@ -30,6 +36,30 @@ a[href] {
 .hidden {
 	display : none;
 }
+h1,h2,h3,h4,h5,h6 {
+	--size          : calc(var(--scale,1) * var(--font-size));
+	font-size       : var(--size);
+	line-height     : var(--line-height);
+	margin-bottom   : var(--baseline);
+	margin-top      : calc(var(--header-height) - var(--baseline) - var(--size)*var(--line-height));
+	margin-left     : 0;
+	margin-right    : 0;
+}
+h1 { --scale: calc(12/6) }
+h2 { --scale: calc(9/6) }
+h3 { --scale: calc(7/6) }
+h4 { --scale: calc(6/6) }
+h5 { --scale: calc(5/6) }
+h6 { --scale: calc(4/6) }
+p, ul, ol {
+	margin-top: var(--baseline);
+	margin-bottom: var(--baseline);
+}
+ul ul {
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
 #main-header {
 	display          : flex;
 	align-items      : center;
@@ -37,7 +67,8 @@ a[href] {
 	background-color : var(--table-color);
 }
 #main-header h1 {
-	margin : 0.5em;
+	margin-left: var(--baseline);
+	margin-right: var(--baseline);
 }
 #main-nav ul {
 	display         : flex;
@@ -48,7 +79,9 @@ a[href] {
 }
 #main-nav li a {
 	display          : inline-block;
-	padding          : 1.5em 1em;
+	font-size        : var(--font-size);
+	line-height      : var(--line-height);
+	padding          : calc(((var(--header-step)) - 1)/2*var(--baseline)) var(--baseline);
 	background-color : var(--table-color);
 	transition       : filter 100ms linear;
 }
@@ -87,14 +120,10 @@ a[href] {
 	}
 }
 
-
 /* Icons */
-.class-icon,
-.member-icon,
-.enum-icon,
-.enum-item-icon {
+.icon {
 	display        : inline-block;
-	vertical-align : middle;
+	vertical-align : bottom;
 	height         : var(--icon-size);
 	width          : var(--icon-size);
 }

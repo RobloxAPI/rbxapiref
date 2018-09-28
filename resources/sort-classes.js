@@ -46,11 +46,13 @@ function initSortClasses() {
 	for (let method of methods) {
 		let input = document.createElement("input");
 		input.type = "radio";
+		input.id = "class-sort-" + method[1];
 		input.name = "sort";
 		input.value = method[1];
 		input.checked = method[2];
+		controls.appendChild(input);
 		let label = document.createElement("label");
-		label.appendChild(input);
+		label.htmlFor = input.id;
 		label.appendChild(document.createTextNode(method[1]));
 		controls.appendChild(label);
 		input.addEventListener("click", function(event) {
