@@ -40,7 +40,7 @@ main > article {
 			;
 	}
 	main > nav {
-		border-right  : 1px solid lightgray;
+		border-right  : 1px solid var(--border-color);
 		padding-right : var(--section-spacing);
 	}
 }
