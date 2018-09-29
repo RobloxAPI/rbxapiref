@@ -6,12 +6,12 @@ main article:not(#types) ul {
 	list-style : none;
 }
 main {
-	--indent     : calc(var(--icon-size) + var(--icon-spacing));
+	--indent     : calc(var(--icon-scale) + var(--icon-spacing));
  	--list-depth : 5;
  	--name-width : 24ch;
  	--grid-width : calc(
  		var(--list-depth)*var(--indent) +
- 		var(--icon-size) +
+ 		var(--icon-scale) +
  		var(--icon-spacing) +
  		var(--name-width)
  	);

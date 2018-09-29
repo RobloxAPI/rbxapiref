@@ -1,24 +1,35 @@
 /* Variables */
 :root {
-	--font-size           : 10pt;
-	--line-height         : 1.2;
-	--baseline            : calc(var(--font-size) * var(--line-height));
-	--header-step         : 4;
-	--header-height       : calc(var(--header-step) * var(--baseline));
+	/* Vertical rhythm */
+	--font-size   : 10pt;
+	--line-height : 1.2;
+	--baseline    : calc(var(--font-size) * var(--line-height));
+
+	/* Top header layout */
+	--header-step   : 4;
+	--header-height : calc(var(--header-step) * var(--baseline));
+
+	/* Icon sizing */
+	--icon-size-constant : 16px;
+	--icon-size-dynamic  : var(--baseline);
+	--icon-scale         : var(--icon-size-constant);
+	--icon-spacing       : 0.5ch;
+
+	/* Colors */
 	--background-color    : #FFFFFF;
 	--text-color          : #333333;
 	--anchor-color        : #3E6DCC;
 	--table-color         : #F4F4F4;
 	--border-color        : #CCCCCC;
 	--member-target-color : gold;
-	--icon-size           : 16px;
-	--indent              : 4ch;
-	--indent-small        : calc(var(--indent)/2);
-	--icon-spacing        : 0.5ch;
-	--section-spacing     : 2ch;
+
+	/* Horizontal spacing */
+	--indent           : 4ch;
+	--indent-small     : calc(var(--indent)/2);
+	--section-spacing  : 2ch;
 }
 
-/* Main */
+/* Global */
 body {
 	font             : var(--font-size)/var(--line-height) "Open Sans","Trebuchet MS","DejaVu Sans","Geneva",sans-serif;
 	color            : var(--text-color);
@@ -38,13 +49,13 @@ a[href] {
 	display : none;
 }
 h1,h2,h3,h4,h5,h6 {
-	--size          : calc(var(--scale,1) * var(--font-size));
-	font-size       : var(--size);
-	line-height     : var(--line-height);
-	margin-bottom   : var(--baseline);
-	margin-top      : calc(var(--header-height) - var(--baseline) - var(--size)*var(--line-height));
-	margin-left     : 0;
-	margin-right    : 0;
+	--header-font-size : calc(var(--scale,1) * var(--font-size));
+	font-size          : var(--header-font-size);
+	line-height        : var(--line-height);
+	margin-bottom      : var(--baseline);
+	margin-top         : calc(var(--header-height) - var(--baseline) - var(--header-font-size)*var(--line-height));
+	margin-left        : 0;
+	margin-right       : 0;
 }
 h1 { --scale: calc(12/6) }
 h2 { --scale: calc(9/6) }
@@ -53,12 +64,12 @@ h4 { --scale: calc(6/6) }
 h5 { --scale: calc(5/6) }
 h6 { --scale: calc(4/6) }
 p, ul, ol {
-	margin-top: var(--baseline);
-	margin-bottom: var(--baseline);
+	margin-top    : var(--baseline);
+	margin-bottom : var(--baseline);
 }
 ul ul {
-	margin-top: 0px;
-	margin-bottom: 0px;
+	margin-top    : 0px;
+	margin-bottom : 0px;
 }
 
 #main-header {
@@ -68,8 +79,8 @@ ul ul {
 	background-color : var(--table-color);
 }
 #main-header h1 {
-	margin-left: var(--baseline);
-	margin-right: var(--baseline);
+	margin-left  : var(--baseline);
+	margin-right : var(--baseline);
 }
 #main-nav ul {
 	display         : flex;
@@ -122,32 +133,39 @@ ul ul {
 }
 
 /* Icons */
+li .element-link {
+	--icon-offset : calc(var(--icon-scale) + var(--icon-spacing));
+	position      : relative;
+	left          : var(--icon-offset);
+	margin-right  : var(--icon-offset);
+}
+li .element-link .icon {
+	position       : absolute;
+	top            : calc(50% - var(--icon-scale)/2);
+	left           : calc(-1 * var(--icon-offset));
+	pointer-events : none;
+}
 .icon {
-	display        : inline-block;
-	vertical-align : bottom;
-	height         : var(--icon-size);
-	width          : var(--icon-size);
+	display             : inline-block;
+	vertical-align      : middle;
+	height              : var(--icon-scale);
+	width               : var(--icon-scale);
+	background-size     : auto var(--icon-scale);
+	background-repeat   : repeat-x;
+	background-position : calc(-1 * var(--icon-index,0) * var(--icon-scale,0));
 }
 .class-icon {
 	background-image : url('/ref/res/icon-explorer.png');
-	/* background-position sets icon offset */
 }
-.member-icon {
-	background-image : url('/ref/res/icon-objectbrowser.png');
-	/* background-position sets icon offset */
-}
-.enum-icon {
-	background-image    : url('/ref/res/icon-objectbrowser.png');
-	background-position : -144px;
-}
+.member-icon,
+.enum-icon,
 .enum-item-icon {
-	background-image    : url('/ref/res/icon-objectbrowser.png');
-	background-position : -160px;
+	background-image : url('/ref/res/icon-objectbrowser.png');
 }
-.element-link .class-icon,
-.element-link .member-icon,
-.element-link .enum-icon,
-.element-link .enum-item-icon {
+.enum-icon      { --icon-index :  9 }
+.enum-item-icon { --icon-index : 10 }
+
+.element-link .icon {
 	margin-right : var(--icon-spacing);
 }
 

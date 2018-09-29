@@ -220,8 +220,7 @@ retry:
 finish:
 	var style string
 	if index >= 0 {
-		const body = `<span class="icon %s" style="background-position: %dpx"></span>`
-		style = fmt.Sprintf(` style="background-position: %dpx"`, -index*16)
+		style = fmt.Sprintf(` style="--icon-index: %d"`, index)
 	}
 	const body = `<span class="icon %s" title="%s"%s></span>`
 	return template.HTML(fmt.Sprintf(body, template.HTMLEscapeString(class), template.HTMLEscapeString(title), style))
