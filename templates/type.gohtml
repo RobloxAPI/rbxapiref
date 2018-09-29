@@ -1,9 +1,9 @@
 <header>
-	<h1>{{.Name}}</h1>
+	<h2>{{.Name}}</h2>
 </header>
 {{- if .Members }}
 <section id="relevant-members">
-	<h2>Relevant members</h2>
+	<h3>Relevant members</h3>
 	<p>{{.Name}} has {{len .Members}} related {{quantity .Members "member" "members"}}.</p>
 	<ul>
 	{{- range .Members -}}
