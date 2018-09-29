@@ -11,7 +11,7 @@
 
 	/* Icon sizing */
 	--icon-size-constant : 16px;
-	--icon-size-dynamic  : var(--baseline);
+	--icon-size-dynamic  : calc(var(--font-size) * 1.2);
 	--icon-scale         : var(--icon-size-constant);
 	--icon-spacing       : 0.5ch;
 
