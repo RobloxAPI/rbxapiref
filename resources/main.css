@@ -6,8 +6,9 @@
 	--baseline    : calc(var(--font-size) * var(--line-height));
 
 	/* Top header layout */
-	--header-step   : 4;
+	--header-step   : 3;
 	--header-height : calc(var(--header-step) * var(--baseline));
+	--header-bottom : var(--baseline);
 
 	/* Icon sizing */
 	--icon-size-constant : 16px;
@@ -52,8 +53,8 @@ h1,h2,h3,h4,h5,h6 {
 	--header-font-size : calc(var(--scale,1) * var(--font-size));
 	font-size          : var(--header-font-size);
 	line-height        : var(--line-height);
-	margin-bottom      : var(--baseline);
-	margin-top         : calc(var(--header-height) - var(--baseline) - var(--header-font-size)*var(--line-height));
+	margin-bottom      : var(--header-bottom);
+	margin-top         : calc(var(--header-height) - var(--header-bottom) - var(--header-font-size)*var(--line-height));
 	margin-left        : 0;
 	margin-right       : 0;
 }
@@ -79,8 +80,9 @@ ul ul {
 	background-color : var(--table-color);
 }
 #main-header h1 {
-	margin-left  : var(--baseline);
-	margin-right : var(--baseline);
+	--header-bottom : calc(var(--baseline)/2);
+	margin-left     : var(--baseline);
+	margin-right    : var(--baseline);
 }
 #main-nav ul {
 	display         : flex;
