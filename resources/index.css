@@ -1,3 +1,6 @@
+:root {
+	--column-width : 320px;
+}
 main article ul {
 	margin-left  : 0;
 	padding-left : var(--indent);
@@ -6,27 +9,20 @@ main article:not(#types) ul {
 	list-style : none;
 }
 main {
-	--indent     : calc(var(--icon-scale) + var(--icon-spacing));
- 	--list-depth : 5;
- 	--name-width : 24ch;
- 	--grid-width : calc(
- 		var(--list-depth)*var(--indent) +
- 		var(--icon-scale) +
- 		var(--icon-spacing) +
- 		var(--name-width)
- 	);
+	--indent              : calc(var(--icon-scale) + var(--icon-spacing));
 	display               : grid;
-	grid-template-columns : repeat(auto-fit, minmax(var(--grid-width), 1fr));
+	grid-template-columns : repeat(auto-fit, minmax(var(--column-width), 1fr));
 	justify-items         : left;
 	grid-template-rows    : auto 1fr;
 }
 #classes {
 	grid-row-end : span 2;
+	min-width    : var(--column-width);
 }
 
 /* Class sort controls */
 .class-list-controls {
-	display       : block;
+	display       : flex;
 	margin-top    : var(--baseline);
 	margin-bottom : var(--baseline);
 }
@@ -35,6 +31,7 @@ main {
 }
 .class-list-controls label {
 	--border-size    : 2px;
+	flex-grow        : 1;
 	display          : inline-block;
 	cursor           : pointer;
 	background-color : var(--table-color);
@@ -44,9 +41,24 @@ main {
 	padding-bottom   : calc(var(--baseline)/2 - var(--border-size));
 	border-bottom    : var(--border-size) solid transparent;
 	transition       : border-bottom 100ms linear;
-	padding-left     : var(--indent);
-	padding-right    : var(--indent);
+	text-align       : center;
 }
 .class-list-controls input:checked + label {
 	border-bottom-color : var(--border-color);
+}
+
+@media screen and (max-width: 80ch) {
+	main {
+		display    : block;
+		overflow-x : auto;
+	}
+	main article ul ul {
+		padding-left : var(--indent);
+	}
+	main article ul {
+		padding-left : 0;
+	}
+	#classes {
+		min-width : auto;
+	}
 }

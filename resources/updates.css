@@ -30,9 +30,6 @@ main > article {
 			"nav     controls"
 			"content controls";
 	}
-	main > article {
-		overflow : auto;
-	}
 }
 @media screen and (min-width: 80ch) {
 	main {

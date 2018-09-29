@@ -17,6 +17,7 @@
 	--icon-spacing       : 0.5ch;
 
 	/* Colors */
+	--sky-color           : #1F3F8E;
 	--background-color    : #FFFFFF;
 	--text-color          : #333333;
 	--anchor-color        : #3E6DCC;
@@ -31,16 +32,24 @@
 }
 
 /* Global */
+html {
+	background-color : var(--sky-color);
+	display          : flex;
+}
 body {
+	flex             : auto;
 	font             : var(--font-size)/var(--line-height) "Open Sans","Trebuchet MS","DejaVu Sans","Geneva",sans-serif;
 	color            : var(--text-color);
 	background-color : var(--background-color);
-	margin           : 0;
+	margin           : 0px auto;
 	padding          : 0;
+	max-width        : 1200px;
+	box-shadow       : 0 0 24px black;
 }
 main {
-	margin     : var(--baseline);
-	margin-top : 0px;
+	margin        : var(--baseline);
+	margin-top    : 0px;
+	margin-bottom : 0px;
 }
 a[href] {
 	color           : var(--anchor-color);
@@ -92,10 +101,11 @@ ul ul {
 	flex-flow       : wrap row;
 }
 #main-nav li a {
+	--height-factor  : 1;
 	display          : inline-block;
 	font-size        : var(--font-size);
 	line-height      : var(--line-height);
-	padding          : calc(((var(--header-step)) - 1)/2*var(--baseline)) var(--baseline);
+	padding          : calc((var(--header-step) - var(--height-factor))/2*var(--baseline)) var(--baseline);
 	background-color : var(--table-color);
 	transition       : filter 100ms linear;
 }
@@ -237,4 +247,10 @@ li .element-link .icon {
 .member-list td[colspan],
 .member-list th[colspan] {
 	text-align : left;
+}
+
+@media screen and (max-width: 80ch) {
+	#main-nav li a {
+		--height-factor: 2;
+	}
 }
