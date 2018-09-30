@@ -92,6 +92,10 @@ retry:
 			goto retry
 		}
 		s = path.Join(TypePath, url.PathEscape(args[1])+FileExt)
+	case "repository":
+		return "https://github.com/robloxapi/rbxapiref"
+	case "issues":
+		return "https://github.com/robloxapi/rbxapiref/issues"
 	}
 	s = path.Join("/", data.Settings.Output.Sub, s)
 	return s
