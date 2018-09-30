@@ -366,6 +366,7 @@ loop:
 	pages := []func(*Data) error{
 		GenerateResPage,
 		GenerateIndexPage,
+		GenerateAboutPage,
 		GenerateUpdatesPage,
 		GenerateRefPage,
 	}

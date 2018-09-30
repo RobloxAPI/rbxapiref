@@ -1,0 +1,76 @@
+.small {
+	font-size : smaller;
+}
+blockquote {
+	margin : var(--baseline) var(--indent-small);
+}
+blockquote::before {
+	content : "\201C";
+}
+blockquote::after {
+	content : "\201D";
+}
+
+main {
+	--font-size           : 12pt;
+	font-size             : var(--font-size);
+	margin-top            : var(--baseline);
+	display               : grid;
+	grid-column-gap       : var(--section-spacing);
+	grid-template-columns : auto auto;
+	grid-template-areas   :
+		"header who"
+		"about  who"
+		"other  who";
+}
+main header { grid-area : header }
+#who        { grid-area : who    }
+#about      { grid-area : about  }
+#other      { grid-area : other  }
+
+#who {
+	border-left  : 1px solid var(--border-color);
+	padding-left : var(--section-spacing);
+}
+#who li a::before {
+	content : "on ";
+}
+#who ul {
+	margin-left  : 0;
+	padding-left : var(--indent-small);
+}
+
+#about {
+	text-align : justify;
+}
+#about > P:first-child {
+	margin-top : 0;
+}
+
+@media screen and (max-width: 80ch) {
+	main {
+		grid-column-gap       : 0;
+		grid-template-columns : auto auto;
+		grid-template-areas   :
+			"header"
+			"about"
+			"who"
+			"other";
+	}
+	#who {
+		border-left  : 0 none;
+		padding-left : 0;
+	}
+	#who li a::before {
+		content : none;
+	}
+	#who > ul {
+		list-style : none;
+		display    : flex;
+		flex-flow  : wrap row;
+		margin     : 0;
+	}
+	#who > ul > li {
+		margin : 0 var(--indent-small);
+	}
+}

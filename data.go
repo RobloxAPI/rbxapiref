@@ -92,6 +92,8 @@ retry:
 			goto retry
 		}
 		s = path.Join(TypePath, url.PathEscape(args[1])+FileExt)
+	case "about":
+		s = "about" + FileExt
 	case "repository":
 		return "https://github.com/robloxapi/rbxapiref"
 	case "issues":
