@@ -82,7 +82,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 	let style = document.getElementById("updates-style");
 	if (style !== null) {
-		style.sheet.insertRule(".patch-list-toggle {cursor: pointer;}");
+		try {
+			style.sheet.insertRule(".patch-list-toggle {cursor: pointer;}");
+		} catch (error) {
+		};
 	};
 
 	if (!document.querySelector(".update > a.anchor:target")) {
