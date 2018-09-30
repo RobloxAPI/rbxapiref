@@ -315,5 +315,6 @@ li .element-link .icon {
 	fill : var(--background-color);
 }
 #main-footer .license a[href] {
-	color : gold;
+	color       : gold;
+	white-space : nowrap;
 }
