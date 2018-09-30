@@ -29,7 +29,8 @@ const (
 )
 
 type Data struct {
-	Settings Settings
+	Settings    Settings
+	CurrentYear int
 
 	Patches  []Patch
 	Latest   *Build

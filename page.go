@@ -5,11 +5,12 @@ import (
 )
 
 type Page struct {
-	Template string
-	Data     interface{}
-	Title    string
-	Styles   []Resource
-	Scripts  []Resource
+	CurrentYear int
+	Template    string
+	Data        interface{}
+	Title       string
+	Styles      []Resource
+	Scripts     []Resource
 }
 
 type Resource struct {

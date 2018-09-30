@@ -1,3 +1,4 @@
+/*////////////////////////////////////////////////////////////////*/
 /* Variables */
 :root {
 	/* Vertical rhythm */
@@ -5,10 +6,15 @@
 	--line-height : 1.5;
 	--baseline    : calc(var(--font-size) * var(--line-height));
 
-	/* Top header layout */
+	/* Header/Footer layout */
 	--header-step   : 3;
 	--header-height : calc(var(--header-step) * var(--baseline));
 	--header-bottom : var(--baseline);
+
+	/* Heading layout */
+	--heading-step   : 4;
+	--heading-height : calc(var(--heading-step) * var(--baseline));
+	--heading-bottom : var(--baseline);
 
 	/* Icon sizing */
 	--icon-size-constant : 16px;
@@ -31,9 +37,12 @@
 	--section-spacing  : 2ch;
 }
 
+/*////////////////////////////////////////////////////////////////*/
 /* Global */
 html {
 	background-color : var(--sky-color);
+	/* Default layout appears to have a problem with overflowing elements, causing
+	   mobile layouts to look awful. */
 	display          : flex;
 }
 body {
@@ -44,7 +53,12 @@ body {
 	margin           : 0px auto;
 	padding          : 0;
 	max-width        : 1200px;
-	box-shadow       : 0 0 24px black;
+	box-shadow       : 0 0 8px black;
+}
+@media screen and (min-width: 1200px) {
+	body {
+		margin-bottom: var(--baseline);
+	}
 }
 main {
 	margin        : var(--baseline);
@@ -59,20 +73,20 @@ a[href] {
 	display : none;
 }
 h1,h2,h3,h4,h5,h6 {
-	--header-font-size : calc(var(--scale,1) * var(--font-size));
-	font-size          : var(--header-font-size);
-	line-height        : var(--line-height);
-	margin-bottom      : var(--header-bottom);
-	margin-top         : calc(var(--header-height) - var(--header-bottom) - var(--header-font-size)*var(--line-height));
-	margin-left        : 0;
-	margin-right       : 0;
+	--heading-font-size : calc(var(--heading-scale,1) * var(--font-size));
+	font-size           : var(--heading-font-size);
+	line-height         : var(--line-height);
+	margin-bottom       : var(--heading-bottom);
+	margin-top          : calc(var(--heading-height) - var(--heading-bottom) - var(--heading-font-size)*var(--line-height));
+	margin-left         : 0;
+	margin-right        : 0;
 }
-h1 { --scale: calc(12/6) }
-h2 { --scale: calc(9/6) }
-h3 { --scale: calc(7/6) }
-h4 { --scale: calc(6/6) }
-h5 { --scale: calc(5/6) }
-h6 { --scale: calc(4/6) }
+h1 { --heading-scale: calc(12/6) }
+h2 { --heading-scale: calc(9/6) }
+h3 { --heading-scale: calc(7/6) }
+h4 { --heading-scale: calc(6/6) }
+h5 { --heading-scale: calc(5/6) }
+h6 { --heading-scale: calc(4/6) }
 p, ul, ol {
 	margin-top    : var(--baseline);
 	margin-bottom : var(--baseline);
@@ -82,38 +96,67 @@ ul ul {
 	margin-bottom : 0px;
 }
 
-#main-header {
-	display          : flex;
-	align-items      : center;
-	flex-flow        : wrap row;
+/*////////////////////////////////////////////////////////////////*/
+/* Header / Footer */
+#main-header, #main-footer {
+	display     : flex;
+	align-items : center;
+	flex-flow   : wrap row;
+}
+/* Header */
+#main-header, #main-header .header-block {
+	/* Header colors */
 	background-color : var(--table-color);
 }
 #main-header h1 {
-	--header-bottom : calc(var(--baseline)/2);
-	margin-left     : var(--baseline);
-	margin-right    : var(--baseline);
+	font-size     : var(--heading-font-size);
+	margin        : 0;
+	padding-left  : var(--baseline);
+	padding-right : var(--baseline);
 }
-#main-nav ul {
+/* Footer */
+#main-footer {
+	/* Place content on the right */
+	justify-content : right;
+}
+#main-footer > .main-nav {
+	/* Grow so that nav appears on left; shrink so that nav items wrap. */
+	flex: 1 1 auto;
+}
+#main-footer, #main-footer .header-block {
+	/* Footer colors */
+	background-color : var(--sky-color);
+	color            : var(--background-color);
+}
+/* Main navigation */
+.main-nav ul {
 	display         : flex;
+	flex-flow       : wrap row;
 	list-style-type : none;
 	margin          : 0;
 	padding         : 0;
-	flex-flow       : wrap row;
 }
-#main-nav li a {
-	--height-factor  : 1;
-	display          : inline-block;
-	font-size        : var(--font-size);
-	line-height      : var(--line-height);
-	padding          : calc((var(--header-step) - var(--height-factor))/2*var(--baseline)) var(--baseline);
-	background-color : var(--table-color);
-	transition       : filter 100ms linear;
+/* Header block: has particular sizing. */
+.header-block {
+	display            : inline-block;
+	font-size          : var(--font-size);
+	line-height        : var(--line-height);
+	transition         : filter 100ms linear;
+	--current-baseline : calc(1em * var(--line-height));
+	padding            : calc((var(--header-height) - var(--current-baseline) - var(--baseline)*var(--height-factor,0) )/2) var(--current-baseline);
 }
-#main-nav li:hover {
-	filter     : brightness(0.9);
+@media screen and (max-width: 80ch) {
+	.header-block {
+		--height-factor: 1;
+	}
+}
+a.header-block:hover {
+	/* Links have a hover effect */
+	filter     : brightness(0.8);
 	transition : filter 100ms linear;
 }
 
+/*////////////////////////////////////////////////////////////////*/
 /* Status decorations */
 .api-deprecated {
 	text-decoration : line-through rgb(0, 0, 0, 0.5);
@@ -123,6 +166,7 @@ ul ul {
 	opacity : 0.5;
 }
 
+/*////////////////////////////////////////////////////////////////*/
 /* Wrapping */
 .element-link,
 .parameter,
@@ -144,6 +188,7 @@ ul ul {
 	}
 }
 
+/*////////////////////////////////////////////////////////////////*/
 /* Icons */
 li .element-link {
 	--icon-offset : calc(var(--icon-scale) + var(--icon-spacing));
@@ -181,6 +226,7 @@ li .element-link .icon {
 	margin-right : var(--icon-spacing);
 }
 
+/*////////////////////////////////////////////////////////////////*/
 /* Spinner */
 @keyframes loading-spinner {
 	0% {
@@ -203,6 +249,7 @@ li .element-link .icon {
 	vertical-align    : middle;
 }
 
+/*////////////////////////////////////////////////////////////////*/
 /* Member list */
 .member-list {
 	--cell-spacing   : 0.75ch;
@@ -249,8 +296,25 @@ li .element-link .icon {
 	text-align : left;
 }
 
-@media screen and (max-width: 80ch) {
-	#main-nav li a {
-		--height-factor: 2;
-	}
+/*////////////////////////////////////////////////////////////////*/
+/* Publication */
+.publication {
+	display     : flex;
+	align-items : center;
+}
+.publication .icon {
+	--icon-scale : var(--icon-size-dynamic);
+}
+.publication svg {
+	height : var(--font-size);
+	width  : var(--font-size);
+}
+.publication path {
+	fill : var(--text-color);
+}
+#main-footer .publication path {
+	fill : var(--background-color);
+}
+#main-footer .license a[href] {
+	color : gold;
 }

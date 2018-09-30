@@ -15,6 +15,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Converts a value into a string. Only handles types found in rbxapi
@@ -134,7 +135,7 @@ func main() {
 	spew.Config.Indent = "\t"
 
 	// Initialize root.
-	data := &Data{}
+	data := &Data{CurrentYear: time.Now().Year()}
 
 	// Load settings.
 	if f, err := os.Open(SettingsFile); err == nil {
@@ -311,6 +312,8 @@ loop:
 				return template.CSS(b), err
 			case ".js":
 				return template.JS(b), err
+			case ".html", ".svg":
+				return template.HTML(b), err
 			}
 			return string(b), err
 		},

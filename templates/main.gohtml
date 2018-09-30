@@ -22,15 +22,29 @@
 </head>
 <body>
 	<header id="main-header">
-		<h1><a href="{{link "index"}}">Roblox API Reference</a></h1>
-		<nav id="main-nav">
+		<h1 class="header-block"><a href="{{link "index"}}">Roblox API Reference</a></h1>
+		<nav class="main-nav">
 			<ul>
-				<li><a href="{{link "updates"}}">Updates</a></li>
+				<li><a class="header-block" href="{{link "updates"}}">Updates</a></li>
 			</ul>
 		</nav>
 	</header>
 	<main>
 {{execute .Template .Data -}}
 	</main>
+	<footer id="main-footer">
+		<nav class="main-nav">
+			<ul>
+				<li><a class="header-block" href="{{link "index"}}">Main</a></li>
+				<li><a class="header-block" href="{{link "updates"}}">Updates</a></li>
+				<li><a class="header-block" href="{{link "about"}}">About</a></li>
+				<li><a class="header-block" href="https://github.com/robloxapi/rbxapiref">Develop</a></li>
+				<li><a class="header-block" href="https://github.com/robloxapi/rbxapiref/issues">Issues</a></li>
+			</ul>
+		</nav>
+		<div class="header-block license">Content is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA-4.0.</a></div>
+		{{- $pubyear := 2018 }}
+		<div class="header-block publication"><span class="icon svg">{{embed "ana.svg"}}</span> {{$pubyear}}{{if gt .CurrentYear $pubyear}}&ndash;{{.CurrentYear}}{{end}} Anaminus</div>
+	</footer>
 </body>
 </html>

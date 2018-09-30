@@ -197,19 +197,22 @@ func buildTypePage(data *Data, pageDataSet map[string]interface{}, v interface{}
 
 func GenerateRefPage(data *Data) error {
 	classPage := Page{
-		Template: "class",
-		Styles:   []Resource{{Name: "class.css"}},
-		Scripts:  []Resource{{Name: "class.js"}},
+		CurrentYear: data.CurrentYear,
+		Template:    "class",
+		Styles:      []Resource{{Name: "class.css"}},
+		Scripts:     []Resource{{Name: "class.js"}},
 	}
 	enumPage := Page{
-		Template: "enum",
-		Styles:   []Resource{{Name: "enum.css"}},
-		Scripts:  []Resource{},
+		CurrentYear: data.CurrentYear,
+		Template:    "enum",
+		Styles:      []Resource{{Name: "enum.css"}},
+		Scripts:     []Resource{},
 	}
 	typePage := Page{
-		Template: "type",
-		Styles:   []Resource{},
-		Scripts:  []Resource{},
+		CurrentYear: data.CurrentYear,
+		Template:    "type",
+		Styles:      []Resource{},
+		Scripts:     []Resource{},
 	}
 
 	pageDataSet := map[string]interface{}{}

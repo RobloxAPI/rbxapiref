@@ -13,10 +13,11 @@ func GenerateUpdatesPage(data *Data) error {
 		Years   []int
 	}
 	page := Page{
-		Template: "updates",
-		Title:    "Updates",
-		Styles:   []Resource{{Name: "updates.css", ID: "updates-style"}},
-		Scripts:  []Resource{{Name: "updates.js"}},
+		CurrentYear: data.CurrentYear,
+		Template:    "updates",
+		Title:       "Updates",
+		Styles:      []Resource{{Name: "updates.css", ID: "updates-style"}},
+		Scripts:     []Resource{{Name: "updates.js"}},
 	}
 
 	src := data.Patches

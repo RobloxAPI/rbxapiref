@@ -10,10 +10,11 @@ func GenerateIndexPage(data *Data) error {
 		return err
 	}
 	err = GeneratePage(data, f, Page{
-		Template: "index",
-		Data:     data,
-		Styles:   []Resource{{Name: "index.css", Embed: true}},
-		Scripts:  []Resource{{Name: "sort-classes.js"}},
+		CurrentYear: data.CurrentYear,
+		Template:    "index",
+		Data:        data,
+		Styles:      []Resource{{Name: "index.css", Embed: true}},
+		Scripts:     []Resource{{Name: "sort-classes.js"}},
 	})
 	f.Close()
 	return err
