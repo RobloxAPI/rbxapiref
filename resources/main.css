@@ -60,6 +60,9 @@ body {
 		margin-bottom: var(--baseline);
 	}
 }
+code {
+	font-family : "Consolas","DejaVu Sans Mono",monospace;
+}
 main {
 	margin        : var(--baseline);
 	margin-top    : 0px;
