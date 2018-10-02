@@ -306,6 +306,7 @@ class DatabaseItem {
 			icon = {class: "enum-item-icon"};
 			break;
 		case 3:
+			icon = {class: "member-icon", index: 3};
 			break;
 		case 4:
 			icon = {class: "member-icon", index: 6};

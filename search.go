@@ -113,7 +113,7 @@ func (dw *dbWriter) writeItem(v interface{}) bool {
 		typ = 1
 	case *rbxapijson.EnumItem:
 		typ = 2
-	case *rbxapijson.Type:
+	case rbxapijson.Type:
 		typ = 3
 	case *rbxapijson.Property:
 		typ = 4
@@ -164,6 +164,7 @@ func (dw *dbWriter) GenerateDatabase() bool {
 	for _, enum := range root.Enums {
 		items += len(enum.Items)
 	}
+	items += len(dw.data.Types)
 	if dw.writeNumber(uint16(items)) {
 		return true
 	}
@@ -204,6 +205,9 @@ func (dw *dbWriter) GenerateDatabase() bool {
 			}
 		}
 	}
+	for _, typ := range dw.data.Types {
+		dw.writeItem(typ)
+	}
 
 	// Item strings
 	for _, class := range root.Classes {
@@ -228,6 +232,11 @@ func (dw *dbWriter) GenerateDatabase() bool {
 			if dw.writeString(enum.Name + "." + item.Name) {
 				return true
 			}
+		}
+	}
+	for _, typ := range dw.data.Types {
+		if dw.writeString(typ.Name) {
+			return true
 		}
 	}
 
