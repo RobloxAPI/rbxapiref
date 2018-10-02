@@ -12,6 +12,7 @@
 	<link{{if .ID}} id="{{.ID}}"{{end}} href="{{link "resource" .Name}}" rel="stylesheet" type="text/css" />
 {{- end }}
 {{- end }}
+	<script src="/ref/res/search.js" charset="utf-8"></script>
 {{- range .Scripts }}
 {{- if .Embed }}
 	<script{{if .ID}} id="{{.ID}}"{{end}}>{{embed .Name -}}</script>
@@ -29,6 +30,11 @@
 				<li><a class="header-block" href="{{link "about"}}">About</a></li>
 			</ul>
 		</nav>
+		<aside id="search" class="header-block">
+			<noscript>
+				<section id="no-search">Searching requires Javascript.</section>
+			</noscript>
+		</aside>
 	</header>
 	<main>
 {{execute .Template .Data -}}

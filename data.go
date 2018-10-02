@@ -98,6 +98,8 @@ retry:
 		return "https://github.com/robloxapi/rbxapiref"
 	case "issues":
 		return "https://github.com/robloxapi/rbxapiref/issues"
+	case "search":
+		s = "search.db"
 	}
 	s = path.Join("/", data.Settings.Output.Sub, s)
 	return s

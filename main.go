@@ -377,6 +377,23 @@ loop:
 		}
 	}
 
+	// Generate search database.
+	{
+		f, err := os.Create(data.FilePath("search"))
+		if err != nil {
+			fmt.Println("failed to create search database file:", err)
+			return
+		}
+		db := dbWriter{data: data, w: f}
+		failed := db.GenerateDatabase()
+		f.Close()
+		if failed {
+			fmt.Println("failed to generate search database:", db.err)
+			return
+		}
+
+	}
+
 	// Save cache.
 	{
 		f, err := os.Create(manifestPath)
