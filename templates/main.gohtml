@@ -23,6 +23,11 @@
 </head>
 <body>
 	<header id="main-header">
+		<aside id="search" class="header-block">
+			<noscript>
+				<section id="no-search">Searching requires Javascript.</section>
+			</noscript>
+		</aside>
 		<h1 class="header-block"><a href="{{link "index"}}">Roblox API Reference</a></h1>
 		<nav class="main-nav">
 			<ul>
@@ -30,11 +35,6 @@
 				<li><a class="header-block" href="{{link "about"}}">About</a></li>
 			</ul>
 		</nav>
-		<aside id="search" class="header-block">
-			<noscript>
-				<section id="no-search">Searching requires Javascript.</section>
-			</noscript>
-		</aside>
 	</header>
 	<main>
 {{execute .Template .Data -}}
