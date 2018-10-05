@@ -540,6 +540,9 @@ document.addEventListener("DOMContentLoaded", function() {
 		for (let i = 0; i < max; i++) {
 			let result = results[i];
 			let item = document.createElement("li");
+			if (result[1].deprecated) {
+				item.classList.add("api-deprecated");
+			};
 			let link = document.createElement("a");
 			link.classList.add("element-link");
 			link.href = generateLink(result[1]);
