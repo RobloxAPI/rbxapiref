@@ -25,7 +25,7 @@
 </section>
 {{- $referrers := filter "added" .Entity.ReferrerList -}}
 {{- if $referrers }}
-<section id="relevant-members">
+<section id="referrers">
 	<h3>Relevant members</h3>
 	<p>{{.Name}} has {{len $referrers}} related {{quantity $referrers "member" "members"}}.</p>
 	<ul>

@@ -3,15 +3,9 @@ main {
 	justify-items : start;
 	grid-gap      : 0 var(--section-spacing);
 }
-main > header {
-	grid-area : header;
-}
-#enumitems {
-	grid-area : enumitems;
-}
-#relevant-members {
-	grid-area : members;
-}
+main > header { grid-area : header }
+#enumitems { grid-area : enumitems }
+#referrers { grid-area : referrers }
 
 @media screen and (max-width: 80ch) {
 	main {
@@ -19,14 +13,14 @@ main > header {
 		grid-template-areas   :
 			"header   "
 			"enumitems"
-			"members  ";
+			"referrers";
 	}
 }
 @media screen and (min-width: 80ch) {
 	main {
 		grid-template-columns : max-content auto;
 		grid-template-areas   :
-			"header    header "
-			"enumitems members";
+			"header    header   "
+			"enumitems referrers";
 	}
 }

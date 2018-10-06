@@ -3,31 +3,34 @@ main {
 	justify-items : start;
 	grid-gap      : 0 var(--section-spacing);
 }
-main > header   { grid-area : header }
-main > nav      { grid-area : nav }
-main > #members { grid-area : members }
-main > #classes { grid-area : classes }
-main > #enums   { grid-area : enums }
+main > header     { grid-area : header }
+main > nav        { grid-area : nav }
+main > #members   { grid-area : members }
+main > #classes   { grid-area : classes }
+main > #enums     { grid-area : enums }
+main > #referrers { grid-area : referrers }
 
 @media screen and (max-width: 80ch) {
 	main {
 		grid-template-columns : auto;
 		grid-template-areas   :
-			"header "
-			"nav    "
-			"members"
-			"classes"
-			"enums  ";
+			"header   "
+			"nav      "
+			"members  "
+			"classes  "
+			"enums    "
+			"referrers";
 	}
 }
 @media screen and (min-width: 80ch) {
 	main {
 		grid-template-columns : min-content auto;
 		grid-template-areas   :
-			"header header "
-			"nav    members"
-			"nav    classes"
-			"nav    enums  ";
+			"header header   "
+			"nav    members  "
+			"nav    classes  "
+			"nav    enums    "
+			"nav    referrers";
 	}
 	main > nav {
 		border-right  : 1px solid lightgray;

@@ -107,3 +107,17 @@
 	</ul>
 </section>
 {{- end }}
+{{- $referrers := filter "added" .Entity.ReferrerList -}}
+{{- if $referrers }}
+<section id="referrers">
+	<h3>Relevant members</h3>
+	<p>{{.Name}} has {{len $referrers}} related {{quantity $referrers "member" "members"}}.</p>
+	<ul>
+	{{- range $referrers -}}
+		{{- $class := (index .ID 0) -}}
+		{{- $member := (index .ID 1) }}
+		<li><a class="element-link" href="{{link "member" $class $member}}">{{icon .}}{{$class}}.{{$member}}</a></li>
+	{{- end }}
+	</ul>
+</section>
+{{- end }}
