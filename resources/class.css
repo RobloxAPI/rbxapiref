@@ -3,18 +3,11 @@ main {
 	justify-items : start;
 	grid-gap      : 0 var(--section-spacing);
 }
-main > header {
-	grid-area : header;
-}
-main > nav {
-	grid-area : nav;
-}
-main > #members {
-	grid-area : members;
-}
-main > #enums {
-	grid-area : enums;
-}
+main > header   { grid-area : header }
+main > nav      { grid-area : nav }
+main > #members { grid-area : members }
+main > #classes { grid-area : classes }
+main > #enums   { grid-area : enums }
 
 @media screen and (max-width: 80ch) {
 	main {
@@ -23,6 +16,7 @@ main > #enums {
 			"header "
 			"nav    "
 			"members"
+			"classes"
 			"enums  ";
 	}
 }
@@ -32,6 +26,7 @@ main > #enums {
 		grid-template-areas   :
 			"header header "
 			"nav    members"
+			"nav    classes"
 			"nav    enums  ";
 	}
 	main > nav {

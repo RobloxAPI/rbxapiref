@@ -83,10 +83,22 @@
 	{{- end }}
 	</table>
 </section>
+{{- $classes := filter "class" .Entity.ReferenceList -}}
+{{- if $classes }}
+<section id="classes">
+	<h3>Relevant classes</h3>
+	<p>{{.Name}} has {{len $classes}} related {{quantity $classes "class" "classes"}}.</p>
+	<ul>
+	{{- range $classes }}
+		<li><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
+	{{- end }}
+	</ul>
+</section>
+{{- end }}
 {{- $enums := filter "enum" .Entity.ReferenceList -}}
 {{- if $enums }}
 <section id="enums">
-	<h3>Enums</h3>
+	<h3>Relevant enums</h3>
 	<p>{{.Name}} has {{len $enums}} related {{quantity $enums "enum" "enums"}}.</p>
 	<ul>
 	{{- range $enums }}
