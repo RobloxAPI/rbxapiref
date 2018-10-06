@@ -15,7 +15,7 @@
 		{{- end }}
 		</ul>
 	</section>
-{{- end }}
+{{- end -}}
 {{- $subclasses := filter "added" .Subclasses -}}
 {{- if $subclasses }}
 	<section id="subclasses">
@@ -94,7 +94,7 @@
 	{{- end }}
 	</ul>
 </section>
-{{- end }}
+{{- end -}}
 {{- $enums := filter "enum" .Entity.ReferenceList -}}
 {{- if $enums }}
 <section id="enums">
@@ -106,7 +106,7 @@
 	{{- end }}
 	</ul>
 </section>
-{{- end }}
+{{- end -}}
 {{- $referrers := filter "implicit added" .Entity.ReferrerList -}}
 {{- if $referrers }}
 <section id="referrers">
@@ -120,7 +120,7 @@
 	{{- end }}
 	</ul>
 </section>
-{{- end }}
+{{- end -}}
 {{- $removed := filter "removed" .Entity.MemberList -}}
 {{- if $removed }}
 <section id="removed">
@@ -165,4 +165,4 @@
 	</tbody>
 	</table>
 </section>
-{{- end -}}
+{{- end }}
