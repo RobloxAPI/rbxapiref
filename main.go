@@ -37,17 +37,19 @@ func toString(v interface{}) string {
 		return v.String()
 	case []string:
 		return "[" + strings.Join(v, ", ") + "]"
-	case []rbxapijson.Parameter:
-		ss := make([]string, len(v))
-		for i, param := range v {
+	case rbxapijson.Parameters:
+		n := v.GetLength()
+		ss := make([]string, n)
+		for i := 0; i < n; i++ {
+			param := v.GetParameter(i).(rbxapijson.Parameter)
 			ss[i] = param.Type.String() + " " + param.Name
-			if param.Default != nil {
-				ss[i] += " = " + *param.Default
+			if param.HasDefault {
+				ss[i] += " = " + param.Default
 			}
 		}
 		return "(" + strings.Join(ss, ", ") + ")"
 	}
-	return "<unknown value>"
+	return "<unknown value " + reflect.TypeOf(v).String() + ">"
 }
 
 // Generates a list of actions for each member of the element.
@@ -122,6 +124,8 @@ func reflectLength(item interface{}) (int, error) {
 	switch v.Kind() {
 	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice, reflect.String:
 		return v.Len(), nil
+	case reflect.Int:
+		return int(v.Int()), nil
 	}
 	return 0, fmt.Errorf("len of type %s", v.Type())
 }
@@ -299,7 +303,7 @@ loop:
 		}
 	}
 
-	data.GenerateEntities()
+	data.Entities = GenerateEntities(data)
 	data.GenerateTree()
 
 	// Compile templates.
@@ -318,7 +322,127 @@ loop:
 			return string(b), err
 		},
 		"execute": data.ExecuteTemplate,
-		"icon":    data.Icon,
+		"filter": func(filter string, list interface{}) interface{} {
+			switch list := list.(type) {
+			case []*ClassEntity:
+				var filtered []*ClassEntity
+				switch filter {
+				case "added":
+					for _, entity := range list {
+						if !entity.Removed {
+							filtered = append(filtered, entity)
+						}
+					}
+					return filtered
+				case "removed":
+					for _, entity := range list {
+						if entity.Removed {
+							filtered = append(filtered, entity)
+						}
+					}
+					return filtered
+				}
+			case []*MemberEntity:
+				var filtered []*MemberEntity
+				switch filter {
+				case "added":
+					for _, entity := range list {
+						if !entity.Removed && !entity.Parent.Removed {
+							filtered = append(filtered, entity)
+						}
+					}
+					return filtered
+				case "removed":
+					for _, entity := range list {
+						if entity.Removed || entity.Parent.Removed {
+							filtered = append(filtered, entity)
+						}
+					}
+					return filtered
+				}
+			case []*EnumEntity:
+				var filtered []*EnumEntity
+				switch filter {
+				case "added":
+					for _, entity := range list {
+						if !entity.Removed {
+							filtered = append(filtered, entity)
+						}
+					}
+					return filtered
+				case "removed":
+					for _, entity := range list {
+						if entity.Removed {
+							filtered = append(filtered, entity)
+						}
+					}
+					return filtered
+				}
+			case []*EnumItemEntity:
+				var filtered []*EnumItemEntity
+				switch filter {
+				case "added":
+					for _, entity := range list {
+						if !entity.Removed && !entity.Parent.Removed {
+							filtered = append(filtered, entity)
+						}
+					}
+					return filtered
+				case "removed":
+					for _, entity := range list {
+						if entity.Removed || entity.Parent.Removed {
+							filtered = append(filtered, entity)
+						}
+					}
+					return filtered
+				}
+			case []*TypeEntity:
+				var filtered []*TypeEntity
+				switch filter {
+				case "added":
+					for _, entity := range list {
+						if !entity.Removed {
+							filtered = append(filtered, entity)
+						}
+					}
+					return filtered
+				case "removed":
+					for _, entity := range list {
+						if entity.Removed {
+							filtered = append(filtered, entity)
+						}
+					}
+					return filtered
+				}
+			case []ElementTyper:
+				var filtered []ElementTyper
+				switch filter {
+				case "class":
+					for _, entity := range list {
+						if entity.ElementType().Category == "Class" && !entity.IsRemoved() {
+							filtered = append(filtered, entity)
+						}
+					}
+					return filtered
+				case "enum":
+					for _, entity := range list {
+						if entity.ElementType().Category == "Enum" && !entity.IsRemoved() {
+							filtered = append(filtered, entity)
+						}
+					}
+					return filtered
+				case "type":
+					for _, entity := range list {
+						if cat := entity.ElementType().Category; cat != "Class" && cat != "Enum" && !entity.IsRemoved() {
+							filtered = append(filtered, entity)
+						}
+					}
+					return filtered
+				}
+			}
+			return list
+		},
+		"icon": data.Icon,
 		"istype": func(v interface{}, t string) bool {
 			if v == nil {
 				return "nil" == t
@@ -368,7 +492,9 @@ loop:
 		GenerateIndexPage,
 		GenerateAboutPage,
 		GenerateUpdatesPage,
-		GenerateRefPage,
+		GenerateClassPages,
+		GenerateEnumPages,
+		GenerateTypePages,
 	}
 	for _, page := range pages {
 		if err := page(data); err != nil {

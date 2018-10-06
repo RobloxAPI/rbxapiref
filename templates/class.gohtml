@@ -2,35 +2,37 @@
 	<h2>{{icon .Entity.Element}}{{.Name}}</h2>
 </header>
 <nav>
-{{- if .Superclasses }}
+{{- $superclasses := filter "added" .Superclasses -}}
+{{- if $superclasses }}
 	<section id="superclasses">
 		<header>
 			<h3>Inherits</h3>
 		</header>
 		<ul>
-		{{- range .Superclasses }}
-			<li><a class="element-link" href="{{link "class" .}}">{{icon "class" .}}{{.}}</a></li>
+		{{- range $superclasses }}
+			<li><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
 		{{- end }}
 		</ul>
 	</section>
 {{- end }}
-{{- if .Subclasses }}
+{{- $subclasses := filter "added" .Subclasses -}}
+{{- if $subclasses }}
 	<section id="subclasses">
 		<header>
 			<h3>Inherited by</h3>
 		</header>
 		<ul>
-		{{- range .Subclasses }}
-			<li><a class="element-link" href="{{link "class" .}}">{{icon "class" .}}{{.}}</a></li>
+		{{- range $subclasses }}
+			<li><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
 		{{- end }}
 		</ul>
 	</section>
 {{- end }}
 </nav>
-{{- if .Members }}
 <section id="members">
 	<h3>Members</h3>
-	<p>{{.Name}} defines {{len (index .Members 0).Members}} {{quantity (index .Members 0).Members "member" "members"}}.</p>
+	{{- $members := filter "added" .Entity.MemberList }}
+	<p>{{.Name}} defines {{len $members}} {{quantity (len $members) "member" "members"}}.</p>
 	<table class="member-list">
 	<thead>
 		<tr>
@@ -40,18 +42,9 @@
 		</tr>
 	</thead>
 	{{- $class := .Name -}}
-	{{- range $i, $section := .Members -}}
-	{{- if $i -}}
-	{{- if $section.Members }}
-	<thead>
-		<tr>
-			<th class="inherited-members" colspan="3"><a class="member-count">{{len $section.Members}} {{quantity $section.Members "member" "members"}}</a> inherited from <a class="element-link" href="{{link "class" $section.Class}}#members">{{icon "class" $section.Class}}{{$section.Class}}</a></th>
-		</tr>
-	</thead>
-	{{- end -}}
-	{{- else -}}
 	<tbody>
-	{{- range $section.Members }}
+	{{- range $members -}}
+	{{- with .Element }}
 		<tr id="member-{{.GetName}}" class="row-{{.GetMemberType}}">
 		{{- if eq .GetMemberType "Property" }}
 			<td class="col-type">{{template "value" .ValueType}}</td>
@@ -71,24 +64,33 @@
 			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
 		{{- end }}
 		</tr>
+	{{- end -}}
 	{{- else }}
 		<tr>
 			<td colspan="3">No derived members.</td>
 		</tr>
 	{{- end }}
 	</tbody>
+	{{- range .Superclasses -}}
+	{{- $members := filter "added" .MemberList -}}
+	{{- if $members }}
+	<thead>
+		<tr>
+			<th class="inherited-members" colspan="3"><a class="member-count">{{len $members}} {{quantity $members "member" "members"}}</a> inherited from <a class="element-link" href="{{link "class" .ID}}#members">{{icon .Element}}{{.ID}}</a></th>
+		</tr>
+	</thead>
 	{{- end -}}
 	{{- end }}
 	</table>
 </section>
-{{- end }}
-{{- if .Enums }}
+{{- $enums := filter "enum" .Entity.ReferenceList -}}
+{{- if $enums }}
 <section id="enums">
 	<h3>Enums</h3>
-	<p>{{.Name}} has {{len .Enums}} related {{quantity .Enums "enum" "enums"}}.</p>
+	<p>{{.Name}} has {{len $enums}} related {{quantity $enums "enum" "enums"}}.</p>
 	<ul>
-	{{- range .Enums }}
-		<li><a class="element-link" href="{{link "enum" .}}">{{icon "enum"}}{{.}}</a></li>
+	{{- range $enums }}
+		<li><a class="element-link" href="{{link "enum" .ID}}">{{icon .Element}}{{.ID}}</a></li>
 	{{- end }}
 	</ul>
 </section>

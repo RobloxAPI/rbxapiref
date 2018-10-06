@@ -2,7 +2,8 @@
 	<header>
 		<h2>Classes</h2>
 	</header>
-	<p>The API defines {{len .Latest.API.Classes}} {{quantity .Latest.API.Classes "class" "classes"}}.</p>
+	{{- $classes := filter "added" .Entities.ClassList }}
+	<p>The API defines {{len $classes}} {{quantity $classes "class" "classes"}}.</p>
 	<ul id="class-list">
 		{{- define "tree" -}}
 		{{- range . }}
@@ -22,10 +23,11 @@
 	<header>
 		<h2>Enums</h2>
 	</header>
-	<p>The API defines {{len .Latest.API.Enums}} {{quantity .Latest.API.Enums "enum" "enums"}}.</p>
+	{{- $enums := filter "added" .Entities.EnumList }}
+	<p>The API defines {{len $enums}} {{quantity $enums "enum" "enums"}}.</p>
 	<ul id="enum-list">
-		{{- range .Latest.API.Enums }}
-		<li><a class="element-link" href="{{link "enum" .Name}}">{{icon .}}{{.Name}}</a></li>
+		{{- range $enums }}
+		<li><a class="element-link" href="{{link "enum" .ID}}">{{icon .}}{{.ID}}</a></li>
 		{{- end }}
 	</ul>
 </article>
@@ -33,13 +35,14 @@
 	<header>
 		<h2>Types</h2>
 	</header>
-	<p>The API defines {{len .Types}} {{quantity .Types "type" "types"}} within {{len .TypeList}} {{quantity .TypeList "category" "categories"}}.</p>
+	{{- $types := filter "added" .Entities.TypeList }}
+	<p>The API defines {{len $types}} {{quantity $types "type" "types"}} within {{len .Entities.TypeCats}} {{quantity .Entities.TypeCats "category" "categories"}}.</p>
 	<ul id="type-list">
-	{{- range .TypeList }}
+	{{- range .Entities.TypeCats }}
 		<li>{{.Name}}
 			<ul>
-			{{- range .Types }}
-				<li>{{template "value" .}}</li>
+			{{- range filter "added" .Types }}
+				<li>{{template "value" .Element}}</li>
 			{{- end }}
 			</ul>
 		</li>

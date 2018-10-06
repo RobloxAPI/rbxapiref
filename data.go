@@ -2,10 +2,8 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/robloxapi/rbxapi"
-	"github.com/robloxapi/rbxapi/patch"
 	"github.com/robloxapi/rbxapi/rbxapijson"
 	"github.com/robloxapi/rbxapiref/fetch"
 	"github.com/robloxapi/rbxfile"
@@ -36,19 +34,25 @@ type Data struct {
 	Latest   *Build
 	Metadata ReflectionMetadata
 
-	Entities *Entities
-	Types    []rbxapijson.Type
-	TypeList []TypeCategory
-
+	Entities  *Entities
 	Tree      map[string]*TreeNode
 	TreeRoots []string
 
 	Templates *template.Template
 }
 
-type TypeCategory struct {
-	Name  string
-	Types []rbxapijson.Type
+type Build struct {
+	Config string
+	Info   BuildInfo
+	API    *rbxapijson.Root
+}
+
+type Patch struct {
+	Stale   bool       `json:"-"`
+	Prev    *BuildInfo `json:",omitempty"`
+	Info    BuildInfo
+	Config  string
+	Actions []Action
 }
 
 // FileLink generates a URL, relative to an arbitrary host.
@@ -169,6 +173,30 @@ retry:
 			title = "EnumItem"
 			index = -1
 		}
+	case *ClassEntity:
+		if value.Element == nil {
+			goto finish
+		}
+		v = []interface{}{value.Element}
+		goto retry
+	case *MemberEntity:
+		if value.Element == nil {
+			goto finish
+		}
+		v = []interface{}{value.Element}
+		goto retry
+	case *EnumEntity:
+		if value.Element == nil {
+			goto finish
+		}
+		v = []interface{}{value.Element}
+		goto retry
+	case *EnumItemEntity:
+		if value.Element == nil {
+			goto finish
+		}
+		v = []interface{}{value.Element}
+		goto retry
 	case *rbxapijson.Class:
 		class = "class-icon"
 		title = "Class"
@@ -241,130 +269,24 @@ func (data *Data) ExecuteTemplate(name string, tdata interface{}) (template.HTML
 	return template.HTML(buf.String()), err
 }
 
-func addType(types map[string]rbxapijson.Type, t rbxapijson.Type) {
-	switch t.Category {
-	case "Class", "Enum":
-		return
-	}
-	if _, ok := types[t.Name]; ok {
-		return
-	}
-	types[t.Name] = t
-}
-
-func (data *Data) GenerateEntities() {
-	data.Entities = &Entities{
-		Classes:   make(map[string]*ClassEntity),
-		Members:   make(map[[2]string]*MemberEntity),
-		Enums:     make(map[string]*EnumEntity),
-		EnumItems: make(map[[2]string]*EnumItemEntity),
-	}
-	types := map[string]rbxapijson.Type{}
-
-	for _, class := range data.Latest.API.Classes {
-		if data.Entities.Classes[class.Name] != nil {
-			continue
-		}
-		data.Entities.Classes[class.Name] = &ClassEntity{
-			ID:      class.Name,
-			Element: class,
-		}
-		for _, member := range class.Members {
-			id := [2]string{class.Name, member.GetName()}
-			if data.Entities.Members[id] != nil {
-				continue
-			}
-			data.Entities.Members[id] = &MemberEntity{
-				ID:      id,
-				Element: member,
-			}
-			switch member.GetMemberType() {
-			case "Property":
-				member := member.(*rbxapijson.Property)
-				addType(types, member.ValueType)
-			case "Function":
-				member := member.(*rbxapijson.Function)
-				addType(types, member.ReturnType)
-				for _, p := range member.Parameters {
-					addType(types, p.Type)
-				}
-			case "Event":
-				member := member.(*rbxapijson.Event)
-				for _, p := range member.Parameters {
-					addType(types, p.Type)
-				}
-			case "Callback":
-				member := member.(*rbxapijson.Callback)
-				addType(types, member.ReturnType)
-				for _, p := range member.Parameters {
-					addType(types, p.Type)
-				}
-			}
-		}
-	}
-	for _, enum := range data.Latest.API.Enums {
-		if data.Entities.Enums[enum.Name] != nil {
-			continue
-		}
-		data.Entities.Enums[enum.Name] = &EnumEntity{
-			ID:      enum.Name,
-			Element: enum,
-		}
-		for _, item := range enum.Items {
-			id := [2]string{enum.Name, item.Name}
-			if data.Entities.EnumItems[id] != nil {
-				continue
-			}
-			data.Entities.EnumItems[id] = &EnumItemEntity{
-				ID:      id,
-				Element: item,
-			}
-		}
-	}
-
-	data.Types = make([]rbxapijson.Type, 0, len(types))
-	data.TypeList = []TypeCategory{}
-loop:
-	for _, t := range types {
-		data.Types = append(data.Types, t)
-		for i, cat := range data.TypeList {
-			if cat.Name == t.Category {
-				data.TypeList[i].Types = append(data.TypeList[i].Types, t)
-				continue loop
-			}
-		}
-		data.TypeList = append(data.TypeList, TypeCategory{
-			Name:  t.Category,
-			Types: []rbxapijson.Type{t},
-		})
-	}
-	sort.Slice(data.Types, func(i, j int) bool {
-		return data.Types[i].Name < data.Types[j].Name
-	})
-	sort.Slice(data.TypeList, func(i, j int) bool {
-		return data.TypeList[i].Name < data.TypeList[j].Name
-	})
-	for _, cat := range data.TypeList {
-		sort.Slice(cat.Types, func(i, j int) bool {
-			return cat.Types[i].Name < cat.Types[j].Name
-		})
-	}
-}
-
 func (data *Data) GenerateTree() {
 	data.Tree = make(map[string]*TreeNode, len(data.Entities.Classes))
 	for id, class := range data.Entities.Classes {
 		node := TreeNode{}
 		super := class.Element.Superclass
-		if data.Entities.Classes[super] == nil {
-			data.TreeRoots = append(data.TreeRoots, id)
+		if !class.Removed {
+			if s := data.Entities.Classes[super]; s == nil || s.Removed {
+				data.TreeRoots = append(data.TreeRoots, id)
+			}
 		}
 		for class := data.Entities.Classes[super]; class != nil; class = data.Entities.Classes[super] {
-			node.Super = append(node.Super, super)
+			if !class.Removed {
+				node.Super = append(node.Super, super)
+			}
 			super = class.Element.Superclass
 		}
 		for subid, sub := range data.Entities.Classes {
-			if sub.Element.Superclass == id {
+			if sub.Element.Superclass == id && !sub.Removed {
 				node.Sub = append(node.Sub, subid)
 			}
 		}
@@ -377,40 +299,6 @@ func (data *Data) GenerateTree() {
 type TreeNode struct {
 	Super []string
 	Sub   []string
-}
-
-type Settings struct {
-	// Input specifies input settings.
-	Input SettingsInput
-	// Output specifies output settings.
-	Output SettingsOutput
-	// Configs maps an identifying name to a fetch configuration.
-	Configs map[string]fetch.Config
-	// UseConfigs specifies the logical concatenation of the fetch configs
-	// defined in the Configs setting. Builds from these configs are read
-	// sequentially.
-	UseConfigs []string
-}
-
-type SettingsInput struct {
-	// Resources is the location of resource files.
-	Resources string
-	// Templates is the location of template files.
-	Templates string
-}
-
-type SettingsOutput struct {
-	// Root is the directory to which generated files will be written.
-	Root string
-	// Sub is a path that follows the output directory and precedes a
-	// generated file path.
-	Sub string
-	// Resources is the path relative to the Base where generated resource
-	// files will be written.
-	Resources string
-	// Manifest is the path relative to the base that points to the manifest
-	// file.
-	Manifest string
 }
 
 type BuildInfo struct {
@@ -434,287 +322,6 @@ func (a BuildInfo) Equal(b BuildInfo) bool {
 
 func (m BuildInfo) String() string {
 	return fmt.Sprintf("%s; %s; %s", m.Hash, m.Date, m.Version)
-}
-
-type Build struct {
-	Config string
-	Info   BuildInfo
-	API    *rbxapijson.Root
-}
-
-type Patch struct {
-	Stale   bool       `json:"-"`
-	Prev    *BuildInfo `json:",omitempty"`
-	Info    BuildInfo
-	Config  string
-	Actions []Action
-}
-
-type Entities struct {
-	Classes   map[string]*ClassEntity
-	Members   map[[2]string]*MemberEntity
-	Enums     map[string]*EnumEntity
-	EnumItems map[[2]string]*EnumItemEntity
-}
-
-type ClassEntity struct {
-	ID      string
-	Element *rbxapijson.Class
-	Patches []Patch
-	Removed bool
-}
-
-type MemberEntity struct {
-	ID      [2]string
-	Element rbxapi.Member
-	Patches []Patch
-	Removed bool
-}
-
-type EnumEntity struct {
-	ID      string
-	Element *rbxapijson.Enum
-	Patches []Patch
-	Removed bool
-}
-
-type EnumItemEntity struct {
-	ID      [2]string
-	Element *rbxapijson.EnumItem
-	Patches []Patch
-	Removed bool
-}
-
-type Action struct {
-	Type     patch.Type
-	Class    *rbxapijson.Class    `json:",omitempty"`
-	Property *rbxapijson.Property `json:",omitempty"`
-	Function *rbxapijson.Function `json:",omitempty"`
-	Event    *rbxapijson.Event    `json:",omitempty"`
-	Callback *rbxapijson.Callback `json:",omitempty"`
-	Enum     *rbxapijson.Enum     `json:",omitempty"`
-	EnumItem *rbxapijson.EnumItem `json:",omitempty"`
-	Field    string               `json:",omitempty"`
-	Prev     *Value               `json:",omitempty"`
-	Next     *Value               `json:",omitempty"`
-}
-
-func WrapActions(actions []patch.Action) []Action {
-	c := make([]Action, len(actions))
-	for i, action := range actions {
-		c[i] = Action{
-			Type:  action.GetType(),
-			Field: action.GetField(),
-		}
-		if p := action.GetPrev(); p != nil {
-			c[i].Prev = WrapValue(p)
-		}
-		if n := action.GetNext(); n != nil {
-			c[i].Next = WrapValue(n)
-		}
-		switch action := action.(type) {
-		case patch.Member:
-			class := action.GetClass().(*rbxapijson.Class)
-			members := class.Members
-			class.Members = nil
-			c[i].Class = class.Copy().(*rbxapijson.Class)
-			class.Members = members
-
-			c[i].SetMember(action.GetMember().Copy())
-		case patch.Class:
-			if action.GetType() == patch.Change {
-				class := action.GetClass().(*rbxapijson.Class)
-				members := class.Members
-				class.Members = nil
-				c[i].Class = class.Copy().(*rbxapijson.Class)
-				class.Members = members
-			} else {
-				c[i].Class = action.GetClass().Copy().(*rbxapijson.Class)
-			}
-		case patch.EnumItem:
-			enum := action.GetEnum().(*rbxapijson.Enum)
-			items := enum.Items
-			enum.Items = nil
-			c[i].Enum = enum.Copy().(*rbxapijson.Enum)
-			enum.Items = items
-
-			c[i].EnumItem = action.GetEnumItem().Copy().(*rbxapijson.EnumItem)
-		case patch.Enum:
-			if action.GetType() == patch.Change {
-				enum := action.GetEnum().(*rbxapijson.Enum)
-				items := enum.Items
-				enum.Items = nil
-				c[i].Enum = enum.Copy().(*rbxapijson.Enum)
-				enum.Items = items
-
-			} else {
-				c[i].Enum = action.GetEnum().Copy().(*rbxapijson.Enum)
-			}
-		}
-	}
-	return c
-}
-func (a *Action) GetClass() rbxapi.Class { return a.Class }
-func (a *Action) GetMember() rbxapi.Member {
-	switch {
-	case a.Property != nil:
-		return a.Property
-	case a.Function != nil:
-		return a.Function
-	case a.Event != nil:
-		return a.Event
-	case a.Callback != nil:
-		return a.Callback
-	}
-	return nil
-}
-func (a *Action) SetMember(member rbxapi.Member) {
-	switch member := member.(type) {
-	case *rbxapijson.Property:
-		a.Property = member
-		a.Function = nil
-		a.Event = nil
-		a.Callback = nil
-	case *rbxapijson.Function:
-		a.Property = nil
-		a.Function = member
-		a.Event = nil
-		a.Callback = nil
-	case *rbxapijson.Event:
-		a.Property = nil
-		a.Function = nil
-		a.Event = member
-		a.Callback = nil
-	case *rbxapijson.Callback:
-		a.Property = nil
-		a.Function = nil
-		a.Event = nil
-		a.Callback = member
-	}
-}
-func (a *Action) GetEnum() rbxapi.Enum         { return a.Enum }
-func (a *Action) GetEnumItem() rbxapi.EnumItem { return a.EnumItem }
-func (a *Action) GetType() patch.Type          { return a.Type }
-func (a *Action) GetField() string             { return a.Field }
-func (a *Action) GetPrev() interface{} {
-	if a.Prev != nil {
-		return a.Prev.V
-	}
-	return nil
-}
-func (a *Action) GetNext() interface{} {
-	if a.Next != nil {
-		return a.Next.V
-	}
-	return nil
-}
-func (a *Action) String() string { return "Action" }
-
-type Value struct {
-	V interface{}
-}
-
-func WrapValue(v interface{}) *Value {
-	w := Value{}
-	switch v := v.(type) {
-	case rbxapi.Type:
-		w.V = rbxapijson.Type{
-			Category: v.GetCategory(),
-			Name:     v.GetName(),
-		}
-	case []rbxapi.Parameter:
-		params := make([]rbxapijson.Parameter, len(v))
-		for i, p := range v {
-			params[i] = rbxapijson.Parameter{
-				Type: rbxapijson.Type{
-					Category: p.GetType().GetCategory(),
-					Name:     p.GetType().GetName(),
-				},
-				Name: p.GetName(),
-			}
-			if d, ok := p.GetDefault(); ok {
-				params[i].Default = &d
-			}
-		}
-		w.V = params
-	default:
-		w.V = v
-	}
-	return &w
-}
-
-func (v *Value) MarshalJSON() (b []byte, err error) {
-	var w struct {
-		Type  string
-		Value interface{}
-	}
-	switch v := v.V.(type) {
-	case bool:
-		w.Type = "bool"
-		w.Value = v
-	case int:
-		w.Type = "int"
-		w.Value = v
-	case string:
-		w.Type = "string"
-		w.Value = v
-	case rbxapijson.Type:
-		w.Type = "Type"
-		w.Value = v
-	case []string:
-		w.Type = "strings"
-		w.Value = v
-	case []rbxapijson.Parameter:
-		w.Type = "Parameters"
-		w.Value = v
-	}
-	return json.Marshal(&w)
-}
-
-func (v *Value) UnmarshalJSON(b []byte) (err error) {
-	var w struct{ Type string }
-	if err = json.Unmarshal(b, &w); err != nil {
-		return err
-	}
-	switch w.Type {
-	case "bool":
-		var value struct{ Value bool }
-		if err = json.Unmarshal(b, &value); err != nil {
-			return err
-		}
-		v.V = value.Value
-	case "int":
-		var value struct{ Value int }
-		if err = json.Unmarshal(b, &value); err != nil {
-			return err
-		}
-		v.V = value.Value
-	case "string":
-		var value struct{ Value string }
-		if err = json.Unmarshal(b, &value); err != nil {
-			return err
-		}
-		v.V = value.Value
-	case "Type":
-		var value struct{ Value rbxapijson.Type }
-		if err = json.Unmarshal(b, &value); err != nil {
-			return err
-		}
-		v.V = value.Value
-	case "strings":
-		var value struct{ Value []string }
-		if err = json.Unmarshal(b, &value); err != nil {
-			return err
-		}
-		v.V = value.Value
-	case "Parameters":
-		var value struct{ Value []rbxapijson.Parameter }
-		if err = json.Unmarshal(b, &value); err != nil {
-			return err
-		}
-		v.V = value.Value
-	}
-	return nil
 }
 
 type ReflectionMetadata struct {

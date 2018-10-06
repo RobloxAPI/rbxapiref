@@ -1,34 +1,38 @@
 <header>
-	<h2>{{icon "enum"}}{{.Name}}</h2>
+	<h2>{{icon .Entity}}{{.Name}}</h2>
 </header>
 <section id="enumitems">
 	<h3>Enum items</h3>
-	{{- $enum := .Entity.Element.Name -}}
-	<p>{{$enum}} defines {{len .Entity.Element.Items}} enum {{quantity .Entity.Element.Items "item" "items"}}.</p>
+	{{- $enum := .Name -}}
+	{{- $items := filter "added" .Entity.ItemList -}}
+	<p>{{$enum}} defines {{len $items}} enum {{quantity $items "item" "items"}}.</p>
 	<table class="member-list">
 		<tr>
 			<th class="col-icon">{{icon "enum"}}</th>
 			<th class="col-member">Name</th>
 			<th class="col-value">Value</th>
 		</tr>
-	{{- range .Entity.Element.Items }}
+	{{- range $items -}}
+	{{- with .Element }}
 		<tr id="member-{{.Name}}" class="row-EnumItem">
 			<td class="col-icon">{{icon "enumitem"}}</td>
 			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "enumitem" $enum .Name}}">{{.Name}}</a></td>
 			<td class="col-value">{{.Value}}</td>
 		</tr>
+	{{- end -}}
 	{{- end }}
 	</table>
 </section>
-{{- if .Members }}
+{{- $referrers := filter "added" .Entity.ReferrerList -}}
+{{- if $referrers }}
 <section id="relevant-members">
 	<h3>Relevant members</h3>
-	<p>{{.Name}} has {{len .Members}} related {{quantity .Members "member" "members"}}.</p>
+	<p>{{.Name}} has {{len $referrers}} related {{quantity $referrers "member" "members"}}.</p>
 	<ul>
-	{{- range .Members -}}
-		{{- $class := (index . 0) -}}
-		{{- $member := (index . 1) }}
-		<li><a class="element-link" href="{{link "member" $class $member}}">{{icon "member" $class $member}}{{$class}}.{{$member}}</a></li>
+	{{- range $referrers -}}
+		{{- $class := (index .ID 0) -}}
+		{{- $member := (index .ID 1) }}
+		<li><a class="element-link" href="{{link "member" $class $member}}">{{icon .}}{{$class}}.{{$member}}</a></li>
 	{{- end }}
 	</ul>
 </section>

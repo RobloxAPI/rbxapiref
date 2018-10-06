@@ -164,7 +164,7 @@ func (dw *dbWriter) GenerateDatabase() bool {
 	for _, enum := range root.Enums {
 		items += len(enum.Items)
 	}
-	items += len(dw.data.Types)
+	items += len(dw.data.Entities.TypeList)
 	if dw.writeNumber(uint16(items)) {
 		return true
 	}
@@ -205,7 +205,7 @@ func (dw *dbWriter) GenerateDatabase() bool {
 			}
 		}
 	}
-	for _, typ := range dw.data.Types {
+	for _, typ := range dw.data.Entities.TypeList {
 		dw.writeItem(typ)
 	}
 
@@ -234,8 +234,8 @@ func (dw *dbWriter) GenerateDatabase() bool {
 			}
 		}
 	}
-	for _, typ := range dw.data.Types {
-		if dw.writeString(typ.Name) {
+	for _, typ := range dw.data.Entities.TypeList {
+		if dw.writeString(typ.Element.Name) {
 			return true
 		}
 	}
