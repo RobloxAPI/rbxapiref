@@ -9,6 +9,7 @@ main > #members   { grid-area : members }
 main > #classes   { grid-area : classes }
 main > #enums     { grid-area : enums }
 main > #referrers { grid-area : referrers }
+main > #removed   { grid-area : removed }
 
 @media screen and (max-width: 80ch) {
 	main {
@@ -19,7 +20,8 @@ main > #referrers { grid-area : referrers }
 			"members  "
 			"classes  "
 			"enums    "
-			"referrers";
+			"referrers"
+			"removed  ";
 	}
 }
 @media screen and (min-width: 80ch) {
@@ -30,7 +32,8 @@ main > #referrers { grid-area : referrers }
 			"nav    members  "
 			"nav    classes  "
 			"nav    enums    "
-			"nav    referrers";
+			"nav    referrers"
+			"nav    removed  ";
 	}
 	main > nav {
 		border-right  : 1px solid lightgray;

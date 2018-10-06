@@ -2,6 +2,7 @@
 	<h2>{{icon .Entity.Element}}{{.Name}}</h2>
 </header>
 <nav>
+{{- $class := .Name -}}
 {{- $superclasses := filter "added" .Superclasses -}}
 {{- if $superclasses }}
 	<section id="superclasses">
@@ -41,7 +42,6 @@
 			<th class="col-member">Member</th>
 		</tr>
 	</thead>
-	{{- $class := .Name -}}
 	<tbody>
 	{{- range $members -}}
 	{{- with .Element }}
@@ -107,7 +107,7 @@
 	</ul>
 </section>
 {{- end }}
-{{- $referrers := filter "added" .Entity.ReferrerList -}}
+{{- $referrers := filter "implicit added" .Entity.ReferrerList -}}
 {{- if $referrers }}
 <section id="referrers">
 	<h3>Relevant members</h3>
@@ -121,3 +121,48 @@
 	</ul>
 </section>
 {{- end }}
+{{- $removed := filter "removed" .Entity.MemberList -}}
+{{- if $removed }}
+<section id="removed">
+	<h3>Removed members</h3>
+	<p>{{.Name}} has {{len $removed}} removed {{quantity (len $removed) "member" "members"}}.</p>
+	<table class="member-list">
+	<thead>
+		<tr>
+			<th class="col-type">Type</th>
+			<th class="col-icon"></th>
+			<th class="col-member">Member</th>
+		</tr>
+	</thead>
+	<tbody>
+	{{- range $removed -}}
+	{{- with .Element }}
+		<tr id="member-{{.GetName}}" class="row-{{.GetMemberType}}">
+		{{- if eq .GetMemberType "Property" }}
+			<td class="col-type">{{template "value" .ValueType}}</td>
+			<td class="col-icon">{{icon .}}</td>
+			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a></td>
+		{{- else if eq .GetMemberType "Function" }}
+			<td class="col-type">{{template "value" .ReturnType}}</td>
+			<td class="col-icon">{{icon .}}</td>
+			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+		{{- else if eq .GetMemberType "Event" }}
+			<td class="col-type"></td>
+			<td class="col-icon">{{icon .}}</td>
+			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+		{{- else if eq .GetMemberType "Callback" }}
+			<td class="col-type">{{template "value" .ReturnType}}</td>
+			<td class="col-icon">{{icon .}}</td>
+			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+		{{- end }}
+		</tr>
+	{{- end -}}
+	{{- else }}
+		<tr>
+			<td colspan="3">No removed members.</td>
+		</tr>
+	{{- end }}
+	</tbody>
+	</table>
+</section>
+{{- end -}}

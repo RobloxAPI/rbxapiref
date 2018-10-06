@@ -1,7 +1,7 @@
 <header>
 	<h2>{{.Name}}</h2>
 </header>
-{{- $referrers := filter "added" .Entity.ReferrerList -}}
+{{- $referrers := filter "implicit added" .Entity.ReferrerList -}}
 {{- if $referrers }}
 <section id="referrers">
 	<h3>Relevant members</h3>

@@ -1,11 +1,13 @@
 main {
 	display       : grid;
+	align-items   : start;
 	justify-items : start;
 	grid-gap      : 0 var(--section-spacing);
 }
 main > header { grid-area : header }
-#enumitems { grid-area : enumitems }
-#referrers { grid-area : referrers }
+#enumitems    { grid-area : enumitems }
+#referrers    { grid-area : referrers }
+#removed      { grid-area : removed }
 
 @media screen and (max-width: 80ch) {
 	main {
@@ -13,14 +15,17 @@ main > header { grid-area : header }
 		grid-template-areas   :
 			"header   "
 			"enumitems"
-			"referrers";
+			"referrers"
+			"removed  ";
 	}
 }
 @media screen and (min-width: 80ch) {
 	main {
 		grid-template-columns : max-content auto;
+		grid-template-rows    : auto auto 1fr;
 		grid-template-areas   :
 			"header    header   "
-			"enumitems referrers";
+			"enumitems referrers"
+			"enumitems removed  ";
 	}
 }

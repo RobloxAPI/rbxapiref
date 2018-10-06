@@ -18,6 +18,16 @@
 		{{- end -}}
 		{{- template "tree" .TreeRoots }}
 	</ul>
+{{- $removed := filter "removed" .Entities.ClassList -}}
+{{- if $removed }}
+	<h3>Removed classes</h3>
+	<p>The API has {{len $removed}} removed {{quantity $removed "class" "classes"}}.</p>
+	<ul id="removed-class-list">
+	{{- range $removed }}
+		<li><a class="element-link" href="{{link "class" .ID}}">{{icon .}}{{.ID}}</a>
+	{{- end -}}
+	</ul>
+{{- end }}
 </article>
 <article id="enums">
 	<header>
@@ -30,6 +40,16 @@
 		<li><a class="element-link" href="{{link "enum" .ID}}">{{icon .}}{{.ID}}</a></li>
 		{{- end }}
 	</ul>
+{{- $removed := filter "removed" .Entities.EnumList -}}
+{{- if $removed }}
+	<h3>Removed enums</h3>
+	<p>The API has {{len $removed}} removed {{quantity $removed "enum" "enums"}}.</p>
+	<ul id="removed-enum-list">
+	{{- range $removed }}
+		<li><a class="element-link" href="{{link "enum" .ID}}">{{icon .}}{{.ID}}</a>
+	{{- end -}}
+	</ul>
+{{- end }}
 </article>
 <article id="types">
 	<header>
@@ -48,4 +68,14 @@
 		</li>
 	{{- end }}
 	</ul>
+{{- $removed := filter "removed" .Entities.TypeList -}}
+{{- if $removed }}
+	<h3>Removed types</h3>
+	<p>The API has {{len $removed}} removed {{quantity $removed "type" "types"}}.</p>
+	<ul id="removed-type-list">
+	{{- range $removed }}
+		<li>{{template "value" .Element}}</li>
+	{{- end -}}
+	</ul>
+{{- end }}
 </article>

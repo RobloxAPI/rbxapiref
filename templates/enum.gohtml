@@ -1,10 +1,10 @@
 <header>
 	<h2>{{icon .Entity}}{{.Name}}</h2>
 </header>
+{{- $enum := .Name }}
 <section id="enumitems">
 	<h3>Enum items</h3>
-	{{- $enum := .Name -}}
-	{{- $items := filter "added" .Entity.ItemList -}}
+	{{- $items := filter "added" .Entity.ItemList }}
 	<p>{{$enum}} defines {{len $items}} enum {{quantity $items "item" "items"}}.</p>
 	<table class="member-list">
 		<tr>
@@ -23,7 +23,7 @@
 	{{- end }}
 	</table>
 </section>
-{{- $referrers := filter "added" .Entity.ReferrerList -}}
+{{- $referrers := filter "implicit added" .Entity.ReferrerList -}}
 {{- if $referrers }}
 <section id="referrers">
 	<h3>Relevant members</h3>
@@ -35,5 +35,28 @@
 		<li><a class="element-link" href="{{link "member" $class $member}}">{{icon .}}{{$class}}.{{$member}}</a></li>
 	{{- end }}
 	</ul>
+</section>
+{{- end }}
+{{- $removed := filter "removed" .Entity.ItemList -}}
+{{- if $removed }}
+<section id="removed">
+	<h3>Removed enum items</h3>
+	<p>{{$enum}} has {{len $removed}} removed enum {{quantity $removed "item" "items"}}.</p>
+	<table class="member-list">
+		<tr>
+			<th class="col-icon">{{icon "enum"}}</th>
+			<th class="col-member">Name</th>
+			<th class="col-value">Value</th>
+		</tr>
+	{{- range $removed -}}
+	{{- with .Element }}
+		<tr id="member-{{.Name}}" class="row-EnumItem">
+			<td class="col-icon">{{icon "enumitem"}}</td>
+			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "enumitem" $enum .Name}}">{{.Name}}</a></td>
+			<td class="col-value">{{.Value}}</td>
+		</tr>
+	{{- end -}}
+	{{- end }}
+	</table>
 </section>
 {{- end }}

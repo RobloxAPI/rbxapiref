@@ -347,12 +347,26 @@ loop:
 				switch filter {
 				case "added":
 					for _, entity := range list {
-						if !entity.Removed && !entity.Parent.Removed {
+						if !entity.Removed {
 							filtered = append(filtered, entity)
 						}
 					}
 					return filtered
 				case "removed":
+					for _, entity := range list {
+						if entity.Removed {
+							filtered = append(filtered, entity)
+						}
+					}
+					return filtered
+				case "implicit added":
+					for _, entity := range list {
+						if !entity.Removed && !entity.Parent.Removed {
+							filtered = append(filtered, entity)
+						}
+					}
+					return filtered
+				case "implicit removed":
 					for _, entity := range list {
 						if entity.Removed || entity.Parent.Removed {
 							filtered = append(filtered, entity)
@@ -381,16 +395,30 @@ loop:
 			case []*EnumItemEntity:
 				var filtered []*EnumItemEntity
 				switch filter {
-				case "added":
+				case "implicit added":
 					for _, entity := range list {
 						if !entity.Removed && !entity.Parent.Removed {
 							filtered = append(filtered, entity)
 						}
 					}
 					return filtered
-				case "removed":
+				case "implicit removed":
 					for _, entity := range list {
 						if entity.Removed || entity.Parent.Removed {
+							filtered = append(filtered, entity)
+						}
+					}
+					return filtered
+				case "added":
+					for _, entity := range list {
+						if !entity.Removed {
+							filtered = append(filtered, entity)
+						}
+					}
+					return filtered
+				case "removed":
+					for _, entity := range list {
+						if entity.Removed {
 							filtered = append(filtered, entity)
 						}
 					}
