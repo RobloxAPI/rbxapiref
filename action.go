@@ -8,8 +8,40 @@ import (
 	"reflect"
 )
 
+var patchTypeStrings = [3]map[string]string{
+	patch.Remove + 1: {
+		"ed":  "Removed",
+		"ing": "Removing",
+		"s":   "Removes",
+		"n":   "Removal",
+		"ns":  "Removals",
+	},
+	patch.Change + 1: {
+		"ed":  "Changed",
+		"ing": "Changing",
+		"s":   "Changes",
+		"n":   "Change",
+		"ns":  "Changes",
+	},
+	patch.Add + 1: {
+		"ed":  "Added",
+		"ing": "Adding",
+		"s":   "Adds",
+		"n":   "Addition",
+		"ns":  "Additions",
+	},
+}
+
+func PatchTypeString(typ patch.Type, mode string) string {
+	if s := patchTypeStrings[typ+1][mode]; s != "" {
+		return s
+	}
+	return typ.String()
+}
+
 type Action struct {
 	Type     patch.Type
+	Index    int                  `json:"-"`
 	Class    *rbxapijson.Class    `json:",omitempty"`
 	Property *rbxapijson.Property `json:",omitempty"`
 	Function *rbxapijson.Function `json:",omitempty"`

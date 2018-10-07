@@ -97,6 +97,12 @@ ul ul {
 	margin-top    : 0px;
 	margin-bottom : 0px;
 }
+main > header > * {
+	display : inline-block;
+}
+main > header .history {
+	margin-left : var(--icon-spacing);
+}
 
 /*////////////////////////////////////////////////////////////////*/
 /* Header / Footer */
@@ -173,6 +179,17 @@ a.header-block:hover {
 	/* TODO: Figure out how to exclude border-top from this.*/
 	opacity : 0.5;
 }
+.history-add::before    { content: "+" }
+.history-change::before { content: "Δ" }
+.history-remove::before { content: "−" }
+.history-add, .history-change, .history-remove {
+	color         : black !important;
+	padding       : 0 0.5ch;
+	border-radius : 2px;
+}
+.history-add    { background-color: #7EBA72 }
+.history-change { background-color: #DFCE88 }
+.history-remove { background-color: #D8848C }
 
 /*////////////////////////////////////////////////////////////////*/
 /* Wrapping */
@@ -230,6 +247,7 @@ li .element-link .icon {
 .enum-icon      { --icon-index :  9 }
 .enum-item-icon { --icon-index : 10 }
 
+h2 .icon,
 .element-link .icon {
 	margin-right : var(--icon-spacing);
 }
@@ -299,6 +317,7 @@ li .element-link .icon {
 	text-align : right;
 }
 .member-list .col-member,
+.member-list .col-history,
 .member-list td[colspan],
 .member-list th[colspan] {
 	text-align : left;

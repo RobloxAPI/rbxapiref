@@ -1,5 +1,6 @@
 <header>
 	<h2>{{icon .Entity.Element}}{{.Name}}</h2>
+	{{- history .Entity }}
 </header>
 <nav>
 {{- $class := .Name -}}
@@ -40,28 +41,34 @@
 			<th class="col-type">Type</th>
 			<th class="col-icon"></th>
 			<th class="col-member">Member</th>
+			<th class="col-history">History</th>
 		</tr>
 	</thead>
 	<tbody>
 	{{- range $members -}}
+	{{- $entity := . -}}
 	{{- with .Element }}
 		<tr id="member-{{.GetName}}" class="row-{{.GetMemberType}}">
 		{{- if eq .GetMemberType "Property" }}
 			<td class="col-type">{{template "value" .ValueType}}</td>
 			<td class="col-icon">{{icon .}}</td>
 			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a></td>
+			<td class="col-history">{{history $entity}}</td>
 		{{- else if eq .GetMemberType "Function" }}
 			<td class="col-type">{{template "value" .ReturnType}}</td>
 			<td class="col-icon">{{icon .}}</td>
 			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+			<td class="col-history">{{history $entity}}</td>
 		{{- else if eq .GetMemberType "Event" }}
 			<td class="col-type"></td>
 			<td class="col-icon">{{icon .}}</td>
 			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+			<td class="col-history">{{history $entity}}</td>
 		{{- else if eq .GetMemberType "Callback" }}
 			<td class="col-type">{{template "value" .ReturnType}}</td>
 			<td class="col-icon">{{icon .}}</td>
 			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+			<td class="col-history">{{history $entity}}</td>
 		{{- end }}
 		</tr>
 	{{- end -}}
@@ -76,7 +83,7 @@
 	{{- if $members }}
 	<thead>
 		<tr>
-			<th class="inherited-members" colspan="3"><a class="member-count">{{len $members}} {{quantity $members "member" "members"}}</a> inherited from <a class="element-link" href="{{link "class" .ID}}#members">{{icon .Element}}{{.ID}}</a></th>
+			<th class="inherited-members" colspan="4"><a class="member-count">{{len $members}} {{quantity $members "member" "members"}}</a> inherited from <a class="element-link" href="{{link "class" .ID}}#members">{{icon .Element}}{{.ID}}</a></th>
 		</tr>
 	</thead>
 	{{- end -}}
@@ -132,28 +139,34 @@
 			<th class="col-type">Type</th>
 			<th class="col-icon"></th>
 			<th class="col-member">Member</th>
+			<th class="col-history">History</th>
 		</tr>
 	</thead>
 	<tbody>
 	{{- range $removed -}}
+	{{- $entity := . -}}
 	{{- with .Element }}
 		<tr id="member-{{.GetName}}" class="row-{{.GetMemberType}}">
 		{{- if eq .GetMemberType "Property" }}
 			<td class="col-type">{{template "value" .ValueType}}</td>
 			<td class="col-icon">{{icon .}}</td>
 			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a></td>
+			<td class="col-history">{{history $entity}}</td>
 		{{- else if eq .GetMemberType "Function" }}
 			<td class="col-type">{{template "value" .ReturnType}}</td>
 			<td class="col-icon">{{icon .}}</td>
 			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+			<td class="col-history">{{history $entity}}</td>
 		{{- else if eq .GetMemberType "Event" }}
 			<td class="col-type"></td>
 			<td class="col-icon">{{icon .}}</td>
 			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+			<td class="col-history">{{history $entity}}</td>
 		{{- else if eq .GetMemberType "Callback" }}
 			<td class="col-type">{{template "value" .ReturnType}}</td>
 			<td class="col-icon">{{icon .}}</td>
 			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+			<td class="col-history">{{history $entity}}</td>
 		{{- end }}
 		</tr>
 	{{- end -}}

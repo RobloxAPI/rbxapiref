@@ -45,6 +45,10 @@ main > article {
 	}
 }
 
+.anchor:target + .patch-list-toggle,
+.patch-list > li:target {
+	background-color : var(--member-target-color);
+}
 li[diff-field="Parameters"] .diff-values {
 	display      : table;
 	padding-left : 4ch;

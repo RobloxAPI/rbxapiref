@@ -269,6 +269,12 @@ loop:
 		data.Latest.API = root
 	}
 
+	for i, patch := range data.Patches {
+		for j := range patch.Actions {
+			data.Patches[i].Actions[j].Index = j
+		}
+	}
+
 	// Fetch ReflectionMetadata.
 	{
 		rmd, err := client.ReflectionMetadata(data.Latest.Info.Hash)
@@ -469,6 +475,41 @@ loop:
 				}
 			}
 			return list
+		},
+		"history": func(entity interface{}) template.HTML {
+			var patches []Patch
+			switch entity := entity.(type) {
+			case *ClassEntity:
+				patches = entity.Patches
+			case *MemberEntity:
+				patches = entity.Patches
+			case *EnumEntity:
+				patches = entity.Patches
+			case *EnumItemEntity:
+				patches = entity.Patches
+			}
+			var list []string
+			for _, patch := range patches {
+				if patch.Info.Equal(data.Patches[0].Info) {
+					continue
+				}
+				var s []string
+				for _, action := range patch.Actions {
+					s = append(s,
+						"<a class=\"history-", strings.ToLower(action.Type.String()), "\" title=\"",
+						PatchTypeString(action.Type, "ed"), " on ", patch.Info.Date.Format("2006-01-02 15:04:05"), "&#10;",
+						"v", patch.Info.Version.String(), "&#10;",
+						patch.Info.Hash,
+						"\" href=\"",
+						data.FileLink("updates", strconv.Itoa(patch.Info.Date.Year())), "#", patch.Info.Hash, "-", strconv.Itoa(action.Index),
+						"\">",
+						strconv.Itoa(patch.Info.Version.Minor),
+						"</a>",
+					)
+					list = append(list, strings.Join(s, ""))
+				}
+			}
+			return template.HTML("<span class=\"history\">" + strings.Join(list, "\n") + "</span>")
 		},
 		"icon": data.Icon,
 		"istype": func(v interface{}, t string) bool {

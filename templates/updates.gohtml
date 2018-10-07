@@ -26,12 +26,13 @@
 		{{- range . }}
 		<li>
 			<section class="update">
-				<a id="{{.Info.Hash}}" class="anchor"></a>
+				{{- $hash := .Info.Hash }}
+				<a id="{{$hash}}" class="anchor"></a>
 				<span class="patch-list-toggle"><time datetime="{{.Info.Date.Format "2006-01-02 15:04:05-0700" }}">{{.Info.Date.Format "2006-01-02 15:04" }}</time> (v{{.Info.Version}})</span>
-				<a class="permalink" title="Permanent link" href="{{link "updates" .Info.Date.Year}}#{{.Info.Hash}}">{{.Info.Hash}}</a>
+				<a class="permalink" title="Permanent link" href="{{link "updates" .Info.Date.Year}}#{{$hash}}">{{$hash}}</a>
 				<ul class="patch-list">
-				{{- range .Actions}}
-					<li{{if .Field}} diff-field="{{.Field}}"{{end}}>
+				{{- range .Actions }}
+					<li id="{{$hash}}-{{.Index}}"{{if .Field}} diff-field="{{.Field}}"{{end}}>
 					{{- if and .Class .GetMember -}}
 					{{- if eq .Type 0 -}}
 						{{.Type.String}} {{.Field}} of <a class="element-link" href="{{link "member" .Class.GetName .GetMember.GetName}}">{{icon .GetMember false}}{{.Class.GetName}}.{{.GetMember.GetName}}</a>

@@ -157,7 +157,6 @@ func (entities *Entities) AddClass(action *Action, info BuildInfo) {
 					References: map[rbxapijson.Type]ElementTyper{},
 					Parent:     eclass,
 				}
-				addPatch(&emember.Patches, action, info)
 				eclass.Members[id[1]] = emember
 				entities.Members[id] = emember
 			}
@@ -166,9 +165,6 @@ func (entities *Entities) AddClass(action *Action, info BuildInfo) {
 		}
 	case patch.Remove:
 		eclass.Removed = true
-		// for _, emember := range eclass.Members {
-		// 	emember.Removed = true
-		// }
 	case patch.Change:
 		eclass.Element.Patch([]patch.Action{action})
 	}
@@ -233,7 +229,6 @@ func (entities *Entities) AddEnum(action *Action, info BuildInfo) {
 					Element: item.Copy().(*rbxapijson.EnumItem),
 					Parent:  eenum,
 				}
-				addPatch(&eitem.Patches, action, info)
 				eenum.Items[id[1]] = eitem
 				entities.EnumItems[id] = eitem
 			}
@@ -242,9 +237,6 @@ func (entities *Entities) AddEnum(action *Action, info BuildInfo) {
 		}
 	case patch.Remove:
 		eenum.Removed = true
-		// for _, eitem := range eenum.Items {
-		// 	eitem.Removed = true
-		// }
 	case patch.Change:
 		eenum.Element.Patch([]patch.Action{action})
 	}

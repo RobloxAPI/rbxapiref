@@ -1,5 +1,6 @@
 <header>
 	<h2>{{icon .Entity}}{{.Name}}</h2>
+	{{- history .Entity }}
 </header>
 {{- $enum := .Name }}
 <section id="enumitems">
@@ -11,13 +12,16 @@
 			<th class="col-icon">{{icon "enum"}}</th>
 			<th class="col-member">Name</th>
 			<th class="col-value">Value</th>
+			<th class="col-history">History</th>
 		</tr>
 	{{- range $items -}}
+	{{- $entity := . -}}
 	{{- with .Element }}
 		<tr id="member-{{.Name}}" class="row-EnumItem">
 			<td class="col-icon">{{icon "enumitem"}}</td>
 			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "enumitem" $enum .Name}}">{{.Name}}</a></td>
 			<td class="col-value">{{.Value}}</td>
+			<td class="col-history">{{history $entity}}</td>
 		</tr>
 	{{- end -}}
 	{{- end }}
@@ -47,13 +51,16 @@
 			<th class="col-icon">{{icon "enum"}}</th>
 			<th class="col-member">Name</th>
 			<th class="col-value">Value</th>
+			<th class="col-history">History</th>
 		</tr>
 	{{- range $removed -}}
+	{{- $entity := . -}}
 	{{- with .Element }}
 		<tr id="member-{{.Name}}" class="row-EnumItem">
 			<td class="col-icon">{{icon "enumitem"}}</td>
 			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "enumitem" $enum .Name}}">{{.Name}}</a></td>
 			<td class="col-value">{{.Value}}</td>
+			<td class="col-history">{{history $entity}}</td>
 		</tr>
 	{{- end -}}
 	{{- end }}

@@ -19,7 +19,7 @@ function toggleList(event) {
 function toggleAll(show, scroll) {
 	let scrollTo;
 	for (let item of document.querySelectorAll("#update-list > li .patch-list")) {
-		let anchor = item.parentElement.querySelector("a.anchor:target");
+		let anchor = item.parentElement.querySelector(":target");
 		if (anchor !== null) {
 			scrollTo = anchor;
 		}
@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		};
 	};
 
-	if (!document.querySelector(".update > a.anchor:target")) {
+	if (!document.querySelector(".update :target")) {
 		// No specific update is being targeted; expand latest updates.
 		let day = 86400000; // ms
 		let latest = null;
