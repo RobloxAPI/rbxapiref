@@ -308,12 +308,12 @@ func GenerateEntities(data *Data) (entities *Entities) {
 	}
 
 	referType := func(emember *MemberEntity, typ rbxapijson.Type) {
-		if emember.Removed {
-			return
-		}
 		var et ElementTyper
 		switch typ.Category {
 		case "Class":
+			if emember.Removed {
+				return
+			}
 			eclass := entities.Classes[typ.Name]
 			if eclass == nil {
 				return
@@ -324,6 +324,9 @@ func GenerateEntities(data *Data) (entities *Entities) {
 			}
 			et = eclass
 		case "Enum":
+			if emember.Removed {
+				return
+			}
 			eenum := entities.Enums[typ.Name]
 			if eenum == nil {
 				return
@@ -343,6 +346,9 @@ func GenerateEntities(data *Data) (entities *Entities) {
 					Referrers: map[[2]string]*MemberEntity{},
 				}
 				entities.Types[typ.Name] = etype
+			}
+			if emember.Removed {
+				return
 			}
 			if !emember.Removed && !emember.Parent.Removed {
 				etype.Removed = false
