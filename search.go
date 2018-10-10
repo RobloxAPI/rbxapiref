@@ -142,27 +142,25 @@ func (dw *dbWriter) writeItem(v interface{}) bool {
 }
 
 func (dw *dbWriter) GenerateDatabase() bool {
-	root := dw.data.Latest.API
-
 	// Version
 	if dw.writeNumber(byte(0)) {
 		return true
 	}
 
 	// Class icon count
-	if dw.writeNumber(uint16(len(root.Classes))) {
+	if dw.writeNumber(uint16(len(dw.data.Entities.ClassList))) {
 		return true
 	}
 
 	// Item count
 	items := 0
-	items += len(root.Classes)
-	for _, class := range root.Classes {
-		items += len(class.Members)
+	items += len(dw.data.Entities.ClassList)
+	for _, class := range dw.data.Entities.ClassList {
+		items += len(class.MemberList)
 	}
-	items += len(root.Enums)
-	for _, enum := range root.Enums {
-		items += len(enum.Items)
+	items += len(dw.data.Entities.EnumList)
+	for _, enum := range dw.data.Entities.EnumList {
+		items += len(enum.ItemList)
 	}
 	items += len(dw.data.Entities.TypeList)
 	if dw.writeNumber(uint16(items)) {
@@ -170,9 +168,9 @@ func (dw *dbWriter) GenerateDatabase() bool {
 	}
 
 	// Class icons
-	for _, class := range root.Classes {
+	for _, class := range dw.data.Entities.ClassList {
 		var icon int
-		if m, ok := dw.data.Metadata.Classes[class.Name]; ok {
+		if m, ok := dw.data.Metadata.Classes[class.ID]; ok {
 			icon = m.ExplorerImageIndex
 		}
 		if dw.writeNumber(uint8(icon)) {
@@ -181,61 +179,61 @@ func (dw *dbWriter) GenerateDatabase() bool {
 	}
 
 	// Items
-	for _, class := range root.Classes {
-		if dw.writeItem(class) {
+	for _, class := range dw.data.Entities.ClassList {
+		if dw.writeItem(class.Element) {
 			return true
 		}
 	}
-	for _, class := range root.Classes {
-		for _, member := range class.Members {
-			if dw.writeItem(member) {
+	for _, class := range dw.data.Entities.ClassList {
+		for _, member := range class.MemberList {
+			if dw.writeItem(member.Element) {
 				return true
 			}
 		}
 	}
-	for _, enum := range root.Enums {
-		if dw.writeItem(enum) {
+	for _, enum := range dw.data.Entities.EnumList {
+		if dw.writeItem(enum.Element) {
 			return true
 		}
 	}
-	for _, enum := range root.Enums {
-		for _, item := range enum.Items {
-			if dw.writeItem(item) {
+	for _, enum := range dw.data.Entities.EnumList {
+		for _, item := range enum.ItemList {
+			if dw.writeItem(item.Element) {
 				return true
 			}
 		}
 	}
 	for _, typ := range dw.data.Entities.TypeList {
-		dw.writeItem(typ)
+		dw.writeItem(typ.Element)
 	}
 
 	// Item strings
-	for _, class := range root.Classes {
-		if dw.writeString(class.Name) {
+	for _, class := range dw.data.Entities.ClassList {
+		if dw.writeString(class.ID) {
 			return true
 		}
 	}
-	for _, class := range root.Classes {
+	for _, class := range dw.data.Entities.ClassList {
 		for _, member := range class.Members {
-			if dw.writeString(class.Name + "." + member.GetName()) {
+			if dw.writeString(member.ID[0] + "." + member.ID[1]) {
 				return true
 			}
 		}
 	}
-	for _, enum := range root.Enums {
-		if dw.writeString(enum.Name) {
+	for _, enum := range dw.data.Entities.EnumList {
+		if dw.writeString(enum.ID) {
 			return true
 		}
 	}
-	for _, enum := range root.Enums {
+	for _, enum := range dw.data.Entities.EnumList {
 		for _, item := range enum.Items {
-			if dw.writeString(enum.Name + "." + item.Name) {
+			if dw.writeString(item.ID[0] + "." + item.ID[1]) {
 				return true
 			}
 		}
 	}
 	for _, typ := range dw.data.Entities.TypeList {
-		if dw.writeString(typ.Element.Name) {
+		if dw.writeString(typ.ID) {
 			return true
 		}
 	}
