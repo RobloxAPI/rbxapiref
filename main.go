@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -187,6 +188,10 @@ func main() {
 		}
 	}
 	client.CacheMode = fetch.CacheTemp
+
+	sort.Slice(builds, func(i, j int) bool {
+		return builds[i].Info.Date.Before(builds[j].Info.Date)
+	})
 
 	// Fetch uncached builds.
 loop:
