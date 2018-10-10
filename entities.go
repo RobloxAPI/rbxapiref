@@ -472,6 +472,9 @@ func GenerateEntities(data *Data) (entities *Entities) {
 				j++
 			}
 			sort.Slice(eenum.ItemList, func(i, j int) bool {
+				if eenum.ItemList[i].Element.Value == eenum.ItemList[j].Element.Value {
+					return eenum.ItemList[i].Element.Name < eenum.ItemList[j].Element.Name
+				}
 				return eenum.ItemList[i].Element.Value < eenum.ItemList[j].Element.Value
 			})
 		}
