@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/robloxapi/rbxapi/rbxapijson"
 	"github.com/robloxapi/rbxapi/rbxapijson/diff"
 	"github.com/robloxapi/rbxapiref/fetch"
@@ -135,11 +134,6 @@ func reflectLength(item interface{}) (int, error) {
 const SettingsFile = "settings.json"
 
 func main() {
-	spew.Config.DisableMethods = true
-	spew.Config.DisablePointerMethods = true
-	spew.Config.DisablePointerAddresses = true
-	spew.Config.Indent = "\t"
-
 	// Initialize root.
 	data := &Data{CurrentYear: time.Now().Year()}
 
