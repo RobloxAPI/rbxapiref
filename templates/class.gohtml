@@ -4,7 +4,7 @@
 </header>
 <nav>
 {{- $class := .Name -}}
-{{- $superclasses := filter "added" .Superclasses -}}
+{{- $superclasses := filter "added" .Entity.Superclasses -}}
 {{- if $superclasses }}
 	<section id="superclasses">
 		<header>
@@ -17,7 +17,7 @@
 		</ul>
 	</section>
 {{- end -}}
-{{- $subclasses := filter "added" .Subclasses -}}
+{{- $subclasses := filter "added" .Entity.Subclasses -}}
 {{- if $subclasses }}
 	<section id="subclasses">
 		<header>
@@ -78,7 +78,7 @@
 		</tr>
 	{{- end }}
 	</tbody>
-	{{- range .Superclasses -}}
+	{{- range .Entity.Superclasses -}}
 	{{- $members := filter "added" .MemberList -}}
 	{{- if $members }}
 	<thead>

@@ -35,8 +35,7 @@ type Data struct {
 	Metadata ReflectionMetadata
 
 	Entities  *Entities
-	Tree      map[string]*TreeNode
-	TreeRoots []string
+	TreeRoots []*ClassEntity
 
 	Templates *template.Template
 }
@@ -276,35 +275,31 @@ func (data *Data) ExecuteTemplate(name string, tdata interface{}) (template.HTML
 }
 
 func (data *Data) GenerateTree() {
-	data.Tree = make(map[string]*TreeNode, len(data.Entities.Classes))
-	for id, class := range data.Entities.Classes {
-		node := TreeNode{}
-		super := class.Element.Superclass
-		if !class.Removed {
+	for id, eclass := range data.Entities.Classes {
+		super := eclass.Element.Superclass
+		if !eclass.Removed {
 			if s := data.Entities.Classes[super]; s == nil || s.Removed {
-				data.TreeRoots = append(data.TreeRoots, id)
+				data.TreeRoots = append(data.TreeRoots, eclass)
 			}
 		}
 		for class := data.Entities.Classes[super]; class != nil; class = data.Entities.Classes[super] {
 			if !class.Removed {
-				node.Super = append(node.Super, super)
+				eclass.Superclasses = append(eclass.Superclasses, class)
 			}
 			super = class.Element.Superclass
 		}
-		for subid, sub := range data.Entities.Classes {
+		for _, sub := range data.Entities.Classes {
 			if sub.Element.Superclass == id && !sub.Removed {
-				node.Sub = append(node.Sub, subid)
+				eclass.Subclasses = append(eclass.Subclasses, sub)
 			}
 		}
-		sort.Strings(node.Sub)
-		data.Tree[id] = &node
+		sort.Slice(eclass.Subclasses, func(i, j int) bool {
+			return eclass.Subclasses[i].ID < eclass.Subclasses[j].ID
+		})
 	}
-	sort.Strings(data.TreeRoots)
-}
-
-type TreeNode struct {
-	Super []string
-	Sub   []string
+	sort.Slice(data.TreeRoots, func(i, j int) bool {
+		return data.TreeRoots[i].ID < data.TreeRoots[j].ID
+	})
 }
 
 type BuildInfo struct {

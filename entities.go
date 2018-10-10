@@ -38,6 +38,9 @@ type ClassEntity struct {
 	Patches []Patch
 	Removed bool
 
+	Superclasses []*ClassEntity
+	Subclasses   []*ClassEntity
+
 	Members    map[string]*MemberEntity
 	MemberList []*MemberEntity
 

@@ -7,10 +7,10 @@
 	<ul id="class-list">
 		{{- define "tree" -}}
 		{{- range . }}
-		<li><a class="element-link" href="{{link "class" .}}">{{icon "class" .}}{{.}}</a>
-		{{- if subclasses . }}
+		<li><a class="element-link" href="{{link "class" .ID}}">{{icon .}}{{.ID}}</a>
+		{{- if .Subclasses }}
 		<ul>
-		{{- template "tree" (subclasses .) }}
+		{{- template "tree" .Subclasses }}
 		</ul>
 		{{- end -}}
 		</li>

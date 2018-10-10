@@ -538,14 +538,7 @@ loop:
 			return plural
 		},
 		"subactions": makeSubactions,
-		"subclasses": func(name string) []string {
-			node := data.Tree[name]
-			if node == nil {
-				return nil
-			}
-			return node.Sub
-		},
-		"tostring": toString,
+		"tostring":   toString,
 		"type": func(v interface{}) string {
 			return reflect.TypeOf(v).String()
 		},
