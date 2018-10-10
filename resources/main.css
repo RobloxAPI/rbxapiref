@@ -31,6 +31,10 @@
 	--border-color        : #CCCCCC;
 	--member-target-color : gold;
 
+	/* Fonts */
+	--sans-serif : "Open Sans", "Trebuchet MS", "DejaVu Sans", "Geneva", sans-serif;
+	--monospace  : "Consolas", "DejaVu Sans Mono", monospace;
+
 	/* Horizontal spacing */
 	--indent           : 4ch;
 	--indent-small     : calc(var(--indent)/2);
@@ -47,7 +51,7 @@ html {
 }
 body {
 	flex             : auto;
-	font             : var(--font-size)/var(--line-height) "Open Sans","Trebuchet MS","DejaVu Sans","Geneva",sans-serif;
+	font             : var(--font-size)/var(--line-height) var(--sans-serif);
 	color            : var(--text-color);
 	background-color : var(--background-color);
 	margin           : 0px auto;
@@ -61,7 +65,7 @@ body {
 	}
 }
 code {
-	font-family : "Consolas","DejaVu Sans Mono",monospace;
+	font-family : var(--monospace);
 }
 main {
 	margin        : var(--baseline);
@@ -206,7 +210,7 @@ a.header-block:hover {
 	}
 }
 @media screen and (min-width: 80ch) {
-	.member-list .col-member {
+	.index-card .col-member {
 		padding-left : var(--indent-small);
 		text-indent  : calc(-1*var(--indent-small));
 		overflow-x   : auto;
@@ -276,50 +280,51 @@ h2 .icon,
 }
 
 /*////////////////////////////////////////////////////////////////*/
-/* Member list */
-.member-list {
+/* Index card */
+.index-card {
 	--cell-spacing   : 0.75ch;
+	font-family      : var(--monospace);
 	border-collapse  : separate;
 	border-spacing   : 0;
 	background-color : var(--table-color);
 	border           : 1px solid var(--border-color);
-	margin           : 1em;
-	padding          : 0.5em;
-	border-radius    : 0.5em;
+	margin           : 1ch;
+	padding          : 1ch;
+	border-radius    : 1ch;
 }
-.member-list td,
-.member-list th {
+.index-card td,
+.index-card th {
 	padding: 0.25em 0;
 }
-.member-list td {
+.index-card td {
 	border-top: 1px solid var(--border-color);
 }
-.member-list th {
+.index-card th {
 	background-color: var(--border-color);
 }
-.member-list td:first-child,
-.member-list th:first-child {
+.index-card td:first-child,
+.index-card th:first-child {
 	padding-left: var(--cell-spacing);
 }
-.member-list td,
-.member-list th {
+.index-card td,
+.index-card th {
 	padding-right: var(--cell-spacing);
 }
-.member-list :target {
+.index-card :target {
 	background-color : var(--member-target-color);
 }
-.member-list td {
+.index-card td {
 	vertical-align : top;
 }
-.member-list .col-value,
-.member-list .col-type,
-.member-list .col-icon {
+.index-card .col-value,
+.index-card .col-type,
+.index-card .col-icon {
 	text-align : right;
 }
-.member-list .col-member,
-.member-list .col-history,
-.member-list td[colspan],
-.member-list th[colspan] {
+.index-card .col-member,
+.index-card .col-history,
+.index-card td[colspan],
+.index-card th[colspan] {
 	text-align : left;
 }
 

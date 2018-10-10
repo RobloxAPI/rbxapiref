@@ -7,7 +7,7 @@
 	<h3>Enum items</h3>
 	{{- $items := filter "added" .Entity.ItemList }}
 	<p>{{$enum}} defines {{len $items}} enum {{quantity $items "item" "items"}}.</p>
-	<table class="member-list">
+	<table class="index-card">
 		<tr>
 			<th class="col-icon">{{icon "enum"}}</th>
 			<th class="col-member">Name</th>
@@ -46,7 +46,7 @@
 <section id="removed">
 	<h3>Removed enum items</h3>
 	<p>{{$enum}} has {{len $removed}} removed enum {{quantity $removed "item" "items"}}.</p>
-	<table class="member-list">
+	<table class="index-card">
 		<tr>
 			<th class="col-icon">{{icon "enum"}}</th>
 			<th class="col-member">Name</th>

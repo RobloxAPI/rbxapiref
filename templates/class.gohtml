@@ -35,7 +35,7 @@
 	<h3>Members</h3>
 	{{- $members := filter "added" .Entity.MemberList }}
 	<p>{{.Name}} defines {{len $members}} {{quantity (len $members) "member" "members"}}.</p>
-	<table class="member-list">
+	<table class="index-card">
 	<thead>
 		<tr>
 			<th class="col-type">Type</th>
@@ -133,7 +133,7 @@
 <section id="removed">
 	<h3>Removed members</h3>
 	<p>{{.Name}} has {{len $removed}} removed {{quantity (len $removed) "member" "members"}}.</p>
-	<table class="member-list">
+	<table class="index-card">
 	<thead>
 		<tr>
 			<th class="col-type">Type</th>

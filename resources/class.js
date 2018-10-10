@@ -9,7 +9,7 @@ function expandMemberList(event) {
 		return;
 	};
 	let head = placehold.closest("thead");
-	if (head === null || !head.parentElement.classList.contains("member-list")) {
+	if (head === null || !head.parentElement.classList.contains("index-card")) {
 		return;
 	};
 
@@ -72,7 +72,7 @@ function expandMemberList(event) {
 		if (body !== null) {
 			return;
 		};
-		body = event.target.response.querySelector("#members .member-list tbody");
+		body = event.target.response.querySelector("#members .index-card tbody");
 		if (body === null) {
 			return;
 		};
