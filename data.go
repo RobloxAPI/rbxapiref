@@ -34,6 +34,11 @@ type Data struct {
 	Latest   *Build
 	Metadata ReflectionMetadata
 
+	EarliestYear  int
+	LatestYear    int
+	PatchesByYear []PatchSet
+	LatestPatches PatchSet
+
 	Entities  *Entities
 	TreeRoots []*ClassEntity
 
@@ -52,6 +57,12 @@ type Patch struct {
 	Info    BuildInfo
 	Config  string
 	Actions []Action
+}
+
+type PatchSet struct {
+	Year    int
+	Years   []int
+	Patches []*Patch
 }
 
 // Escape once to escape the file name, then again to escape the URL.
@@ -300,6 +311,68 @@ func (data *Data) GenerateTree() {
 	sort.Slice(data.TreeRoots, func(i, j int) bool {
 		return data.TreeRoots[i].ID < data.TreeRoots[j].ID
 	})
+}
+
+func (data *Data) GenerateUpdates() {
+	if len(data.Patches) == 0 {
+		return
+	}
+
+	// Patches will be displayed latest-first.
+	patches := make([]*Patch, len(data.Patches))
+	for i := len(data.Patches) / 2; i >= 0; i-- {
+		j := len(data.Patches) - 1 - i
+		patches[i], patches[j] = &data.Patches[j], &data.Patches[i]
+	}
+	// Exclude earliest patch.
+	patches = patches[:len(patches)-1]
+
+	data.LatestYear = patches[0].Info.Date.Year()
+	data.EarliestYear = patches[len(patches)-1].Info.Date.Year()
+	data.PatchesByYear = make([]PatchSet, data.LatestYear-data.EarliestYear+1)
+	years := make([]int, len(data.PatchesByYear))
+	for i := range years {
+		years[i] = data.LatestYear - i
+	}
+
+	// Populate PatchesByYear.
+	i := 0
+	current := data.LatestYear
+	for j, patch := range patches {
+		year := patch.Info.Date.Year()
+		if year < current {
+			if j > i {
+				data.PatchesByYear[data.LatestYear-current] = PatchSet{
+					Year:    current,
+					Years:   years,
+					Patches: patches[i:j],
+				}
+			}
+			current = year
+			i = j
+		}
+	}
+	if len(patches) > i {
+		data.PatchesByYear[data.LatestYear-current] = PatchSet{
+			Year:    current,
+			Years:   years,
+			Patches: patches[i:],
+		}
+	}
+
+	// Populate LatestPatches.
+	i = len(patches)
+	epoch := patches[0].Info.Date.AddDate(0, -3, 0)
+	for j, patch := range patches {
+		if patch.Info.Date.Before(epoch) {
+			i = j - 1
+			break
+		}
+	}
+	data.LatestPatches = PatchSet{
+		Years:   years,
+		Patches: patches[:i],
+	}
 }
 
 type BuildInfo struct {

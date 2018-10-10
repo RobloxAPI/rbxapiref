@@ -1,3 +1,5 @@
+{{- $year := .Data.CurrentYear -}}
+{{- with .Page -}}
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
@@ -53,7 +55,8 @@
 		</nav>
 		<div class="header-block license">Content is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA-4.0.</a></div>
 		{{- $pubyear := 2018 }}
-		<div class="header-block publication"><span class="icon svg">{{embed "ana.svg"}}</span> {{$pubyear}}{{if gt .CurrentYear $pubyear}}&ndash;{{.CurrentYear}}{{end}} Anaminus</div>
+		<div class="header-block publication"><span class="icon svg">{{embed "ana.svg"}}</span> {{$pubyear}}{{if gt $year $pubyear}}&ndash;{{$year}}{{end}} Anaminus</div>
 	</footer>
 </body>
 </html>
+{{- end }}

@@ -1,11 +1,11 @@
 <header>
-	<h2>{{icon .Entity}}{{.Name}}</h2>
-	{{- history .Entity }}
+	<h2>{{icon .}}{{.ID}}</h2>
+	{{- history . }}
 </header>
-{{- $enum := .Name }}
+{{- $enum := .ID }}
 <section id="enumitems">
 	<h3>Enum items</h3>
-	{{- $items := filter "added" .Entity.ItemList }}
+	{{- $items := filter "added" .ItemList }}
 	<p>{{$enum}} defines {{len $items}} enum {{quantity $items "item" "items"}}.</p>
 	<table class="index-card">
 		<tr>
@@ -27,11 +27,11 @@
 	{{- end }}
 	</table>
 </section>
-{{- $referrers := filter "implicit added" .Entity.ReferrerList -}}
+{{- $referrers := filter "implicit added" .ReferrerList -}}
 {{- if $referrers }}
 <section id="referrers">
 	<h3>Relevant members</h3>
-	<p>{{.Name}} has {{len $referrers}} related {{quantity $referrers "member" "members"}}.</p>
+	<p>{{.ID}} has {{len $referrers}} related {{quantity $referrers "member" "members"}}.</p>
 	<ul>
 	{{- range $referrers -}}
 		{{- $class := (index .ID 0) -}}
@@ -41,7 +41,7 @@
 	</ul>
 </section>
 {{- end -}}
-{{- $removed := filter "removed" .Entity.ItemList -}}
+{{- $removed := filter "removed" .ItemList -}}
 {{- if $removed }}
 <section id="removed">
 	<h3>Removed enum items</h3>

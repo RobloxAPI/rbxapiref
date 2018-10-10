@@ -1,11 +1,11 @@
 <header>
-	<h2>{{.Name}}</h2>
+	<h2>{{.ID}}</h2>
 </header>
-{{- $referrers := filter "implicit added" .Entity.ReferrerList -}}
+{{- $referrers := filter "implicit added" .ReferrerList -}}
 {{- if $referrers }}
 <section id="referrers">
 	<h3>Relevant members</h3>
-	<p>{{.Name}} has {{len $referrers}} related {{quantity $referrers "member" "members"}}.</p>
+	<p>{{.ID}} has {{len $referrers}} related {{quantity $referrers "member" "members"}}.</p>
 	<ul>
 	{{- range $referrers -}}
 		{{- $class := (index .ID 0) -}}

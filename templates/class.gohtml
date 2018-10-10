@@ -1,10 +1,10 @@
 <header>
-	<h2>{{icon .Entity.Element}}{{.Name}}</h2>
-	{{- history .Entity }}
+	<h2>{{icon .Element}}{{.ID}}</h2>
+	{{- history . }}
 </header>
 <nav>
-{{- $class := .Name -}}
-{{- $superclasses := filter "added" .Entity.Superclasses -}}
+{{- $class := .ID -}}
+{{- $superclasses := filter "added" .Superclasses -}}
 {{- if $superclasses }}
 	<section id="superclasses">
 		<header>
@@ -17,7 +17,7 @@
 		</ul>
 	</section>
 {{- end -}}
-{{- $subclasses := filter "added" .Entity.Subclasses -}}
+{{- $subclasses := filter "added" .Subclasses -}}
 {{- if $subclasses }}
 	<section id="subclasses">
 		<header>
@@ -33,8 +33,8 @@
 </nav>
 <section id="members">
 	<h3>Members</h3>
-	{{- $members := filter "added" .Entity.MemberList }}
-	<p>{{.Name}} defines {{len $members}} {{quantity (len $members) "member" "members"}}.</p>
+	{{- $members := filter "added" .MemberList }}
+	<p>{{.ID}} defines {{len $members}} {{quantity (len $members) "member" "members"}}.</p>
 	<table class="index-card">
 	<thead>
 		<tr>
@@ -78,7 +78,7 @@
 		</tr>
 	{{- end }}
 	</tbody>
-	{{- range .Entity.Superclasses -}}
+	{{- range .Superclasses -}}
 	{{- $members := filter "added" .MemberList -}}
 	{{- if $members }}
 	<thead>
@@ -90,11 +90,11 @@
 	{{- end }}
 	</table>
 </section>
-{{- $classes := filter "class" .Entity.ReferenceList -}}
+{{- $classes := filter "class" .ReferenceList -}}
 {{- if $classes }}
 <section id="classes">
 	<h3>Relevant classes</h3>
-	<p>{{.Name}} has {{len $classes}} related {{quantity $classes "class" "classes"}}.</p>
+	<p>{{.ID}} has {{len $classes}} related {{quantity $classes "class" "classes"}}.</p>
 	<ul>
 	{{- range $classes }}
 		<li><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
@@ -102,11 +102,11 @@
 	</ul>
 </section>
 {{- end -}}
-{{- $enums := filter "enum" .Entity.ReferenceList -}}
+{{- $enums := filter "enum" .ReferenceList -}}
 {{- if $enums }}
 <section id="enums">
 	<h3>Relevant enums</h3>
-	<p>{{.Name}} has {{len $enums}} related {{quantity $enums "enum" "enums"}}.</p>
+	<p>{{.ID}} has {{len $enums}} related {{quantity $enums "enum" "enums"}}.</p>
 	<ul>
 	{{- range $enums }}
 		<li><a class="element-link" href="{{link "enum" .ID}}">{{icon .Element}}{{.ID}}</a></li>
@@ -114,11 +114,11 @@
 	</ul>
 </section>
 {{- end -}}
-{{- $referrers := filter "implicit added" .Entity.ReferrerList -}}
+{{- $referrers := filter "implicit added" .ReferrerList -}}
 {{- if $referrers }}
 <section id="referrers">
 	<h3>Relevant members</h3>
-	<p>{{.Name}} has {{len $referrers}} related {{quantity $referrers "member" "members"}}.</p>
+	<p>{{.ID}} has {{len $referrers}} related {{quantity $referrers "member" "members"}}.</p>
 	<ul>
 	{{- range $referrers -}}
 		{{- $class := (index .ID 0) -}}
@@ -128,11 +128,11 @@
 	</ul>
 </section>
 {{- end -}}
-{{- $removed := filter "removed" .Entity.MemberList -}}
+{{- $removed := filter "removed" .MemberList -}}
 {{- if $removed }}
 <section id="removed">
 	<h3>Removed members</h3>
-	<p>{{.Name}} has {{len $removed}} removed {{quantity (len $removed) "member" "members"}}.</p>
+	<p>{{.ID}} has {{len $removed}} removed {{quantity (len $removed) "member" "members"}}.</p>
 	<table class="index-card">
 	<thead>
 		<tr>

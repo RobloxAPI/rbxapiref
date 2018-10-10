@@ -9,6 +9,7 @@ import (
 	"github.com/robloxapi/rbxapiref/fetch"
 	"html/template"
 	"image/png"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -314,6 +315,7 @@ loop:
 		}
 	}
 
+	data.GenerateUpdates()
 	data.Entities = GenerateEntities(data)
 	data.GenerateTree()
 
@@ -554,19 +556,100 @@ loop:
 	}
 
 	// Generate pages.
-	pages := []func(*Data) error{
-		GenerateResPage,
-		GenerateIndexPage,
-		GenerateAboutPage,
-		GenerateUpdatesPage,
-		GenerateClassPages,
-		GenerateEnumPages,
-		GenerateTypePages,
-	}
-	for _, page := range pages {
-		if err := page(data); err != nil {
-			fmt.Println("page error:", err)
+	{
+		pageGenerators := []PageGenerator{
+			GeneratePageIndex,
+			GeneratePageAbout,
+			GeneratePageUpdates,
+			GeneratePageClass,
+			GeneratePageEnum,
+			GeneratePageType,
+		}
+
+		var pages []Page
+		for _, generator := range pageGenerators {
+			pages = append(pages, generator(data)...)
+		}
+
+		// Ensure directories exist.
+		dirs := map[string]struct{}{}
+		for _, page := range pages {
+			dir := filepath.Dir(page.File)
+			if _, ok := dirs[dir]; ok {
+				continue
+			}
+			if err := os.MkdirAll(dir, 0666); err != nil {
+				fmt.Println("failed to create directory:", err)
+				return
+			}
+			dirs[dir] = struct{}{}
+		}
+
+		// Copy resources.
+		if err := os.MkdirAll(data.FilePath("resource"), 0666); err != nil {
+			fmt.Println("failed to create directory:", err)
 			return
+		}
+		resources := map[string]struct{}{
+			"icon-objectbrowser.png": struct{}{},
+			"main.css":               struct{}{},
+			"search.js":              struct{}{},
+		}
+		for _, page := range pages {
+			for _, res := range page.Styles {
+				if !res.Embed {
+					resources[res.Name] = struct{}{}
+				}
+			}
+			for _, res := range page.Scripts {
+				if !res.Embed {
+					resources[res.Name] = struct{}{}
+				}
+			}
+		}
+		for res := range resources {
+			src, err := os.Open(filepath.Join(data.Settings.Input.Resources, res))
+			if err != nil {
+				fmt.Println("failed to open resource:", err)
+				return
+			}
+			dst, err := os.Create(data.FilePath("resource", res))
+			if err != nil {
+				src.Close()
+				fmt.Println("failed to create resource:", err)
+				return
+			}
+			_, err = io.Copy(dst, src)
+			dst.Close()
+			src.Close()
+			if err != nil {
+				fmt.Println("failed to write resource:", err)
+				return
+			}
+		}
+
+		// Generate pages.
+		var mainPage struct {
+			Data *Data
+			Page *Page
+		}
+		mainPage.Data = data
+		for _, page := range pages {
+			file, err := os.Create(page.File)
+			if err != nil {
+				fmt.Println("failed to create file:", err)
+				return
+			}
+			if page.Data == nil {
+				page.Data = data
+			}
+			mainPage.Page = &page
+			err = data.Templates.ExecuteTemplate(file, "main", mainPage)
+			file.Close()
+			if err != nil {
+				fmt.Println("page error:", err)
+				return
+			}
 		}
 	}
 
