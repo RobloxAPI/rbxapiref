@@ -133,18 +133,27 @@ func reflectLength(item interface{}) (int, error) {
 
 const SettingsFile = "settings.json"
 
+func LoadSettings(settings *Settings) error {
+	f, err := os.Open(SettingsFile)
+	if err != nil {
+		return fmt.Errorf("failed to open settings file: %s", err)
+	}
+	err = json.NewDecoder(f).Decode(settings)
+	f.Close()
+	if err != nil {
+		return fmt.Errorf("failed to decode settings file: %s", err)
+	}
+	return nil
+}
+
 func main() {
 	// Initialize root.
 	data := &Data{CurrentYear: time.Now().Year()}
 
 	// Load settings.
-	if f, err := os.Open(SettingsFile); err == nil {
-		err := json.NewDecoder(f).Decode(&data.Settings)
-		f.Close()
-		if err != nil {
-			fmt.Println("failed to open settings file:", err)
-			return
-		}
+	if err := LoadSettings(&data.Settings); err != nil {
+		fmt.Println(err)
+		return
 	}
 
 	manifestPath := filepath.Join(
