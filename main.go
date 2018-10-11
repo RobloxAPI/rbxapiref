@@ -168,12 +168,13 @@ func main() {
 	{
 		f, err := os.Open(manifestPath)
 		if err == nil {
-			err = json.NewDecoder(f).Decode(&prevPatches)
+			manifest, err := ReadManifest(f)
 			f.Close()
 			if err != nil {
 				fmt.Println("failed to open manifest:", err)
 				return
 			}
+			prevPatches = manifest.Patches
 		}
 	}
 
@@ -680,10 +681,7 @@ loop:
 			fmt.Println("failed to create manifest file:", err)
 			return
 		}
-		je := json.NewEncoder(f)
-		je.SetEscapeHTML(false)
-		je.SetIndent("", "\t")
-		err = je.Encode(data.Patches)
+		err = WriteManifest(f, &Manifest{data.Patches})
 		f.Close()
 		if err != nil {
 			fmt.Println("failed to encode manifest file:", err)
