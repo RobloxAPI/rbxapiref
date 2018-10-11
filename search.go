@@ -214,7 +214,7 @@ func (dw *dbWriter) GenerateDatabase() bool {
 		}
 	}
 	for _, class := range dw.data.Entities.ClassList {
-		for _, member := range class.Members {
+		for _, member := range class.MemberList {
 			if dw.writeString(member.ID[0] + "." + member.ID[1]) {
 				return true
 			}
@@ -226,7 +226,7 @@ func (dw *dbWriter) GenerateDatabase() bool {
 		}
 	}
 	for _, enum := range dw.data.Entities.EnumList {
-		for _, item := range enum.Items {
+		for _, item := range enum.ItemList {
 			if dw.writeString(item.ID[0] + "." + item.ID[1]) {
 				return true
 			}
