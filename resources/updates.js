@@ -38,21 +38,6 @@ function toggleAll(show, scroll) {
 	};
 };
 
-function parseDate(t) {
-	if (t === null) {
-		return null;
-	};
-	let datetime = t.attributes.datetime;
-	if (datetime === undefined) {
-		return null;
-	};
-	let p = datetime.value.match(/^(\d\d\d\d)\-(\d\d)\-(\d\d) (\d\d):(\d\d):(\d\d)/);
-	if (p === null) {
-		return null;
-	};
-	return new Date(p[1], p[2]-1, p[3], p[4], p[5], p[6]);
-};
-
 document.addEventListener("DOMContentLoaded", function(event) {
 	let controls = document.getElementById("update-controls");
 	if (controls !== null) {
@@ -90,22 +75,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 	if (!document.querySelector(".update :target")) {
 		// No specific update is being targeted; expand latest updates.
-		let day = 86400000; // ms
-		let latest = null;
 		for (let update of document.querySelectorAll("#update-list .update")) {
 			let list = update.querySelector(".patch-list");
 			if (list === null) {
 				continue;
 			};
-			let date = parseDate(update.querySelector("time"));
-			if (date === null) {
-				continue;
-			};
-			if (latest === null) {
-				latest = date;
-			};
-			if (latest.getTime() - date.getTime() <= day) {
-				list.classList.remove("hidden");
+			list.classList.remove("hidden");
+			// Expand up to first non-empty update.
+			if (list.querySelector(".no-changes") === null) {
+				break;
 			};
 		};
 	};
