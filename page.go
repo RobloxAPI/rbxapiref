@@ -7,18 +7,35 @@ import (
 type PageGenerator func(*Data) []Page
 
 type Page struct {
-	File     string
-	Title    string
-	Styles   []Resource
-	Scripts  []Resource
+	// File is the path to the output file.
+	File string
+	// Title is the text to be displayed in the title of the page.
+	Title string
+	// Styles is a list of resources representing CSS styles.
+	Styles []Resource
+	// Scripts is a list of resources representing javascript files.
+	Scripts []Resource
+	// Resources is a list of other resources.
+	Resources []Resource
+	// Template is the name of the template used to generate the page.
 	Template string
-	Data     interface{}
+	// Data is the data used by the template to generate the page.
+	Data interface{}
 }
 
 type Resource struct {
 	Name  string // Name of the resource file.
 	Embed bool   // Embed the content of the resource.
 	ID    string // Optional ID attribute.
+}
+
+func GeneratePageMain(data *Data) (pages []Page) {
+	return []Page{{
+		Styles:    []Resource{{Name: "main.css"}},
+		Scripts:   []Resource{{Name: "search.js"}},
+		Resources: []Resource{{Name: "icon-objectbrowser.png"}},
+		Template:  "main",
+	}}
 }
 
 func GeneratePageIndex(data *Data) (pages []Page) {

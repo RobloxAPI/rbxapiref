@@ -514,6 +514,7 @@ loop:
 	// Generate pages.
 	{
 		pageGenerators := []PageGenerator{
+			GeneratePageMain,
 			GeneratePageIndex,
 			GeneratePageAbout,
 			GeneratePageUpdates,
@@ -540,11 +541,7 @@ loop:
 
 		// Copy resources.
 		IfFatal(os.MkdirAll(data.FilePath("resource"), 0755), "make directory")
-		resources := map[string]struct{}{
-			"icon-objectbrowser.png": struct{}{},
-			"main.css":               struct{}{},
-			"search.js":              struct{}{},
-		}
+		resources := map[string]struct{}{}
 		for _, page := range pages {
 			for _, res := range page.Styles {
 				if !res.Embed {
@@ -552,6 +549,11 @@ loop:
 				}
 			}
 			for _, res := range page.Scripts {
+				if !res.Embed {
+					resources[res.Name] = struct{}{}
+				}
+			}
+			for _, res := range page.Resources {
 				if !res.Embed {
 					resources[res.Name] = struct{}{}
 				}
@@ -572,19 +574,33 @@ loop:
 		}
 
 		// Generate pages.
-		var mainPage struct {
-			Data *Data
-			Page *Page
+		var rootData struct {
+			Data     *Data
+			MainPage *Page
+			Page     *Page
 		}
-		mainPage.Data = data
+		rootData.Data = data
+		// Treat first page with unspecified filename as main page.
 		for _, page := range pages {
+			if page.File == "" {
+				rootData.MainPage = &page
+				break
+			}
+		}
+		if rootData.MainPage == nil {
+			IfFatal(errors.New("no main template"))
+		}
+		for _, page := range pages {
+			if page.File == "" {
+				continue
+			}
 			file, err := os.Create(page.File)
 			IfFatal(err, "create file")
 			if page.Data == nil {
 				page.Data = data
 			}
-			mainPage.Page = &page
-			err = data.Templates.ExecuteTemplate(file, "main", mainPage)
+			rootData.Page = &page
+			err = data.Templates.ExecuteTemplate(file, rootData.MainPage.Template, rootData)
 			file.Close()
 			IfFatal(err, "generate page")
 		}

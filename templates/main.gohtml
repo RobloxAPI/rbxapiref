@@ -1,4 +1,5 @@
 {{- $year := .Data.CurrentYear -}}
+{{- $main := .MainPage -}}
 {{- with .Page -}}
 <!DOCTYPE html>
 <html lang="en-US">
@@ -6,21 +7,33 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>{{if .Title}}{{.Title}} - {{end}}Roblox API Reference</title>
-	<link href="{{link "resource" "main.css"}}" rel="stylesheet" type="text/css" />
-{{- range .Styles -}}
-{{- if .Embed }}
+{{- range $main.Styles -}}
+	{{- if .Embed }}
 	<style{{if .ID}} id="{{.ID}}"{{end}}>{{embed .Name}}</style>
-{{- else }}
+	{{- else }}
 	<link{{if .ID}} id="{{.ID}}"{{end}} href="{{link "resource" .Name}}" rel="stylesheet" type="text/css" />
+	{{- end -}}
 {{- end -}}
-{{- end }}
-	<script src="/ref/res/search.js" charset="utf-8"></script>
-{{- range .Scripts -}}
-{{- if .Embed }}
+{{- range .Styles -}}
+	{{- if .Embed }}
+	<style{{if .ID}} id="{{.ID}}"{{end}}>{{embed .Name}}</style>
+	{{- else }}
+	<link{{if .ID}} id="{{.ID}}"{{end}} href="{{link "resource" .Name}}" rel="stylesheet" type="text/css" />
+	{{- end -}}
+{{- end -}}
+{{- range $main.Scripts -}}
+	{{- if .Embed }}
 	<script{{if .ID}} id="{{.ID}}"{{end}}>{{embed .Name -}}</script>
-{{- else }}
+	{{- else }}
 	<script{{if .ID}} id="{{.ID}}"{{end}} src="{{link "resource" .Name}}" charset="utf-8"></script>
+	{{- end -}}
 {{- end -}}
+{{- range .Scripts -}}
+	{{- if .Embed }}
+	<script{{if .ID}} id="{{.ID}}"{{end}}>{{embed .Name -}}</script>
+	{{- else }}
+	<script{{if .ID}} id="{{.ID}}"{{end}} src="{{link "resource" .Name}}" charset="utf-8"></script>
+	{{- end -}}
 {{- end }}
 </head>
 <body>
