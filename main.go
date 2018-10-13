@@ -266,7 +266,7 @@ loop:
 	{
 		icon, err := client.ExplorerIcons(data.Latest.Info.Hash)
 		IfFatalf(err, "%s: fetch icons %s", data.Latest.Info.Hash)
-		IfFatal(os.MkdirAll(data.FilePath("resource"), 0666), "make resource directory")
+		IfFatal(os.MkdirAll(data.FilePath("resource"), 0755), "make resource directory")
 		f, err := os.Create(data.FilePath("resource", "icon-explorer.png"))
 		IfFatal(err, "create icons file")
 		err = png.Encode(f, icon)
@@ -534,12 +534,12 @@ loop:
 			if _, ok := dirs[dir]; ok {
 				continue
 			}
-			IfFatal(os.MkdirAll(dir, 0666), "make directory")
+			IfFatal(os.MkdirAll(dir, 0755), "make directory")
 			dirs[dir] = struct{}{}
 		}
 
 		// Copy resources.
-		IfFatal(os.MkdirAll(data.FilePath("resource"), 0666), "make directory")
+		IfFatal(os.MkdirAll(data.FilePath("resource"), 0755), "make directory")
 		resources := map[string]struct{}{
 			"icon-objectbrowser.png": struct{}{},
 			"main.css":               struct{}{},

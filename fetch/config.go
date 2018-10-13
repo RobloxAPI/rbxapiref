@@ -419,7 +419,7 @@ func (client *Client) Get(loc Location, hash string) (format string, rc io.ReadC
 	default:
 		goto download
 	}
-	if err := os.MkdirAll(cacheDir, 0666); err != nil {
+	if err := os.MkdirAll(cacheDir, 0755); err != nil {
 		return loc.Format, nil, err
 	}
 	name = filepath.Join(cacheDir, filename)
