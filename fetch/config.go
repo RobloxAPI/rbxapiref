@@ -242,7 +242,7 @@ type Location struct {
 }
 
 // NewLocation parses a given URL into a Location. The URL is assumed to be
-// well-formed. The Format is dereived from the extension of the URL path.
+// well-formed. The Format is derived from the extension of the URL path.
 func NewLocation(s string) (loc Location) {
 	if err := loc.FromString(s); err != nil {
 		panic(err)
