@@ -1,8 +1,7 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
+	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapi/rbxapijson"
 	"github.com/robloxapi/rbxapi/rbxapijson/diff"
 	"github.com/robloxapi/rbxapiref/fetch"
@@ -116,11 +115,11 @@ func reflectIndirect(v reflect.Value) (rv reflect.Value, isNil bool) {
 func reflectLength(item interface{}) (int, error) {
 	v := reflect.ValueOf(item)
 	if !v.IsValid() {
-		return 0, fmt.Errorf("len of untyped nil")
+		return 0, errors.New("len of untyped nil")
 	}
 	v, isNil := reflectIndirect(v)
 	if isNil {
-		return 0, fmt.Errorf("len of nil pointer")
+		return 0, errors.New("len of nil pointer")
 	}
 	switch v.Kind() {
 	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice, reflect.String:
@@ -128,7 +127,7 @@ func reflectLength(item interface{}) (int, error) {
 	case reflect.Int:
 		return int(v.Int()), nil
 	}
-	return 0, fmt.Errorf("len of type %s", v.Type())
+	return 0, errors.Errorf("len of type %s", v.Type())
 }
 
 const SettingsFile = "settings.json"
@@ -151,10 +150,7 @@ func main() {
 	data := &Data{CurrentYear: time.Now().Year()}
 
 	// Load settings.
-	if err := LoadSettings(&data.Settings); err != nil {
-		fmt.Println(err)
-		return
-	}
+	IfFatal(LoadSettings(&data.Settings))
 
 	manifestPath := filepath.Join(
 		data.Settings.Output.Root,
@@ -170,10 +166,7 @@ func main() {
 		if err == nil {
 			manifest, err := ReadManifest(f)
 			f.Close()
-			if err != nil {
-				fmt.Println("failed to open manifest:", err)
-				return
-			}
+			IfFatal(err, "open manifest")
 			prevPatches = manifest.Patches
 		}
 	}
@@ -184,10 +177,7 @@ func main() {
 	for _, cfg := range data.Settings.UseConfigs {
 		client.Config = data.Settings.Configs[cfg]
 		bs, err := client.Builds()
-		if err != nil {
-			fmt.Println(cfg, "error fetching builds:", err)
-			return
-		}
+		IfFatal(err, "fetch build")
 		for _, b := range bs {
 			builds = append(builds, Build{Config: cfg, Info: BuildInfo(b)})
 		}
@@ -211,20 +201,20 @@ loop:
 				if patch.Prev != nil {
 					// Cached build is now the first, but was not originally;
 					// actions are stale.
-					fmt.Println("STALE ", patch.Info)
+					Log("STALE ", patch.Info)
 					break
 				}
 			} else {
 				if patch.Prev == nil {
 					// Cached build was not originally the first, but now is;
 					// actions are stale.
-					fmt.Println("STALE ", patch.Info)
+					Log("STALE ", patch.Info)
 					break
 				}
 				if !data.Latest.Info.Equal(*patch.Prev) {
 					// Latest build does not match previous build; actions are
 					// stale.
-					fmt.Println("STALE ", patch.Info)
+					Log("STALE ", patch.Info)
 					break
 				}
 			}
@@ -233,11 +223,10 @@ loop:
 			data.Latest = &Build{Info: patch.Info, Config: patch.Config}
 			continue loop
 		}
-		fmt.Println("NEW ", build.Info)
+		Log("NEW ", build.Info)
 		client.Config = data.Settings.Configs[build.Config]
 		root, err := client.APIDump(build.Info.Hash)
-		if err != nil {
-			fmt.Println(build.Config, "failed to get build ", build.Info.Hash, err)
+		if IfErrorf(err, "%s: fetch build %s", build.Config, build.Info.Hash) {
 			continue
 		}
 		build.API = root
@@ -251,8 +240,7 @@ loop:
 				// current build.
 				client.Config = data.Settings.Configs[data.Latest.Config]
 				root, err := client.APIDump(data.Latest.Info.Hash)
-				if err != nil {
-					fmt.Println(data.Latest.Config, "failed to get build ", data.Latest.Info.Hash, err)
+				if IfErrorf(err, "%s: fetch build %s", data.Latest.Config, data.Latest.Info.Hash) {
 					continue
 				}
 				data.Latest.API = root
@@ -272,10 +260,7 @@ loop:
 	if data.Latest.API == nil {
 		client.Config = data.Settings.Configs[data.Latest.Config]
 		root, err := client.APIDump(data.Latest.Info.Hash)
-		if err != nil {
-			fmt.Println(data.Latest.Config, "failed to get build ", data.Latest.Info.Hash, err)
-			return
-		}
+		IfFatalf(err, "fetch build %s", data.Latest.Info.Hash)
 		data.Latest.API = root
 	}
 
@@ -288,35 +273,20 @@ loop:
 	// Fetch ReflectionMetadata.
 	{
 		rmd, err := client.ReflectionMetadata(data.Latest.Info.Hash)
-		if err != nil {
-			fmt.Println(data.Latest.Config, "failed to get metadata ", data.Latest.Info.Hash, err)
-			return
-		}
+		IfFatal(err, "fetch metadata ", data.Latest.Info.Hash)
 		data.GenerateMetadata(rmd)
 	}
 
 	// Fetch explorer icons.
 	{
 		icon, err := client.ExplorerIcons(data.Latest.Info.Hash)
-		if err != nil {
-			fmt.Println(data.Latest.Config, "failed to get icons ", data.Latest.Info.Hash, err)
-			return
-		}
-		if err := os.MkdirAll(data.FilePath("resource"), 0666); err != nil {
-			fmt.Println("failed to make resource dir:", err)
-			return
-		}
+		IfFatalf(err, "%s: fetch icons %s", data.Latest.Info.Hash)
+		IfFatal(os.MkdirAll(data.FilePath("resource"), 0666), "make resource directory")
 		f, err := os.Create(data.FilePath("resource", "icon-explorer.png"))
-		if err != nil {
-			fmt.Println("failed to create icons file:", err)
-			return
-		}
+		IfFatal(err, "create icons file")
 		err = png.Encode(f, icon)
 		f.Close()
-		if err != nil {
-			fmt.Println("failed to encode icons file:", err)
-			return
-		}
+		IfFatal(err, "encode icons file")
 	}
 
 	data.GenerateUpdates()
@@ -554,10 +524,7 @@ loop:
 			return reflect.TypeOf(v).String()
 		},
 	})
-	if err != nil {
-		fmt.Println("failed to open template", err)
-		return
-	}
+	IfFatal(err, "open template")
 
 	// Generate pages.
 	{
@@ -582,18 +549,12 @@ loop:
 			if _, ok := dirs[dir]; ok {
 				continue
 			}
-			if err := os.MkdirAll(dir, 0666); err != nil {
-				fmt.Println("failed to create directory:", err)
-				return
-			}
+			IfFatal(os.MkdirAll(dir, 0666), "make directory")
 			dirs[dir] = struct{}{}
 		}
 
 		// Copy resources.
-		if err := os.MkdirAll(data.FilePath("resource"), 0666); err != nil {
-			fmt.Println("failed to create directory:", err)
-			return
-		}
+		IfFatal(os.MkdirAll(data.FilePath("resource"), 0666), "make directory")
 		resources := map[string]struct{}{
 			"icon-objectbrowser.png": struct{}{},
 			"main.css":               struct{}{},
@@ -613,23 +574,16 @@ loop:
 		}
 		for res := range resources {
 			src, err := os.Open(filepath.Join(data.Settings.Input.Resources, res))
-			if err != nil {
-				fmt.Println("failed to open resource:", err)
-				return
-			}
+			IfFatal(err, "open resource")
 			dst, err := os.Create(data.FilePath("resource", res))
 			if err != nil {
 				src.Close()
-				fmt.Println("failed to create resource:", err)
-				return
+				IfFatal(err, "create resource")
 			}
 			_, err = io.Copy(dst, src)
 			dst.Close()
 			src.Close()
-			if err != nil {
-				fmt.Println("failed to write resource:", err)
-				return
-			}
+			IfFatal(err, "write resource")
 		}
 
 		// Generate pages.
@@ -640,52 +594,33 @@ loop:
 		mainPage.Data = data
 		for _, page := range pages {
 			file, err := os.Create(page.File)
-			if err != nil {
-				fmt.Println("failed to create file:", err)
-				return
-			}
+			IfFatal(err, "create file")
 			if page.Data == nil {
 				page.Data = data
 			}
 			mainPage.Page = &page
 			err = data.Templates.ExecuteTemplate(file, "main", mainPage)
 			file.Close()
-			if err != nil {
-				fmt.Println("page error:", err)
-				return
-			}
+			IfFatal(err, "generate page")
 		}
 	}
 
 	// Generate search database.
 	{
 		f, err := os.Create(data.FilePath("search"))
-		if err != nil {
-			fmt.Println("failed to create search database file:", err)
-			return
-		}
+		IfFatal(err, "create search database file")
 		db := dbWriter{data: data, w: f}
-		failed := db.GenerateDatabase()
+		db.GenerateDatabase()
 		f.Close()
-		if failed {
-			fmt.Println("failed to generate search database:", db.err)
-			return
-		}
-
+		IfFatal(db.err, "generate search database")
 	}
 
 	// Save cache.
 	{
 		f, err := os.Create(manifestPath)
-		if err != nil {
-			fmt.Println("failed to create manifest file:", err)
-			return
-		}
+		IfFatal(err, "create manifest")
 		err = WriteManifest(f, &Manifest{data.Patches})
 		f.Close()
-		if err != nil {
-			fmt.Println("failed to encode manifest file:", err)
-			return
-		}
+		IfFatal(err, "encode manifest")
 	}
 }
