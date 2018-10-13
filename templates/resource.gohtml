@@ -1,0 +1,17 @@
+{{- if eq .Type ".css" -}}
+	{{- if .Resource.Embed -}}
+		<style{{if .Resource.ID}} id="{{.Resource.ID}}"{{end}}>{{.Content}}</style>
+	{{- else -}}
+		<link{{if .Resource.ID}} id="{{.Resource.ID}}"{{end}} href="{{link "resource" .Resource.Name}}" rel="stylesheet" type="text/css" />
+	{{- end -}}
+{{- else if eq .Type ".js" -}}
+	{{- if .Resource.Embed -}}
+		<script{{if .Resource.ID}} id="{{.Resource.ID}}"{{end}}>{{.Content}}</script>
+	{{- else -}}
+		<script{{if .Resource.ID}} id="{{.Resource.ID}}"{{end}} src="{{link "resource" .Resource.Name}}" charset="utf-8"></script>
+	{{- end -}}
+{{- else -}}
+	{{- if .Resource.Embed -}}
+		{{.Content}}
+	{{- end -}}
+{{- end -}}

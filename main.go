@@ -1,82 +1,20 @@
 package main
 
 import (
+	"bytes"
 	"github.com/pkg/errors"
-	"github.com/robloxapi/rbxapi/rbxapijson"
 	"github.com/robloxapi/rbxapi/rbxapijson/diff"
 	"github.com/robloxapi/rbxapiref/fetch"
 	"html/template"
-	"image/png"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"reflect"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 )
-
-// Converts a value into a string. Only handles types found in rbxapi
-// structures.
-func toString(v interface{}) string {
-	switch v := v.(type) {
-	case Value:
-		return toString(v.V)
-	case bool:
-		if v {
-			return "true"
-		}
-		return "false"
-	case int:
-		return strconv.Itoa(v)
-	case string:
-		return v
-	case rbxapijson.Type:
-		return v.String()
-	case []string:
-		return "[" + strings.Join(v, ", ") + "]"
-	case rbxapijson.Parameters:
-		n := v.GetLength()
-		ss := make([]string, n)
-		for i := 0; i < n; i++ {
-			param := v.GetParameter(i).(rbxapijson.Parameter)
-			ss[i] = param.Type.String() + " " + param.Name
-			if param.HasDefault {
-				ss[i] += " = " + param.Default
-			}
-		}
-		return "(" + strings.Join(ss, ", ") + ")"
-	}
-	return "<unknown value " + reflect.TypeOf(v).String() + ">"
-}
-
-// Generates a list of actions for each member of the element.
-func makeSubactions(action Action) []Action {
-	if class := action.Class; class != nil {
-		actions := make([]Action, len(class.Members))
-		for i, member := range class.Members {
-			actions[i] = Action{
-				Type:  action.GetType(),
-				Class: class,
-			}
-			actions[i].SetMember(member)
-		}
-		return actions
-	} else if enum := action.Enum; enum != nil {
-		actions := make([]Action, len(enum.Items))
-		for i, item := range enum.Items {
-			actions[i] = Action{
-				Type:     action.GetType(),
-				Enum:     enum,
-				EnumItem: item,
-			}
-		}
-		return actions
-	}
-	return nil
-}
 
 // Compiles templates in specified folder as a single template. Templates are
 // named as the file name without the extension.
@@ -101,33 +39,6 @@ func compileTemplates(dir string, funcs template.FuncMap) (tmpl *template.Templa
 		t.Funcs(funcs)
 	}
 	return
-}
-
-func reflectIndirect(v reflect.Value) (rv reflect.Value, isNil bool) {
-	for ; v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface; v = v.Elem() {
-		if v.IsNil() {
-			return v, true
-		}
-	}
-	return v, false
-}
-
-func reflectLength(item interface{}) (int, error) {
-	v := reflect.ValueOf(item)
-	if !v.IsValid() {
-		return 0, errors.New("len of untyped nil")
-	}
-	v, isNil := reflectIndirect(v)
-	if isNil {
-		return 0, errors.New("len of nil pointer")
-	}
-	switch v.Kind() {
-	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice, reflect.String:
-		return v.Len(), nil
-	case reflect.Int:
-		return int(v.Int()), nil
-	}
-	return 0, errors.Errorf("len of type %s", v.Type())
 }
 
 func main() {
@@ -262,18 +173,6 @@ loop:
 		data.GenerateMetadata(rmd)
 	}
 
-	// Fetch explorer icons.
-	{
-		icon, err := client.ExplorerIcons(data.Latest.Info.Hash)
-		IfFatalf(err, "%s: fetch icons %s", data.Latest.Info.Hash)
-		IfFatal(os.MkdirAll(data.FilePath("resource"), 0755), "make resource directory")
-		f, err := os.Create(data.FilePath("resource", "icon-explorer.png"))
-		IfFatal(err, "create icons file")
-		err = png.Encode(f, icon)
-		f.Close()
-		IfFatal(err, "encode icons file")
-	}
-
 	data.GenerateUpdates()
 	data.Entities = GenerateEntities(data)
 	data.GenerateTree()
@@ -281,209 +180,12 @@ loop:
 	// Compile templates.
 	var err error
 	data.Templates, err = compileTemplates(data.Settings.Input.Templates, template.FuncMap{
-		"embed": func(resource string) (interface{}, error) {
-			b, err := ioutil.ReadFile(filepath.Join(data.Settings.Input.Resources, resource))
-			switch filepath.Ext(resource) {
-			case ".css":
-				return template.CSS(b), err
-			case ".js":
-				return template.JS(b), err
-			case ".html", ".svg":
-				return template.HTML(b), err
-			}
-			return string(b), err
-		},
+		"embed":   data.EmbedResource,
 		"execute": data.ExecuteTemplate,
-		"filter": func(filter string, list interface{}) interface{} {
-			switch list := list.(type) {
-			case []*ClassEntity:
-				var filtered []*ClassEntity
-				switch filter {
-				case "added":
-					for _, entity := range list {
-						if !entity.Removed {
-							filtered = append(filtered, entity)
-						}
-					}
-					return filtered
-				case "removed":
-					for _, entity := range list {
-						if entity.Removed {
-							filtered = append(filtered, entity)
-						}
-					}
-					return filtered
-				}
-			case []*MemberEntity:
-				var filtered []*MemberEntity
-				switch filter {
-				case "added":
-					for _, entity := range list {
-						if !entity.Removed {
-							filtered = append(filtered, entity)
-						}
-					}
-					return filtered
-				case "removed":
-					for _, entity := range list {
-						if entity.Removed {
-							filtered = append(filtered, entity)
-						}
-					}
-					return filtered
-				case "implicit added":
-					for _, entity := range list {
-						if !entity.Removed && !entity.Parent.Removed {
-							filtered = append(filtered, entity)
-						}
-					}
-					return filtered
-				case "implicit removed":
-					for _, entity := range list {
-						if entity.Removed || entity.Parent.Removed {
-							filtered = append(filtered, entity)
-						}
-					}
-					return filtered
-				}
-			case []*EnumEntity:
-				var filtered []*EnumEntity
-				switch filter {
-				case "added":
-					for _, entity := range list {
-						if !entity.Removed {
-							filtered = append(filtered, entity)
-						}
-					}
-					return filtered
-				case "removed":
-					for _, entity := range list {
-						if entity.Removed {
-							filtered = append(filtered, entity)
-						}
-					}
-					return filtered
-				}
-			case []*EnumItemEntity:
-				var filtered []*EnumItemEntity
-				switch filter {
-				case "implicit added":
-					for _, entity := range list {
-						if !entity.Removed && !entity.Parent.Removed {
-							filtered = append(filtered, entity)
-						}
-					}
-					return filtered
-				case "implicit removed":
-					for _, entity := range list {
-						if entity.Removed || entity.Parent.Removed {
-							filtered = append(filtered, entity)
-						}
-					}
-					return filtered
-				case "added":
-					for _, entity := range list {
-						if !entity.Removed {
-							filtered = append(filtered, entity)
-						}
-					}
-					return filtered
-				case "removed":
-					for _, entity := range list {
-						if entity.Removed {
-							filtered = append(filtered, entity)
-						}
-					}
-					return filtered
-				}
-			case []*TypeEntity:
-				var filtered []*TypeEntity
-				switch filter {
-				case "added":
-					for _, entity := range list {
-						if !entity.Removed {
-							filtered = append(filtered, entity)
-						}
-					}
-					return filtered
-				case "removed":
-					for _, entity := range list {
-						if entity.Removed {
-							filtered = append(filtered, entity)
-						}
-					}
-					return filtered
-				}
-			case []ElementTyper:
-				var filtered []ElementTyper
-				switch filter {
-				case "class":
-					for _, entity := range list {
-						if entity.ElementType().Category == "Class" && !entity.IsRemoved() {
-							filtered = append(filtered, entity)
-						}
-					}
-					return filtered
-				case "enum":
-					for _, entity := range list {
-						if entity.ElementType().Category == "Enum" && !entity.IsRemoved() {
-							filtered = append(filtered, entity)
-						}
-					}
-					return filtered
-				case "type":
-					for _, entity := range list {
-						if cat := entity.ElementType().Category; cat != "Class" && cat != "Enum" && !entity.IsRemoved() {
-							filtered = append(filtered, entity)
-						}
-					}
-					return filtered
-				}
-			}
-			return list
-		},
-		"history": func(entity interface{}) template.HTML {
-			var patches []Patch
-			switch entity := entity.(type) {
-			case *ClassEntity:
-				patches = entity.Patches
-			case *MemberEntity:
-				patches = entity.Patches
-			case *EnumEntity:
-				patches = entity.Patches
-			case *EnumItemEntity:
-				patches = entity.Patches
-			}
-			var list []string
-			for _, patch := range patches {
-				if patch.Info.Equal(data.Patches[0].Info) {
-					continue
-				}
-				var s []string
-				for _, action := range patch.Actions {
-					s = append(s,
-						"<a class=\"history-", strings.ToLower(action.Type.String()), "\" title=\"",
-						PatchTypeString(action.Type, "ed"), " on ", patch.Info.Date.Format("2006-01-02 15:04:05"), "&#10;",
-						"v", patch.Info.Version.String(), "&#10;",
-						patch.Info.Hash,
-						"\" href=\"",
-						data.FileLink("updates", strconv.Itoa(patch.Info.Date.Year())), "#", patch.Info.Hash, "-", strconv.Itoa(action.Index),
-						"\">",
-						strconv.Itoa(patch.Info.Version.Minor),
-						"</a>",
-					)
-					list = append(list, strings.Join(s, ""))
-				}
-			}
-			return template.HTML("<span class=\"history\">" + strings.Join(list, "\n") + "</span>")
-		},
-		"icon": data.Icon,
-		"istype": func(v interface{}, t string) bool {
-			if v == nil {
-				return "nil" == t
-			}
-			return reflect.TypeOf(v).String() == t
-		},
+		"filter":  FilterList,
+		"history": data.GenerateHistoryElements,
+		"icon":    data.Icon,
+		"istype":  IsType,
 		"link": func(linkType string, args ...interface{}) string {
 			sargs := make([]string, len(args))
 			for i, arg := range args {
@@ -496,18 +198,13 @@ loop:
 			}
 			return data.FileLink(linkType, sargs...)
 		},
-		"quantity": func(i interface{}, singular, plural string) string {
-			v, err := reflectLength(i)
-			if err != nil || v == 1 {
-				return singular
-			}
-			return plural
-		},
-		"subactions": makeSubactions,
-		"tostring":   toString,
-		"type": func(v interface{}) string {
-			return reflect.TypeOf(v).String()
-		},
+		"patchtype":  PatchTypeString,
+		"quantity":   FormatQuantity,
+		"resources":  data.GenerateResourceElements,
+		"subactions": MakeSubactions,
+		"tolower":    strings.ToLower,
+		"tostring":   ToString,
+		"type":       GetType,
 	})
 	IfFatal(err, "open template")
 
@@ -541,28 +238,39 @@ loop:
 
 		// Copy resources.
 		IfFatal(os.MkdirAll(data.FilePath("resource"), 0755), "make directory")
-		resources := map[string]struct{}{}
+		resources := map[string]*Resource{}
+		addResource := func(resource *Resource) {
+			if resource.Name == "" || resource.Embed {
+				return
+			}
+			if r, ok := resources[resource.Name]; ok {
+				if r.Content != nil {
+					IfFatal(errors.Errorf("multiple definitions of resource %s", resource.Name))
+				}
+			}
+			resources[resource.Name] = resource
+		}
 		for _, page := range pages {
-			for _, res := range page.Styles {
-				if !res.Embed {
-					resources[res.Name] = struct{}{}
-				}
+			for i := range page.Styles {
+				addResource(&page.Styles[i])
 			}
-			for _, res := range page.Scripts {
-				if !res.Embed {
-					resources[res.Name] = struct{}{}
-				}
+			for i := range page.Scripts {
+				addResource(&page.Scripts[i])
 			}
-			for _, res := range page.Resources {
-				if !res.Embed {
-					resources[res.Name] = struct{}{}
-				}
+			for i := range page.Resources {
+				addResource(&page.Resources[i])
 			}
 		}
-		for res := range resources {
-			src, err := os.Open(filepath.Join(data.Settings.Input.Resources, res))
-			IfFatal(err, "open resource")
-			dst, err := os.Create(data.FilePath("resource", res))
+		for name, resource := range resources {
+			var src io.ReadCloser
+			var err error
+			if resource.Content != nil {
+				src = ioutil.NopCloser(bytes.NewReader(resource.Content))
+			} else {
+				src, err = os.Open(filepath.Join(data.Settings.Input.Resources, name))
+				IfFatal(err, "open resource")
+			}
+			dst, err := os.Create(data.FilePath("resource", name))
 			if err != nil {
 				src.Close()
 				IfFatal(err, "create resource")

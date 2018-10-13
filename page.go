@@ -1,6 +1,9 @@
 package main
 
 import (
+	"bytes"
+	"github.com/robloxapi/rbxapiref/fetch"
+	"image/png"
 	"strconv"
 )
 
@@ -24,17 +27,41 @@ type Page struct {
 }
 
 type Resource struct {
-	Name  string // Name of the resource file.
-	Embed bool   // Embed the content of the resource.
-	ID    string // Optional ID attribute.
+	// Name indicates the name of the source file located in the input
+	// resource directory, as well as the name of the generated file within
+	// the output resource directory.
+	Name string
+	// Content, if non-nil, specifies the content of the file directly, rather
+	// than reading from a source file.
+	Content []byte
+	// Embed causes the content of the resource to be embedded within a
+	// generated page, rather than being written to the output resource
+	// directory.
+	Embed bool
+	// ID, if non-empty, specifies the ID attribute of the generated HTML node
+	// representing the resource.
+	ID string
 }
 
 func GeneratePageMain(data *Data) (pages []Page) {
+	// Fetch explorer icons.
+	client := &fetch.Client{
+		Config:    data.Settings.Configs[data.Latest.Config],
+		CacheMode: fetch.CacheTemp,
+	}
+	icon, err := client.ExplorerIcons(data.Latest.Info.Hash)
+	IfFatalf(err, "%s: fetch icons %s", data.Latest.Info.Hash)
+	var buf bytes.Buffer
+	IfFatal(png.Encode(&buf, icon), "encode icons file")
+
 	return []Page{{
-		Styles:    []Resource{{Name: "main.css"}},
-		Scripts:   []Resource{{Name: "search.js"}},
-		Resources: []Resource{{Name: "icon-objectbrowser.png"}},
-		Template:  "main",
+		Styles:  []Resource{{Name: "main.css"}},
+		Scripts: []Resource{{Name: "search.js"}},
+		Resources: []Resource{
+			{Name: "icon-explorer.png", Content: buf.Bytes()},
+			{Name: "icon-objectbrowser.png"},
+		},
+		Template: "main",
 	}}
 }
 

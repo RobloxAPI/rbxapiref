@@ -8,6 +8,7 @@ import (
 	"github.com/robloxapi/rbxapiref/fetch"
 	"github.com/robloxapi/rbxfile"
 	"html/template"
+	"io/ioutil"
 	"net/url"
 	"path"
 	"path/filepath"
@@ -283,6 +284,78 @@ func (data *Data) ExecuteTemplate(name string, tdata interface{}) (template.HTML
 	var buf bytes.Buffer
 	err := data.Templates.ExecuteTemplate(&buf, name, tdata)
 	return template.HTML(buf.String()), err
+}
+
+func (data *Data) EmbedResource(resource string) (interface{}, error) {
+	b, err := ioutil.ReadFile(filepath.Join(data.Settings.Input.Resources, resource))
+	switch filepath.Ext(resource) {
+	case ".css":
+		return template.CSS(b), err
+	case ".js":
+		return template.JS(b), err
+	case ".html", ".svg":
+		return template.HTML(b), err
+	}
+	return string(b), err
+}
+
+func (data *Data) GenerateResourceElements(resources []Resource) (v []interface{}, err error) {
+	for _, resource := range resources {
+		var ResData struct {
+			Type     string
+			Resource Resource
+			Content  interface{}
+		}
+		ResData.Type = filepath.Ext(resource.Name)
+		ResData.Resource = resource
+		if resource.Embed {
+			var content []byte
+			if resource.Content != nil {
+				content = resource.Content
+			} else {
+				filename := filepath.Join(data.Settings.Input.Resources, resource.Name)
+				if content, err = ioutil.ReadFile(filename); err != nil {
+					return nil, err
+				}
+			}
+			switch ResData.Type {
+			case ".css":
+				ResData.Content = template.CSS(content)
+			case ".js":
+				ResData.Content = template.JS(content)
+			case ".html", ".svg":
+				ResData.Content = template.HTML(content)
+			default:
+				ResData.Content = string(content)
+			}
+		}
+		r, err := data.ExecuteTemplate("resource", ResData)
+		if err != nil {
+			return nil, err
+		}
+		v = append(v, r)
+	}
+	return v, nil
+}
+
+func (data *Data) GenerateHistoryElements(entity interface{}) (template.HTML, error) {
+	var patches []Patch
+	switch entity := entity.(type) {
+	case *ClassEntity:
+		patches = entity.Patches
+	case *MemberEntity:
+		patches = entity.Patches
+	case *EnumEntity:
+		patches = entity.Patches
+	case *EnumItemEntity:
+		patches = entity.Patches
+	default:
+		return "", nil
+	}
+	return data.ExecuteTemplate("history", struct {
+		First   BuildInfo
+		Patches []Patch
+	}{data.Patches[0].Info, patches})
 }
 
 func (data *Data) GenerateTree() {

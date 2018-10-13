@@ -7,33 +7,17 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>{{if .Title}}{{.Title}} - {{end}}Roblox API Reference</title>
-{{- range $main.Styles -}}
-	{{- if .Embed }}
-	<style{{if .ID}} id="{{.ID}}"{{end}}>{{embed .Name}}</style>
-	{{- else }}
-	<link{{if .ID}} id="{{.ID}}"{{end}} href="{{link "resource" .Name}}" rel="stylesheet" type="text/css" />
-	{{- end -}}
+{{- range resources $main.Styles }}
+	{{.}}
 {{- end -}}
-{{- range .Styles -}}
-	{{- if .Embed }}
-	<style{{if .ID}} id="{{.ID}}"{{end}}>{{embed .Name}}</style>
-	{{- else }}
-	<link{{if .ID}} id="{{.ID}}"{{end}} href="{{link "resource" .Name}}" rel="stylesheet" type="text/css" />
-	{{- end -}}
+{{- range resources .Styles }}
+	{{.}}
 {{- end -}}
-{{- range $main.Scripts -}}
-	{{- if .Embed }}
-	<script{{if .ID}} id="{{.ID}}"{{end}}>{{embed .Name -}}</script>
-	{{- else }}
-	<script{{if .ID}} id="{{.ID}}"{{end}} src="{{link "resource" .Name}}" charset="utf-8"></script>
-	{{- end -}}
+{{- range resources $main.Scripts }}
+	{{.}}
 {{- end -}}
-{{- range .Scripts -}}
-	{{- if .Embed }}
-	<script{{if .ID}} id="{{.ID}}"{{end}}>{{embed .Name -}}</script>
-	{{- else }}
-	<script{{if .ID}} id="{{.ID}}"{{end}} src="{{link "resource" .Name}}" charset="utf-8"></script>
-	{{- end -}}
+{{- range resources .Scripts }}
+	{{.}}
 {{- end }}
 </head>
 <body>
