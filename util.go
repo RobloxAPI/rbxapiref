@@ -3,7 +3,10 @@ package main
 import (
 	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapi/rbxapijson"
+	"html/template"
 	"io"
+	"io/ioutil"
+	"path/filepath"
 	"reflect"
 	"strconv"
 	"strings"
@@ -330,6 +333,31 @@ func FormatQuantity(i interface{}, singular, plural string) string {
 
 func GetType(v interface{}) string {
 	return reflect.TypeOf(v).String()
+}
+
+// Compiles templates in specified folder as a single template. Templates are
+// named as the file name without the extension.
+func CompileTemplates(dir string, funcs template.FuncMap) (tmpl *template.Template, err error) {
+	fis, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	tmpl = template.New("")
+	tmpl.Funcs(funcs)
+	for _, fi := range fis {
+		base := filepath.Base(fi.Name())
+		name := base[:len(base)-len(filepath.Ext(base))]
+		b, err := ioutil.ReadFile(filepath.Join(dir, fi.Name()))
+		if err != nil {
+			return nil, err
+		}
+		t := tmpl.New(name)
+		if _, err = t.Parse(string(b)); err != nil {
+			return nil, err
+		}
+		t.Funcs(funcs)
+	}
+	return
 }
 
 ////////////////////////////////////////////////////////////////

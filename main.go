@@ -16,31 +16,6 @@ import (
 	"time"
 )
 
-// Compiles templates in specified folder as a single template. Templates are
-// named as the file name without the extension.
-func compileTemplates(dir string, funcs template.FuncMap) (tmpl *template.Template, err error) {
-	fis, err := ioutil.ReadDir(dir)
-	if err != nil {
-		return nil, err
-	}
-	tmpl = template.New("")
-	tmpl.Funcs(funcs)
-	for _, fi := range fis {
-		base := filepath.Base(fi.Name())
-		name := base[:len(base)-len(filepath.Ext(base))]
-		b, err := ioutil.ReadFile(filepath.Join(dir, fi.Name()))
-		if err != nil {
-			return nil, err
-		}
-		t := tmpl.New(name)
-		if _, err = t.Parse(string(b)); err != nil {
-			return nil, err
-		}
-		t.Funcs(funcs)
-	}
-	return
-}
-
 func main() {
 	// Initialize root.
 	data := &Data{CurrentYear: time.Now().Year()}
@@ -179,7 +154,7 @@ loop:
 
 	// Compile templates.
 	var err error
-	data.Templates, err = compileTemplates(data.Settings.Input.Templates, template.FuncMap{
+	data.Templates, err = CompileTemplates(data.Settings.Input.Templates, template.FuncMap{
 		"embed":   data.EmbedResource,
 		"execute": data.ExecuteTemplate,
 		"filter":  FilterList,
