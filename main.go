@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"fmt"
+	"github.com/jessevdk/go-flags"
 	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapi/rbxapijson/diff"
 	"github.com/robloxapi/rbxapiref/fetch"
@@ -9,6 +11,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -16,12 +19,36 @@ import (
 	"time"
 )
 
+type FlagOptions struct {
+	Settings string `
+		'short:"s"
+		'long:"settings"
+		'description:"Specify a custom settings location."
+		'value-name:"PATH"`
+}
+
 func main() {
+	// Parse flags.
+	var flagOptions FlagOptions
+	var filters []string
+	{
+		fp := flags.NewParser(&flagOptions, flags.Default|flags.PassAfterNonOption)
+		var err error
+		filters, err = fp.Parse()
+		if err != nil {
+			if err, ok := err.(*flags.Error); ok && err.Type == flags.ErrHelp {
+				fmt.Fprintln(os.Stdout, err)
+				return
+			}
+		}
+		IfFatal(err, "flag parser error")
+	}
+
 	// Initialize root.
 	data := &Data{CurrentYear: time.Now().Year()}
 
 	// Load settings.
-	IfFatal(data.Settings.ReadFile(""))
+	IfFatal(data.Settings.ReadFile(flagOptions.Settings))
 
 	manifestPath := filepath.Join(
 		data.Settings.Output.Root,
@@ -198,6 +225,31 @@ loop:
 		var pages []Page
 		for _, generator := range pageGenerators {
 			pages = append(pages, generator(data)...)
+		}
+
+		// Filter pages.
+		if len(filters) > 0 {
+			p := pages[:0]
+			for _, page := range pages {
+				if page.File == "" {
+					p = append(p, page)
+					continue
+				}
+				name, _ := filepath.Rel(data.Settings.Output.Root, page.File)
+				name = path.Clean(strings.Replace(name, "\\", "/", -1))
+				for i, filter := range filters {
+					for dir, file := name, ""; dir != "."; dir = path.Dir(dir) {
+						file = path.Join(path.Base(dir), file)
+						if ok, err := path.Match(filter, file); ok && err == nil {
+							p = append(p, page)
+							break
+						} else {
+							IfFatalf(err, "filter #%d", i)
+						}
+					}
+				}
+			}
+			pages = p
 		}
 
 		// Ensure directories exist.
