@@ -182,6 +182,7 @@ loop:
 	// Compile templates.
 	var err error
 	data.Templates, err = CompileTemplates(data.Settings.Input.Templates, template.FuncMap{
+		"cards":   data.GenerateCardElements,
 		"embed":   data.EmbedResource,
 		"execute": data.ExecuteTemplate,
 		"filter":  FilterList,
@@ -264,7 +265,6 @@ loop:
 		}
 
 		// Copy resources.
-		IfFatal(os.MkdirAll(data.AbsFilePath("resource"), 0755), "make directory")
 		resources := map[string]*Resource{}
 		addResource := func(resource *Resource) {
 			if resource.Name == "" || resource.Embed {
@@ -297,7 +297,15 @@ loop:
 				src, err = os.Open(filepath.Join(data.Settings.Input.Resources, name))
 				IfFatal(err, "open resource")
 			}
-			dst, err := os.Create(data.AbsFilePath("resource", name))
+			dstname := data.AbsFilePath("resource", name)
+			{
+				dir := filepath.Dir(dstname)
+				if _, ok := dirs[dir]; !ok {
+					IfFatal(os.MkdirAll(dir, 0755), "make directory")
+					dirs[dir] = struct{}{}
+				}
+			}
+			dst, err := os.Create(dstname)
 			if err != nil {
 				src.Close()
 				IfFatal(err, "create resource")

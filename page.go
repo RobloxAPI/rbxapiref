@@ -12,8 +12,8 @@ type PageGenerator func(*Data) []Page
 type Page struct {
 	// File is the path to the output file.
 	File string
-	// Title is the text to be displayed in the title of the page.
-	Title string
+	// Meta is a set of extra metadata about the page.
+	Meta Meta
 	// Styles is a list of resources representing CSS styles.
 	Styles []Resource
 	// Scripts is a list of resources representing javascript files.
@@ -25,6 +25,8 @@ type Page struct {
 	// Data is the data used by the template to generate the page.
 	Data interface{}
 }
+
+type Meta map[string]string
 
 type Resource struct {
 	// Name indicates the name of the source file located in the input
@@ -55,11 +57,20 @@ func GeneratePageMain(data *Data) (pages []Page) {
 	IfFatal(png.Encode(&buf, icon), "encode icons file")
 
 	return []Page{{
+		Meta: Meta{
+			"Title":       MainTitle,
+			"Description": "Reference for the Roblox Lua API.",
+			"Image":       "favicons/favicon-512x512.png",
+		},
 		Styles:  []Resource{{Name: "main.css"}},
 		Scripts: []Resource{{Name: "search.js"}},
 		Resources: []Resource{
 			{Name: "icon-explorer.png", Content: buf.Bytes()},
 			{Name: "icon-objectbrowser.png"},
+			{Name: "favicons/favicon-512x512.png"},
+			{Name: "favicons/favicon-32x32.png"},
+			{Name: "favicons/favicon-16x16.png"},
+			{Name: "favicons/favicon.ico"},
 		},
 		Template: "main",
 	}}
@@ -76,8 +87,11 @@ func GeneratePageIndex(data *Data) (pages []Page) {
 
 func GeneratePageAbout(data *Data) (pages []Page) {
 	return []Page{{
-		File:     data.FilePath("about"),
-		Title:    "About",
+		File: data.FilePath("about"),
+		Meta: Meta{
+			"Title":       data.Title("About"),
+			"Description": "About the Roblox API Reference.",
+		},
 		Styles:   []Resource{{Name: "about.css", Embed: true}},
 		Template: "about",
 	}}
@@ -94,8 +108,11 @@ func GeneratePageUpdates(data *Data) (pages []Page) {
 	for i, patches := range data.PatchesByYear {
 		year := strconv.Itoa(patches.Year)
 		pages[i] = Page{
-			File:     data.FilePath("updates", year),
-			Title:    "Updates in " + year,
+			File: data.FilePath("updates", year),
+			Meta: Meta{
+				"Title":       data.Title("Updates in " + year),
+				"Description": "A list of updates to the Roblox Lua API in " + year + ".",
+			},
 			Styles:   styles,
 			Scripts:  scripts,
 			Template: "updates",
@@ -103,8 +120,10 @@ func GeneratePageUpdates(data *Data) (pages []Page) {
 		}
 	}
 	pages[len(pages)-1] = Page{
-		File:     data.FilePath("updates"),
-		Title:    "Recent Updates",
+		File: data.FilePath("updates"),
+		Meta: Meta{
+			"Title":       data.Title("Recent Updates"),
+			"Description": "A list of recent updates to the Roblox Lua API."},
 		Styles:   styles,
 		Scripts:  scripts,
 		Template: "updates",
@@ -119,8 +138,10 @@ func GeneratePageClass(data *Data) (pages []Page) {
 	pages = make([]Page, len(data.Entities.ClassList))
 	for i, class := range data.Entities.ClassList {
 		pages[i] = Page{
-			File:     data.FilePath("class", class.ID),
-			Title:    class.ID,
+			File: data.FilePath("class", class.ID),
+			Meta: Meta{
+				"Title":       data.Title(class.ID),
+				"Description": "Information about the " + class.ID + " class in the Roblox Lua API."},
 			Styles:   styles,
 			Scripts:  scripts,
 			Template: "class",
@@ -135,8 +156,10 @@ func GeneratePageEnum(data *Data) (pages []Page) {
 	pages = make([]Page, len(data.Entities.EnumList))
 	for i, enum := range data.Entities.EnumList {
 		pages[i] = Page{
-			File:     data.FilePath("enum", enum.ID),
-			Title:    enum.ID,
+			File: data.FilePath("enum", enum.ID),
+			Meta: Meta{
+				"Title":       data.Title(enum.ID),
+				"Description": "Information about the " + enum.ID + " enum in the Roblox Lua API."},
 			Styles:   styles,
 			Template: "enum",
 			Data:     enum,
@@ -149,8 +172,10 @@ func GeneratePageType(data *Data) (pages []Page) {
 	pages = make([]Page, len(data.Entities.TypeList))
 	for i, typ := range data.Entities.TypeList {
 		pages[i] = Page{
-			File:     data.FilePath("type", typ.Element.Category, typ.Element.Name),
-			Title:    typ.ID,
+			File: data.FilePath("type", typ.Element.Category, typ.Element.Name),
+			Meta: Meta{
+				"Title":       data.Title(typ.ID),
+				"Description": "Information about the " + typ.ID + " type in the Roblox Lua API."},
 			Template: "type",
 			Data:     typ,
 		}

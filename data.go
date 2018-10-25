@@ -7,6 +7,7 @@ import (
 	"github.com/robloxapi/rbxapi/rbxapijson"
 	"github.com/robloxapi/rbxapiref/fetch"
 	"github.com/robloxapi/rbxfile"
+	"html"
 	"html/template"
 	"io/ioutil"
 	"net/url"
@@ -25,6 +26,8 @@ const (
 	FileExt             = ".html"
 	MemberAnchorPrefix  = "member-"
 	SectionAnchorPrefix = "section-"
+	MainTitle           = "Roblox API Reference"
+	TitleSep            = "-"
 )
 
 type Data struct {
@@ -320,6 +323,13 @@ func (data *Data) EmbedResource(resource string) (interface{}, error) {
 	return string(b), err
 }
 
+func (data *Data) Title(sub string) string {
+	if sub != "" {
+		return sub + " " + TitleSep + " " + MainTitle
+	}
+	return MainTitle
+}
+
 func (data *Data) GenerateResourceElements(resources []Resource) (v []interface{}, err error) {
 	for _, resource := range resources {
 		var ResData struct {
@@ -357,6 +367,47 @@ func (data *Data) GenerateResourceElements(resources []Resource) (v []interface{
 		v = append(v, r)
 	}
 	return v, nil
+}
+
+func generateMetaTag(a, b, c string) template.HTML {
+	return template.HTML("<meta " + html.EscapeString(a) + "=\"" + html.EscapeString(b) + "\" content=\"" + html.EscapeString(c) + "\" />")
+}
+
+func (data *Data) GenerateCardElements(pages ...*Page) (elements []template.HTML, err error) {
+	getField := func(name string) (value string, ok bool) {
+		for _, page := range pages {
+			if v, k := page.Meta[name]; k {
+				value = v
+				ok = true
+			}
+		}
+		return value, ok
+	}
+
+	elements = append(elements,
+		generateMetaTag("property", "og:type", "website"),
+		generateMetaTag("name", "twitter:card", "summary"),
+	)
+	if title, ok := getField("Title"); ok {
+		elements = append(elements,
+			generateMetaTag("property", "og:title", title),
+			generateMetaTag("name", "twitter:title", title),
+		)
+	}
+	if desc, ok := getField("Description"); ok {
+		elements = append(elements,
+			generateMetaTag("property", "og:description", desc),
+			generateMetaTag("name", "twitter:description", desc),
+		)
+	}
+	if image, ok := getField("Image"); ok {
+		elements = append(elements,
+			generateMetaTag("property", "og:image", data.FileLink("resource", image)),
+			generateMetaTag("name", "twitter:image", data.FileLink("resource", image)),
+		)
+	}
+
+	return elements, nil
 }
 
 func (data *Data) GenerateHistoryElements(entity interface{}) (template.HTML, error) {
