@@ -264,7 +264,7 @@ loop:
 		}
 
 		// Copy resources.
-		IfFatal(os.MkdirAll(data.FilePath("resource"), 0755), "make directory")
+		IfFatal(os.MkdirAll(data.AbsFilePath("resource"), 0755), "make directory")
 		resources := map[string]*Resource{}
 		addResource := func(resource *Resource) {
 			if resource.Name == "" || resource.Embed {
@@ -297,7 +297,7 @@ loop:
 				src, err = os.Open(filepath.Join(data.Settings.Input.Resources, name))
 				IfFatal(err, "open resource")
 			}
-			dst, err := os.Create(data.FilePath("resource", name))
+			dst, err := os.Create(data.AbsFilePath("resource", name))
 			if err != nil {
 				src.Close()
 				IfFatal(err, "create resource")
@@ -329,7 +329,7 @@ loop:
 			if page.File == "" {
 				continue
 			}
-			file, err := os.Create(page.File)
+			file, err := os.Create(filepath.Join(data.Settings.Output.Root, page.File))
 			IfFatal(err, "create file")
 			if page.Data == nil {
 				page.Data = data
@@ -343,7 +343,7 @@ loop:
 
 	// Generate search database.
 	{
-		f, err := os.Create(data.FilePath("search"))
+		f, err := os.Create(data.AbsFilePath("search"))
 		IfFatal(err, "create search database file")
 		db := dbWriter{data: data, w: f}
 		db.GenerateDatabase()
