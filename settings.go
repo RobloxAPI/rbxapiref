@@ -72,7 +72,7 @@ func (settings *Settings) filename(name string) string {
 
 	// Portable, if present.
 	name = SettingsFile
-	if fi, err := os.Stat(name); !os.IsNotExist(err) {
+	if _, err := os.Stat(name); !os.IsNotExist(err) {
 		return name
 	}
 
