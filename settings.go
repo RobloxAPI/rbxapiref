@@ -41,6 +41,9 @@ type SettingsOutput struct {
 	Resources string
 	// Manifest is the path relative to Sub that points to the manifest file.
 	Manifest string
+
+	// Host is the host part of the absolute URL of the site.
+	Host string
 }
 
 func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {

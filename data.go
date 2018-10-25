@@ -401,9 +401,10 @@ func (data *Data) GenerateCardElements(pages ...*Page) (elements []template.HTML
 		)
 	}
 	if image, ok := getField("Image"); ok {
+		u := (&url.URL{Scheme: "https", Host: data.Settings.Output.Host, Path: data.FileLink("resource", image)}).String()
 		elements = append(elements,
-			generateMetaTag("property", "og:image", data.FileLink("resource", image)),
-			generateMetaTag("name", "twitter:image", data.FileLink("resource", image)),
+			generateMetaTag("property", "og:image", u),
+			generateMetaTag("name", "twitter:image", u),
 		)
 	}
 
