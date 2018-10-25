@@ -64,10 +64,25 @@ func (settings *Settings) WriteTo(w io.Writer) (n int64, err error) {
 	return ew.Result()
 }
 
-func (settings *Settings) ReadFile(filename string) error {
-	if filename == "" {
-		filename = filepath.Join(configdir.LocalConfig(ToolName), SettingsFile)
+func (settings *Settings) filename(name string) string {
+	// User-defined.
+	if name != "" {
+		return name
 	}
+
+	// Portable, if present.
+	name = SettingsFile
+	if fi, err := os.Stat(name); !os.IsNotExist(err) {
+		return name
+	}
+
+	// Local config.
+	name = filepath.Join(configdir.LocalConfig(ToolName), SettingsFile)
+	return name
+}
+
+func (settings *Settings) ReadFile(filename string) error {
+	filename = settings.filename(filename)
 	file, err := os.Open(filename)
 	if err != nil {
 		return errors.Wrap(err, "open settings file")
@@ -78,9 +93,7 @@ func (settings *Settings) ReadFile(filename string) error {
 }
 
 func (settings *Settings) WriteFile(filename string) error {
-	if filename == "" {
-		filename = filepath.Join(configdir.LocalConfig(ToolName), SettingsFile)
-	}
+	filename = settings.filename(filename)
 	file, err := os.Create(filename)
 	if err != nil {
 		return errors.Wrap(err, "create settings file")
