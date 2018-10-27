@@ -47,7 +47,7 @@ main header { grid-area : header }
 	margin-top : 0;
 }
 
-@media screen and (max-width: 80ch) {
+@media screen and (max-width: 600px) {
 	main {
 		grid-column-gap       : 0;
 		grid-template-columns : auto auto;

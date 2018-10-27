@@ -22,7 +22,7 @@ main > article {
 	grid-area : content;
 }
 
-@media screen and (max-width: 80ch) {
+@media screen and (max-width: 600px) {
 	main {
 		grid-template-columns : auto auto;
 		grid-template-areas   :
@@ -31,7 +31,7 @@ main > article {
 			"content controls";
 	}
 }
-@media screen and (min-width: 80ch) {
+@media screen and (min-width: 600px) {
 	main {
 		grid-template-columns : min-content auto auto;
 		grid-template-areas   :

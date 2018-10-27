@@ -9,7 +9,7 @@ main > header { grid-area : header }
 #referrers    { grid-area : referrers }
 #removed      { grid-area : removed }
 
-@media screen and (max-width: 80ch) {
+@media screen and (max-width: 600px) {
 	main {
 		grid-template-columns : auto;
 		grid-template-areas   :
@@ -19,7 +19,7 @@ main > header { grid-area : header }
 			"removed  ";
 	}
 }
-@media screen and (min-width: 80ch) {
+@media screen and (min-width: 600px) {
 	main {
 		grid-template-columns : max-content auto;
 		grid-template-rows    : auto auto 1fr;

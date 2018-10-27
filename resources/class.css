@@ -11,7 +11,7 @@ main > #enums     { grid-area : enums }
 main > #referrers { grid-area : referrers }
 main > #removed   { grid-area : removed }
 
-@media screen and (max-width: 80ch) {
+@media screen and (max-width: 600px) {
 	main {
 		grid-template-columns : auto;
 		grid-template-areas   :
@@ -24,7 +24,7 @@ main > #removed   { grid-area : removed }
 			"removed  ";
 	}
 }
-@media screen and (min-width: 80ch) {
+@media screen and (min-width: 600px) {
 	main {
 		grid-template-columns : min-content auto;
 		grid-template-areas   :

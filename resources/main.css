@@ -1,3 +1,12 @@
+/*
+
+Viewport thresholds:
+
+    1200px : Maximum width of content.
+    800px  : Maximum width of reduced layout.
+    600px  : Maximum width of mobile layout.
+
+*/
 /*////////////////////////////////////////////////////////////////*/
 /* Variables */
 :root {
