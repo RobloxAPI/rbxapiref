@@ -39,6 +39,11 @@
 	--indent           : 4ch;
 	--indent-small     : calc(var(--indent)/2);
 	--section-spacing  : 2ch;
+
+	/* Z Layers */
+	--layer-content          : auto;
+	--layer-below-foreground : 10;
+	--layer-foreground       : 20;
 }
 
 /*////////////////////////////////////////////////////////////////*/
@@ -160,7 +165,7 @@ main > header .history {
 	--current-baseline : calc(1em * var(--line-height));
 	padding            : calc((var(--header-height) - var(--current-baseline) - var(--baseline)*var(--height-factor,0) )/2) var(--current-baseline);
 }
-@media screen and (max-width: 80ch) {
+@media screen and (max-width: 600px) {
 	.header-block {
 		--height-factor: 1;
 	}
@@ -203,13 +208,13 @@ a.header-block:hover {
 .params-close {
 	white-space : nowrap;
 }
-@media screen and (max-width: 80ch) {
+@media screen and (max-width: 600px) {
 	.parameter {
 		display      : block;
 		padding-left : var(--indent-small);
 	}
 }
-@media screen and (min-width: 80ch) {
+@media screen and (min-width: 600px) {
 	.index-card .col-member {
 		padding-left : var(--indent-small);
 		text-indent  : calc(-1*var(--indent-small));
