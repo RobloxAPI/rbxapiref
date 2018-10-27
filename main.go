@@ -236,16 +236,19 @@ loop:
 					p = append(p, page)
 					continue
 				}
-				name, _ := filepath.Rel(data.Settings.Output.Root, page.File)
-				name = path.Clean(strings.Replace(name, "\\", "/", -1))
+				name := path.Clean(strings.Replace(page.File, "\\", "/", -1))
 				for i, filter := range filters {
-					for dir, file := name, ""; dir != "."; dir = path.Dir(dir) {
+					for dir, file := name, ""; ; {
 						file = path.Join(path.Base(dir), file)
 						if ok, err := path.Match(filter, file); ok && err == nil {
 							p = append(p, page)
 							break
 						} else {
 							IfFatalf(err, "filter #%d", i)
+						}
+						dir = path.Dir(dir)
+						if dir == "." || dir == "/" || dir == "" {
+							break
 						}
 					}
 				}
