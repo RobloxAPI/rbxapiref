@@ -40,9 +40,6 @@ main header { grid-area : header }
 	padding-left : var(--indent-small);
 }
 
-#about {
-	text-align : justify;
-}
 #about > P:first-child {
 	margin-top : 0;
 }
