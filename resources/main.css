@@ -165,10 +165,12 @@ main > header .history {
 	--current-baseline : calc(1em * var(--line-height));
 	padding            : calc((var(--header-height) - var(--current-baseline) - var(--baseline)*var(--height-factor,0) )/2) var(--current-baseline);
 }
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 800px) {
 	.header-block {
 		--height-factor: 1;
 	}
+}
+@media screen and (max-width: 600px) {
 	#no-search {
 		display: none;
 	}
