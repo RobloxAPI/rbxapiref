@@ -71,7 +71,7 @@ body {
 	font             : var(--font-size)/var(--line-height) var(--sans-serif);
 	color            : var(--text-color);
 	background-color : var(--background-color);
-	margin           : 0px auto;
+	margin           : 0 auto;
 	padding          : 0;
 	max-width        : 1200px;
 	box-shadow       : 0 0 8px black;
@@ -86,7 +86,7 @@ code {
 }
 main {
 	margin     : var(--baseline);
-	margin-top : 0px;
+	margin-top : 0;
 }
 a[href] {
 	color           : var(--anchor-color);
@@ -122,8 +122,8 @@ ul, ol {
 	}
 }
 ul ul, ul ol, ol ul, ol ol {
-	margin-top    : 0px;
-	margin-bottom : 0px;
+	margin-top    : 0;
+	margin-bottom : 0;
 }
 main > header > * {
 	display : inline-block;

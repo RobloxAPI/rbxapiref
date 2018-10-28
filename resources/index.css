@@ -14,7 +14,7 @@ main {
 	flex-flow  : wrap row;
 	column-gap : var(--section-spacing);
 	margin     : var(--baseline);
-	margin-top : 0px;
+	margin-top : 0;
 }
 
 #toc {
