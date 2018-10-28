@@ -10,7 +10,7 @@
 		<header>
 			<h3>Inherits<span class="element-count" title="{{.ID}} inherits {{len $superclasses}} {{quantity (len $superclasses) "class" "classes"}}."> ({{len $superclasses}})</span></h3>
 		</header>
-		<ul>
+		<ul class="truncated-list">
 		{{- range $superclasses }}
 			<li><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
 		{{- end }}
@@ -23,7 +23,7 @@
 		<header>
 			<h3>Inherited by<span class="element-count" title="{{.ID}} is inherited by {{len $subclasses}} {{quantity (len $subclasses) "class" "classes"}}."> ({{len $subclasses}})</span></h3>
 		</header>
-		<ul>
+		<ul class="truncated-list">
 		{{- range $subclasses }}
 			<li><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
 		{{- end }}
@@ -93,7 +93,7 @@
 {{- if $classes }}
 <section id="classes">
 	<h3>Relevant classes<span class="element-count" title="{{.ID}} has {{len $classes}} related {{quantity $classes "class" "classes"}}."> ({{len $classes}})</span></h3>
-	<ul>
+	<ul class="truncated-list">
 	{{- range $classes }}
 		<li><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
 	{{- end }}
@@ -104,7 +104,7 @@
 {{- if $enums }}
 <section id="enums">
 	<h3>Relevant enums<span class="element-count" title="{{.ID}} has {{len $enums}} related {{quantity $enums "enum" "enums"}}."> ({{len $enums}})</span></h3>
-	<ul>
+	<ul class="truncated-list">
 	{{- range $enums }}
 		<li><a class="element-link" href="{{link "enum" .ID}}">{{icon .Element}}{{.ID}}</a></li>
 	{{- end }}
@@ -115,7 +115,7 @@
 {{- if $referrers }}
 <section id="referrers">
 	<h3>Relevant members<span class="element-count" title="{{.ID}} has {{len $referrers}} related {{quantity $referrers "member" "members"}}."> ({{len $referrers}})</span></h3>
-	<ul>
+	<ul class="truncated-list">
 	{{- range $referrers -}}
 		{{- $class := (index .ID 0) -}}
 		{{- $member := (index .ID 1) }}

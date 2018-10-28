@@ -53,6 +53,9 @@ Viewport thresholds:
 	--layer-content          : auto;
 	--layer-below-foreground : 10;
 	--layer-foreground       : 20;
+
+	/* Misc. */
+	--scrollbar-width : 4ch;
 }
 
 /*////////////////////////////////////////////////////////////////*/
@@ -123,6 +126,12 @@ main > header .history {
 }
 .element-count {
 	font-size : 10pt;
+}
+.truncated-list {
+	--max-items   : 20.5;
+	max-height    : calc(var(--baseline) * var(--max-items));
+	overflow-y    : auto;
+	padding-right : var(--scrollbar-width);
 }
 
 /*////////////////////////////////////////////////////////////////*/
@@ -233,6 +242,18 @@ a.header-block:hover {
 		padding-left : var(--indent-small);
 		text-indent  : calc(-1*var(--indent-small));
 		overflow-x   : auto;
+	}
+}
+@supports (hyphens:auto) {
+	.truncated-list .element-link {
+		white-space : normal;
+		hyphens     : auto;
+	}
+}
+@supports not (hyphens:auto) {
+	.truncated-list .element-link {
+		white-space : normal;
+		word-break  : break-all;
 	}
 }
 

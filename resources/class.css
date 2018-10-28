@@ -1,7 +1,6 @@
 main {
-	display       : grid;
-	justify-items : start;
-	grid-gap      : 0 var(--section-spacing);
+	display  : grid;
+	grid-gap : 0 var(--section-spacing);
 }
 main > header     { grid-area : header }
 main > nav        { grid-area : nav }
@@ -26,7 +25,7 @@ main > #removed   { grid-area : removed }
 }
 @media screen and (min-width: 600px) {
 	main {
-		grid-template-columns : min-content auto;
+		grid-template-columns : auto auto;
 		grid-template-areas   :
 			"header header   "
 			"nav    members  "
@@ -34,6 +33,7 @@ main > #removed   { grid-area : removed }
 			"nav    enums    "
 			"nav    referrers"
 			"nav    removed  ";
+		justify-content : start;
 	}
 	main > nav {
 		border-right  : 1px solid lightgray;
