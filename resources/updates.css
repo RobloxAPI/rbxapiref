@@ -28,7 +28,7 @@ main > article {
 		grid-template-areas   :
 			"header  controls"
 			"nav     controls"
-			"content controls";
+			"content content ";
 	}
 }
 @media screen and (min-width: 600px) {
@@ -45,13 +45,29 @@ main > article {
 	}
 }
 
+main ul {
+	margin-left  : 0;
+	padding-left : var(--indent);
+}
+@media screen and (max-width: 800px) {
+	main {
+		--indent : var(--indent-small);
+	}
+}
+
+.patch-list {
+	hyphens : auto;
+}
+.patch-list .element-link {
+	white-space : normal;
+}
 .anchor:target + .patch-list-toggle,
 .patch-list > li:target {
 	background-color : var(--member-target-color);
 }
 li[diff-field="Parameters"] .diff-values {
 	display      : table;
-	padding-left : 4ch;
+	padding-left : var(--indent);
 }
 li[diff-field="Parameters"] .diff-values > span {
 	display : table-row;
@@ -62,7 +78,7 @@ li[diff-field="Parameters"] .diff-values > span > span {
 }
 li[diff-field="Tags"] .diff-values {
 	display      : table;
-	padding-left : 4ch;
+	padding-left : var(--indent);
 }
 li[diff-field="Tags"] .diff-values > span {
 	display : table-row;
@@ -79,4 +95,28 @@ a.permalink {
 }
 *:hover > a.permalink:before {
 	content : ' ¶ ';
+}
+
+@media screen and (max-width: 600px) {
+	a.permalink > span {
+		display : none;
+	}
+	li[diff-field="Parameters"] .diff-values {
+		display      : flex;
+		flex-flow    : wrap row;
+		padding-left : var(--indent);
+		column-gap   : var(--indent);
+	}
+	li[diff-field="Parameters"] .diff-values > span {
+		display : inline;
+	}
+	li[diff-field="Parameters"] .diff-values > span > span {
+		display       : inline;
+		padding-right : 1ch;
+	}
+	.parameter,
+	.params-open,
+	.params-close {
+		white-space : normal;
+	}
 }

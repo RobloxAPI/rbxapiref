@@ -29,7 +29,7 @@
 				{{- $hash := .Info.Hash }}
 				<a id="{{$hash}}" class="anchor"></a>
 				<span class="patch-list-toggle"><time datetime="{{.Info.Date.Format "2006-01-02 15:04:05-0700" }}">{{.Info.Date.Format "2006-01-02 15:04" }}</time> (v{{.Info.Version}})</span>
-				<a class="permalink" title="Permanent link" href="{{link "updates" .Info.Date.Year}}#{{$hash}}">{{$hash}}</a>
+				<a class="permalink" title="Permanent link" href="{{link "updates" .Info.Date.Year}}#{{$hash}}"><span>{{$hash}}</span></a>
 				<ul class="patch-list">
 				{{- range .Actions }}
 					<li id="{{$hash}}-{{.Index}}"{{if .Field}} diff-field="{{.Field}}"{{end}}>
