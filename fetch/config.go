@@ -270,7 +270,7 @@ func (loc *Location) FromString(s string) (err error) {
 // matches the URL path extension, the Location is written as a JSON string,
 // and is otherwise written as a JSON object matching the structure of the
 // Location.
-func (loc *Location) MarshalJSON() (b []byte, err error) {
+func (loc Location) MarshalJSON() (b []byte, err error) {
 	if loc.Format == loc.Ext() {
 		return json.Marshal(loc.URL.String())
 	}
