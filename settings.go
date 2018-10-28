@@ -48,10 +48,45 @@ type SettingsOutput struct {
 
 func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 	dw := NewDecodeWrapper(r)
-	err = json.NewDecoder(dw).Decode(settings)
+	var jsettings struct {
+		Input struct {
+			Resources *string
+			Templates *string
+		}
+		Output struct {
+			Root      *string
+			Sub       *string
+			Resources *string
+			Manifest  *string
+			Host      *string
+		}
+		Configs    map[string]fetch.Config
+		UseConfigs []string
+	}
+	err = json.NewDecoder(dw).Decode(&jsettings)
 	if err != nil {
 		return dw.BytesRead(), errors.Wrap(err, "decode settings file")
 	}
+
+	merge := func(dst, src *string) {
+		if src != nil && *src != "" {
+			*dst = *src
+		}
+	}
+	merge(&settings.Input.Resources, jsettings.Input.Resources)
+	merge(&settings.Input.Templates, jsettings.Input.Templates)
+	merge(&settings.Output.Root, jsettings.Output.Root)
+	merge(&settings.Output.Sub, jsettings.Output.Sub)
+	merge(&settings.Output.Manifest, jsettings.Output.Manifest)
+	merge(&settings.Output.Resources, jsettings.Output.Resources)
+	merge(&settings.Output.Host, jsettings.Output.Host)
+	for k, v := range jsettings.Configs {
+		settings.Configs[k] = v
+	}
+	if len(jsettings.UseConfigs) > 0 {
+		settings.UseConfigs = append(settings.UseConfigs[:0], jsettings.UseConfigs...)
+	}
+
 	return dw.Result()
 }
 
@@ -104,4 +139,15 @@ func (settings *Settings) WriteFile(filename string) error {
 	defer file.Close()
 	_, err = settings.WriteTo(file)
 	return err
+}
+
+func (settings *Settings) Copy() *Settings {
+	c := *settings
+	c.Configs = make(map[string]fetch.Config, len(settings.Configs))
+	for k, v := range settings.Configs {
+		c.Configs[k] = v
+	}
+	c.UseConfigs = make([]string, len(settings.UseConfigs))
+	copy(c.UseConfigs, settings.UseConfigs)
+	return &c
 }

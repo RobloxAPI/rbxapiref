@@ -48,6 +48,7 @@ func main() {
 	data := &Data{CurrentYear: time.Now().Year()}
 
 	// Load settings.
+	data.Settings = *DefaultSettings.Copy()
 	IfFatal(data.Settings.ReadFile(flagOptions.Settings))
 
 	manifestPath := filepath.Join(
