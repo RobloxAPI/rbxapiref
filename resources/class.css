@@ -33,7 +33,8 @@ main > #removed   { grid-area : removed }
 			"nav    enums    "
 			"nav    referrers"
 			"nav    removed  ";
-		justify-content : start;
+		justify-content    : start;
+		grid-template-rows : repeat(5,auto) 1fr;
 	}
 	main > nav {
 		border-right  : 1px solid lightgray;

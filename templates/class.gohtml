@@ -10,7 +10,7 @@
 		<header>
 			<h3>Inherits<span class="element-count" title="{{.ID}} inherits {{len $superclasses}} {{quantity (len $superclasses) "class" "classes"}}."> ({{len $superclasses}})</span></h3>
 		</header>
-		<ul class="truncated-list">
+		<ul class="truncated-list-mobile">
 		{{- range $superclasses }}
 			<li><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
 		{{- end }}
@@ -23,7 +23,7 @@
 		<header>
 			<h3>Inherited by<span class="element-count" title="{{.ID}} is inherited by {{len $subclasses}} {{quantity (len $subclasses) "class" "classes"}}."> ({{len $subclasses}})</span></h3>
 		</header>
-		<ul class="truncated-list">
+		<ul class="truncated-list-mobile">
 		{{- range $subclasses }}
 			<li><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
 		{{- end }}
