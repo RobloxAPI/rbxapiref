@@ -56,7 +56,6 @@ Viewport thresholds:
 
 	/* Misc. */
 	--scrollbar-width : 4ch;
-	--max-list-items  : 20.5;
 }
 
 /*////////////////////////////////////////////////////////////////*/
@@ -129,16 +128,9 @@ main > header .history {
 	font-size : 10pt;
 }
 .truncated-list {
-	max-height    : calc(var(--baseline) * var(--max-list-items));
+	max-height    : 61.8vh;
 	overflow-y    : auto;
 	padding-right : var(--scrollbar-width);
-}
-@media screen and (max-width: 600px) {
-	.truncated-list-mobile {
-		max-height    : calc(var(--baseline) * var(--max-list-items));
-		overflow-y    : auto;
-		padding-right : var(--scrollbar-width);
-	}
 }
 
 /*////////////////////////////////////////////////////////////////*/
