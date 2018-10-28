@@ -254,6 +254,9 @@ loop:
 				}
 			}
 			pages = p
+			for _, page := range pages {
+				Log("INCLUDE PAGE", page.File)
+			}
 		}
 
 		// Ensure directories exist.
