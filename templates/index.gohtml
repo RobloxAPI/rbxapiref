@@ -7,11 +7,10 @@
 </nav>
 <section id="main">
 <article id="classes">
-	<header>
-		<h2>Classes</h2>
-	</header>
 	{{- $classes := filter "added" .Entities.ClassList }}
-	<p>The API defines {{len $classes}} {{quantity $classes "class" "classes"}}.</p>
+	<header>
+		<h2>Classes<span class="element-count" title="The API defines {{len $classes}} {{quantity $classes "class" "classes"}}."> ({{len $classes}})</span></h2>
+	</header>
 	<ul id="class-list">
 		{{- define "tree" -}}
 		{{- range . }}
@@ -28,8 +27,7 @@
 	</ul>
 {{- $removed := filter "removed" .Entities.ClassList -}}
 {{- if $removed }}
-	<h3>Removed classes</h3>
-	<p>The API has {{len $removed}} removed {{quantity $removed "class" "classes"}}.</p>
+	<h3>Removed classes<span class="element-count" title="The API has {{len $removed}} removed {{quantity $removed "class" "classes"}}."> ({{len $removed}})</span></h3>
 	<ul id="removed-class-list">
 	{{- range $removed }}
 		<li><a class="element-link" href="{{link "class" .ID}}">{{icon .}}{{.ID}}</a>
@@ -38,11 +36,10 @@
 {{- end }}
 </article>
 <article id="enums">
-	<header>
-		<h2>Enums</h2>
-	</header>
 	{{- $enums := filter "added" .Entities.EnumList }}
-	<p>The API defines {{len $enums}} {{quantity $enums "enum" "enums"}}.</p>
+	<header>
+		<h2>Enums<span class="element-count" title="The API defines {{len $enums}} {{quantity $enums "enum" "enums"}}."> ({{len $enums}})</span></h2>
+	</header>
 	<ul id="enum-list">
 		{{- range $enums }}
 		<li><a class="element-link" href="{{link "enum" .ID}}">{{icon .}}{{.ID}}</a></li>
@@ -50,8 +47,7 @@
 	</ul>
 {{- $removed := filter "removed" .Entities.EnumList -}}
 {{- if $removed }}
-	<h3>Removed enums</h3>
-	<p>The API has {{len $removed}} removed {{quantity $removed "enum" "enums"}}.</p>
+	<h3>Removed enums<span class="element-count" title="The API has {{len $removed}} removed {{quantity $removed "enum" "enums"}}."> ({{len $removed}})</span></h3>
 	<ul id="removed-enum-list">
 	{{- range $removed }}
 		<li><a class="element-link" href="{{link "enum" .ID}}">{{icon .}}{{.ID}}</a>
@@ -60,11 +56,10 @@
 {{- end }}
 </article>
 <article id="types">
-	<header>
-		<h2>Types</h2>
-	</header>
 	{{- $types := filter "added" .Entities.TypeList }}
-	<p>The API defines {{len $types}} {{quantity $types "type" "types"}} within {{len .Entities.TypeCats}} {{quantity .Entities.TypeCats "category" "categories"}}.</p>
+	<header>
+		<h2>Types<span class="element-count" title="The API defines {{len $types}} {{quantity $types "type" "types"}} within {{len .Entities.TypeCats}} {{quantity .Entities.TypeCats "category" "categories"}}."> ({{len $types}}/{{len .Entities.TypeCats}})</span></h2>
+	</header>
 	<ul id="type-list">
 	{{- range .Entities.TypeCats }}
 		<li>{{.Name}}
@@ -78,8 +73,7 @@
 	</ul>
 {{- $removed := filter "removed" .Entities.TypeList -}}
 {{- if $removed }}
-	<h3>Removed types</h3>
-	<p>The API has {{len $removed}} removed {{quantity $removed "type" "types"}}.</p>
+	<h3>Removed types<span class="element-count" title="The API has {{len $removed}} removed {{quantity $removed "type" "types"}}."> ({{len $removed}})</span></h3>
 	<ul id="removed-type-list">
 	{{- range $removed }}
 		<li>{{template "value" .Element}}</li>

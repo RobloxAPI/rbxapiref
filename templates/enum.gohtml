@@ -4,9 +4,8 @@
 </header>
 {{- $enum := .ID }}
 <section id="enumitems">
-	<h3>Enum items</h3>
 	{{- $items := filter "added" .ItemList }}
-	<p>{{$enum}} defines {{len $items}} enum {{quantity $items "item" "items"}}.</p>
+	<h3>Enum items<span class="element-count" title="{{$enum}} defines {{len $items}} enum {{quantity $items "item" "items"}}."> ({{len $items}})</span></h3>
 	<table class="index-card">
 		<tr>
 			<th class="col-icon">{{icon "enum"}}</th>
@@ -30,8 +29,7 @@
 {{- $referrers := filter "implicit added" .ReferrerList -}}
 {{- if $referrers }}
 <section id="referrers">
-	<h3>Relevant members</h3>
-	<p>{{.ID}} has {{len $referrers}} related {{quantity $referrers "member" "members"}}.</p>
+	<h3>Relevant members<span class="element-count" title="{{.ID}} has {{len $referrers}} related {{quantity $referrers "member" "members"}}."> ({{len $referrers}})</span></h3>
 	<ul>
 	{{- range $referrers -}}
 		{{- $class := (index .ID 0) -}}
@@ -44,8 +42,7 @@
 {{- $removed := filter "removed" .ItemList -}}
 {{- if $removed }}
 <section id="removed">
-	<h3>Removed enum items</h3>
-	<p>{{$enum}} has {{len $removed}} removed enum {{quantity $removed "item" "items"}}.</p>
+	<h3>Removed enum items<span class="element-count" title="{{$enum}} has {{len $removed}} removed enum {{quantity $removed "item" "items"}}."> ({{len $removed}})</span></h3>
 	<table class="index-card">
 		<tr>
 			<th class="col-icon">{{icon "enum"}}</th>

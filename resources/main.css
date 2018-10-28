@@ -121,6 +121,9 @@ main > header > * {
 main > header .history {
 	margin-left : var(--icon-spacing);
 }
+.element-count {
+	font-size : 10pt;
+}
 
 /*////////////////////////////////////////////////////////////////*/
 /* Header / Footer */

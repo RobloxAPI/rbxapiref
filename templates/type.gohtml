@@ -4,8 +4,7 @@
 {{- $referrers := filter "implicit added" .ReferrerList -}}
 {{- if $referrers }}
 <section id="referrers">
-	<h3>Relevant members</h3>
-	<p>{{.ID}} has {{len $referrers}} related {{quantity $referrers "member" "members"}}.</p>
+	<h3>Relevant members<span class="element-count" title="{{.ID}} has {{len $referrers}} related {{quantity $referrers "member" "members"}}."> ({{len $referrers}})</span></h3>
 	<ul>
 	{{- range $referrers -}}
 		{{- $class := (index .ID 0) -}}
