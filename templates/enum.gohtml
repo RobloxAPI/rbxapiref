@@ -6,7 +6,7 @@
 <section id="enumitems">
 	{{- $items := filter "added" .ItemList }}
 	<h3>Enum items<span class="element-count" title="{{$enum}} defines {{len $items}} enum {{quantity $items "item" "items"}}."> ({{len $items}})</span></h3>
-	<table class="index-card">
+	<table class="index-card enumitem-index-card">
 		<tr>
 			<th class="col-icon">{{icon "enum"}}</th>
 			<th class="col-member">Name</th>
@@ -43,7 +43,7 @@
 {{- if $removed }}
 <section id="removed">
 	<h3>Removed enum items<span class="element-count" title="{{$enum}} has {{len $removed}} removed enum {{quantity $removed "item" "items"}}."> ({{len $removed}})</span></h3>
-	<table class="index-card">
+	<table class="index-card enumitem-index-card">
 		<tr>
 			<th class="col-icon">{{icon "enum"}}</th>
 			<th class="col-member">Name</th>

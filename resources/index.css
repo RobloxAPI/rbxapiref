@@ -16,7 +16,7 @@ main {
 	--indent   : calc(var(--icon-scale) + var(--icon-spacing));
 	display    : flex;
 	flex-flow  : wrap row;
-	column-gap : var(--indent);
+	column-gap : var(--section-spacing);
 	margin     : var(--baseline);
 	margin-top : 0px;
 }

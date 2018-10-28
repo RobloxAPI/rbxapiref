@@ -34,7 +34,7 @@
 <section id="members">
 	{{- $members := filter "added" .MemberList }}
 	<h3>Members<span class="element-count" title="{{.ID}} defines {{len $members}} {{quantity (len $members) "member" "members"}}."> ({{len $members}})</span></h3>
-	<table class="index-card">
+	<table class="index-card member-index-card">
 	<thead>
 		<tr>
 			<th class="col-type">Type</th>
@@ -128,7 +128,7 @@
 {{- if $removed }}
 <section id="removed">
 	<h3>Removed members<span class="element-count" title="{{.ID}} has {{len $removed}} removed {{quantity (len $removed) "member" "members"}}."> ({{len $removed}})</span></h3>
-	<table class="index-card">
+	<table class="index-card member-index-card">
 	<thead>
 		<tr>
 			<th class="col-type">Type</th>

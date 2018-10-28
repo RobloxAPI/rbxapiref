@@ -1,31 +1,13 @@
 main {
-	display       : grid;
-	align-items   : start;
-	justify-items : start;
-	grid-gap      : 0 var(--section-spacing);
+	display    : flex;
+	flex-flow  : wrap row;
+	column-gap : var(--section-spacing);
 }
-main > header { grid-area : header }
-#enumitems    { grid-area : enumitems }
-#referrers    { grid-area : referrers }
-#removed      { grid-area : removed }
-
+main > header {
+	flex-basis : 100%;
+}
 @media screen and (max-width: 600px) {
 	main {
-		grid-template-columns : auto;
-		grid-template-areas   :
-			"header   "
-			"enumitems"
-			"referrers"
-			"removed  ";
-	}
-}
-@media screen and (min-width: 600px) {
-	main {
-		grid-template-columns : max-content auto;
-		grid-template-rows    : auto auto 1fr;
-		grid-template-areas   :
-			"header    header   "
-			"enumitems referrers"
-			"enumitems removed  ";
+		display : block;
 	}
 }
