@@ -36,7 +36,6 @@ main header { grid-area : header }
 	content : "on ";
 }
 #who ul {
-	margin-left  : 0;
 	padding-left : var(--indent-small);
 }
 

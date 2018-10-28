@@ -5,10 +5,6 @@
 main {
 	margin : 0;
 }
-#main article ul {
-	margin-left  : 0;
-	padding-left : var(--indent);
-}
 #main article:not(#types) ul {
 	list-style : none;
 }
@@ -84,10 +80,7 @@ main {
 	#main {
 		display: block;
 	}
-	#main article ul ul {
-		padding-left : var(--indent);
-	}
-	#main article ul {
+	#main > article > ul {
 		padding-left : 0;
 	}
 }

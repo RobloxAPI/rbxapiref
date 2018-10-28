@@ -85,8 +85,8 @@ code {
 	font-family : var(--monospace);
 }
 main {
-	margin        : var(--baseline);
-	margin-top    : 0px;
+	margin     : var(--baseline);
+	margin-top : 0px;
 }
 a[href] {
 	color           : var(--anchor-color);
@@ -111,10 +111,17 @@ h4 { --heading-scale: calc(6/6) }
 h5 { --heading-scale: calc(5/6) }
 h6 { --heading-scale: calc(4/6) }
 p, ul, ol {
-	margin-top    : var(--baseline);
-	margin-bottom : var(--baseline);
+	margin : var(--baseline) 0;
 }
-ul ul {
+ul, ol {
+	padding-left: var(--indent);
+}
+@media screen and (max-width: 800px) {
+	ul, ol {
+		padding-left: var(--indent-small);
+	}
+}
+ul ul, ul ol, ol ul, ol ol {
 	margin-top    : 0px;
 	margin-bottom : 0px;
 }
