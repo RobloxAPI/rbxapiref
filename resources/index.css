@@ -72,6 +72,9 @@ main {
 .class-list-controls input:checked + label {
 	border-bottom-color : var(--border-color);
 }
+#class-list ul {
+	border-left : 1px dotted var(--border-color);
+}
 
 @media screen and (max-width: 600px) {
 	#toc {
