@@ -39,6 +39,8 @@ Viewport thresholds:
 	--table-color         : #F4F4F4;
 	--border-color        : #CCCCCC;
 	--member-target-color : gold;
+	--sky-color-dim       : #193272;
+	--table-color-dim     : #DCDCDC;
 
 	/* Fonts */
 	--sans-serif : "Open Sans", "Trebuchet MS", "DejaVu Sans", "Geneva", sans-serif;
@@ -148,9 +150,14 @@ main > header .history {
 	flex-flow   : wrap row;
 }
 /* Header */
-#main-header, #main-header .header-block {
+#main-header {
 	/* Header colors */
 	background-color : var(--table-color);
+}
+#main-header .header-block {
+	/* Header colors */
+	--block-color     : var(--table-color);
+	--block-color-dim : var(--table-color-dim);
 }
 #main-header h1 {
 	font-size     : var(--heading-font-size);
@@ -166,10 +173,15 @@ main > header .history {
 	/* Place content on the right */
 	justify-content : right;
 }
-#main-footer, #main-footer .header-block {
+#main-footer {
 	/* Footer colors */
 	background-color : var(--sky-color);
 	color            : var(--background-color);
+}
+#main-footer .header-block {
+	--block-color     : var(--sky-color);
+	--block-color-dim : var(--sky-color-dim);
+	color             : var(--background-color);
 }
 /* Main navigation */
 .main-nav {
@@ -188,9 +200,15 @@ main > header .history {
 	display            : inline-block;
 	font-size          : var(--font-size);
 	line-height        : var(--line-height);
-	transition         : filter 100ms linear;
+	transition         : background-color 100ms linear;
 	--current-baseline : calc(1em * var(--line-height));
 	padding            : calc((var(--header-height) - var(--current-baseline) - var(--baseline)*var(--height-factor,0) )/2) var(--current-baseline);
+	background-color   : var(--block-color);
+}
+a.header-block:hover {
+	/* Links have a hover effect */
+	background-color : var(--block-color-dim);
+	transition       : background-color 100ms linear;
 }
 @media screen and (max-width: 800px) {
 	.header-block {
@@ -201,11 +219,6 @@ main > header .history {
 	#no-search {
 		display: none;
 	}
-}
-a.header-block:hover {
-	/* Links have a hover effect */
-	filter     : brightness(0.8);
-	transition : filter 100ms linear;
 }
 
 /*////////////////////////////////////////////////////////////////*/

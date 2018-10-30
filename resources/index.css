@@ -38,7 +38,8 @@ main {
 	pointer-events : auto;
 }
 #toc .header-block {
-	background-color : var(--table-color);
+	--block-color     : var(--table-color);
+	--block-color-dim : var(--table-color-dim);
 }
 @media screen and (min-width: 1200px) {
 	#toc {
