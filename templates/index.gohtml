@@ -11,7 +11,7 @@
 	<header>
 		<h2>Classes<span class="element-count" title="The API defines {{len $classes}} {{quantity $classes "class" "classes"}}."> ({{len $classes}})</span></h2>
 	</header>
-	<ul id="class-list">
+	<ul id="class-list" class="element-list">
 		{{- define "tree" -}}
 		{{- range . }}
 		<li><a class="element-link" href="{{link "class" .ID}}">{{icon .}}{{.ID}}</a>
@@ -28,7 +28,7 @@
 {{- $removed := filter "removed" .Entities.ClassList -}}
 {{- if $removed }}
 	<h3>Removed classes<span class="element-count" title="The API has {{len $removed}} removed {{quantity $removed "class" "classes"}}."> ({{len $removed}})</span></h3>
-	<ul id="removed-class-list">
+	<ul id="removed-class-list" class="element-list">
 	{{- range $removed }}
 		<li><a class="element-link" href="{{link "class" .ID}}">{{icon .}}{{.ID}}</a>
 	{{- end -}}
@@ -40,7 +40,7 @@
 	<header>
 		<h2>Enums<span class="element-count" title="The API defines {{len $enums}} {{quantity $enums "enum" "enums"}}."> ({{len $enums}})</span></h2>
 	</header>
-	<ul id="enum-list">
+	<ul id="enum-list" class="element-list">
 		{{- range $enums }}
 		<li><a class="element-link" href="{{link "enum" .ID}}">{{icon .}}{{.ID}}</a></li>
 		{{- end }}
@@ -48,7 +48,7 @@
 {{- $removed := filter "removed" .Entities.EnumList -}}
 {{- if $removed }}
 	<h3>Removed enums<span class="element-count" title="The API has {{len $removed}} removed {{quantity $removed "enum" "enums"}}."> ({{len $removed}})</span></h3>
-	<ul id="removed-enum-list">
+	<ul id="removed-enum-list" class="element-list">
 	{{- range $removed }}
 		<li><a class="element-link" href="{{link "enum" .ID}}">{{icon .}}{{.ID}}</a>
 	{{- end -}}

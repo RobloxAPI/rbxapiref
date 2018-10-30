@@ -5,11 +5,7 @@
 main {
 	margin : 0;
 }
-#main article:not(#types) ul {
-	list-style : none;
-}
 #main {
-	--indent   : calc(var(--icon-scale) + var(--icon-spacing));
 	display    : flex;
 	flex-flow  : wrap row;
 	column-gap : var(--section-spacing);

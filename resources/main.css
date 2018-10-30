@@ -138,6 +138,17 @@ main > header .history {
 	overflow-y    : auto;
 	padding-right : var(--scrollbar-width);
 }
+.element-list {
+	--element-list-indent : calc(var(--icon-scale) + var(--icon-spacing));
+	--indent              : 0;
+	--indent-small        : 0;
+	list-style            : none;
+}
+.element-list ul {
+	--indent       : var(--element-list-indent);
+	--indent-small : var(--element-list-indent);
+	list-style     : none;
+}
 
 /*////////////////////////////////////////////////////////////////*/
 /* Header / Footer */
