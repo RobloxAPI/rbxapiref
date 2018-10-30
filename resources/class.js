@@ -31,10 +31,10 @@ function expandMemberList(event) {
 	// Attempt to toggle a list that was loaded previously.
 	let body = nextMatching(head, "tbody.inherited-members-list", "thead");
 	if (body !== null) {
-		if (body.classList.contains("hidden")) {
-			body.classList.remove("hidden");
+		if (body.style.display === "none") {
+			body.style.display = "";
 		} else {
-			body.classList.add("hidden");
+			body.style.display = "none";
 		};
 		return;
 	}

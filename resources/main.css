@@ -94,9 +94,6 @@ a[href] {
 	color           : var(--anchor-color);
 	text-decoration : none;
 }
-.hidden {
-	display : none;
-}
 h1,h2,h3,h4,h5,h6 {
 	--heading-font-size : calc(var(--heading-scale,1) * var(--font-size));
 	font-size           : var(--heading-font-size);

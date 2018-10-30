@@ -9,10 +9,10 @@ function toggleList(event) {
 	if (list === null) {
 		return;
 	};
-	if (list.classList.contains("hidden")) {
-		list.classList.remove("hidden");
+	if (list.style.display === "none") {
+		list.style.display = "";
 	} else {
-		list.classList.add("hidden");
+		list.style.display = "none";
 	};
 };
 
@@ -24,12 +24,12 @@ function toggleAll(show, scroll) {
 			scrollTo = anchor;
 		}
 		if (show) {
-			item.classList.remove("hidden");
+			item.style.display = "";
 		} else {
 			if (anchor !== null) {
-				item.classList.remove("hidden");
+				item.style.display = "";
 			} else {
-				item.classList.add("hidden");
+				item.style.display = "none";
 			};
 		};
 	};
@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 			if (list === null) {
 				continue;
 			};
-			list.classList.remove("hidden");
+			list.style.display = "";
 			// Expand up to first non-empty update.
 			if (list.querySelector(".no-changes") === null) {
 				break;

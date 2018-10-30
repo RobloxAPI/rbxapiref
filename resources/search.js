@@ -493,7 +493,7 @@ document.addEventListener("DOMContentLoaded", function() {
 			'<input type="text" id="search-input" placeholder="Search...">' +
 		'</form>'
 	);
-	main.insertAdjacentHTML("beforebegin", '<section id="search-results" class="hidden"></section>');
+	main.insertAdjacentHTML("beforebegin", '<section id="search-results" style="display: none;"></section>');
 
 	let searchForm = document.getElementById("search-form");
 	if (searchForm === null) {
@@ -514,8 +514,8 @@ document.addEventListener("DOMContentLoaded", function() {
 			searchResults.removeChild(searchResults.lastChild);
 		};
 		if (!results) {
-			main.classList.remove("hidden");
-			searchResults.classList.add("hidden");
+			main.style.display = "";
+			searchResults.style.display = "none";
 			return;
 		};
 
@@ -529,8 +529,8 @@ document.addEventListener("DOMContentLoaded", function() {
 			return (a[1].deprecated && !b[1].deprecated) ? 1 : -1;
 		});
 
-		main.classList.add("hidden");
-		searchResults.classList.remove("hidden");
+		main.style.display = "none";
+		searchResults.style.display = "";
 		let list = document.createElement("ul");
 		searchResults.appendChild(list);
 
