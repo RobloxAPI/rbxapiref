@@ -119,9 +119,8 @@ type TypeCategory struct {
 
 func addPatch(patches *[]Patch, action *Action, info BuildInfo) {
 	for i := len(*patches) - 1; i >= 0; i-- {
-		patch := (*patches)[i]
-		if patch.Info.Equal(info) {
-			patch.Actions = append(patch.Actions, *action)
+		if (*patches)[i].Info.Equal(info) {
+			(*patches)[i].Actions = append((*patches)[i].Actions, *action)
 			return
 		}
 	}
