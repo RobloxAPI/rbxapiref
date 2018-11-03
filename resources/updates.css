@@ -65,28 +65,6 @@ main ul {
 .patch-list > li:target {
 	background-color : var(--member-target-color);
 }
-li[diff-field="Parameters"] .diff-values {
-	display      : table;
-	padding-left : var(--indent);
-}
-li[diff-field="Parameters"] .diff-values > span {
-	display : table-row;
-}
-li[diff-field="Parameters"] .diff-values > span > span {
-	display       : table-cell;
-	padding-right : 1ch;
-}
-li[diff-field="Tags"] .diff-values {
-	display      : table;
-	padding-left : var(--indent);
-}
-li[diff-field="Tags"] .diff-values > span {
-	display : table-row;
-}
-li[diff-field="Tags"] .diff-values > span > span {
-	display       : table-cell;
-	padding-right : 1ch;
-}
 a.permalink {
 	display : none;
 }
@@ -95,6 +73,32 @@ a.permalink {
 }
 *:hover > a.permalink:before {
 	content : ' ¶ ';
+}
+
+li[diff-field="Parameters"] .diff-values,
+li[diff-field="Tags"] .diff-values {
+	display      : table;
+	padding-left : var(--indent);
+}
+li[diff-field="Parameters"] .diff-values > *,
+li[diff-field="Tags"] .diff-values > * {
+	display : table-row;
+}
+li[diff-field="Parameters"] .diff-values > * > *,
+li[diff-field="Tags"] .diff-values > * > * {
+	display : table-cell;
+}
+li[diff-field="Parameters"] .diff-values .col-label,
+li[diff-field="Tags"] .diff-values .col-label {
+	text-align    : right;
+	padding-right : 1ch;
+}
+li[diff-field="Parameters"] .diff-values .value-content {
+	display   : flex;
+	flex-flow : wrap row;
+}
+li[diff-field="Parameters"] .diff-values .parameter {
+	hyphens : manual;
 }
 
 @media screen and (max-width: 600px) {
@@ -107,16 +111,13 @@ a.permalink {
 		padding-left : var(--indent);
 		column-gap   : var(--indent);
 	}
-	li[diff-field="Parameters"] .diff-values > span {
+	li[diff-field="Parameters"] .diff-values > *,
+	li[diff-field="Parameters"] .diff-values > * > *,
+	li[diff-field="Parameters"] .diff-values .value-content {
 		display : inline;
 	}
-	li[diff-field="Parameters"] .diff-values > span > span {
-		display       : inline;
-		padding-right : 1ch;
-	}
-	.parameter,
-	.params-open,
-	.params-close {
-		white-space : normal;
+	li[diff-field="Parameters"] .diff-values .parameter {
+		display : block;
+		hyphens : auto;
 	}
 }

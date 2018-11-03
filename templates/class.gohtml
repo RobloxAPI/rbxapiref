@@ -1,10 +1,79 @@
+{{- $class := .ID -}}
+{{- $summary := 0 -}}
+{{- $details := 0 -}}
+{{- $examples := 0 -}}
+{{- $superclasses := filter "added" .Superclasses -}}
+{{- $subclasses := filter "added" .Subclasses -}}
+{{- $members := filter "added" .MemberList }}
+{{- $removed := filter "removed" .MemberList -}}
+{{- $classes := filter "class" .ReferenceList -}}
+{{- $enums := filter "enum" .ReferenceList -}}
+{{- $referrers := filter "implicit added" .ReferrerList -}}
 <header>
 	<h2>{{icon .Element}}{{.ID}}</h2>
 	{{- history . }}
 </header>
 <nav>
-{{- $class := .ID -}}
-{{- $superclasses := filter "added" .Superclasses -}}
+	<section>
+		<h3>Table of contents</h3>
+		<ol>
+		{{- if $summary }}
+			<li>Summary</li>
+		{{- end -}}
+		{{- if or $superclasses $subclasses }}
+			<li>Class tree</li>
+		{{- end -}}
+			<li>Member index</li>
+		{{- if $removed }}
+			<li>Removed member index</li>
+		{{- end }}
+		{{- if $details }}
+			<li>Details</li>
+		{{- end -}}
+		{{- if $examples }}
+			<li>Examples</li>
+		{{- end -}}
+		{{- if $members }}
+			<li>Members
+				<ol>
+				{{ range $members }}
+					<li>{{.Element.GetName}}</li>
+				{{- end }}
+				</ol>
+			</li>
+		{{- end -}}
+		{{- if $removed }}
+			<li>Removed members
+				<ol>
+				{{ range $removed }}
+					<li>{{.Element.GetName}}</li>
+				{{- end }}
+				</ol>
+			</li>
+		{{- end -}}
+		{{- if or $classes $enums $referrers }}
+			<li>References
+				<ol>
+				{{- if $classes }}
+					<li>Relevant classes</li>
+				{{- end -}}
+				{{- if $enums }}
+					<li>Relevant enums</li>
+				{{- end -}}
+				{{- if $referrers }}
+					<li>Relevant members</li>
+				{{- end }}
+				</ol>
+			</li>
+		{{- end -}}
+		</ol>
+	</section>
+</nav>
+{{- if $summary }}
+<section id="summary"></section>
+{{- end -}}
+{{- if or $superclasses $subclasses }}
+<section id="tree">
 {{- if $superclasses }}
 	<section id="superclasses">
 		<header>
@@ -17,7 +86,6 @@
 		</ul>
 	</section>
 {{- end -}}
-{{- $subclasses := filter "added" .Subclasses -}}
 {{- if $subclasses }}
 	<section id="subclasses">
 		<header>
@@ -30,10 +98,10 @@
 		</ul>
 	</section>
 {{- end }}
-</nav>
-<section id="members">
-	{{- $members := filter "added" .MemberList }}
-	<h3>Members<span class="element-count" title="{{.ID}} defines {{len $members}} {{quantity (len $members) "member" "members"}}."> ({{len $members}})</span></h3>
+</section>
+{{- end }}
+<section id="member-index">
+	<h3>Member index<span class="element-count" title="{{.ID}} defines {{len $members}} {{quantity (len $members) "member" "members"}}."> ({{len $members}})</span></h3>
 	<table class="index-card member-index-card">
 	<thead>
 		<tr>
@@ -51,22 +119,22 @@
 		{{- if eq .GetMemberType "Property" }}
 			<td class="col-type">{{template "value" .ValueType}}</td>
 			<td class="col-icon">{{icon .}}</td>
-			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a></td>
+			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a></span></td>
 			<td class="col-history">{{history $entity}}</td>
 		{{- else if eq .GetMemberType "Function" }}
 			<td class="col-type">{{template "value" .ReturnType}}</td>
 			<td class="col-icon">{{icon .}}</td>
-			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
 			<td class="col-history">{{history $entity}}</td>
 		{{- else if eq .GetMemberType "Event" }}
 			<td class="col-type"></td>
 			<td class="col-icon">{{icon .}}</td>
-			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
 			<td class="col-history">{{history $entity}}</td>
 		{{- else if eq .GetMemberType "Callback" }}
 			<td class="col-type">{{template "value" .ReturnType}}</td>
 			<td class="col-icon">{{icon .}}</td>
-			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
 			<td class="col-history">{{history $entity}}</td>
 		{{- end }}
 		</tr>
@@ -89,45 +157,9 @@
 	{{- end }}
 	</table>
 </section>
-{{- $classes := filter "class" .ReferenceList -}}
-{{- if $classes }}
-<section id="classes">
-	<h3>Relevant classes<span class="element-count" title="{{.ID}} has {{len $classes}} related {{quantity $classes "class" "classes"}}."> ({{len $classes}})</span></h3>
-	<ul class="truncated-list element-list">
-	{{- range $classes }}
-		<li><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
-	{{- end }}
-	</ul>
-</section>
-{{- end -}}
-{{- $enums := filter "enum" .ReferenceList -}}
-{{- if $enums }}
-<section id="enums">
-	<h3>Relevant enums<span class="element-count" title="{{.ID}} has {{len $enums}} related {{quantity $enums "enum" "enums"}}."> ({{len $enums}})</span></h3>
-	<ul class="truncated-list element-list">
-	{{- range $enums }}
-		<li><a class="element-link" href="{{link "enum" .ID}}">{{icon .Element}}{{.ID}}</a></li>
-	{{- end }}
-	</ul>
-</section>
-{{- end -}}
-{{- $referrers := filter "implicit added" .ReferrerList -}}
-{{- if $referrers }}
-<section id="referrers">
-	<h3>Relevant members<span class="element-count" title="{{.ID}} has {{len $referrers}} related {{quantity $referrers "member" "members"}}."> ({{len $referrers}})</span></h3>
-	<ul class="truncated-list element-list">
-	{{- range $referrers -}}
-		{{- $class := (index .ID 0) -}}
-		{{- $member := (index .ID 1) }}
-		<li><a class="element-link" href="{{link "member" $class $member}}">{{icon .}}{{$class}}.{{$member}}</a></li>
-	{{- end }}
-	</ul>
-</section>
-{{- end -}}
-{{- $removed := filter "removed" .MemberList -}}
 {{- if $removed }}
-<section id="removed">
-	<h3>Removed members<span class="element-count" title="{{.ID}} has {{len $removed}} removed {{quantity (len $removed) "member" "members"}}."> ({{len $removed}})</span></h3>
+<section id="removed-member-index">
+	<h3>Removed member index<span class="element-count" title="{{.ID}} has {{len $removed}} removed {{quantity (len $removed) "member" "members"}}."> ({{len $removed}})</span></h3>
 	<table class="index-card member-index-card">
 	<thead>
 		<tr>
@@ -145,22 +177,22 @@
 		{{- if eq .GetMemberType "Property" }}
 			<td class="col-type">{{template "value" .ValueType}}</td>
 			<td class="col-icon">{{icon .}}</td>
-			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a></td>
+			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a></span></td>
 			<td class="col-history">{{history $entity}}</td>
 		{{- else if eq .GetMemberType "Function" }}
 			<td class="col-type">{{template "value" .ReturnType}}</td>
 			<td class="col-icon">{{icon .}}</td>
-			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
 			<td class="col-history">{{history $entity}}</td>
 		{{- else if eq .GetMemberType "Event" }}
 			<td class="col-type"></td>
 			<td class="col-icon">{{icon .}}</td>
-			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
 			<td class="col-history">{{history $entity}}</td>
 		{{- else if eq .GetMemberType "Callback" }}
 			<td class="col-type">{{template "value" .ReturnType}}</td>
 			<td class="col-icon">{{icon .}}</td>
-			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</td>
+			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
 			<td class="col-history">{{history $entity}}</td>
 		{{- end }}
 		</tr>
@@ -172,5 +204,51 @@
 	{{- end }}
 	</tbody>
 	</table>
+</section>
+{{- end }}
+{{- if $details }}
+<section id="details"></section>
+{{- end -}}
+{{- if $examples }}
+<section id="examples"></section>
+{{- end -}}
+<section id="members"></section>
+{{- if $removed }}
+<section id="removed-members"></section>
+{{- end -}}
+{{- if or $classes $enums $referrers }}
+<section id="references">
+{{- if $classes }}
+	<section id="classes">
+		<h3>Relevant classes<span class="element-count" title="{{.ID}} has {{len $classes}} related {{quantity $classes "class" "classes"}}."> ({{len $classes}})</span></h3>
+		<ul class="truncated-list element-list">
+		{{- range $classes }}
+			<li><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
+		{{- end }}
+		</ul>
+	</section>
+{{- end -}}
+{{- if $enums }}
+	<section id="enums">
+		<h3>Relevant enums<span class="element-count" title="{{.ID}} has {{len $enums}} related {{quantity $enums "enum" "enums"}}."> ({{len $enums}})</span></h3>
+		<ul class="truncated-list element-list">
+		{{- range $enums }}
+			<li><a class="element-link" href="{{link "enum" .ID}}">{{icon .Element}}{{.ID}}</a></li>
+		{{- end }}
+		</ul>
+	</section>
+{{- end -}}
+{{- if $referrers }}
+	<section id="referrers">
+		<h3>Relevant members<span class="element-count" title="{{.ID}} has {{len $referrers}} related {{quantity $referrers "member" "members"}}."> ({{len $referrers}})</span></h3>
+		<ul class="truncated-list element-list">
+		{{- range $referrers -}}
+			{{- $class := (index .ID 0) -}}
+			{{- $member := (index .ID 1) }}
+			<li><a class="element-link" href="{{link "member" $class $member}}">{{icon .}}{{$class}}.{{$member}}</a></li>
+		{{- end }}
+		</ul>
+	</section>
+{{- end -}}
 </section>
 {{- end }}

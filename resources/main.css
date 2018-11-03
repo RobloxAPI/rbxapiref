@@ -149,6 +149,9 @@ main > header .history {
 	--indent-small : var(--element-list-indent);
 	list-style     : none;
 }
+.params-sep {
+	white-space : pre-wrap;
+}
 
 /*////////////////////////////////////////////////////////////////*/
 /* Header / Footer */
@@ -252,23 +255,13 @@ a.header-block:hover {
 
 /*////////////////////////////////////////////////////////////////*/
 /* Wrapping */
-.element-link,
-.parameter,
-.params-open,
-.params-close {
+.element-link {
 	white-space : nowrap;
 }
 @media screen and (max-width: 600px) {
 	.parameter {
-		display      : block;
+		flex-basis   : 100%;
 		padding-left : var(--indent-small);
-	}
-}
-@media screen and (min-width: 600px) {
-	.index-card .col-member {
-		padding-left : var(--indent-small);
-		text-indent  : calc(-1*var(--indent-small));
-		overflow-x   : auto;
 	}
 }
 @supports (hyphens:auto) {
@@ -396,10 +389,17 @@ h2 .icon,
 .index-card th[colspan] {
 	text-align : left;
 }
-@media screen and (max-width: 800px) {
+.index-card .member-text {
+	display   : flex;
+	flex-flow : wrap row;
+}
+@media screen and (max-width: 600px) {
 	.member-index-card .col-type,
 	.member-index-card .col-history,
-	.member-index-card .parameters {
+	.member-index-card .params-open,
+	.member-index-card .params-sep,
+	.member-index-card .params-close,
+	.member-index-card .parameter {
 	/*.member-index-card thead:first-of-type > **/
 		display : none;
 	}
@@ -413,8 +413,7 @@ h2 .icon,
 			word-break : break-all;
 		}
 	}
-}
-@media screen and (max-width: 600px) {
+
 	.index-card {
 		table-layout : fixed;
 		width        : calc(100% - var(--card-padding) - var(--card-margin));

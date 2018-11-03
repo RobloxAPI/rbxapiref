@@ -2,41 +2,84 @@ main {
 	display  : grid;
 	grid-gap : 0 var(--section-spacing);
 }
-main > header     { grid-area : header }
-main > nav        { grid-area : nav }
-main > #members   { grid-area : members }
-main > #classes   { grid-area : classes }
-main > #enums     { grid-area : enums }
-main > #referrers { grid-area : referrers }
-main > #removed   { grid-area : removed }
+main > header { grid-area : header }
+main > nav { grid-area : nav }
+main > #summary { grid-area : summary }
+main > #tree { grid-area : tree }
+main > #member-index { grid-area : index }
+main > #removed-member-index { grid-area : rindex }
+main > #details { grid-area : details }
+main > #examples { grid-area : examples }
+main > #members { grid-area : members }
+main > #removed-members { grid-area : rmembers }
+main > #references { grid-area : references }
 
-@media screen and (max-width: 600px) {
-	main {
-		grid-template-columns : auto;
-		grid-template-areas   :
-			"header   "
-			"nav      "
-			"members  "
-			"classes  "
-			"enums    "
-			"referrers"
-			"removed  ";
-	}
+main {
+	grid-template-columns : auto;
+	grid-template-areas   :
+		"header    "
+		"nav       "
+		"summary   "
+		"tree      "
+		"index     "
+		"rindex    "
+		"details   "
+		"examples  "
+		"members   "
+		"rmembers  "
+		"references";
 }
-@media screen and (min-width: 600px) {
+main > nav > section {
+	overflow-y    : auto;
+	padding-right : var(--scrollbar-width);
+	max-height    : 61.8vh;
+}
+@media screen and (min-width: 800px) {
 	main {
-		grid-template-columns : auto auto;
+		grid-template-columns : 1fr auto;
 		grid-template-areas   :
-			"header header   "
-			"nav    members  "
-			"nav    classes  "
-			"nav    enums    "
-			"nav    referrers"
-			"nav    removed  ";
+			"header     header"
+			"summary    nav   "
+			"tree       nav   "
+			"index      nav   "
+			"rindex     nav   "
+			"details    nav   "
+			"examples   nav   "
+			"members    nav   "
+			"rmembers   nav   "
+			"references nav   ";
 		justify-content    : start;
-		grid-template-rows : repeat(5,auto) 1fr;
+		grid-template-rows : repeat(9,auto) 1fr;
 	}
 	main > nav {
+		border-left  : 1px solid lightgray;
+		padding-left : var(--section-spacing);
+	}
+	@supports (position:sticky) {
+		main > nav > section {
+			position      : sticky;
+			top           : 0;
+			max-height    : 100vh;
+		}
+	}
+}
+@media screen and (min-width: 1000px) {
+	main {
+		grid-template-columns : auto 1fr auto;
+		grid-template-areas   :
+			"header     header     header"
+			"tree       summary    nav   "
+			"tree       index      nav   "
+			"tree       rindex     nav   "
+			"details    details    nav   "
+			"examples   examples   nav   "
+			"members    members    nav   "
+			"rmembers   rmembers   nav   "
+			"references references nav   ";
+		justify-content    : start;
+		grid-template-rows : repeat(8,auto) 1fr;
+	}
+	main > #tree {
 		border-right  : 1px solid lightgray;
 		padding-right : var(--section-spacing);
 	}
