@@ -100,6 +100,8 @@ func ToString(v interface{}) string {
 		return v.String()
 	case []string:
 		return "[" + strings.Join(v, ", ") + "]"
+	case rbxapijson.Tags:
+		return "[" + strings.Join(v, ", ") + "]"
 	case rbxapijson.Parameters:
 		n := v.GetLength()
 		ss := make([]string, n)
