@@ -1,17 +1,9 @@
 {{- if istype . "rbxapijson.Type" -}}
 <a{{if .Category}} title="Category: {{.Category}}"{{end}} href="{{link "type" .Category .Name}}">{{.Name}}</a>
 {{- else if istype . "rbxapijson.Parameters" -}}
-<span class="params-open"> (</span>
-{{- range $i, $p := .List }}{{if $i}}<span class="params-sep">, </span></span>{{end -}}
-<span class="parameter">{{template "value" $p.Type}} {{$p.Name}}{{if $p.HasDefault}} = {{$p.Default}}{{end -}}
-{{- end }}{{if gt (len .List) 0 }}</span>{{end -}}
-<span class="params-close">)</span>
+	{{template "parameters" .List}}
 {{- else if istype . "[]rbxapijson.Parameter" -}}
-<span class="params-open"> (</span>
-{{- range $i, $p := . }}{{if $i}}<span class="params-sep">, </span></span>{{end -}}
-<span class="parameter">{{template "value" $p.Type}} {{$p.Name}}{{if $p.HasDefault}} = {{$p.Default}}{{end -}}
-{{- end }}{{if . }}</span>{{end -}}
-<span class="params-close">)</span>
+	{{template "parameters" .}}
 {{- else -}}
-{{- tostring . -}}
+	{{- tostring . -}}
 {{- end -}}
