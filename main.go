@@ -205,6 +205,7 @@ loop:
 		"patchtype":  PatchTypeString,
 		"quantity":   FormatQuantity,
 		"resources":  data.GenerateResourceElements,
+		"sortedlist": SortedList,
 		"subactions": MakeSubactions,
 		"tolower":    strings.ToLower,
 		"tostring":   ToString,

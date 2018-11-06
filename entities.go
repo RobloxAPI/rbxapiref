@@ -29,6 +29,7 @@ type Entity interface {
 // rbxapijson.Type.
 type ElementTyper interface {
 	Entity
+	Identifier() string
 	ElementType() rbxapijson.Type
 }
 
@@ -50,7 +51,8 @@ type ClassEntity struct {
 	ReferrerList  []*MemberEntity
 }
 
-func (e *ClassEntity) IsRemoved() bool { return e.Removed }
+func (e *ClassEntity) IsRemoved() bool    { return e.Removed }
+func (e *ClassEntity) Identifier() string { return e.ID }
 func (e *ClassEntity) ElementType() rbxapijson.Type {
 	return rbxapijson.Type{Category: "Class", Name: e.Element.Name}
 }
@@ -82,7 +84,8 @@ type EnumEntity struct {
 	ReferrerList []*MemberEntity
 }
 
-func (e *EnumEntity) IsRemoved() bool { return e.Removed }
+func (e *EnumEntity) IsRemoved() bool    { return e.Removed }
+func (e *EnumEntity) Identifier() string { return e.ID }
 func (e *EnumEntity) ElementType() rbxapijson.Type {
 	return rbxapijson.Type{Category: "Enum", Name: e.Element.Name}
 }
@@ -107,7 +110,8 @@ type TypeEntity struct {
 	ReferrerList []*MemberEntity
 }
 
-func (e *TypeEntity) IsRemoved() bool { return e.Removed }
+func (e *TypeEntity) IsRemoved() bool    { return e.Removed }
+func (e *TypeEntity) Identifier() string { return e.ID }
 func (e *TypeEntity) ElementType() rbxapijson.Type {
 	return e.Element
 }

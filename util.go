@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -285,6 +286,42 @@ func FilterList(filter string, list interface{}) interface{} {
 			}
 			return filtered
 		}
+	}
+	return list
+}
+
+func SortedList(list interface{}) interface{} {
+	switch src := list.(type) {
+	case []*ClassEntity:
+		dst := make([]*ClassEntity, len(src))
+		copy(dst, src)
+		sort.Slice(dst, func(i, j int) bool { return dst[i].ID < dst[j].ID })
+		list = dst
+	case []*MemberEntity:
+		dst := make([]*MemberEntity, len(src))
+		copy(dst, src)
+		sort.Slice(dst, func(i, j int) bool { return dst[i].ID[1] < dst[j].ID[1] })
+		list = dst
+	case []*EnumEntity:
+		dst := make([]*EnumEntity, len(src))
+		copy(dst, src)
+		sort.Slice(dst, func(i, j int) bool { return dst[i].ID < dst[j].ID })
+		list = dst
+	case []*EnumItemEntity:
+		dst := make([]*EnumItemEntity, len(src))
+		copy(dst, src)
+		sort.Slice(dst, func(i, j int) bool { return dst[i].ID[1] < dst[j].ID[1] })
+		list = dst
+	case []*TypeEntity:
+		dst := make([]*TypeEntity, len(src))
+		copy(dst, src)
+		sort.Slice(dst, func(i, j int) bool { return dst[i].ID < dst[j].ID })
+		list = dst
+	case []ElementTyper:
+		dst := make([]ElementTyper, len(src))
+		copy(dst, src)
+		sort.Slice(dst, func(i, j int) bool { return dst[i].Identifier() < dst[j].Identifier() })
+		list = dst
 	}
 	return list
 }
