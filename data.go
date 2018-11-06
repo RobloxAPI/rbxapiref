@@ -425,6 +425,9 @@ func (data *Data) GenerateHistoryElements(entity interface{}) (template.HTML, er
 	default:
 		return "", nil
 	}
+	if len(patches) == 0 {
+		return "", nil
+	}
 	return data.ExecuteTemplate("history", struct {
 		First   BuildInfo
 		Patches []Patch
