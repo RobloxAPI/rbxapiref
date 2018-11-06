@@ -6,7 +6,7 @@ main > header { grid-area : header }
 main > nav { grid-area : nav }
 main > #summary { grid-area : summary }
 main > #tree { grid-area : tree }
-main > #member-index { grid-area : index }
+main > #members-index { grid-area : index }
 main > #removed-member-index { grid-area : rindex }
 main > #details { grid-area : details }
 main > #examples { grid-area : examples }
