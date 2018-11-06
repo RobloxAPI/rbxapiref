@@ -84,3 +84,18 @@ main > nav > section {
 		padding-right : var(--section-spacing);
 	}
 }
+
+:target > h1,
+:target > h2,
+:target > h3,
+:target > h4,
+:target > h5,
+:target > h6,
+:target > header {
+	background-color : var(--member-target-color);
+}
+
+#members > section,
+#removed-members > section {
+	border-bottom : 1px solid var(--border-color);
+}

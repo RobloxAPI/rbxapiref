@@ -1,0 +1,46 @@
+{{- $entity := . -}}
+{{- with .Element }}
+<section id="member-{{.GetName}}">
+	<header>
+		<h4>{{icon .}}{{.GetName}}{{if eq .GetMemberType "Function" "Event" "Callback"}}{{template "value" .Parameters}}{{end}}</h4>
+	</header>
+{{- if eq .GetMemberType "Property" }}
+	<p>Value Type: {{template "value" .ValueType}}</p>
+{{- if eq .ReadSecurity .WriteSecurity -}}
+{{- if and .ReadSecurity (ne .ReadSecurity "None")}}
+	<p>Security: {{.ReadSecurity}}</p>
+{{- end -}}
+{{- else -}}
+{{- if and .ReadSecurity (ne .ReadSecurity "None")}}
+	<p>Read Security: {{.ReadSecurity}}</p>
+{{- end -}}
+{{- if and .WriteSecurity (ne .WriteSecurity "None")}}
+	<p>Write Security: {{.WriteSecurity}}</p>
+{{- end -}}
+{{- end }}
+	<p>Category: {{.Category}}</p>
+	<p>Load/Save: {{.CanLoad}}/{{.CanSave}}</p>
+{{- else if eq .GetMemberType "Function" }}
+	<p>Return Type: {{template "value" .ReturnType}}</p>
+{{- if and .Security (ne .Security "None") }}
+	<p>Security: {{.Security}}</p>
+{{- end -}}
+{{- else if eq .GetMemberType "Event" -}}
+{{- if and .Security (ne .Security "None") }}
+	<p>Security: {{.Security}}</p>
+{{- end -}}
+{{- else if eq .GetMemberType "Callback" }}
+	<p>Return Type: {{template "value" .ReturnType}}</p>
+{{- if and .Security (ne .Security "None") }}
+	<p>Security: {{.Security}}</p>
+{{- end -}}
+{{- end -}}
+{{- if .Tags }}
+	<p>Tags: {{tostring .Tags}}</p>
+{{- end -}}
+{{- $history := history $entity -}}
+{{- if $history }}
+	<p>History: {{$history}}</p>
+{{- end }}
+</section>
+{{- end }}

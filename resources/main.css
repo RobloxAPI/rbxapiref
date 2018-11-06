@@ -311,7 +311,7 @@ li .element-link .icon {
 .enum-icon      { --icon-index :  9 }
 .enum-item-icon { --icon-index : 10 }
 
-h2 .icon,
+header .icon,
 .element-link .icon {
 	margin-right : var(--icon-spacing);
 }

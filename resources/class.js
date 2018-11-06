@@ -72,7 +72,7 @@ function expandMemberList(event) {
 		if (body !== null) {
 			return;
 		};
-		body = event.target.response.querySelector("#members .index-card tbody");
+		body = event.target.response.querySelector("#members-index .index-card tbody");
 		if (body === null) {
 			return;
 		};

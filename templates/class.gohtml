@@ -6,6 +6,8 @@
 {{- $subclasses := filter "added" .Subclasses -}}
 {{- $members := filter "added" .MemberList }}
 {{- $removed := filter "removed" .MemberList -}}
+{{- $membersSorted := sortedlist $members }}
+{{- $removedSorted := sortedlist $removed }}
 {{- $classes := filter "class" .ReferenceList -}}
 {{- $enums := filter "enum" .ReferenceList -}}
 {{- $referrers := filter "implicit added" .ReferrerList -}}
@@ -18,35 +20,44 @@
 		<h3>Table of contents</h3>
 		<ol>
 		{{- if $summary }}
-			<li>Summary</li>
+			<li><a href="#summary">Summary</a></li>
 		{{- end -}}
 		{{- if or $superclasses $subclasses }}
-			<li>Class tree</li>
+			<li>Class tree
+				<ol>
+			{{- if $superclasses }}
+					<li><a href="#superclasses">Inherts</a></li>
+			{{- end -}}
+			{{- if $subclasses }}
+					<li><a href="#subclasses">Inherited by</a></li>
+			{{- end }}
+				</ol>
+			</li>
 		{{- end -}}
-			<li>Member index</li>
+			<li><a href="#members-index">Member index</a></li>
 		{{- if $removed }}
-			<li>Removed member index</li>
+			<li><a href="#removed-member-index">Removed member index</a></li>
 		{{- end }}
 		{{- if $details }}
-			<li>Details</li>
+			<li><a href="#details">Details</a></li>
 		{{- end -}}
 		{{- if $examples }}
-			<li>Examples</li>
+			<li><a href="#examples">Examples</a></li>
 		{{- end -}}
-		{{- if $members }}
-			<li>Members
+		{{- if $membersSorted }}
+			<li><a href="#members">Members</a>
 				<ol>
-				{{ range $members }}
-					<li>{{.Element.GetName}}</li>
+				{{ range $membersSorted }}
+					<li><a href="#member-{{.Element.GetName}}">{{.Element.GetName}}</a></li>
 				{{- end }}
 				</ol>
 			</li>
 		{{- end -}}
-		{{- if $removed }}
-			<li>Removed members
+		{{- if $removedSorted }}
+			<li><a href="#removed-members">Removed members</a>
 				<ol>
-				{{ range $removed }}
-					<li>{{.Element.GetName}}</li>
+				{{ range $removedSorted }}
+					<li><a href="#member-{{.Element.GetName}}">{{.Element.GetName}}</a></li>
 				{{- end }}
 				</ol>
 			</li>
@@ -55,13 +66,13 @@
 			<li>References
 				<ol>
 				{{- if $classes }}
-					<li>Relevant classes</li>
+					<li><a href="#classes">Relevant classes</a></li>
 				{{- end -}}
 				{{- if $enums }}
-					<li>Relevant enums</li>
+					<li><a href="#enums">Relevant enums</a></li>
 				{{- end -}}
 				{{- if $referrers }}
-					<li>Relevant members</li>
+					<li><a href="#referrers">Relevant members</a></li>
 				{{- end }}
 				</ol>
 			</li>
@@ -115,7 +126,7 @@
 	{{- range $members -}}
 	{{- $entity := . -}}
 	{{- with .Element }}
-		<tr id="member-{{.GetName}}" class="row-{{.GetMemberType}}">
+		<tr class="member-{{.GetName}} row-{{.GetMemberType}}">
 		{{- if eq .GetMemberType "Property" }}
 			<td class="col-type">{{template "value" .ValueType}}</td>
 			<td class="col-icon">{{icon .}}</td>
@@ -173,7 +184,7 @@
 	{{- range $removed -}}
 	{{- $entity := . -}}
 	{{- with .Element }}
-		<tr id="member-{{.GetName}}" class="row-{{.GetMemberType}}">
+		<tr class="member-{{.GetName}} row-{{.GetMemberType}}">
 		{{- if eq .GetMemberType "Property" }}
 			<td class="col-type">{{template "value" .ValueType}}</td>
 			<td class="col-icon">{{icon .}}</td>
@@ -212,9 +223,19 @@
 {{- if $examples }}
 <section id="examples"></section>
 {{- end -}}
-<section id="members"></section>
-{{- if $removed }}
-<section id="removed-members"></section>
+<section id="members">
+	<h3>Members</h3>
+{{- range $membersSorted -}}
+	{{- template "member-section" . -}}
+{{- end }}
+</section>
+{{- if $removedSorted }}
+<section id="removed-members">
+	<h3>Removed members</h3>
+{{- range $removedSorted -}}
+	{{- template "member-section" . -}}
+{{- end }}
+</section>
 {{- end -}}
 {{- if or $classes $enums $referrers }}
 <section id="references">
