@@ -28,7 +28,8 @@ main > article {
 		grid-template-areas   :
 			"header  controls"
 			"nav     controls"
-			"content content ";
+			"content content "
+		;
 	}
 }
 @media screen and (min-width: 600px) {
@@ -37,7 +38,7 @@ main > article {
 		grid-template-areas   :
 			"header header  controls"
 			"nav    content content "
-			;
+		;
 	}
 	main > nav {
 		border-right  : 1px solid var(--border-color);

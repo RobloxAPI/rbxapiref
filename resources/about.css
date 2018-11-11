@@ -21,7 +21,8 @@ main {
 	grid-template-areas   :
 		"header who"
 		"about  who"
-		"other  who";
+		"other  who"
+	;
 }
 main header { grid-area : header }
 #who        { grid-area : who    }
@@ -51,7 +52,8 @@ main header { grid-area : header }
 			"header"
 			"about"
 			"who"
-			"other";
+			"other"
+		;
 	}
 	#who {
 		border-left  : 0 none;

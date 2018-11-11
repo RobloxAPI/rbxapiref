@@ -27,7 +27,8 @@ main {
 		"examples  "
 		"members   "
 		"rmembers  "
-		"references";
+		"references"
+	;
 }
 main > nav > section {
 	overflow-y    : auto;
@@ -47,7 +48,8 @@ main > nav > section {
 			"examples   nav   "
 			"members    nav   "
 			"rmembers   nav   "
-			"references nav   ";
+			"references nav   "
+		;
 		justify-content    : start;
 		grid-template-rows : repeat(9,auto) 1fr;
 	}
@@ -75,7 +77,8 @@ main > nav > section {
 			"examples   examples   nav   "
 			"members    members    nav   "
 			"rmembers   rmembers   nav   "
-			"references references nav   ";
+			"references references nav   "
+		;
 		justify-content    : start;
 		grid-template-rows : repeat(8,auto) 1fr;
 	}
