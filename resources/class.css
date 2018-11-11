@@ -34,6 +34,7 @@ main > nav > section {
 	overflow-y    : auto;
 	padding-right : var(--scrollbar-width);
 	max-height    : 61.8vh;
+	--indent      : var(--indent-half);
 }
 @media screen and (min-width: 800px) {
 	main {
