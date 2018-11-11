@@ -205,6 +205,11 @@ main > header .history {
 	margin          : 0;
 	padding         : 0;
 }
+#search-input {
+	background-color : var(--background-color);
+	color            : var(--text-color);
+	border           : 1px solid var(--border-color);
+}
 /* Header block: has particular sizing. */
 .header-block {
 	display            : inline-block;
