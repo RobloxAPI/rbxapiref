@@ -2,7 +2,7 @@
 	font-size : smaller;
 }
 blockquote {
-	margin : var(--baseline) var(--indent-small);
+	margin : var(--baseline) var(--indent);
 }
 blockquote::before {
 	content : "\201C";
@@ -36,7 +36,7 @@ main header { grid-area : header }
 	content : "on ";
 }
 #who ul {
-	padding-left : var(--indent-small);
+	padding-left : var(--indent-half);
 }
 
 #about > P:first-child {
@@ -65,8 +65,5 @@ main header { grid-area : header }
 		display    : flex;
 		flex-flow  : wrap row;
 		margin     : 0;
-	}
-	#who > ul > li {
-		margin : 0 var(--indent-small);
 	}
 }

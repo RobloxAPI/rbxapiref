@@ -45,16 +45,6 @@ main > article {
 	}
 }
 
-main ul {
-	margin-left  : 0;
-	padding-left : var(--indent);
-}
-@media screen and (max-width: 800px) {
-	main {
-		--indent : var(--indent-small);
-	}
-}
-
 .patch-list {
 	hyphens : auto;
 }
