@@ -241,6 +241,10 @@ a.header-block:hover {
 	/* TODO: Figure out how to exclude border-top from this.*/
 	opacity : 0.5;
 }
+.api-no-default {
+	font-style : italic;
+	opacity    : 0.5;
+}
 .history-add::before    { content: "+" }
 .history-change::before { content: "Δ" }
 .history-remove::before { content: "−" }
@@ -378,16 +382,19 @@ header .icon,
 .index-card td {
 	vertical-align : top;
 }
+.index-card td, .index-card th {
+	text-align : left;
+}
 .index-card .col-value,
 .index-card .col-type,
 .index-card .col-icon {
 	text-align : right;
 }
-.index-card .col-member,
-.index-card .col-history,
-.index-card td[colspan],
-.index-card th[colspan] {
+.param-index-card .col-type {
 	text-align : left;
+}
+.param-index-card {
+	width : calc(100% - var(--card-margin)*2);
 }
 .index-card .member-text {
 	display   : flex;
