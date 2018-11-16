@@ -264,7 +264,7 @@ loop:
 		// Ensure directories exist.
 		dirs := map[string]struct{}{}
 		for _, page := range pages {
-			dir := filepath.Dir(page.File)
+			dir := filepath.Join(data.Settings.Output.Root, filepath.Dir(page.File))
 			if _, ok := dirs[dir]; ok {
 				continue
 			}
