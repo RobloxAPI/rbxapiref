@@ -72,8 +72,8 @@ main > nav > section {
 		grid-template-areas   :
 			"header     header     header"
 			"tree       summary    nav   "
-			"tree       index      nav   "
-			"tree       rindex     nav   "
+			"index      index      nav   "
+			"rindex     rindex     nav   "
 			"details    details    nav   "
 			"examples   examples   nav   "
 			"members    members    nav   "
