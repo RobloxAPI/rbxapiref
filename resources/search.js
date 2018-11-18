@@ -1,3 +1,5 @@
+"use strict";
+
 /* BEGIN fts_fuzzy_match.js */
 // LICENSE
 //
