@@ -1,0 +1,55 @@
+<table class="index-card member-index-card">
+	<thead>
+		<tr>
+			<th class="col-type">Type</th>
+			<th class="col-icon"></th>
+			<th class="col-member">Member</th>
+			<th class="col-history">History</th>
+		</tr>
+	</thead>
+	<tbody>
+{{- $class := .Class -}}
+{{- range .Members -}}
+	{{- $entity := . -}}
+	{{- with .Element }}
+		<tr class="member-{{.GetName}} row-{{.GetMemberType}}">
+		{{- if eq .GetMemberType "Property" }}
+			<td class="col-type">{{template "value" .ValueType}}</td>
+			<td class="col-icon">{{icon .}}</td>
+			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a></span></td>
+			<td class="col-history">{{history $entity}}</td>
+		{{- else if eq .GetMemberType "Function" }}
+			<td class="col-type">{{template "value" .ReturnType}}</td>
+			<td class="col-icon">{{icon .}}</td>
+			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
+			<td class="col-history">{{history $entity}}</td>
+		{{- else if eq .GetMemberType "Event" }}
+			<td class="col-type"></td>
+			<td class="col-icon">{{icon .}}</td>
+			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
+			<td class="col-history">{{history $entity}}</td>
+		{{- else if eq .GetMemberType "Callback" }}
+			<td class="col-type">{{template "value" .ReturnType}}</td>
+			<td class="col-icon">{{icon .}}</td>
+			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
+			<td class="col-history">{{history $entity}}</td>
+		{{- end }}
+		</tr>
+	{{- end -}}
+{{- else }}
+		<tr>
+			<td colspan="4">No members.</td>
+		</tr>
+{{- end }}
+	</tbody>
+{{- range .Superclasses -}}
+	{{- $members := filter "added" .MemberList -}}
+	{{- if $members }}
+	<thead>
+		<tr>
+			<th class="inherited-members" colspan="4"><a class="member-count">{{len $members}} {{quantity $members "member" "members"}}</a> inherited from <a class="element-link" href="{{link "class" .ID}}#members">{{icon .Element}}{{.ID}}</a></th>
+		</tr>
+	</thead>
+	{{- end -}}
+{{- end }}
+	</table>{{- /**/ -}}
