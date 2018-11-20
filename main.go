@@ -183,6 +183,22 @@ loop:
 	// Compile templates.
 	var err error
 	data.Templates, err = CompileTemplates(data.Settings.Input.Templates, template.FuncMap{
+		"args": func(a ...interface{}) (m map[string]interface{}, err error) {
+			if len(a)%2 != 0 {
+				return nil, errors.New("invalid arguments")
+			}
+			for i := 0; i < len(a); i += 2 {
+				if _, ok := a[i].(string); !ok {
+					return nil, errors.New("key must be a string")
+				}
+			}
+
+			m = make(map[string]interface{}, len(a)/2)
+			for i := 0; i < len(a); i += 2 {
+				m[a[i].(string)] = a[i+1]
+			}
+			return m, nil
+		},
 		"cards":   data.GenerateCardElements,
 		"embed":   data.EmbedResource,
 		"execute": data.ExecuteTemplate,
