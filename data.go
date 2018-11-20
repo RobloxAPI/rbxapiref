@@ -411,7 +411,7 @@ func (data *Data) GenerateCardElements(pages ...*Page) (elements []template.HTML
 	return elements, nil
 }
 
-func (data *Data) GenerateHistoryElements(entity interface{}) (template.HTML, error) {
+func (data *Data) GenerateHistoryElements(entity interface{}, button bool) (template.HTML, error) {
 	var patches []Patch
 	switch entity := entity.(type) {
 	case *ClassEntity:
@@ -431,7 +431,8 @@ func (data *Data) GenerateHistoryElements(entity interface{}) (template.HTML, er
 	return data.ExecuteTemplate("history", struct {
 		First   BuildInfo
 		Patches []Patch
-	}{data.Patches[0].Info, patches})
+		Button  bool
+	}{data.Patches[0].Info, patches, button})
 }
 
 func (data *Data) GenerateTree() {

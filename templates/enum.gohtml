@@ -1,6 +1,6 @@
 <header>
 	<h2>{{icon .}}{{.ID}}</h2>
-	{{- history . }}
+	{{- history . true }}
 </header>
 {{- $enum := .ID }}
 <section id="enumitems">
@@ -20,7 +20,7 @@
 			<td class="col-icon">{{icon "enumitem"}}</td>
 			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "enumitem" $enum .Name}}">{{.Name}}</a></td>
 			<td class="col-value">{{.Value}}</td>
-			<td class="col-history">{{history $entity}}</td>
+			<td class="col-history">{{history $entity true}}</td>
 		</tr>
 	{{- end -}}
 	{{- end }}
@@ -57,7 +57,7 @@
 			<td class="col-icon">{{icon "enumitem"}}</td>
 			<td class="col-member {{if .GetTag "Deprecated"}}api-deprecated{{end}}"><a href="{{link "enumitem" $enum .Name}}">{{.Name}}</a></td>
 			<td class="col-value">{{.Value}}</td>
-			<td class="col-history">{{history $entity}}</td>
+			<td class="col-history">{{history $entity true}}</td>
 		</tr>
 	{{- end -}}
 	{{- end }}

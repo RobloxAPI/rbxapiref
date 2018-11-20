@@ -47,7 +47,7 @@
 	{{- if .Tags }}
 		<p>Tags: {{tostring .Tags}}</p>
 	{{- end -}}
-	{{- $history := history $entity -}}
+	{{- $history := history $entity false -}}
 	{{- if $history }}
 		<p>History: {{$history}}</p>
 	{{- end }}

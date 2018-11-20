@@ -1,11 +1,22 @@
-<span class="history">
 {{- $first := .First -}}
-{{- range .Patches -}}
-{{- if not (.Info.Equal $first) -}}
-{{- $info := .Info -}}
-{{- range .Actions }}
-<a class="history-{{tolower .Type.String}}" title="{{patchtype .Type "ed"}} on {{$info.Date.Format "2006-01-02 15:04:05"}}&#10;v{{$info.Version}}&#10;{{$info.Hash}}" href="{{link "updates" $info.Date.Year}}#{{$info.Hash}}-{{.Index}}">{{$info.Version.Minor}}</a>
+{{if .Button -}}
+	<span class="history">
+	{{- range .Patches -}}
+		{{- if not (.Info.Equal $first) -}}
+			{{- $info := .Info -}}
+			{{- range .Actions }}
+				<a class="history-{{tolower .Type.String}}" title="{{patchtype .Type "ed"}} on {{$info.Date.Format "2006-01-02 15:04:05"}}&#10;v{{$info.Version}}&#10;{{$info.Hash}}" href="{{link "updates" $info.Date.Year}}#{{$info.Hash}}-{{.Index}}">{{$info.Version.Minor}}</a>
+			{{- end -}}
+		{{- end -}}
+	{{- end }}
+	</span>
+{{- else -}}
+	<ul class="history patch-list">
+	{{- range .Patches -}}
+	{{- $info := .Info }}
+	{{- range .Actions }}
+		{{template "update-action" args . $info true}}
+	{{- end }}
+	{{- end -}}
+	</ul>
 {{- end -}}
-{{- end -}}
-{{- end }}
-</span>{{- /**/ -}}

@@ -13,7 +13,7 @@
 {{- $referrers := filter "implicit added" .ReferrerList -}}
 <header>
 	<h2>{{icon .Element}}{{.ID}}</h2>
-	{{- history . }}
+	{{- history . true }}
 </header>
 <nav>
 	<section>
