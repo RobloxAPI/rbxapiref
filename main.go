@@ -13,6 +13,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -183,21 +184,8 @@ loop:
 	// Compile templates.
 	var err error
 	data.Templates, err = CompileTemplates(data.Settings.Input.Templates, template.FuncMap{
-		"args": func(a ...interface{}) (m map[string]interface{}, err error) {
-			if len(a)%2 != 0 {
-				return nil, errors.New("invalid arguments")
-			}
-			for i := 0; i < len(a); i += 2 {
-				if _, ok := a[i].(string); !ok {
-					return nil, errors.New("key must be a string")
-				}
-			}
-
-			m = make(map[string]interface{}, len(a)/2)
-			for i := 0; i < len(a); i += 2 {
-				m[a[i].(string)] = a[i+1]
-			}
-			return m, nil
+		"args": func(a ...interface{}) []interface{} {
+			return a
 		},
 		"cards":   data.GenerateCardElements,
 		"embed":   data.EmbedResource,
@@ -218,8 +206,25 @@ loop:
 			}
 			return data.FileLink(linkType, sargs...)
 		},
-		"patchtype":  PatchTypeString,
-		"quantity":   FormatQuantity,
+		"patchtype": PatchTypeString,
+		"quantity":  FormatQuantity,
+		"recv": func(a []interface{}, args ...string) interface{} {
+			fields := make([]reflect.StructField, len(args))
+			for i, arg := range args {
+				var typ reflect.Type
+				if i < len(a) {
+					typ = reflect.TypeOf(a[i])
+				} else {
+					typ = reflect.TypeOf([]interface{}{}).Elem()
+				}
+				fields[i] = reflect.StructField{Name: arg, Type: typ}
+			}
+			v := reflect.New(reflect.StructOf(fields))
+			for i, arg := range a {
+				reflect.Indirect(v).Field(i).Set(reflect.ValueOf(arg))
+			}
+			return v.Interface()
+		},
 		"resources":  data.GenerateResourceElements,
 		"sortedlist": SortedList,
 		"subactions": MakeSubactions,

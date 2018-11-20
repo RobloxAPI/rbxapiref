@@ -113,12 +113,12 @@
 {{- end }}
 <section id="members-index">
 	<h3>Member index<span class="element-count" title="{{.ID}} defines {{len $members}} {{quantity (len $members) "member" "members"}}."> ({{len $members}})</span></h3>
-	{{template "member-index-table" args "Class" $class "Members" $members "Superclasses" .Superclasses}}
+	{{template "member-index-table" args $class $members .Superclasses}}
 </section>
 {{- if $removed }}
 <section id="removed-member-index">
 	<h3>Removed member index<span class="element-count" title="{{.ID}} has {{len $removed}} removed {{quantity (len $removed) "member" "members"}}."> ({{len $removed}})</span></h3>
-	{{template "member-index-table" args "Class" $class "Members" $removed}}
+	{{template "member-index-table" args $class $removed}}
 </section>
 {{- end }}
 {{- if $details }}
