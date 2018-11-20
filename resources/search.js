@@ -1,4 +1,5 @@
 "use strict";
+const devhubBaseURL = "https://developer.roblox.com/api-reference";
 
 /* BEGIN fts_fuzzy_match.js */
 // LICENSE
@@ -440,7 +441,7 @@ function getDatabase(success, failure) {
 	return;
 }
 
-function generateLink(item) {
+function generateLink(item, devhub) {
 	let split = item.name.indexOf(".");
 	let parent = "";
 	let member = item.name;
@@ -448,22 +449,41 @@ function generateLink(item) {
 		parent = item.name.slice(0,split);
 		member = item.name.slice(split+1);
 	};
-	switch (item.dbType) {
-	case "class":
-		return "/ref/class/"+encodeURI(member)+".html";
-	case "enum":
-		return "/ref/enum/"+encodeURI(member)+".html";
-	case "enumitem":
-		return "/ref/enum/"+encodeURI(parent)+".html#member-"+encodeURI(member);
-	case "type":
-		return "/ref/type/"+encodeURI(member)+".html";
-	case "property":
-	case "function":
-	case "event":
-	case "callback":
-		return "/ref/class/"+encodeURI(parent)+".html#member-"+encodeURI(member);
+	if (devhub) {
+		switch (item.dbType) {
+		case "class":
+			return "/class/"+encodeURI(member);
+		case "enum":
+			return "/enum/"+encodeURI(member);
+		case "enumitem":
+			return "/enum/"+encodeURI(parent);
+		case "type":
+			return "/datatype/"+encodeURI(member);
+		case "property":
+		case "function":
+		case "event":
+		case "callback":
+			return "/"+item.dbType+"/"+encodeURI(parent)+"/"+encodeURI(member);
+		};
+		return "";
+	} else {
+		switch (item.dbType) {
+		case "class":
+			return "/ref/class/"+encodeURI(member)+".html";
+		case "enum":
+			return "/ref/enum/"+encodeURI(member)+".html";
+		case "enumitem":
+			return "/ref/enum/"+encodeURI(parent)+".html#member-"+encodeURI(member);
+		case "type":
+			return "/ref/type/"+encodeURI(member)+".html";
+		case "property":
+		case "function":
+		case "event":
+		case "callback":
+			return "/ref/class/"+encodeURI(parent)+".html#member-"+encodeURI(member);
+		};
+		return "/ref";
 	};
-	return "/ref";
 };
 
 function generateIcon(item) {
@@ -478,6 +498,16 @@ function generateIcon(item) {
 		icon.style = "--icon-index: " + data.index;
 	};
 	return icon
+};
+
+function sortResults(a,b) {
+	if (a[1].deprecated === b[1].deprecated) {
+		if (a[0][0] === b[0][0]) {
+			return b[0][1] - a[0][1]
+		};
+		return (a[0][0] && !b[0][0]) ? 1 : -1;
+	};
+	return (a[1].deprecated && !b[1].deprecated) ? 1 : -1;
 };
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -521,15 +551,7 @@ document.addEventListener("DOMContentLoaded", function() {
 			return;
 		};
 
-		results.sort(function(a,b) {
-			if (a[1].deprecated === b[1].deprecated) {
-				if (a[0][0] === b[0][0]) {
-					return b[0][1] - a[0][1]
-				};
-				return (a[0][0] && !b[0][0]) ? 1 : -1;
-			};
-			return (a[1].deprecated && !b[1].deprecated) ? 1 : -1;
-		});
+		results.sort(sortResults);
 
 		main.style.display = "none";
 		searchResults.style.display = "";
@@ -562,9 +584,12 @@ document.addEventListener("DOMContentLoaded", function() {
 	};
 
 	let asyncMatcher = null;
-	function doSearch(query) {
+	function doSearch(query, render) {
+		if (!render) {
+			render = renderResults;
+		};
 		if (query.length === 0) {
-			renderResults(null);
+			render(null);
 			return;
 		};
 
@@ -574,7 +599,7 @@ document.addEventListener("DOMContentLoaded", function() {
 					asyncMatcher.cancel();
 					asyncMatcher = null;
 				};
-				asyncMatcher = new fts_fuzzy_match_async(query, database, renderResults);
+				asyncMatcher = new fts_fuzzy_match_async(query, database, render);
 				asyncMatcher.start();
 			},
 			function() {
@@ -612,5 +637,28 @@ document.addEventListener("DOMContentLoaded", function() {
 
 	if (searchInput.value.length > 0) {
 		doSearch(searchInput.value);
+	} else {
+		// Try reading URL query.
+		let params = new URLSearchParams(document.location.search);
+		let q = params.get("q");
+		if (q !== null && q !== "") {
+			doSearch(q, function(results){
+				if (params.get("devhub") === null) {
+					renderResults(results);
+				};
+				// Automatically redirect to devhub.
+				results.sort(sortResults);
+				let first = results[0];
+				if (first === undefined) {
+					return;
+				};
+				let u = generateLink(first[1], true);
+				if (u === "") {
+					renderResults(results);
+					return;
+				};
+				document.location = devhubBaseURL + u;
+			});
+		};
 	};
 });
