@@ -4,6 +4,12 @@
 	{{template "parameters" .List}}
 {{- else if istype . "[]rbxapijson.Parameter" -}}
 	{{template "parameters" .}}
+{{- else if istype . "string" -}}
+	{{- if . -}}
+	{{- tostring . -}}
+	{{- else -}}
+	<span class="api-empty-string"></span>
+	{{- end -}}
 {{- else -}}
 	{{- tostring . -}}
 {{- end -}}

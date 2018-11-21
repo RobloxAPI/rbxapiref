@@ -248,9 +248,13 @@ a.header-block:hover {
 	/* TODO: Figure out how to exclude border-top from this.*/
 	opacity : 0.5;
 }
-.api-no-default {
+.api-no-default,
+.api-empty-string {
 	font-style : italic;
 	opacity    : 0.5;
+}
+.api-empty-string::before {
+	content : "(empty)";
 }
 .history-add::before    { content: "+" }
 .history-change::before { content: "Δ" }

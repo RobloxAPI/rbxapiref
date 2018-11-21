@@ -11,7 +11,7 @@
 	<tr class="row-{{.Name}}">
 		<td class="col-member">{{.Name}}</td>
 		<td class="col-type">{{template "value" .Type}}</td>
-		<td class="col-default">{{if .HasDefault}}<span class="api-default">{{.Default}}</span>{{else}}<span class="api-no-default">none</span>{{end}}</td>
+		<td class="col-default">{{if .HasDefault}}<span class="api-default">{{template "value" .Default}}</span>{{else}}<span class="api-no-default">none</span>{{end}}</td>
 	</tr>
 {{- else }}
 	<tr>
