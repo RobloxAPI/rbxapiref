@@ -1,6 +1,5 @@
 {{- $class := .ID -}}
 {{- $summary := 0 -}}
-{{- $history := history . false -}}
 {{- $details := 0 -}}
 {{- $examples := 0 -}}
 {{- $superclasses := filter "added" .Superclasses -}}
@@ -19,9 +18,7 @@
 	<section>
 		<h3>Table of contents</h3>
 		<ol>
-		{{- if or $summary $history }}
 			<li><a href="#summary">Summary</a></li>
-		{{- end -}}
 		{{- if or $superclasses $subclasses }}
 			<li>Class tree
 				<ol>
@@ -80,14 +77,17 @@
 		</ol>
 	</section>
 </nav>
-{{- if or $summary $history }}
 <section id="summary">
 	<h3>Summary</h3>
+	<p>Memory Category: {{tostring .Element.MemoryCategory}}</p>
+{{- if .Element.Tags }}
+	<p>Tags: {{tostring .Element.Tags}}</p>
+{{- end -}}
+{{- $history := history . false -}}
 {{- if $history }}
 	<p>History: {{$history}}</p>
 {{- end }}
 </section>
-{{- end -}}
 {{- if or $superclasses $subclasses }}
 <section id="tree">
 {{- if $superclasses }}

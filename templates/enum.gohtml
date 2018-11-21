@@ -4,6 +4,9 @@
 </header>
 <section id="summary">
 	<h3>Summary</h3>
+{{- if .Element.Tags }}
+	<p>Tags: {{tostring .Element.Tags}}</p>
+{{- end -}}
 {{- $history := history . false -}}
 {{- if $history }}
 	<p>History: {{$history}}</p>
