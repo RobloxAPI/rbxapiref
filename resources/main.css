@@ -244,7 +244,7 @@ a.header-block:hover {
 .api-deprecated {
 	text-decoration : line-through rgb(0, 0, 0, 0.5);
 }
-.api-hidden > * {
+.api-hidden > *, .api-not-browsable {
 	/* TODO: Figure out how to exclude border-top from this.*/
 	opacity : 0.5;
 }
