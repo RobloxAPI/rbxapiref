@@ -16,7 +16,7 @@
 		{{- if not (.Info.Equal $first) -}}
 			{{- $info := .Info }}
 			{{- range .Actions }}
-				{{template "update-action" args . $info false true}}
+				{{template "update-action" pack . $info false true}}
 			{{- end -}}
 		{{- end -}}
 	{{- end }}

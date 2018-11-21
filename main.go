@@ -13,7 +13,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -184,9 +183,6 @@ loop:
 	// Compile templates.
 	var err error
 	data.Templates, err = CompileTemplates(data.Settings.Input.Templates, template.FuncMap{
-		"args": func(a ...interface{}) []interface{} {
-			return a
-		},
 		"cards":   data.GenerateCardElements,
 		"embed":   data.EmbedResource,
 		"execute": data.ExecuteTemplate,
@@ -206,31 +202,16 @@ loop:
 			}
 			return data.FileLink(linkType, sargs...)
 		},
-		"patchtype": PatchTypeString,
-		"quantity":  FormatQuantity,
-		"recv": func(a []interface{}, args ...string) interface{} {
-			fields := make([]reflect.StructField, len(args))
-			for i, arg := range args {
-				var typ reflect.Type
-				if i < len(a) {
-					typ = reflect.TypeOf(a[i])
-				} else {
-					typ = reflect.TypeOf([]interface{}{}).Elem()
-				}
-				fields[i] = reflect.StructField{Name: arg, Type: typ}
-			}
-			v := reflect.New(reflect.StructOf(fields))
-			for i, arg := range a {
-				reflect.Indirect(v).Field(i).Set(reflect.ValueOf(arg))
-			}
-			return v.Interface()
-		},
+		"pack":       PackValues,
+		"patchtype":  PatchTypeString,
+		"quantity":   FormatQuantity,
 		"resources":  data.GenerateResourceElements,
 		"sortedlist": SortedList,
 		"subactions": MakeSubactions,
 		"tolower":    strings.ToLower,
 		"tostring":   ToString,
 		"type":       GetType,
+		"unpack":     UnpackValues,
 	})
 	IfFatal(err, "open template")
 

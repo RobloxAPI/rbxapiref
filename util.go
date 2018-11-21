@@ -399,4 +399,26 @@ func CompileTemplates(dir string, funcs template.FuncMap) (tmpl *template.Templa
 	return
 }
 
+func PackValues(a ...interface{}) []interface{} {
+	return a
+}
+
+func UnpackValues(a []interface{}, args ...string) interface{} {
+	fields := make([]reflect.StructField, len(args))
+	for i, arg := range args {
+		var typ reflect.Type
+		if i < len(a) {
+			typ = reflect.TypeOf(a[i])
+		} else {
+			typ = reflect.TypeOf([]interface{}{}).Elem()
+		}
+		fields[i] = reflect.StructField{Name: arg, Type: typ}
+	}
+	v := reflect.New(reflect.StructOf(fields))
+	for i, arg := range a {
+		reflect.Indirect(v).Field(i).Set(reflect.ValueOf(arg))
+	}
+	return v.Interface()
+}
+
 ////////////////////////////////////////////////////////////////
