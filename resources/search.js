@@ -661,6 +661,7 @@ document.addEventListener("DOMContentLoaded", function() {
 			doSearch(q, function(results){
 				if (params.get("devhub") === null) {
 					renderResults(results);
+					return;
 				};
 				// Automatically redirect to devhub.
 				results.sort(sortResults);
