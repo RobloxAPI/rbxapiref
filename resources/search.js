@@ -567,18 +567,34 @@ document.addEventListener("DOMContentLoaded", function() {
 			if (result[1].deprecated) {
 				item.classList.add("api-deprecated");
 			};
-			let link = document.createElement("a");
-			link.classList.add("element-link");
-			link.href = generateLink(result[1]);
-			if (firstResult === null) {
-				firstResult = link.href;
+			{
+				let link = document.createElement("a");
+				link.classList.add("element-link");
+				link.href = generateLink(result[1]);
+				if (firstResult === null) {
+					firstResult = link.href;
+				};
+				let icon = generateIcon(result[1]);
+				if (icon !== null) {
+					link.appendChild(icon);
+				};
+				link.innerHTML += result[0][2];
+				item.appendChild(link);
 			};
-			let icon = generateIcon(result[1]);
-			if (icon !== null) {
-				link.appendChild(icon);
+			{
+				let u = generateLink(result[1], true);
+				if (u !== "") {
+					let link = document.createElement("a");
+					link.classList.add("devhub-link");
+					link.href = devhubBaseURL + u;
+					let icon = document.createElement("span");
+					icon.classList.add("icon");
+					icon.classList.add("devhub-icon");
+					link.appendChild(icon);
+					link.appendChild(document.createTextNode("On DevHub"));
+					item.appendChild(link);
+				};
 			};
-			link.innerHTML += result[0][2];
-			item.appendChild(link);
 			list.appendChild(item);
 		};
 	};

@@ -67,6 +67,7 @@ func GeneratePageMain(data *Data) (pages []Page) {
 		Resources: []Resource{
 			{Name: "icon-explorer.png", Content: buf.Bytes()},
 			{Name: "icon-objectbrowser.png"},
+			{Name: "icon-devhub.png"},
 			{Name: "favicons/favicon-512x512.png"},
 			{Name: "favicons/favicon-32x32.png"},
 			{Name: "favicons/favicon-16x16.png"},

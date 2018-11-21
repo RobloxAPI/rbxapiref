@@ -328,6 +328,16 @@ header .icon,
 .element-link .icon {
 	margin-right : var(--icon-spacing);
 }
+.devhub-icon {
+	background-image : url('/ref/res/icon-devhub.png');
+	margin : 0 var(--icon-spacing);
+}
+a.devhub-link {
+	display : none;
+}
+*:hover > a.devhub-link {
+	display : inline;
+}
 
 /*////////////////////////////////////////////////////////////////*/
 /* Spinner */
