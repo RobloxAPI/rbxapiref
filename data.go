@@ -123,6 +123,15 @@ retry:
 		return "https://github.com/robloxapi/rbxapiref/issues"
 	case "search":
 		s = "search.db"
+	case "devhub":
+		switch linkType = strings.ToLower(args[0]); linkType {
+		case "class", "enumitem", "enum":
+			return path.Join(DevHubURL, linkType, doubleEscape(args[1]))
+		case "property", "function", "event", "callback":
+			return path.Join(DevHubURL, linkType, doubleEscape(args[1]), doubleEscape(args[2]))
+		case "type":
+			return path.Join(DevHubURL, "datatype", doubleEscape(args[1]))
+		}
 	}
 	s = path.Join("/", data.Settings.Output.Sub, s)
 	return s
@@ -426,6 +435,9 @@ func (data *Data) GenerateHistoryElements(entity interface{}, button bool) (temp
 		return "", nil
 	}
 	if len(patches) == 0 {
+		return "", nil
+	}
+	if len(patches) == 1 && data.Patches[0].Info.Equal(patches[0].Info) {
 		return "", nil
 	}
 	return data.ExecuteTemplate("history", struct {

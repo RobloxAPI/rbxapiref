@@ -96,6 +96,9 @@ main {
 	margin     : var(--baseline);
 	margin-top : 0;
 }
+main > header > h2 {
+	width : 100%;
+}
 a[href] {
 	color           : var(--anchor-color);
 	text-decoration : none;
@@ -332,12 +335,6 @@ header .icon,
 	background-image : url('/ref/res/icon-devhub.png');
 	margin : 0 var(--icon-spacing);
 }
-a.devhub-link {
-	display : none;
-}
-*:hover > a.devhub-link {
-	display : inline;
-}
 
 /*////////////////////////////////////////////////////////////////*/
 /* Spinner */
@@ -505,6 +502,20 @@ li[diff-field="Parameters"] .diff-values .parameter {
 		display : block;
 		hyphens : auto;
 	}
+}
+
+/*////////////////////////////////////////////////////////////////*/
+/* DevHub links */
+#search-results a.devhub-link {
+	display : none;
+}
+#search-results *:hover > a.devhub-link {
+	display : inline;
+}
+header .devhub-link {
+	float          : right;
+	font-size      : var(--font-size);
+	font-weight    : normal;
 }
 
 /*////////////////////////////////////////////////////////////////*/

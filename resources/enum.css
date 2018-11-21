@@ -3,7 +3,7 @@ main {
 	flex-flow  : wrap row;
 	column-gap : var(--section-spacing);
 }
-main > header {
+main > header, #summary {
 	flex-basis : 100%;
 }
 @media screen and (max-width: 600px) {

@@ -1,5 +1,6 @@
-{{- with recv . "Action" "Info" "Button" -}}
+{{- with recv . "Action" "Info" "Subactions" "Button" -}}
 {{- $info := .Info -}}
+{{- $sub := .Subactions -}}
 {{- $button := .Button -}}
 {{- with .Action }}
 <li id="{{$info.Hash}}-{{.Index}}"{{if .Field}} diff-field="{{.Field}}"{{end}}>
@@ -20,9 +21,11 @@
 {{- else -}}
 	{{.Type.String}} <a class="element-link" href="{{link "class" .Class.Name}}">{{icon .Class}}{{.Class.Name}}</a>
 	<ul>
+	{{- if $sub -}}
 	{{- range subactions . }}
 		<li>{{.Type.String}} <a class="element-link" href="{{link "member" .Class.Name .GetMember.GetName}}">{{icon .GetMember}}{{.GetMember.GetName}}</a></li>
-	{{- end}}
+	{{- end -}}
+	{{- end }}
 	</ul>
 {{- end -}}
 {{- else if and .Enum .EnumItem -}}
@@ -39,9 +42,11 @@
 {{- else -}}
 	{{.Type.String}} <a class="element-link" href="{{link "enum" .Enum.Name}}">{{icon .Enum}}{{.Enum.Name}}</a>
 	<ul>
+	{{- if $sub -}}
 	{{- range subactions . }}
 		<li>{{.Type.String}} <a class="element-link" href="{{link "enumitem" .Enum.Name .EnumItem.Name}}">{{icon .EnumItem}}{{.EnumItem.Name}}</a></li>
-	{{- end}}
+	{{- end -}}
+	{{- end }}
 	</ul>
 {{- end -}}
 {{- else -}}

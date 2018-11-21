@@ -11,12 +11,14 @@
 	{{- end }}
 	</span>
 {{- else -}}
-	<ul class="history patch-list">
+	<ul class="history patch-list truncated-list">
 	{{- range .Patches -}}
-	{{- $info := .Info }}
-	{{- range .Actions }}
-		{{template "update-action" args . $info true}}
+		{{- if not (.Info.Equal $first) -}}
+			{{- $info := .Info }}
+			{{- range .Actions }}
+				{{template "update-action" args . $info false true}}
+			{{- end -}}
+		{{- end -}}
 	{{- end }}
-	{{- end -}}
 	</ul>
 {{- end -}}

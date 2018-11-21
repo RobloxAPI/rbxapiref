@@ -1,8 +1,14 @@
-<header>
-	<h2>{{icon .}}{{.ID}}</h2>
-	{{- history . true }}
-</header>
 {{- $enum := .ID }}
+<header>
+	<h2>{{icon .}}{{.ID}} {{template "devhub-link" link "devhub" "enum" $enum}}</h2>
+</header>
+<section id="summary">
+	<h3>Summary</h3>
+{{- $history := history . false -}}
+{{- if $history }}
+	<p>History: {{$history}}</p>
+{{- end }}
+</section>
 <section id="enumitems">
 	{{- $items := filter "added" .ItemList }}
 	<h3>Enum items<span class="element-count" title="{{$enum}} defines {{len $items}} enum {{quantity $items "item" "items"}}."> ({{len $items}})</span></h3>

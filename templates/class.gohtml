@@ -1,5 +1,6 @@
 {{- $class := .ID -}}
 {{- $summary := 0 -}}
+{{- $history := history . false -}}
 {{- $details := 0 -}}
 {{- $examples := 0 -}}
 {{- $superclasses := filter "added" .Superclasses -}}
@@ -12,14 +13,13 @@
 {{- $enums := filter "enum" .ReferenceList -}}
 {{- $referrers := filter "implicit added" .ReferrerList -}}
 <header>
-	<h2>{{icon .Element}}{{.ID}}</h2>
-	{{- history . true }}
+	<h2>{{icon .Element}}{{.ID}} {{template "devhub-link" link "devhub" "class" $class}}</h2>
 </header>
 <nav>
 	<section>
 		<h3>Table of contents</h3>
 		<ol>
-		{{- if $summary }}
+		{{- if or $summary $history }}
 			<li><a href="#summary">Summary</a></li>
 		{{- end -}}
 		{{- if or $superclasses $subclasses }}
@@ -80,8 +80,13 @@
 		</ol>
 	</section>
 </nav>
-{{- if $summary }}
-<section id="summary"></section>
+{{- if or $summary $history }}
+<section id="summary">
+	<h3>Summary</h3>
+{{- if $history }}
+	<p>History: {{$history}}</p>
+{{- end }}
+</section>
 {{- end -}}
 {{- if or $superclasses $subclasses }}
 <section id="tree">

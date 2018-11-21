@@ -32,7 +32,7 @@
 				<ul class="patch-list">
 				{{- $info := .Info }}
 				{{- range .Actions }}
-					{{template "update-action" args . $info}}
+					{{template "update-action" args . $info true}}
 				{{- else }}
 					<li class="no-changes">No changes</li>
 				{{- end }}

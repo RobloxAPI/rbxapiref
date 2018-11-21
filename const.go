@@ -12,6 +12,7 @@ const (
 const (
 	ArchiveURL = "https://raw.githubusercontent.com/RobloxAPI/archive/master/"
 	CDNURL     = "https://setup.rbxcdn.com/"
+	DevHubURL  = "https://developer.roblox.com/api-reference"
 )
 
 var DefaultSettings = &Settings{
