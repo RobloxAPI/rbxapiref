@@ -12,7 +12,6 @@ import (
 	"net/url"
 	"path"
 	"path/filepath"
-	"sort"
 	"strings"
 	"time"
 )
@@ -443,32 +442,4 @@ func (data *Data) GenerateHistoryElements(entity interface{}, button bool) (temp
 		Patches []Patch
 		Button  bool
 	}{data.Patches[0].Info, patches, button})
-}
-
-func (data *Data) GenerateTree() {
-	for id, eclass := range data.Entities.Classes {
-		super := eclass.Element.Superclass
-		if !eclass.Removed {
-			if s := data.Entities.Classes[super]; s == nil || s.Removed {
-				data.TreeRoots = append(data.TreeRoots, eclass)
-			}
-		}
-		for class := data.Entities.Classes[super]; class != nil; class = data.Entities.Classes[super] {
-			if !class.Removed {
-				eclass.Superclasses = append(eclass.Superclasses, class)
-			}
-			super = class.Element.Superclass
-		}
-		for _, sub := range data.Entities.Classes {
-			if sub.Element.Superclass == id && !sub.Removed {
-				eclass.Subclasses = append(eclass.Subclasses, sub)
-			}
-		}
-		sort.Slice(eclass.Subclasses, func(i, j int) bool {
-			return eclass.Subclasses[i].ID < eclass.Subclasses[j].ID
-		})
-	}
-	sort.Slice(data.TreeRoots, func(i, j int) bool {
-		return data.TreeRoots[i].ID < data.TreeRoots[j].ID
-	})
 }

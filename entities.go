@@ -521,3 +521,32 @@ loop:
 
 	return entities
 }
+
+func GenerateTree(classes map[string]*ClassEntity) (roots []*ClassEntity) {
+	for id, eclass := range classes {
+		super := eclass.Element.Superclass
+		if !eclass.Removed {
+			if s := classes[super]; s == nil || s.Removed {
+				roots = append(roots, eclass)
+			}
+		}
+		for class := classes[super]; class != nil; class = classes[super] {
+			if !class.Removed {
+				eclass.Superclasses = append(eclass.Superclasses, class)
+			}
+			super = class.Element.Superclass
+		}
+		for _, sub := range classes {
+			if sub.Element.Superclass == id && !sub.Removed {
+				eclass.Subclasses = append(eclass.Subclasses, sub)
+			}
+		}
+		sort.Slice(eclass.Subclasses, func(i, j int) bool {
+			return eclass.Subclasses[i].ID < eclass.Subclasses[j].ID
+		})
+	}
+	sort.Slice(roots, func(i, j int) bool {
+		return roots[i].ID < roots[j].ID
+	})
+	return roots
+}

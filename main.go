@@ -173,8 +173,9 @@ loop:
 	}, data.Latest.Info.Hash)
 	IfFatal(err)
 
+	// Generate entities.
 	data.Entities = GenerateEntities(data.Patches)
-	data.GenerateTree()
+	data.TreeRoots = GenerateTree(data.Entities.Classes)
 
 	// Compile templates.
 	data.Templates, err = CompileTemplates(data.Settings.Input.Templates, template.FuncMap{
