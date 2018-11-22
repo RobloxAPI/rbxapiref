@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/rbxapijson"
-	"github.com/robloxapi/rbxapiref/fetch"
 	"html"
 	"html/template"
 	"io/ioutil"
@@ -13,7 +12,6 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 type Data struct {
@@ -28,35 +26,6 @@ type Data struct {
 	TreeRoots []*ClassEntity
 
 	Templates *template.Template
-}
-
-type Build struct {
-	Config string
-	Info   BuildInfo
-	API    *rbxapijson.Root
-}
-
-type BuildInfo struct {
-	Hash    string
-	Date    time.Time
-	Version fetch.Version
-}
-
-func (a BuildInfo) Equal(b BuildInfo) bool {
-	if a.Hash != b.Hash {
-		return false
-	}
-	if a.Version != b.Version {
-		return false
-	}
-	if !a.Date.Equal(b.Date) {
-		return false
-	}
-	return true
-}
-
-func (m BuildInfo) String() string {
-	return fmt.Sprintf("%s; %s; %s", m.Hash, m.Date, m.Version)
 }
 
 type Patch struct {
