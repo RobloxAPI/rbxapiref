@@ -171,7 +171,7 @@ loop:
 		data.GenerateMetadata(rmd)
 	}
 
-	data.Entities = GenerateEntities(data)
+	data.Entities = GenerateEntities(data.Patches)
 	data.GenerateTree()
 
 	// Compile templates.

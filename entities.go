@@ -286,7 +286,7 @@ var memberTypeOrder = map[string]int{
 	"Callback": 3,
 }
 
-func GenerateEntities(data *Data) (entities *Entities) {
+func GenerateEntities(patches []Patch) (entities *Entities) {
 	entities = &Entities{
 		Classes:   make(map[string]*ClassEntity),
 		Members:   make(map[[2]string]*MemberEntity),
@@ -295,7 +295,7 @@ func GenerateEntities(data *Data) (entities *Entities) {
 		Types:     make(map[string]*TypeEntity),
 	}
 
-	for _, patch := range data.Patches {
+	for _, patch := range patches {
 		for _, action := range patch.Actions {
 			switch {
 			case action.EnumItem != nil:
