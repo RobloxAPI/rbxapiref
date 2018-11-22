@@ -119,6 +119,12 @@ func GeneratePageUpdates(data *Data) (pages []Page) {
 	// Exclude earliest patch.
 	patches = patches[:len(patches)-1]
 
+	type PatchSet struct {
+		Year    int
+		Years   []int
+		Patches []*Patch
+	}
+
 	var latestPatches PatchSet
 	latestYear := patches[0].Info.Date.Year()
 	earliestYear := patches[len(patches)-1].Info.Date.Year()

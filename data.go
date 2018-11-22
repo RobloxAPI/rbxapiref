@@ -36,12 +36,6 @@ type Patch struct {
 	Actions []Action
 }
 
-type PatchSet struct {
-	Year    int
-	Years   []int
-	Patches []*Patch
-}
-
 // Escape once to escape the file name, then again to escape the URL.
 func doubleEscape(s string) string {
 	return url.PathEscape(url.PathEscape(s))
