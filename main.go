@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/jessevdk/go-flags"
 	"github.com/pkg/errors"
-	"github.com/robloxapi/rbxapi/rbxapijson/diff"
 	"github.com/robloxapi/rbxapiref/fetch"
 	"html/template"
 	"io"
@@ -13,7 +12,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -66,105 +64,13 @@ func main() {
 		IfFatal(err, "open manifest")
 	}
 
-	// Load builds.
-	client := &fetch.Client{}
-	client.CacheMode = fetch.CacheNone
-	builds := []Build{}
-	for _, cfg := range data.Settings.UseConfigs {
-		client.Config = data.Settings.Configs[cfg]
-		bs, err := client.Builds()
-		IfFatal(err, "fetch build")
-		for _, b := range bs {
-			builds = append(builds, Build{Config: cfg, Info: BuildInfo(b)})
-		}
-	}
-	client.CacheMode = fetch.CacheTemp
+	// Fetch builds.
+	builds, err := FetchBuilds(data.Settings)
+	IfFatal(err)
 
-	sort.Slice(builds, func(i, j int) bool {
-		return builds[i].Info.Date.Before(builds[j].Info.Date)
-	})
-
-	// Fetch uncached builds.
-loop:
-	for _, build := range builds {
-		for _, patch := range manifest.Patches {
-			if !build.Info.Equal(patch.Info) {
-				// Not relevant; skip.
-				continue
-			}
-			// Current build has a cached version.
-			if data.Latest == nil {
-				if patch.Prev != nil {
-					// Cached build is now the first, but was not originally;
-					// actions are stale.
-					Log("STALE", patch.Info)
-					break
-				}
-			} else {
-				if patch.Prev == nil {
-					// Cached build was not originally the first, but now is;
-					// actions are stale.
-					Log("STALE", patch.Info)
-					break
-				}
-				if !data.Latest.Info.Equal(*patch.Prev) {
-					// Latest build does not match previous build; actions are
-					// stale.
-					Log("STALE", patch.Info)
-					break
-				}
-			}
-			// Cached actions are still fresh; set them directly.
-			data.Patches = append(data.Patches, patch)
-			data.Latest = &Build{Info: patch.Info, Config: patch.Config}
-			continue loop
-		}
-		Log("NEW", build.Info)
-		client.Config = data.Settings.Configs[build.Config]
-		root, err := client.APIDump(build.Info.Hash)
-		if IfErrorf(err, "%s: fetch build %s", build.Config, build.Info.Hash) {
-			continue
-		}
-		build.API = root
-		var actions []Action
-		if data.Latest == nil {
-			// First build; compare with nothing.
-			actions = WrapActions((&diff.Diff{Prev: nil, Next: build.API}).Diff())
-		} else {
-			if data.Latest.API == nil {
-				// Previous build was cached; fetch its data to compare with
-				// current build.
-				client.Config = data.Settings.Configs[data.Latest.Config]
-				root, err := client.APIDump(data.Latest.Info.Hash)
-				if IfErrorf(err, "%s: fetch build %s", data.Latest.Config, data.Latest.Info.Hash) {
-					continue
-				}
-				data.Latest.API = root
-			}
-			actions = WrapActions((&diff.Diff{Prev: data.Latest.API, Next: build.API}).Diff())
-		}
-		patch := Patch{Stale: true, Info: build.Info, Config: build.Config, Actions: actions}
-		if data.Latest != nil {
-			prev := data.Latest.Info
-			patch.Prev = &prev
-		}
-		data.Patches = append(data.Patches, patch)
-		b := build
-		data.Latest = &b
-	}
-	// Ensure that the latest API is present.
-	if data.Latest.API == nil {
-		client.Config = data.Settings.Configs[data.Latest.Config]
-		root, err := client.APIDump(data.Latest.Info.Hash)
-		IfFatalf(err, "fetch build %s", data.Latest.Info.Hash)
-		data.Latest.API = root
-	}
-
-	for i, patch := range data.Patches {
-		for j := range patch.Actions {
-			data.Patches[i].Actions[j].Index = j
-		}
-	}
+	// Merge uncached builds.
+	data.Patches, data.Latest, err = MergeBuilds(data.Settings, manifest.Patches, builds)
+	IfFatal(err)
 
 	// Fetch ReflectionMetadata.
 	data.Metadata, err = GenerateMetadata(&fetch.Client{
