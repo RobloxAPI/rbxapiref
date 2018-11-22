@@ -52,9 +52,8 @@ func main() {
 		data.Settings.Output.Sub,
 		data.Settings.Output.Manifest,
 	)
-	var manifest *Manifest
 	if f, err := os.Open(manifestPath); err == nil {
-		manifest, err = ReadManifest(f)
+		data.Manifest, err = ReadManifest(f)
 		f.Close()
 		IfFatal(err, "open manifest")
 	}
@@ -64,7 +63,7 @@ func main() {
 	IfFatal(err)
 
 	// Merge uncached builds.
-	data.Patches, data.Latest, err = MergeBuilds(data.Settings, manifest.Patches, builds)
+	data.Manifest.Patches, data.Latest, err = MergeBuilds(data.Settings, data.Manifest.Patches, builds)
 	IfFatal(err)
 
 	// Fetch ReflectionMetadata.
@@ -75,7 +74,7 @@ func main() {
 	IfFatal(err)
 
 	// Generate entities.
-	data.Entities = GenerateEntities(data.Patches)
+	data.Entities = GenerateEntities(data.Manifest.Patches)
 	data.TreeRoots = GenerateTree(data.Entities.Classes)
 
 	// Compile templates.
@@ -147,7 +146,7 @@ func main() {
 	{
 		f, err := os.Create(manifestPath)
 		IfFatal(err, "create manifest")
-		err = WriteManifest(f, &Manifest{data.Patches})
+		err = WriteManifest(f, data.Manifest)
 		f.Close()
 		IfFatal(err, "encode manifest")
 	}

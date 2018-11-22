@@ -138,15 +138,15 @@ func GeneratePageAbout(data *Data) (pages []Page) {
 }
 
 func GeneratePageUpdates(data *Data) (pages []Page) {
-	if len(data.Patches) < 2 {
+	if len(data.Manifest.Patches) < 2 {
 		return nil
 	}
 
 	// Patches will be displayed latest-first.
-	patches := make([]*Patch, len(data.Patches))
-	for i := len(data.Patches) / 2; i >= 0; i-- {
-		j := len(data.Patches) - 1 - i
-		patches[i], patches[j] = &data.Patches[j], &data.Patches[i]
+	patches := make([]*Patch, len(data.Manifest.Patches))
+	for i := len(data.Manifest.Patches) / 2; i >= 0; i-- {
+		j := len(data.Manifest.Patches) - 1 - i
+		patches[i], patches[j] = &data.Manifest.Patches[j], &data.Manifest.Patches[i]
 	}
 	// Exclude earliest patch.
 	patches = patches[:len(patches)-1]

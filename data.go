@@ -19,9 +19,9 @@ import (
 
 type Data struct {
 	Settings    Settings
+	Manifest    *Manifest
 	CurrentYear int
 
-	Patches  []Patch
 	Latest   *Build
 	Metadata ReflectionMetadata
 
@@ -400,14 +400,14 @@ func (data *Data) GenerateHistoryElements(entity interface{}, button bool) (temp
 	if len(patches) == 0 {
 		return "", nil
 	}
-	if len(patches) == 1 && data.Patches[0].Info.Equal(patches[0].Info) {
+	if len(patches) == 1 && data.Manifest.Patches[0].Info.Equal(patches[0].Info) {
 		return "", nil
 	}
 	return data.ExecuteTemplate("history", struct {
 		First   BuildInfo
 		Patches []Patch
 		Button  bool
-	}{data.Patches[0].Info, patches, button})
+	}{data.Manifest.Patches[0].Info, patches, button})
 }
 
 func (data *Data) GeneratePages(generators []PageGenerator) (pages []Page) {
