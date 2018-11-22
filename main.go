@@ -21,10 +21,10 @@ import (
 
 type FlagOptions struct {
 	Settings string `
-		'short:"s"
-		'long:"settings"
-		'description:"Specify a custom settings location."
-		'value-name:"PATH"`
+		short:"s"
+		long:"settings"
+		description:"Specify a custom settings location."
+		value-name:"PATH"`
 }
 
 func main() {
