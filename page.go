@@ -99,14 +99,73 @@ func GeneratePageAbout(data *Data) (pages []Page) {
 }
 
 func GeneratePageUpdates(data *Data) (pages []Page) {
-	if len(data.LatestPatches.Patches) == 0 {
+	if len(data.Patches) < 2 {
 		return nil
+	}
+
+	// Patches will be displayed latest-first.
+	patches := make([]*Patch, len(data.Patches))
+	for i := len(data.Patches) / 2; i >= 0; i-- {
+		j := len(data.Patches) - 1 - i
+		patches[i], patches[j] = &data.Patches[j], &data.Patches[i]
+	}
+	// Exclude earliest patch.
+	patches = patches[:len(patches)-1]
+
+	var latestPatches PatchSet
+	latestYear := patches[0].Info.Date.Year()
+	earliestYear := patches[len(patches)-1].Info.Date.Year()
+	patchesByYear := make([]PatchSet, latestYear-earliestYear+1)
+	years := make([]int, len(patchesByYear))
+	for i := range years {
+		years[i] = latestYear - i
+	}
+
+	{
+		// Populate patchesByYear.
+		i := 0
+		current := latestYear
+		for j, patch := range patches {
+			year := patch.Info.Date.Year()
+			if year < current {
+				if j > i {
+					patchesByYear[latestYear-current] = PatchSet{
+						Year:    current,
+						Years:   years,
+						Patches: patches[i:j],
+					}
+				}
+				current = year
+				i = j
+			}
+		}
+		if len(patches) > i {
+			patchesByYear[latestYear-current] = PatchSet{
+				Year:    current,
+				Years:   years,
+				Patches: patches[i:],
+			}
+		}
+
+		// Populate latestPatches.
+		i = len(patches)
+		epoch := patches[0].Info.Date.AddDate(0, -3, 0)
+		for j, patch := range patches {
+			if patch.Info.Date.Before(epoch) {
+				i = j - 1
+				break
+			}
+		}
+		latestPatches = PatchSet{
+			Years:   years,
+			Patches: patches[:i],
+		}
 	}
 
 	styles := []Resource{{Name: "updates.css", ID: "updates-style"}}
 	scripts := []Resource{{Name: "updates.js"}}
-	pages = make([]Page, len(data.PatchesByYear)+1)
-	for i, patches := range data.PatchesByYear {
+	pages = make([]Page, len(patchesByYear)+1)
+	for i, patches := range patchesByYear {
 		year := strconv.Itoa(patches.Year)
 		pages[i] = Page{
 			File: data.FilePath("updates", year),
@@ -128,7 +187,7 @@ func GeneratePageUpdates(data *Data) (pages []Page) {
 		Styles:   styles,
 		Scripts:  scripts,
 		Template: "updates",
-		Data:     data.LatestPatches,
+		Data:     latestPatches,
 	}
 	return pages
 }

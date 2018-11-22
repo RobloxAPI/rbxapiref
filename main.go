@@ -171,7 +171,6 @@ loop:
 		data.GenerateMetadata(rmd)
 	}
 
-	data.GenerateUpdates()
 	data.Entities = GenerateEntities(data)
 	data.GenerateTree()
 
