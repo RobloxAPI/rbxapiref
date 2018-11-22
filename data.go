@@ -3,12 +3,15 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/rbxapijson"
 	"html"
 	"html/template"
+	"io"
 	"io/ioutil"
 	"net/url"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -405,4 +408,131 @@ func (data *Data) GenerateHistoryElements(entity interface{}, button bool) (temp
 		Patches []Patch
 		Button  bool
 	}{data.Patches[0].Info, patches, button})
+}
+
+func (data *Data) GeneratePages(generators []PageGenerator) (pages []Page) {
+	for _, generator := range generators {
+		pages = append(pages, generator(data)...)
+	}
+	return pages
+}
+
+func (data *Data) RenderPageDirs(pages []Page) error {
+	dirs := map[string]struct{}{}
+	for _, page := range pages {
+		dir := filepath.Join(data.Settings.Output.Root, filepath.Dir(page.File))
+		if _, ok := dirs[dir]; ok {
+			continue
+		}
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return errors.WithMessage(err, "make directory")
+		}
+		dirs[dir] = struct{}{}
+	}
+	return nil
+}
+
+func (data *Data) RenderResources(pages []Page) (err error) {
+	dirs := map[string]struct{}{}
+	resources := map[string]*Resource{}
+	addResource := func(resource *Resource) {
+		if resource.Name == "" || resource.Embed {
+			return
+		}
+		if r, ok := resources[resource.Name]; ok {
+			if r.Content != nil {
+				err = errors.Errorf("multiple definitions of resource %s", resource.Name)
+				return
+			}
+		}
+		resources[resource.Name] = resource
+	}
+	for _, page := range pages {
+		for i := range page.Styles {
+			if addResource(&page.Styles[i]); err != nil {
+				return err
+			}
+		}
+		for i := range page.Scripts {
+			if addResource(&page.Scripts[i]); err != nil {
+				return err
+			}
+		}
+		for i := range page.Resources {
+			if addResource(&page.Resources[i]); err != nil {
+				return err
+			}
+		}
+	}
+	for name, resource := range resources {
+		var src io.ReadCloser
+		if resource.Content != nil {
+			src = ioutil.NopCloser(bytes.NewReader(resource.Content))
+		} else {
+			var err error
+			if src, err = os.Open(filepath.Join(data.Settings.Input.Resources, name)); err != nil {
+				return errors.WithMessage(err, "open resource")
+			}
+		}
+		dstname := data.AbsFilePath("resource", name)
+		dir := filepath.Dir(dstname)
+		if _, ok := dirs[dir]; !ok {
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				return errors.WithMessage(err, "make directory")
+			}
+			dirs[dir] = struct{}{}
+		}
+		dst, err := os.Create(dstname)
+		if err != nil {
+			src.Close()
+			if err != nil {
+				return errors.WithMessage(err, "create resource")
+			}
+		}
+		_, err = io.Copy(dst, src)
+		dst.Close()
+		src.Close()
+		if err != nil {
+			return errors.WithMessage(err, "write resource")
+		}
+	}
+	return nil
+}
+
+func (data *Data) RenderPages(pages []Page) error {
+	var rootData struct {
+		Data     *Data
+		MainPage *Page
+		Page     *Page
+	}
+	rootData.Data = data
+	// Treat first page with unspecified filename as main page.
+	for _, page := range pages {
+		if page.File == "" {
+			rootData.MainPage = &page
+			break
+		}
+	}
+	if rootData.MainPage == nil {
+		return errors.New("no main template")
+	}
+	for _, page := range pages {
+		if page.File == "" {
+			continue
+		}
+		file, err := os.Create(filepath.Join(data.Settings.Output.Root, page.File))
+		if err != nil {
+			return errors.WithMessage(err, "create file")
+		}
+		if page.Data == nil {
+			page.Data = data
+		}
+		rootData.Page = &page
+		err = data.Templates.ExecuteTemplate(file, rootData.MainPage.Template, rootData)
+		file.Close()
+		if err != nil {
+			return errors.WithMessage(err, "generate page")
+		}
+	}
+	return nil
 }

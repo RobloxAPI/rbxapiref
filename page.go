@@ -2,9 +2,12 @@ package main
 
 import (
 	"bytes"
+	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapiref/fetch"
 	"image/png"
+	"path"
 	"strconv"
+	"strings"
 )
 
 type PageGenerator func(*Data) []Page
@@ -51,6 +54,35 @@ func Title(sub string) string {
 	}
 	return MainTitle
 }
+
+func FilterPages(pages []Page, filters []string) ([]Page, error) {
+	p := pages[:0]
+	for _, page := range pages {
+		if page.File == "" {
+			p = append(p, page)
+			continue
+		}
+		name := path.Clean(strings.Replace(page.File, "\\", "/", -1))
+		for i, filter := range filters {
+			for dir, file := name, ""; ; {
+				file = path.Join(path.Base(dir), file)
+				if ok, err := path.Match(filter, file); ok && err == nil {
+					p = append(p, page)
+					break
+				} else if err != nil {
+					return nil, errors.WithMessagef(err, "filter #%d", i)
+				}
+				dir = path.Dir(dir)
+				if dir == "." || dir == "/" || dir == "" {
+					break
+				}
+			}
+		}
+	}
+	return p, nil
+}
+
+////////////////////////////////////////////////////////////////
 
 func GeneratePageMain(data *Data) (pages []Page) {
 	// Fetch explorer icons.
