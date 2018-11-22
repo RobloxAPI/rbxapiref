@@ -15,6 +15,17 @@ const (
 	DevHubURL  = "developer.roblox.com/api-reference"
 )
 
+const (
+	ClassPath           = "class"
+	EnumPath            = "enum"
+	TypePath            = "type"
+	FileExt             = ".html"
+	MemberAnchorPrefix  = "member-"
+	SectionAnchorPrefix = "section-"
+	MainTitle           = "Roblox API Reference"
+	TitleSep            = "-"
+)
+
 var DefaultSettings = &Settings{
 	Input: SettingsInput{
 		Resources: "resources",

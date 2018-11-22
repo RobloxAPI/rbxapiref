@@ -19,17 +19,6 @@ import (
 	"time"
 )
 
-const (
-	ClassPath           = "class"
-	EnumPath            = "enum"
-	TypePath            = "type"
-	FileExt             = ".html"
-	MemberAnchorPrefix  = "member-"
-	SectionAnchorPrefix = "section-"
-	MainTitle           = "Roblox API Reference"
-	TitleSep            = "-"
-)
-
 type Data struct {
 	Settings    Settings
 	CurrentYear int
