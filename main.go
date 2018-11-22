@@ -28,6 +28,8 @@ type FlagOptions struct {
 }
 
 func main() {
+	var err error
+
 	// Parse flags.
 	var flagOptions FlagOptions
 	var filters []string
@@ -175,7 +177,6 @@ loop:
 	data.GenerateTree()
 
 	// Compile templates.
-	var err error
 	data.Templates, err = CompileTemplates(data.Settings.Input.Templates, template.FuncMap{
 		"cards":   data.GenerateCardElements,
 		"embed":   data.EmbedResource,
