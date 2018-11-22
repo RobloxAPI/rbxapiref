@@ -51,26 +51,21 @@ func main() {
 	data.Settings = *DefaultSettings.Copy()
 	IfFatal(data.Settings.ReadFile(flagOptions.Settings))
 
+	// Load manifest.
 	manifestPath := filepath.Join(
 		data.Settings.Output.Root,
 		data.Settings.Output.Sub,
 		data.Settings.Output.Manifest,
 	)
-
-	// Load cache.
-	client := &fetch.Client{}
-	prevPatches := []Patch{}
-	{
-		f, err := os.Open(manifestPath)
-		if err == nil {
-			manifest, err := ReadManifest(f)
-			f.Close()
-			IfFatal(err, "open manifest")
-			prevPatches = manifest.Patches
-		}
+	var manifest *Manifest
+	if f, err := os.Open(manifestPath); err == nil {
+		manifest, err = ReadManifest(f)
+		f.Close()
+		IfFatal(err, "open manifest")
 	}
 
 	// Load builds.
+	client := &fetch.Client{}
 	client.CacheMode = fetch.CacheNone
 	builds := []Build{}
 	for _, cfg := range data.Settings.UseConfigs {
@@ -90,7 +85,7 @@ func main() {
 	// Fetch uncached builds.
 loop:
 	for _, build := range builds {
-		for _, patch := range prevPatches {
+		for _, patch := range manifest.Patches {
 			if !build.Info.Equal(patch.Info) {
 				// Not relevant; skip.
 				continue
