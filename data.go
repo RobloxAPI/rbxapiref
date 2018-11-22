@@ -316,13 +316,6 @@ func (data *Data) EmbedResource(resource string) (interface{}, error) {
 	return string(b), err
 }
 
-func (data *Data) Title(sub string) string {
-	if sub != "" {
-		return sub + " " + TitleSep + " " + MainTitle
-	}
-	return MainTitle
-}
-
 func (data *Data) GenerateResourceElements(resources []Resource) (v []interface{}, err error) {
 	for _, resource := range resources {
 		var ResData struct {

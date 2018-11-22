@@ -45,6 +45,13 @@ type Resource struct {
 	ID string
 }
 
+func Title(sub string) string {
+	if sub != "" {
+		return sub + " " + TitleSep + " " + MainTitle
+	}
+	return MainTitle
+}
+
 func GeneratePageMain(data *Data) (pages []Page) {
 	// Fetch explorer icons.
 	client := &fetch.Client{
@@ -90,7 +97,7 @@ func GeneratePageAbout(data *Data) (pages []Page) {
 	return []Page{{
 		File: data.FilePath("about"),
 		Meta: Meta{
-			"Title":       data.Title("About"),
+			"Title":       Title("About"),
 			"Description": "About the Roblox API Reference.",
 		},
 		Styles:   []Resource{{Name: "about.css", Embed: true}},
@@ -170,7 +177,7 @@ func GeneratePageUpdates(data *Data) (pages []Page) {
 		pages[i] = Page{
 			File: data.FilePath("updates", year),
 			Meta: Meta{
-				"Title":       data.Title("Updates in " + year),
+				"Title":       Title("Updates in " + year),
 				"Description": "A list of updates to the Roblox Lua API in " + year + ".",
 			},
 			Styles:   styles,
@@ -182,7 +189,7 @@ func GeneratePageUpdates(data *Data) (pages []Page) {
 	pages[len(pages)-1] = Page{
 		File: data.FilePath("updates"),
 		Meta: Meta{
-			"Title":       data.Title("Recent Updates"),
+			"Title":       Title("Recent Updates"),
 			"Description": "A list of recent updates to the Roblox Lua API."},
 		Styles:   styles,
 		Scripts:  scripts,
@@ -200,7 +207,7 @@ func GeneratePageClass(data *Data) (pages []Page) {
 		pages[i] = Page{
 			File: data.FilePath("class", class.ID),
 			Meta: Meta{
-				"Title":       data.Title(class.ID),
+				"Title":       Title(class.ID),
 				"Description": "Information about the " + class.ID + " class in the Roblox Lua API."},
 			Styles:   styles,
 			Scripts:  scripts,
@@ -218,7 +225,7 @@ func GeneratePageEnum(data *Data) (pages []Page) {
 		pages[i] = Page{
 			File: data.FilePath("enum", enum.ID),
 			Meta: Meta{
-				"Title":       data.Title(enum.ID),
+				"Title":       Title(enum.ID),
 				"Description": "Information about the " + enum.ID + " enum in the Roblox Lua API."},
 			Styles:   styles,
 			Template: "enum",
@@ -234,7 +241,7 @@ func GeneratePageType(data *Data) (pages []Page) {
 		pages[i] = Page{
 			File: data.FilePath("type", typ.Element.Category, typ.Element.Name),
 			Meta: Meta{
-				"Title":       data.Title(typ.ID),
+				"Title":       Title(typ.ID),
 				"Description": "Information about the " + typ.ID + " type in the Roblox Lua API."},
 			Template: "type",
 			Data:     typ,
