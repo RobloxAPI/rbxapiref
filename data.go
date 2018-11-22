@@ -6,7 +6,6 @@ import (
 	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/rbxapijson"
 	"github.com/robloxapi/rbxapiref/fetch"
-	"github.com/robloxapi/rbxfile"
 	"html"
 	"html/template"
 	"io/ioutil"
@@ -14,7 +13,6 @@ import (
 	"path"
 	"path/filepath"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -475,66 +473,3 @@ func (m BuildInfo) String() string {
 	return fmt.Sprintf("%s; %s; %s", m.Hash, m.Date, m.Version)
 }
 
-type ReflectionMetadata struct {
-	Classes map[string]ClassMetadata
-	Enums   map[string]EnumMetadata
-}
-
-type ItemMetadata struct {
-	Name string
-	// Browsable       bool
-	// ClassCategory   string
-	// Constraint      string
-	// Deprecated      bool
-	// EditingDisabled bool
-	// IsBackend       bool
-	// ScriptContext   string
-	// UIMaximum       float64
-	// UIMinimum       float64
-	// UINumTicks      float64
-	// Summary         string
-}
-
-type ClassMetadata struct {
-	ItemMetadata
-	ExplorerImageIndex int
-	// ExplorerOrder      int
-	// Insertable         bool
-	// PreferredParent    string
-	// PreferredParents   string
-}
-
-type EnumMetadata struct {
-	ItemMetadata
-}
-
-func getMetadataValue(p interface{}, v rbxfile.Value) {
-	switch p := p.(type) {
-	case *int:
-		switch v := v.(type) {
-		case rbxfile.ValueInt:
-			*p = int(v)
-		case rbxfile.ValueString:
-			*p, _ = strconv.Atoi(string(v))
-		}
-	}
-}
-
-func (data *Data) GenerateMetadata(rmd *rbxfile.Root) {
-	data.Metadata.Classes = make(map[string]ClassMetadata)
-	data.Metadata.Enums = make(map[string]EnumMetadata)
-	for _, list := range rmd.Instances {
-		switch list.ClassName {
-		case "ReflectionMetadataClasses":
-			for _, class := range list.Children {
-				if class.ClassName != "ReflectionMetadataClass" {
-					continue
-				}
-				meta := ClassMetadata{ItemMetadata: ItemMetadata{Name: class.Name()}}
-				getMetadataValue(&meta.ExplorerImageIndex, class.Properties["ExplorerImageIndex"])
-				data.Metadata.Classes[meta.Name] = meta
-			}
-		case "ReflectionMetadataEnums":
-		}
-	}
-}

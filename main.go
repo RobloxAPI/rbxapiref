@@ -167,11 +167,11 @@ loop:
 	}
 
 	// Fetch ReflectionMetadata.
-	{
-		rmd, err := client.ReflectionMetadata(data.Latest.Info.Hash)
-		IfFatal(err, "fetch metadata ", data.Latest.Info.Hash)
-		data.GenerateMetadata(rmd)
-	}
+	data.Metadata, err = GenerateMetadata(&fetch.Client{
+		Config:    data.Settings.Configs[data.Latest.Config],
+		CacheMode: fetch.CacheTemp,
+	}, data.Latest.Info.Hash)
+	IfFatal(err)
 
 	data.Entities = GenerateEntities(data.Patches)
 	data.GenerateTree()
