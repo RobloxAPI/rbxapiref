@@ -21,7 +21,7 @@
 		<p>Category: {{.Category}}</p>
 		<p>Load/Save: {{.CanLoad}}/{{.CanSave}}</p>
 	{{- else if eq .GetMemberType "Function" }}
-		<p>Parameters:
+		<p>Parameters <span class="element-count" title="{{.GetName}} has {{len .Parameters}} {{quantity (len .Parameters) "parameter" "parameters"}}."> ({{len .Parameters}})</span>:
 			{{template "param-table" .Parameters}}
 		</p>
 		<p>Return Type: {{template "value" .ReturnType}}</p>
@@ -29,14 +29,14 @@
 			<p>Security: {{.Security}}</p>
 		{{- end -}}
 	{{- else if eq .GetMemberType "Event" -}}
-		<p>Parameters:
+		<p>Parameters <span class="element-count" title="{{.GetName}} has {{len .Parameters}} {{quantity (len .Parameters) "parameter" "parameters"}}."> ({{len .Parameters}})</span>:
 			{{template "param-table" .Parameters}}
 		</p>
 		{{- if and .Security (ne .Security "None") }}
 			<p>Security: {{.Security}}</p>
 		{{- end -}}
 	{{- else if eq .GetMemberType "Callback" }}
-		<p>Parameters:
+		<p>Parameters <span class="element-count" title="{{.GetName}} has {{len .Parameters}} {{quantity (len .Parameters) "parameter" "parameters"}}."> ({{len .Parameters}})</span>:
 			{{template "param-table" .Parameters}}
 		</p>
 		<p>Return Type: {{template "value" .ReturnType}}</p>
