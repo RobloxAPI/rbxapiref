@@ -195,6 +195,38 @@ func FilterList(filter string, list interface{}) interface{} {
 			}
 			return filtered
 		}
+	case []Referrer:
+		var filtered []Referrer
+		switch filter {
+		case "added":
+			for _, referrer := range list {
+				if !referrer.Member.Removed {
+					filtered = append(filtered, referrer)
+				}
+			}
+			return filtered
+		case "removed":
+			for _, referrer := range list {
+				if referrer.Member.Removed {
+					filtered = append(filtered, referrer)
+				}
+			}
+			return filtered
+		case "implicit added":
+			for _, referrer := range list {
+				if !referrer.Member.Removed && !referrer.Member.Parent.Removed {
+					filtered = append(filtered, referrer)
+				}
+			}
+			return filtered
+		case "implicit removed":
+			for _, referrer := range list {
+				if referrer.Member.Removed || referrer.Member.Parent.Removed {
+					filtered = append(filtered, referrer)
+				}
+			}
+			return filtered
+		}
 	case []*EnumEntity:
 		var filtered []*EnumEntity
 		switch filter {

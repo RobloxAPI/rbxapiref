@@ -2,15 +2,4 @@
 	<h2>{{.ID}} {{template "devhub-link" link "devhub" "type" .ID}}</h2>
 </header>
 {{- $referrers := filter "implicit added" .ReferrerList -}}
-{{- if $referrers }}
-<section id="referrers">
-	<h3>Relevant members<span class="element-count" title="{{.ID}} has {{len $referrers}} related {{quantity $referrers "member" "members"}}."> ({{len $referrers}})</span></h3>
-	<ul class="truncated-list element-list">
-	{{- range $referrers -}}
-		{{- $class := (index .ID 0) -}}
-		{{- $member := (index .ID 1) }}
-		<li><a class="element-link" href="{{link "member" $class $member}}">{{icon .}}{{$class}}.{{$member}}</a></li>
-	{{- end }}
-	</ul>
-</section>
-{{- end }}
+{{- template "referrers" pack . $referrers }}

@@ -48,8 +48,8 @@ type ClassEntity struct {
 
 	References    map[rbxapijson.Type]ElementTyper
 	ReferenceList []ElementTyper
-	Referrers     map[[2]string]*MemberEntity
-	ReferrerList  []*MemberEntity
+	Referrers     map[[2]string]Referrer
+	ReferrerList  []Referrer
 }
 
 func (e *ClassEntity) IsRemoved() bool    { return e.Removed }
@@ -81,8 +81,8 @@ type EnumEntity struct {
 	Items    map[string]*EnumItemEntity
 	ItemList []*EnumItemEntity
 
-	Referrers    map[[2]string]*MemberEntity
-	ReferrerList []*MemberEntity
+	Referrers    map[[2]string]Referrer
+	ReferrerList []Referrer
 }
 
 func (e *EnumEntity) IsRemoved() bool    { return e.Removed }
@@ -107,8 +107,8 @@ type TypeEntity struct {
 	Element rbxapijson.Type
 	Removed bool
 
-	Referrers    map[[2]string]*MemberEntity
-	ReferrerList []*MemberEntity
+	Referrers    map[[2]string]Referrer
+	ReferrerList []Referrer
 }
 
 func (e *TypeEntity) IsRemoved() bool    { return e.Removed }
@@ -120,6 +120,11 @@ func (e *TypeEntity) ElementType() rbxapijson.Type {
 type TypeCategory struct {
 	Name  string
 	Types []*TypeEntity
+}
+
+type Referrer struct {
+	Member    *MemberEntity
+	Parameter *rbxapijson.Parameter
 }
 
 func addPatch(patches *[]Patch, action *Action, info BuildInfo) {
@@ -145,7 +150,7 @@ func (entities *Entities) AddClass(action *Action, info BuildInfo) {
 			Element:    class.Copy().(*rbxapijson.Class),
 			Members:    map[string]*MemberEntity{},
 			References: map[rbxapijson.Type]ElementTyper{},
-			Referrers:  map[[2]string]*MemberEntity{},
+			Referrers:  map[[2]string]Referrer{},
 		}
 		entities.Classes[id] = eclass
 	}
@@ -218,7 +223,7 @@ func (entities *Entities) AddEnum(action *Action, info BuildInfo) {
 			ID:        id,
 			Element:   enum.Copy().(*rbxapijson.Enum),
 			Items:     map[string]*EnumItemEntity{},
-			Referrers: map[[2]string]*MemberEntity{},
+			Referrers: map[[2]string]Referrer{},
 		}
 		entities.Enums[id] = eenum
 	}
@@ -311,33 +316,33 @@ func GenerateEntities(patches []Patch) (entities *Entities) {
 		}
 	}
 
-	referType := func(emember *MemberEntity, typ rbxapijson.Type) {
+	referType := func(referrer Referrer, typ rbxapijson.Type) {
 		var et ElementTyper
 		switch typ.Category {
 		case "Class":
-			if emember.Removed {
+			if referrer.Member.Removed {
 				return
 			}
 			eclass := entities.Classes[typ.Name]
 			if eclass == nil {
 				return
 			}
-			if _, ok := eclass.Referrers[emember.ID]; !ok {
-				eclass.Referrers[emember.ID] = emember
-				eclass.ReferrerList = append(eclass.ReferrerList, emember)
+			if _, ok := eclass.Referrers[referrer.Member.ID]; !ok {
+				eclass.Referrers[referrer.Member.ID] = referrer
+				eclass.ReferrerList = append(eclass.ReferrerList, referrer)
 			}
 			et = eclass
 		case "Enum":
-			if emember.Removed {
+			if referrer.Member.Removed {
 				return
 			}
 			eenum := entities.Enums[typ.Name]
 			if eenum == nil {
 				return
 			}
-			if _, ok := eenum.Referrers[emember.ID]; !ok {
-				eenum.Referrers[emember.ID] = emember
-				eenum.ReferrerList = append(eenum.ReferrerList, emember)
+			if _, ok := eenum.Referrers[referrer.Member.ID]; !ok {
+				eenum.Referrers[referrer.Member.ID] = referrer
+				eenum.ReferrerList = append(eenum.ReferrerList, referrer)
 			}
 			et = eenum
 		default:
@@ -347,45 +352,45 @@ func GenerateEntities(patches []Patch) (entities *Entities) {
 					ID:        typ.Name,
 					Element:   typ,
 					Removed:   true,
-					Referrers: map[[2]string]*MemberEntity{},
+					Referrers: map[[2]string]Referrer{},
 				}
 				entities.Types[typ.Name] = etype
 			}
-			if emember.Removed {
+			if referrer.Member.Removed {
 				return
 			}
-			if !emember.Removed && !emember.Parent.Removed {
+			if !referrer.Member.Removed && !referrer.Member.Parent.Removed {
 				etype.Removed = false
 			}
-			if _, ok := etype.Referrers[emember.ID]; !ok {
-				etype.Referrers[emember.ID] = emember
-				etype.ReferrerList = append(etype.ReferrerList, emember)
+			if _, ok := etype.Referrers[referrer.Member.ID]; !ok {
+				etype.Referrers[referrer.Member.ID] = referrer
+				etype.ReferrerList = append(etype.ReferrerList, referrer)
 			}
 			et = etype
 		}
-		if emember.References[typ] == nil {
-			emember.References[typ] = et
-			emember.ReferenceList = append(emember.ReferenceList, et)
+		if referrer.Member.References[typ] == nil {
+			referrer.Member.References[typ] = et
+			referrer.Member.ReferenceList = append(referrer.Member.ReferenceList, et)
 		}
 	}
 
 	for _, entity := range entities.Members {
 		switch element := entity.Element.(type) {
 		case *rbxapijson.Property:
-			referType(entity, element.ValueType)
+			referType(Referrer{entity, nil}, element.ValueType)
 		case *rbxapijson.Function:
-			referType(entity, element.ReturnType)
-			for _, param := range element.Parameters {
-				referType(entity, param.Type)
+			referType(Referrer{entity, nil}, element.ReturnType)
+			for i, param := range element.Parameters {
+				referType(Referrer{entity, &element.Parameters[i]}, param.Type)
 			}
 		case *rbxapijson.Event:
-			for _, param := range element.Parameters {
-				referType(entity, param.Type)
+			for i, param := range element.Parameters {
+				referType(Referrer{entity, &element.Parameters[i]}, param.Type)
 			}
 		case *rbxapijson.Callback:
-			referType(entity, element.ReturnType)
-			for _, param := range element.Parameters {
-				referType(entity, param.Type)
+			referType(Referrer{entity, nil}, element.ReturnType)
+			for i, param := range element.Parameters {
+				referType(Referrer{entity, &element.Parameters[i]}, param.Type)
 			}
 		}
 	}
@@ -416,28 +421,28 @@ func GenerateEntities(patches []Patch) (entities *Entities) {
 			return it.Category < jt.Category
 		})
 		sort.Slice(eclass.ReferrerList, func(i, j int) bool {
-			if eclass.ReferrerList[i].ID[0] == eclass.ReferrerList[j].ID[0] {
-				return eclass.ReferrerList[i].ID[1] < eclass.ReferrerList[j].ID[1]
+			if eclass.ReferrerList[i].Member.ID[0] == eclass.ReferrerList[j].Member.ID[0] {
+				return eclass.ReferrerList[i].Member.ID[1] < eclass.ReferrerList[j].Member.ID[1]
 			}
-			return eclass.ReferrerList[i].ID[0] < eclass.ReferrerList[j].ID[0]
+			return eclass.ReferrerList[i].Member.ID[0] < eclass.ReferrerList[j].Member.ID[0]
 		})
 	}
 
 	for _, eenum := range entities.Enums {
 		sort.Slice(eenum.ReferrerList, func(i, j int) bool {
-			if eenum.ReferrerList[i].ID[0] == eenum.ReferrerList[j].ID[0] {
-				return eenum.ReferrerList[i].ID[1] < eenum.ReferrerList[j].ID[1]
+			if eenum.ReferrerList[i].Member.ID[0] == eenum.ReferrerList[j].Member.ID[0] {
+				return eenum.ReferrerList[i].Member.ID[1] < eenum.ReferrerList[j].Member.ID[1]
 			}
-			return eenum.ReferrerList[i].ID[0] < eenum.ReferrerList[j].ID[0]
+			return eenum.ReferrerList[i].Member.ID[0] < eenum.ReferrerList[j].Member.ID[0]
 		})
 	}
 
 	for _, etype := range entities.Types {
 		sort.Slice(etype.ReferrerList, func(i, j int) bool {
-			if etype.ReferrerList[i].ID[0] == etype.ReferrerList[j].ID[0] {
-				return etype.ReferrerList[i].ID[1] < etype.ReferrerList[j].ID[1]
+			if etype.ReferrerList[i].Member.ID[0] == etype.ReferrerList[j].Member.ID[0] {
+				return etype.ReferrerList[i].Member.ID[1] < etype.ReferrerList[j].Member.ID[1]
 			}
-			return etype.ReferrerList[i].ID[0] < etype.ReferrerList[j].ID[0]
+			return etype.ReferrerList[i].Member.ID[0] < etype.ReferrerList[j].Member.ID[0]
 		})
 	}
 
