@@ -86,12 +86,13 @@ func FilterPages(pages []Page, filters []string) ([]Page, error) {
 
 func GeneratePageMain(data *Data) (pages []Page) {
 	// Fetch explorer icons.
+	latest := data.LatestPatch()
 	client := &fetch.Client{
-		Config:    data.Settings.Configs[data.Latest.Config],
+		Config:    data.Settings.Configs[latest.Config],
 		CacheMode: fetch.CacheTemp,
 	}
-	icon, err := client.ExplorerIcons(data.Latest.Info.Hash)
-	IfFatalf(err, "%s: fetch icons %s", data.Latest.Info.Hash)
+	icon, err := client.ExplorerIcons(latest.Info.Hash)
+	IfFatalf(err, "%s: fetch icons %s", latest.Info.Hash)
 	var buf bytes.Buffer
 	IfFatal(png.Encode(&buf, icon), "encode icons file")
 

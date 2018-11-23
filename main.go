@@ -63,15 +63,18 @@ func main() {
 	IfFatal(err)
 
 	// Merge uncached builds.
-	data.Manifest.Patches, data.Latest, err = MergeBuilds(data.Settings, data.Manifest.Patches, builds)
+	data.Manifest.Patches, err = MergeBuilds(data.Settings, data.Manifest.Patches, builds)
 	IfFatal(err)
 
 	// Fetch ReflectionMetadata.
-	data.Metadata, err = GenerateMetadata(&fetch.Client{
-		Config:    data.Settings.Configs[data.Latest.Config],
-		CacheMode: fetch.CacheTemp,
-	}, data.Latest.Info.Hash)
-	IfFatal(err)
+	{
+		latest := data.LatestPatch()
+		data.Metadata, err = GenerateMetadata(&fetch.Client{
+			Config:    data.Settings.Configs[latest.Config],
+			CacheMode: fetch.CacheTemp,
+		}, latest.Info.Hash)
+		IfFatal(err)
+	}
 
 	// Generate entities.
 	data.Entities = GenerateEntities(data.Manifest.Patches)

@@ -21,13 +21,9 @@ type Data struct {
 	Settings    Settings
 	Manifest    *Manifest
 	CurrentYear int
-
-	Latest   *Build
-	Metadata ReflectionMetadata
-
-	Entities *Entities
-
-	Templates *template.Template
+	Metadata    ReflectionMetadata
+	Entities    *Entities
+	Templates   *template.Template
 }
 
 type Patch struct {
@@ -534,4 +530,8 @@ func (data *Data) RenderPages(pages []Page) error {
 		}
 	}
 	return nil
+}
+
+func (data *Data) LatestPatch() Patch {
+	return data.Manifest.Patches[len(data.Manifest.Patches)-1]
 }

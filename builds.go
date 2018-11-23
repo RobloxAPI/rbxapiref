@@ -57,8 +57,9 @@ func FetchBuilds(settings Settings) (builds []Build, err error) {
 	return builds, nil
 }
 
-func MergeBuilds(settings Settings, cached []Patch, builds []Build) (patches []Patch, latest *Build, err error) {
+func MergeBuilds(settings Settings, cached []Patch, builds []Build) (patches []Patch, err error) {
 	client := &fetch.Client{CacheMode: fetch.CacheTemp}
+	var latest *Build
 loop:
 	for _, build := range builds {
 		for _, patch := range cached {
@@ -132,7 +133,7 @@ loop:
 		client.Config = settings.Configs[latest.Config]
 		root, err := client.APIDump(latest.Info.Hash)
 		if err != nil {
-			return nil, nil, errors.WithMessagef(err, "fetch build %s", latest.Info.Hash)
+			return nil, errors.WithMessagef(err, "fetch build %s", latest.Info.Hash)
 		}
 		latest.API = root
 	}
@@ -144,5 +145,5 @@ loop:
 		}
 	}
 
-	return patches, latest, nil
+	return patches, nil
 }
