@@ -1,5 +1,5 @@
 <header>
-	<h2>{{.ID}} {{template "devhub-link" link "devhub" "type" .ID}}</h2>
+	<h1>{{.ID}} {{template "devhub-link" link "devhub" "type" .ID}}</h1>
 </header>
 {{- $referrers := filter "implicit added" .ReferrerList -}}
 {{- template "referrers" pack . $referrers }}

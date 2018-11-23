@@ -1,7 +1,7 @@
 {{- with unpack . "Entity" "Referrers" -}}
 {{- if .Referrers }}
 <section id="referrers">
-	<h3>Relevant members<span class="element-count" title="{{.Entity.ID}} has {{len .Referrers}} related {{quantity .Referrers "member" "members"}}."> ({{len .Referrers}})</span></h3>
+	<h2>Relevant members<span class="element-count" title="{{.Entity.ID}} has {{len .Referrers}} related {{quantity .Referrers "member" "members"}}."> ({{len .Referrers}})</span></h2>
 	<ul class="truncated-list element-list">
 	{{- range .Referrers -}}
 		{{- $class := (index .Member.ID 0) -}}

@@ -2,7 +2,7 @@
 {{- with .Element }}
 	<section id="member-{{.GetName}}">
 		<header>
-			<h4>{{icon .}}{{.GetName}} {{template "devhub-link" link "devhub" .GetMemberType $entity.Parent.ID .GetName}}</h4>
+			<h3>{{icon .}}{{.GetName}} {{template "devhub-link" link "devhub" .GetMemberType $entity.Parent.ID .GetName}}</h3>
 		</header>
 	{{- if eq .GetMemberType "Property" }}
 		<p>Value Type: {{template "value" .ValueType}}</p>

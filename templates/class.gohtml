@@ -12,11 +12,11 @@
 {{- $enums := filter "enum" .ReferenceList -}}
 {{- $referrers := filter "implicit added" .ReferrerList -}}
 <header>
-	<h2>{{icon .Element}}{{.ID}} {{template "devhub-link" link "devhub" "class" $class}}</h2>
+	<h1>{{icon .Element}}{{.ID}} {{template "devhub-link" link "devhub" "class" $class}}</h1>
 </header>
 <nav>
 	<section>
-		<h3>Table of contents</h3>
+		<h2>Table of contents</h2>
 		<ol>
 			<li><a href="#summary">Summary</a></li>
 		{{- if or $superclasses $subclasses }}
@@ -78,7 +78,7 @@
 	</section>
 </nav>
 <section id="summary">
-	<h3>Summary</h3>
+	<h2>Summary</h2>
 	<p>Memory Category: {{tostring .Element.MemoryCategory}}</p>
 {{- if .Element.Tags }}
 	<p>Tags: {{tostring .Element.Tags}}</p>
@@ -93,7 +93,7 @@
 {{- if $superclasses }}
 	<section id="superclasses">
 		<header>
-			<h3>Inherits<span class="element-count" title="{{.ID}} inherits {{len $superclasses}} {{quantity (len $superclasses) "class" "classes"}}."> ({{len $superclasses}})</span></h3>
+			<h2>Inherits<span class="element-count" title="{{.ID}} inherits {{len $superclasses}} {{quantity (len $superclasses) "class" "classes"}}."> ({{len $superclasses}})</span></h2>
 		</header>
 		<ul class="truncated-list element-list">
 		{{- range $superclasses }}
@@ -105,7 +105,7 @@
 {{- if $subclasses }}
 	<section id="subclasses">
 		<header>
-			<h3>Inherited by<span class="element-count" title="{{.ID}} is inherited by {{len $subclasses}} {{quantity (len $subclasses) "class" "classes"}}."> ({{len $subclasses}})</span></h3>
+			<h2>Inherited by<span class="element-count" title="{{.ID}} is inherited by {{len $subclasses}} {{quantity (len $subclasses) "class" "classes"}}."> ({{len $subclasses}})</span></h2>
 		</header>
 		<ul class="truncated-list element-list">
 		{{- range $subclasses }}
@@ -117,12 +117,12 @@
 </section>
 {{- end }}
 <section id="members-index">
-	<h3>Member index<span class="element-count" title="{{.ID}} defines {{len $members}} {{quantity (len $members) "member" "members"}}."> ({{len $members}})</span></h3>
+	<h2>Member index<span class="element-count" title="{{.ID}} defines {{len $members}} {{quantity (len $members) "member" "members"}}."> ({{len $members}})</span></h2>
 	{{template "member-index-table" pack $class $members .Superclasses}}
 </section>
 {{- if $removed }}
 <section id="removed-member-index">
-	<h3>Removed member index<span class="element-count" title="{{.ID}} has {{len $removed}} removed {{quantity (len $removed) "member" "members"}}."> ({{len $removed}})</span></h3>
+	<h2>Removed member index<span class="element-count" title="{{.ID}} has {{len $removed}} removed {{quantity (len $removed) "member" "members"}}."> ({{len $removed}})</span></h2>
 	{{template "member-index-table" pack $class $removed}}
 </section>
 {{- end }}
@@ -133,14 +133,14 @@
 <section id="examples"></section>
 {{- end -}}
 <section id="members">
-	<h3>Members</h3>
+	<h2>Members</h2>
 {{- range $membersSorted -}}
 	{{- template "member-section" . -}}
 {{- end }}
 </section>
 {{- if $removedSorted }}
 <section id="removed-members">
-	<h3>Removed members</h3>
+	<h2>Removed members</h2>
 {{- range $removedSorted -}}
 	{{- template "member-section" . -}}
 {{- end }}
@@ -150,7 +150,7 @@
 <section id="references">
 {{- if $classes }}
 	<section id="classes">
-		<h3>Relevant classes<span class="element-count" title="{{.ID}} has {{len $classes}} related {{quantity $classes "class" "classes"}}."> ({{len $classes}})</span></h3>
+		<h2>Relevant classes<span class="element-count" title="{{.ID}} has {{len $classes}} related {{quantity $classes "class" "classes"}}."> ({{len $classes}})</span></h2>
 		<ul class="truncated-list element-list">
 		{{- range $classes }}
 			<li><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
@@ -160,7 +160,7 @@
 {{- end -}}
 {{- if $enums }}
 	<section id="enums">
-		<h3>Relevant enums<span class="element-count" title="{{.ID}} has {{len $enums}} related {{quantity $enums "enum" "enums"}}."> ({{len $enums}})</span></h3>
+		<h2>Relevant enums<span class="element-count" title="{{.ID}} has {{len $enums}} related {{quantity $enums "enum" "enums"}}."> ({{len $enums}})</span></h2>
 		<ul class="truncated-list element-list">
 		{{- range $enums }}
 			<li><a class="element-link" href="{{link "enum" .ID}}">{{icon .Element}}{{.ID}}</a></li>

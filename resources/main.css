@@ -96,7 +96,7 @@ main {
 	margin     : var(--baseline);
 	margin-top : 0;
 }
-main > header > h2 {
+main > header > h1 {
 	width : 100%;
 }
 a[href] {
