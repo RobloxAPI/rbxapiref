@@ -25,8 +25,7 @@ type Data struct {
 	Latest   *Build
 	Metadata ReflectionMetadata
 
-	Entities  *Entities
-	TreeRoots []*ClassEntity
+	Entities *Entities
 
 	Templates *template.Template
 }

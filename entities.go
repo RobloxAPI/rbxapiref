@@ -11,6 +11,7 @@ type Entities struct {
 	Classes   map[string]*ClassEntity
 	ClassList []*ClassEntity
 	Members   map[[2]string]*MemberEntity
+	TreeRoots []*ClassEntity
 
 	Enums     map[string]*EnumEntity
 	EnumList  []*EnumEntity
@@ -519,24 +520,20 @@ loop:
 		})
 	}
 
-	return entities
-}
-
-func GenerateTree(classes map[string]*ClassEntity) (roots []*ClassEntity) {
-	for id, eclass := range classes {
+	for id, eclass := range entities.Classes {
 		super := eclass.Element.Superclass
 		if !eclass.Removed {
-			if s := classes[super]; s == nil || s.Removed {
-				roots = append(roots, eclass)
+			if s := entities.Classes[super]; s == nil || s.Removed {
+				entities.TreeRoots = append(entities.TreeRoots, eclass)
 			}
 		}
-		for class := classes[super]; class != nil; class = classes[super] {
+		for class := entities.Classes[super]; class != nil; class = entities.Classes[super] {
 			if !class.Removed {
 				eclass.Superclasses = append(eclass.Superclasses, class)
 			}
 			super = class.Element.Superclass
 		}
-		for _, sub := range classes {
+		for _, sub := range entities.Classes {
 			if sub.Element.Superclass == id && !sub.Removed {
 				eclass.Subclasses = append(eclass.Subclasses, sub)
 			}
@@ -545,8 +542,9 @@ func GenerateTree(classes map[string]*ClassEntity) (roots []*ClassEntity) {
 			return eclass.Subclasses[i].ID < eclass.Subclasses[j].ID
 		})
 	}
-	sort.Slice(roots, func(i, j int) bool {
-		return roots[i].ID < roots[j].ID
+	sort.Slice(entities.TreeRoots, func(i, j int) bool {
+		return entities.TreeRoots[i].ID < entities.TreeRoots[j].ID
 	})
-	return roots
+
+	return entities
 }

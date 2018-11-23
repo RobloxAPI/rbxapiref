@@ -23,7 +23,7 @@
 		</li>
 		{{- end -}}
 		{{- end -}}
-		{{- template "tree" .TreeRoots }}
+		{{- template "tree" .Entities.TreeRoots }}
 	</ul>
 {{- $removed := filter "removed" .Entities.ClassList -}}
 {{- if $removed }}

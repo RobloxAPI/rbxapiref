@@ -75,7 +75,6 @@ func main() {
 
 	// Generate entities.
 	data.Entities = GenerateEntities(data.Manifest.Patches)
-	data.TreeRoots = GenerateTree(data.Entities.Classes)
 
 	// Compile templates.
 	data.Templates, err = CompileTemplates(data.Settings.Input.Templates, template.FuncMap{
