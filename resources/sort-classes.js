@@ -40,6 +40,19 @@ function initSortClasses() {
 		[sortByName, "Name"]
 	];
 
+	const storageKey = "ClassSort"
+	let defaultSort = window.localStorage.getItem(storageKey);
+	if (defaultSort !== null) {
+		for (let method of methods) {
+			if (method[1] == defaultSort) {
+				for (let method of methods) {
+					method[2] = method[1] == defaultSort;
+				};
+				break;
+			};
+		};
+	};
+
 	let controls = document.createElement("div");
 	controls.className = "class-list-controls";
 	list.insertAdjacentElement("beforebegin", controls);
@@ -55,9 +68,14 @@ function initSortClasses() {
 		label.htmlFor = input.id;
 		label.appendChild(document.createTextNode(method[1]));
 		controls.appendChild(label);
-		input.addEventListener("click", function(event) {
+		let update = function(event) {
 			method[0](list, classes, parents);
-		});
+			window.localStorage.setItem(storageKey, method[1]);
+		}
+		input.addEventListener("click", update);
+		if (method[2]) {
+			update();
+		};
 	};
 };
 
