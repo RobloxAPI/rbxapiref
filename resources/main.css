@@ -267,11 +267,6 @@ a.header-block:hover {
 .history-add    { background-color: #7EBA72 }
 .history-change { background-color: #DFCE88 }
 .history-remove { background-color: #D8848C }
-.patch-list .history-add,
-.patch-list .history-change,
-.patch-list .history-remove {
-	margin-right : 1ch;
-}
 
 /*////////////////////////////////////////////////////////////////*/
 /* Wrapping */

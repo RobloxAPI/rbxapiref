@@ -6,7 +6,7 @@
 <li id="{{$info.Hash}}-{{.Index}}"{{if .Field}} diff-field="{{.Field}}"{{end}}>
 {{- if $button }}
 	<a class="history-{{tolower .Type.String}}" title="{{patchtype .Type "ed"}} on {{$info.Date.Format "2006-01-02 15:04:05"}}&#10;v{{$info.Version}}&#10;{{$info.Hash}}" href="{{link "updates" $info.Date.Year}}#{{$info.Hash}}-{{.Index}}">{{$info.Version.Minor}}</a>
-{{- end -}}
+{{ end -}}
 {{- if and .Class .GetMember -}}
 {{- if eq .Type 0 -}}
 	{{.Type.String}} {{.Field}} of <a class="element-link" href="{{link "member" .Class.GetName .GetMember.GetName}}">{{icon .GetMember false}}{{.Class.GetName}}.{{.GetMember.GetName}}</a>
