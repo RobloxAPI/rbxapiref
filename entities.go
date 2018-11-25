@@ -50,6 +50,8 @@ type ClassEntity struct {
 	ReferenceList []ElementTyper
 	Referrers     map[[2]string]Referrer
 	ReferrerList  []Referrer
+
+	Document Document
 }
 
 func (e *ClassEntity) IsRemoved() bool    { return e.Removed }
@@ -68,6 +70,8 @@ type MemberEntity struct {
 
 	References    map[rbxapijson.Type]ElementTyper
 	ReferenceList []ElementTyper
+
+	Document Document
 }
 
 func (e *MemberEntity) IsRemoved() bool { return e.Removed }
@@ -83,6 +87,8 @@ type EnumEntity struct {
 
 	Referrers    map[[2]string]Referrer
 	ReferrerList []Referrer
+
+	Document Document
 }
 
 func (e *EnumEntity) IsRemoved() bool    { return e.Removed }
@@ -98,6 +104,8 @@ type EnumItemEntity struct {
 	Removed bool
 
 	Parent *EnumEntity
+
+	Document Document
 }
 
 func (e *EnumItemEntity) IsRemoved() bool { return e.Removed }
@@ -109,6 +117,8 @@ type TypeEntity struct {
 
 	Referrers    map[[2]string]Referrer
 	ReferrerList []Referrer
+
+	Document Document
 }
 
 func (e *TypeEntity) IsRemoved() bool    { return e.Removed }

@@ -28,6 +28,8 @@ type SettingsInput struct {
 	Resources string
 	// Templates is the directory containing template files.
 	Templates string
+	// Documents is the directory containing document files.
+	Documents string
 }
 
 type SettingsOutput struct {
@@ -52,6 +54,7 @@ func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 		Input struct {
 			Resources *string
 			Templates *string
+			Documents *string
 		}
 		Output struct {
 			Root      *string
@@ -75,6 +78,7 @@ func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 	}
 	merge(&settings.Input.Resources, jsettings.Input.Resources)
 	merge(&settings.Input.Templates, jsettings.Input.Templates)
+	merge(&settings.Input.Documents, jsettings.Input.Documents)
 	merge(&settings.Output.Root, jsettings.Output.Root)
 	merge(&settings.Output.Sub, jsettings.Output.Sub)
 	merge(&settings.Output.Manifest, jsettings.Output.Manifest)

@@ -1,7 +1,7 @@
 {{- $class := .ID -}}
-{{- $summary := 0 -}}
-{{- $details := 0 -}}
-{{- $examples := 0 -}}
+{{- $summary := .Document.Summary -}}
+{{- $details := .Document.Details -}}
+{{- $examples := .Document.Examples -}}
 {{- $superclasses := filter "added" .Superclasses -}}
 {{- $subclasses := filter "added" .Subclasses -}}
 {{- $members := filter "added" .MemberList }}
@@ -79,6 +79,9 @@
 </nav>
 <section id="summary">
 	<h2>Summary</h2>
+{{- if $summary }}
+	<section class="doc">{{$summary}}</section>
+{{- end }}
 	<p>Memory Category: {{tostring .Element.MemoryCategory}}</p>
 {{- if .Element.Tags }}
 	<p>Tags: {{tostring .Element.Tags}}</p>
@@ -127,10 +130,16 @@
 </section>
 {{- end }}
 {{- if $details }}
-<section id="details"></section>
+<section id="details">
+	<h2>Details</h2>
+	<section class="doc">{{$details}}</section>
+</section>
 {{- end -}}
 {{- if $examples }}
-<section id="examples"></section>
+<section id="examples">
+	<h2>Examples</h2>
+	<section class="doc">{{$examples}}</section>
+</section>
 {{- end -}}
 <section id="members">
 	<h2>Members</h2>

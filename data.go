@@ -3,9 +3,11 @@ package main
 import (
 	"bytes"
 	"fmt"
+	markdownhtml "github.com/gomarkdown/markdown/html"
 	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/rbxapijson"
+	"github.com/robloxapi/rbxapidoc"
 	"html"
 	"html/template"
 	"io"
@@ -534,4 +536,42 @@ func (data *Data) RenderPages(pages []Page) error {
 
 func (data *Data) LatestPatch() Patch {
 	return data.Manifest.Patches[len(data.Manifest.Patches)-1]
+}
+
+func (data *Data) GenerateDocuments() {
+	if data.Settings.Input.Documents == "" {
+		return
+	}
+
+	cfg := rbxapidoc.Config{
+		Root:     data.Settings.Input.Documents,
+		FileType: ".md",
+	}
+	renderer := markdownhtml.NewRenderer(markdownhtml.RendererOptions{})
+
+	for id, entity := range data.Entities.Classes {
+		if doc, _ := cfg.Query(rbxapidoc.ID{"class", id, ""}); doc != nil {
+			entity.Document = RenderDocument(renderer, doc)
+		}
+	}
+	for id, entity := range data.Entities.Members {
+		if doc, _ := cfg.Query(rbxapidoc.ID{"class", id[0], id[1]}); doc != nil {
+			entity.Document = RenderDocument(renderer, doc)
+		}
+	}
+	for id, entity := range data.Entities.Enums {
+		if doc, _ := cfg.Query(rbxapidoc.ID{"enum", id, ""}); doc != nil {
+			entity.Document = RenderDocument(renderer, doc)
+		}
+	}
+	for id, entity := range data.Entities.EnumItems {
+		if doc, _ := cfg.Query(rbxapidoc.ID{"enum", id[0], id[1]}); doc != nil {
+			entity.Document = RenderDocument(renderer, doc)
+		}
+	}
+	for id, entity := range data.Entities.Types {
+		if doc, _ := cfg.Query(rbxapidoc.ID{"type", id, ""}); doc != nil {
+			entity.Document = RenderDocument(renderer, doc)
+		}
+	}
 }

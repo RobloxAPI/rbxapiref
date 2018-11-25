@@ -4,6 +4,9 @@
 </header>
 <section id="summary">
 	<h2>Summary</h2>
+{{- if .Document.Summary }}
+	<section class="doc">{{.Document.Summary}}</section>
+{{- end }}
 {{- if .Element.Tags }}
 	<p>Tags: {{tostring .Element.Tags}}</p>
 {{- end -}}
@@ -35,6 +38,14 @@
 	{{- end }}
 	</table>
 </section>
+{{- if .Document.Details }}
+	<h2>Details</h2>
+	<section class="doc">{{.Document.Details}}</section>
+{{- end }}
+{{- if .Document.Examples }}
+	<h2>Examples</h2>
+	<section class="doc">{{.Document.Examples}}</section>
+{{- end }}
 {{- $referrers := filter "implicit added" .ReferrerList -}}
 {{- template "referrers" pack . $referrers -}}
 {{- $removed := filter "removed" .ItemList -}}

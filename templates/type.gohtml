@@ -1,5 +1,16 @@
 <header>
 	<h1>{{.ID}} {{template "devhub-link" link "devhub" "type" .ID}}</h1>
 </header>
+{{- if .Document.Summary }}
+	<section class="doc">{{.Document.Summary}}</section>
+{{- end }}
+{{- if .Document.Details }}
+	<h2>Details</h2>
+	<section class="doc">{{.Document.Details}}</section>
+{{- end }}
+{{- if .Document.Examples }}
+	<h2>Examples</h2>
+	<section class="doc">{{.Document.Examples}}</section>
+{{- end }}
 {{- $referrers := filter "implicit added" .ReferrerList -}}
 {{- template "referrers" pack . $referrers }}

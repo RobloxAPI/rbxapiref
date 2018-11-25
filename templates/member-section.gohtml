@@ -4,6 +4,9 @@
 		<header>
 			<h3>{{icon .}}{{.GetName}} {{template "devhub-link" link "devhub" .GetMemberType $entity.Parent.ID .GetName}}</h3>
 		</header>
+	{{- if $entity.Document.Summary }}
+		<section class="doc">{{$entity.Document.Summary}}</section>
+	{{- end }}
 	{{- if eq .GetMemberType "Property" }}
 		<p>Value Type: {{template "value" .ValueType}}</p>
 		{{- if eq .ReadSecurity .WriteSecurity -}}
@@ -44,6 +47,13 @@
 			<p>Security: {{.Security}}</p>
 		{{- end -}}
 	{{- end -}}
+	{{- if $entity.Document.Details }}
+		<section class="doc">{{$entity.Document.Details}}</section>
+	{{- end }}
+	{{- if $entity.Document.Examples }}
+		<h4>Examples</h4>
+		<section class="doc">{{$entity.Document.Examples}}</section>
+	{{- end }}
 	{{- if .Tags }}
 		<p>Tags: {{tostring .Tags}}</p>
 	{{- end -}}
