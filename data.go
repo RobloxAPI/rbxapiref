@@ -16,6 +16,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -384,11 +385,23 @@ func (data *Data) GenerateHistoryElements(entity interface{}, button bool) (temp
 	var patches []Patch
 	switch entity := entity.(type) {
 	case *ClassEntity:
-		patches = entity.Patches
+		patches = MergePatches(entity.Patches, nil)
+		for _, member := range entity.MemberList {
+			patches = MergePatches(patches, member.Patches)
+		}
+		sort.Slice(patches, func(i, j int) bool {
+			return patches[i].Info.Date.Before(patches[j].Info.Date)
+		})
 	case *MemberEntity:
 		patches = entity.Patches
 	case *EnumEntity:
-		patches = entity.Patches
+		patches = MergePatches(entity.Patches, nil)
+		for _, item := range entity.ItemList {
+			patches = MergePatches(patches, item.Patches)
+		}
+		sort.Slice(patches, func(i, j int) bool {
+			return patches[i].Info.Date.Before(patches[j].Info.Date)
+		})
 	case *EnumItemEntity:
 		patches = entity.Patches
 	default:
