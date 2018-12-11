@@ -406,6 +406,14 @@ func GetType(v interface{}) string {
 	return reflect.TypeOf(v).String()
 }
 
+func LastIndex(v interface{}) int {
+	length, err := reflectLength(v)
+	if err != nil || length == 0 {
+		return 0
+	}
+	return length - 1
+}
+
 // Compiles templates in specified folder as a single template. Templates are
 // named as the file name without the extension.
 func CompileTemplates(dir string, funcs template.FuncMap) (tmpl *template.Template, err error) {

@@ -89,6 +89,7 @@ func main() {
 		"history": data.GenerateHistoryElements,
 		"icon":    data.Icon,
 		"istype":  IsType,
+		"last":    LastIndex,
 		"link": func(linkType string, args ...interface{}) string {
 			sargs := make([]string, len(args))
 			for i, arg := range args {
