@@ -97,9 +97,9 @@ main {
 	margin-top : 0;
 }
 main > header {
-	position: sticky;
-	top: 0;
-	z-index: 1;
+	position : sticky;
+	top      : 0;
+	z-index  : 1;
 }
 main > header > h2 {
 	width : 100%;
