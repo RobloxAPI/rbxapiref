@@ -102,8 +102,11 @@ func GeneratePageMain(data *Data) (pages []Page) {
 			"Description": "Reference for the Roblox Lua API.",
 			"Image":       "favicons/favicon-512x512.png",
 		},
-		Styles:  []Resource{{Name: "main.css"}},
-		Scripts: []Resource{{Name: "search.js"}},
+		Styles: []Resource{{Name: "main.css"}},
+		Scripts: []Resource{
+			{Name: "main.js"},
+			{Name: "search.js"},
+		},
 		Resources: []Resource{
 			{Name: "icon-explorer.png", Content: buf.Bytes()},
 			{Name: "icon-objectbrowser.png"},

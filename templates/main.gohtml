@@ -27,6 +27,7 @@
 {{- end }}
 </head>
 <body>
+	<a id="top"></a>
 	<header id="main-header">
 		<aside id="search" class="header-block">
 			<noscript>
@@ -44,6 +45,9 @@
 	<main>
 {{execute .Template .Data -}}
 	</main>
+	<nav id="top-nav">
+		<a class="header-block" href="#top">Top</a>
+	</nav>
 	<footer id="main-footer">
 		<nav class="main-nav">
 			<ul>

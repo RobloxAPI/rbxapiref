@@ -213,6 +213,21 @@ main > header .history {
 	color            : var(--text-color);
 	border           : 1px solid var(--border-color);
 }
+/* Top navigation */
+#top-nav {
+	position       : sticky;
+	bottom         : 0;
+	z-index        : var(--layer-below-foreground);
+	text-align     : right;
+	pointer-events : none;
+	margin         : 0 var(--baseline);
+}
+#top-nav .header-block {
+	--block-color     : var(--table-color);
+	--block-color-dim : var(--table-color-dim);
+	border            : 1px solid var(--border-color);
+	pointer-events    : auto;
+}
 /* Header block: has particular sizing. */
 .header-block {
 	display            : inline-block;

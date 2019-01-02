@@ -62,7 +62,7 @@ main > nav > section {
 		main > nav > section {
 			position      : sticky;
 			top           : 0;
-			max-height    : 100vh;
+			max-height    : calc(100vh - var(--baseline) - var(--header-height));
 		}
 	}
 }
