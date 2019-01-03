@@ -4,8 +4,9 @@ document.addEventListener("DOMContentLoaded", function() {
 	if (topnav === null) {
 		return;
 	};
-	window.addEventListener("scroll", function(e) {
-		topnav.style.visibility = e.pageY === 0 ? "hidden" : "visible";
-	});
-	topnav.style.visibility = window.pageYOffset === 0 ? "hidden" : "visible";
+	function updateTopNav() {
+		topnav.style.visibility = window.pageYOffset === 0 ? "hidden" : "visible";
+	};
+	window.addEventListener("scroll", updateTopNav);
+	updateTopNav();
 });
