@@ -36,6 +36,9 @@ main > nav > section {
 	max-height    : 61.8vh;
 	--indent      : var(--indent-half);
 }
+main > nav .toc-members {
+	display : none;
+}
 @media screen and (min-width: 800px) {
 	main {
 		grid-template-columns : 1fr auto;
@@ -57,6 +60,9 @@ main > nav > section {
 	main > nav {
 		border-left  : 1px solid var(--border-color);
 		padding-left : var(--section-spacing);
+	}
+	main > nav .toc-members {
+		display : block;
 	}
 	@supports (position:sticky) {
 		main > nav > section {

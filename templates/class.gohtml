@@ -43,7 +43,7 @@
 		{{- end -}}
 		{{- if $membersSorted }}
 			<li><a href="#members">Members</a>
-				<ol>
+				<ol class="toc-members">
 				{{ range $membersSorted }}
 					<li><a href="#member-{{.Element.GetName}}">{{.Element.GetName}}</a></li>
 				{{- end }}
@@ -52,7 +52,7 @@
 		{{- end -}}
 		{{- if $removedSorted }}
 			<li><a href="#removed-members">Removed members</a>
-				<ol>
+				<ol class="toc-members">
 				{{ range $removedSorted }}
 					<li><a href="#member-{{.Element.GetName}}">{{.Element.GetName}}</a></li>
 				{{- end }}
