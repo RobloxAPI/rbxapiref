@@ -56,6 +56,8 @@ func main() {
 		data.Manifest, err = ReadManifest(f)
 		f.Close()
 		IfFatal(err, "open manifest")
+	} else {
+		data.Manifest = &Manifest{}
 	}
 
 	// Fetch builds.
