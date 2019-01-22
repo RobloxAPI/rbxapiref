@@ -82,6 +82,31 @@ func (s DirectorySection) Query(name ...string) Section {
 	return section
 }
 
+// QueryAll is similar to Query, but returns all sections matching the first
+// name.
+func (s DirectorySection) QueryAll(name string) (sections []Section) {
+	files, err := ioutil.ReadDir(s.Path)
+	if err != nil {
+		return nil
+	}
+	for _, info := range files {
+		// Try each handler.
+		for _, handler := range s.Handlers {
+			if section := handler(s.Path, info, name); section != nil {
+				sections = append(sections, section)
+			}
+		}
+		// Try subdirectory.
+		if info.IsDir() && name == info.Name() {
+			sections = append(sections, &DirectorySection{
+				Path:     filepath.Join(s.Path, info.Name()),
+				Handlers: s.Handlers,
+			})
+		}
+	}
+	return sections
+}
+
 func (s DirectorySection) Subsections() []Section {
 	files, err := ioutil.ReadDir(s.Path)
 	if err != nil {

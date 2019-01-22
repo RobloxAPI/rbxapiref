@@ -165,20 +165,29 @@ func (s *MarkdownSection) Render() template.HTML {
 	return template.HTML(markdown.Render(s.Document, renderer))
 }
 
-func adjustHeaderLevel(root ast.Node, delta int) {
-	if root == nil {
+func adjustHeaderLevel(doc *ast.Document, delta int) {
+	if doc == nil {
 		return
-	}
-	if heading, ok := root.(*ast.Heading); ok {
-		heading.Level += delta
-	}
-	for _, child := range root.GetChildren() {
-		adjustHeaderLevel(child, delta)
 	}
 }
 
 // AdjustLevel adjusts the level of each heading node in the document by
 // delta. This does not affect the Level field of the section and subsections.
 func (s *MarkdownSection) AdjustLevel(delta int) {
-	adjustHeaderLevel(s.Document, delta)
+	for _, child := range s.Document.GetChildren() {
+		if heading, ok := child.(*ast.Heading); ok {
+			heading.Level += delta
+		}
+	}
+}
+
+// TrueLevel returns the current level of a topmost heading. Returns 0 if
+// there are no headings.
+func (s *MarkdownSection) TrueLevel() (level int) {
+	for _, child := range s.Document.GetChildren() {
+		if heading, ok := child.(*ast.Heading); ok && (level == 0 || heading.Level < level) {
+			level = heading.Level
+		}
+	}
+	return level
 }
