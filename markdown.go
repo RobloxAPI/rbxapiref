@@ -158,6 +158,10 @@ func (s *MarkdownSection) Subsections() []Section {
 	return subs
 }
 
+func (s *MarkdownSection) SetRender(renderer markdown.Renderer) {
+	s.Renderer = renderer
+}
+
 func (s *MarkdownSection) Render() template.HTML {
 	renderer := s.Renderer
 	if renderer == nil {
