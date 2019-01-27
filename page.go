@@ -136,7 +136,10 @@ func GeneratePageAbout(data *Data) (pages []Page) {
 			"Title":       Title("About"),
 			"Description": "About the Roblox API Reference.",
 		},
-		Styles:   []Resource{{Name: "about.css", Embed: true}},
+		Styles: []Resource{{Name: "about.css", Embed: true}},
+		Resources: []Resource{
+			{Name: "license-badge.png"},
+		},
 		Template: "about",
 	}}
 }
