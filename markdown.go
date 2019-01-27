@@ -96,6 +96,7 @@ func parseMarkdownSection(section *MarkdownSection, level int) {
 		Heading:  name,
 		Level:    level,
 		Document: &ast.Document{},
+		Renderer: section.Renderer,
 	}
 	// `i>=len` means that the previously added section is the last, and is
 	// empty.
