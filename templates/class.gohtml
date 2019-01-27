@@ -1,7 +1,8 @@
 {{- $class := .ID -}}
-{{- $summary := .Document.Summary -}}
-{{- $details := .Document.Details -}}
-{{- $examples := .Document.Examples -}}
+{{- $summary := document . "Summary" -}}
+{{- if not $summary -}}{{- $summary = document . "" -}}{{- end -}}
+{{- $details := document . "Details" -}}
+{{- $examples := document . "Examples" -}}
 {{- $superclasses := filter "added" .Superclasses -}}
 {{- $subclasses := filter "added" .Subclasses -}}
 {{- $members := filter "added" .MemberList }}

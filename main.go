@@ -84,14 +84,15 @@ func main() {
 
 	// Compile templates.
 	data.Templates, err = CompileTemplates(data.Settings.Input.Templates, template.FuncMap{
-		"cards":   data.GenerateCardElements,
-		"embed":   data.EmbedResource,
-		"execute": data.ExecuteTemplate,
-		"filter":  FilterList,
-		"history": data.GenerateHistoryElements,
-		"icon":    data.Icon,
-		"istype":  IsType,
-		"last":    LastIndex,
+		"cards":    data.GenerateCardElements,
+		"document": QueryDocument,
+		"embed":    data.EmbedResource,
+		"execute":  data.ExecuteTemplate,
+		"filter":   FilterList,
+		"history":  data.GenerateHistoryElements,
+		"icon":     data.Icon,
+		"istype":   IsType,
+		"last":     LastIndex,
 		"link": func(linkType string, args ...interface{}) string {
 			sargs := make([]string, len(args))
 			for i, arg := range args {

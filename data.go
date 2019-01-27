@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
-	markdownhtml "github.com/gomarkdown/markdown/html"
+	mdhtml "github.com/gomarkdown/markdown/html"
 	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/rbxapijson"
@@ -556,35 +556,47 @@ func (data *Data) GenerateDocuments() {
 		return
 	}
 
-	cfg := rbxapidoc.Config{
-		Root:     data.Settings.Input.Documents,
-		FileType: ".md",
-	}
-	renderer := markdownhtml.NewRenderer(markdownhtml.RendererOptions{})
+	// TODO: Use RenderNodeHook to reparse links.
+	renderer := mdhtml.NewRenderer(mdhtml.RendererOptions{})
+	dummy := dummyDocument{}
+	dir := rbxapidoc.NewDirectorySection(
+		data.Settings.Input.Documents,
+		rbxapidoc.MarkdownFileHandler,
+	)
 
 	for id, entity := range data.Entities.Classes {
-		if doc, _ := cfg.Query(rbxapidoc.ID{"class", id, ""}); doc != nil {
-			entity.Document = RenderDocument(renderer, doc)
-		}
-	}
-	for id, entity := range data.Entities.Members {
-		if doc, _ := cfg.Query(rbxapidoc.ID{"class", id[0], id[1]}); doc != nil {
-			entity.Document = RenderDocument(renderer, doc)
+		if entity.Document, _ = dir.Query("class", id).(Document); entity.Document != nil {
+			entity.Document.SetRender(renderer)
+			for id, member := range entity.Members {
+				if member.Document, _ = entity.Document.Query("Members", id).(Document); member.Document != nil {
+					member.Document.SetRender(renderer)
+				} else {
+					member.Document = dummy
+				}
+			}
+		} else {
+			entity.Document = dummy
 		}
 	}
 	for id, entity := range data.Entities.Enums {
-		if doc, _ := cfg.Query(rbxapidoc.ID{"enum", id, ""}); doc != nil {
-			entity.Document = RenderDocument(renderer, doc)
-		}
-	}
-	for id, entity := range data.Entities.EnumItems {
-		if doc, _ := cfg.Query(rbxapidoc.ID{"enum", id[0], id[1]}); doc != nil {
-			entity.Document = RenderDocument(renderer, doc)
+		if entity.Document, _ = dir.Query("enum", id).(Document); entity.Document != nil {
+			entity.Document.SetRender(renderer)
+			for id, item := range entity.Items {
+				if item.Document, _ = entity.Document.Query("Members", id).(Document); item.Document != nil {
+					item.Document.SetRender(renderer)
+				} else {
+					item.Document = dummy
+				}
+			}
+		} else {
+			entity.Document = dummy
 		}
 	}
 	for id, entity := range data.Entities.Types {
-		if doc, _ := cfg.Query(rbxapidoc.ID{"type", id, ""}); doc != nil {
-			entity.Document = RenderDocument(renderer, doc)
+		if entity.Document, _ = dir.Query("type", id).(Document); entity.Document != nil {
+			entity.Document.SetRender(renderer)
+		} else {
+			entity.Document = dummy
 		}
 	}
 }

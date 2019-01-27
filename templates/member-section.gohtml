@@ -1,11 +1,15 @@
 {{- $entity := . -}}
+{{- $summary := document . "Summary" -}}
+{{- if not $summary -}}{{- $summary = document . "" -}}{{- end -}}
+{{- $details := document . "Details" -}}
+{{- $examples := document . "Examples" -}}
 {{- with .Element }}
 	<section id="member-{{.GetName}}">
 		<header>
 			<h3>{{icon .}}{{.GetName}} {{template "devhub-link" link "devhub" .GetMemberType $entity.Parent.ID .GetName}}</h3>
 		</header>
-	{{- if $entity.Document.Summary }}
-		<section class="doc">{{$entity.Document.Summary}}</section>
+	{{- if $summary }}
+		<section class="doc">{{$summary}}</section>
 	{{- end }}
 	{{- if eq .GetMemberType "Property" }}
 		<p>Value Type: {{template "value" .ValueType}}</p>
@@ -47,12 +51,12 @@
 			<p>Security: {{.Security}}</p>
 		{{- end -}}
 	{{- end -}}
-	{{- if $entity.Document.Details }}
-		<section class="doc">{{$entity.Document.Details}}</section>
+	{{- if $details }}
+		<section class="doc">{{$details}}</section>
 	{{- end }}
-	{{- if $entity.Document.Examples }}
+	{{- if $examples }}
 		<h4>Examples</h4>
-		<section class="doc">{{$entity.Document.Examples}}</section>
+		<section class="doc">{{$examples}}</section>
 	{{- end }}
 	{{- if .Tags }}
 		<p>Tags: {{tostring .Tags}}</p>

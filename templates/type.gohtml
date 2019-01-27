@@ -1,16 +1,20 @@
+{{- $summary := document . "Summary" -}}
+{{- if not $summary -}}{{- $summary = document . "" -}}{{- end -}}
+{{- $details := document . "Details" -}}
+{{- $examples := document . "Examples" -}}
 <header>
 	<h1>{{.ID}} {{template "devhub-link" link "devhub" "type" .ID}}</h1>
 </header>
-{{- if .Document.Summary }}
-	<section class="doc">{{.Document.Summary}}</section>
+{{- if $summary }}
+	<section class="doc">{{$summary}}</section>
 {{- end }}
-{{- if .Document.Details }}
+{{- if $details }}
 	<h2>Details</h2>
-	<section class="doc">{{.Document.Details}}</section>
+	<section class="doc">{{$details}}</section>
 {{- end }}
-{{- if .Document.Examples }}
+{{- if $examples }}
 	<h2>Examples</h2>
-	<section class="doc">{{.Document.Examples}}</section>
+	<section class="doc">{{$examples}}</section>
 {{- end }}
 {{- $referrers := filter "implicit added" .ReferrerList -}}
 {{- template "referrers" pack . $referrers }}

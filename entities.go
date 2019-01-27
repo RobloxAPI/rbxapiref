@@ -4,6 +4,7 @@ import (
 	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/patch"
 	"github.com/robloxapi/rbxapi/rbxapijson"
+	"html/template"
 	"sort"
 )
 
@@ -24,6 +25,22 @@ type Entities struct {
 
 type Entity interface {
 	IsRemoved() bool
+}
+
+type Documentable interface {
+	GetDocument() Document
+}
+
+func QueryDocument(d Documentable, name ...string) template.HTML {
+	doc := d.GetDocument()
+	if doc == nil {
+		return ""
+	}
+	sub := doc.Query(name...)
+	if sub == nil {
+		return ""
+	}
+	return sub.Render()
 }
 
 // ElementTyper is implemented by an entity that can be referred to by an
@@ -59,6 +76,7 @@ func (e *ClassEntity) Identifier() string { return e.ID }
 func (e *ClassEntity) ElementType() rbxapijson.Type {
 	return rbxapijson.Type{Category: "Class", Name: e.Element.Name}
 }
+func (e *ClassEntity) GetDocument() Document { return e.Document }
 
 type MemberEntity struct {
 	ID      [2]string
@@ -74,7 +92,8 @@ type MemberEntity struct {
 	Document Document
 }
 
-func (e *MemberEntity) IsRemoved() bool { return e.Removed }
+func (e *MemberEntity) IsRemoved() bool       { return e.Removed }
+func (e *MemberEntity) GetDocument() Document { return e.Document }
 
 type EnumEntity struct {
 	ID      string
@@ -96,6 +115,7 @@ func (e *EnumEntity) Identifier() string { return e.ID }
 func (e *EnumEntity) ElementType() rbxapijson.Type {
 	return rbxapijson.Type{Category: "Enum", Name: e.Element.Name}
 }
+func (e *EnumEntity) GetDocument() Document { return e.Document }
 
 type EnumItemEntity struct {
 	ID      [2]string
@@ -108,7 +128,8 @@ type EnumItemEntity struct {
 	Document Document
 }
 
-func (e *EnumItemEntity) IsRemoved() bool { return e.Removed }
+func (e *EnumItemEntity) IsRemoved() bool       { return e.Removed }
+func (e *EnumItemEntity) GetDocument() Document { return e.Document }
 
 type TypeEntity struct {
 	ID      string
@@ -126,6 +147,7 @@ func (e *TypeEntity) Identifier() string { return e.ID }
 func (e *TypeEntity) ElementType() rbxapijson.Type {
 	return e.Element
 }
+func (e *TypeEntity) GetDocument() Document { return e.Document }
 
 type TypeCategory struct {
 	Name  string
