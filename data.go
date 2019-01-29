@@ -393,7 +393,7 @@ func (data *Data) GenerateHistoryElements(entity interface{}, button bool) (temp
 			})
 		}
 		sort.Slice(patches, func(i, j int) bool {
-			return patches[i].Info.Date.Before(patches[j].Info.Date)
+			return patches[i].Info.Date.After(patches[j].Info.Date)
 		})
 	case *MemberEntity:
 		patches = entity.Patches
@@ -405,7 +405,7 @@ func (data *Data) GenerateHistoryElements(entity interface{}, button bool) (temp
 			})
 		}
 		sort.Slice(patches, func(i, j int) bool {
-			return patches[i].Info.Date.Before(patches[j].Info.Date)
+			return patches[i].Info.Date.After(patches[j].Info.Date)
 		})
 	case *EnumItemEntity:
 		patches = entity.Patches
