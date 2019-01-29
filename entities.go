@@ -222,6 +222,16 @@ func (entities *Entities) AddClass(action *Action, info BuildInfo) {
 					addPatch(&emember.Patches, &p.Actions[0], p.Info)
 				}
 			}
+			for _, member := range class.Members {
+				emember := eclass.Members[member.GetName()]
+				if emember == nil {
+					continue
+				}
+				if eclass.Element.GetMember(member.GetName()) == nil {
+					// Include the patch that adds the member.
+					addPatch(&emember.Patches, action, info)
+				}
+			}
 		}
 		eclass.Element = class.Copy().(*rbxapijson.Class)
 		eclass.Removed = false
