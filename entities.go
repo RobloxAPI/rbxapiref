@@ -186,11 +186,8 @@ func (entities *Entities) AddClass(action *Action, info BuildInfo) {
 		}
 		entities.Classes[id] = eclass
 	}
-	addPatch(&eclass.Patches, action, info)
 	switch action.Type {
 	case patch.Add:
-		eclass.Element = class.Copy().(*rbxapijson.Class)
-		eclass.Removed = false
 		for _, member := range class.Members {
 			id := [2]string{class.Name, member.GetName()}
 			emember := eclass.Members[id[1]]
@@ -207,11 +204,33 @@ func (entities *Entities) AddClass(action *Action, info BuildInfo) {
 			emember.Element = member.Copy()
 			emember.Removed = false
 		}
+		if eclass.Element != class && eclass.Element != nil {
+			for _, member := range eclass.Element.Members {
+				emember := eclass.Members[member.GetName()]
+				if emember == nil {
+					continue
+				}
+				if class.GetMember(member.GetName()) == nil {
+					// Retroactively remove the member.
+					emember.Removed = true
+					if len(eclass.Patches) == 0 {
+						continue
+					}
+					p := eclass.Patches[len(eclass.Patches)-1]
+					// TODO: Is it possible for an entity patch which removes
+					// the entity to have any action other than the removal?
+					addPatch(&emember.Patches, &p.Actions[0], p.Info)
+				}
+			}
+		}
+		eclass.Element = class.Copy().(*rbxapijson.Class)
+		eclass.Removed = false
 	case patch.Remove:
 		eclass.Removed = true
 	case patch.Change:
 		eclass.Element.Patch([]patch.Action{action})
 	}
+	addPatch(&eclass.Patches, action, info)
 }
 
 func (entities *Entities) AddMember(action *Action, info BuildInfo) {
@@ -259,11 +278,8 @@ func (entities *Entities) AddEnum(action *Action, info BuildInfo) {
 		}
 		entities.Enums[id] = eenum
 	}
-	addPatch(&eenum.Patches, action, info)
 	switch action.Type {
 	case patch.Add:
-		eenum.Element = enum.Copy().(*rbxapijson.Enum)
-		eenum.Removed = false
 		for _, item := range enum.Items {
 			id := [2]string{enum.Name, item.Name}
 			eitem := eenum.Items[id[1]]
@@ -279,11 +295,31 @@ func (entities *Entities) AddEnum(action *Action, info BuildInfo) {
 			eitem.Element = item.Copy().(*rbxapijson.EnumItem)
 			eitem.Removed = false
 		}
+		if eenum.Element != enum && eenum.Element != nil {
+			for _, item := range eenum.Element.Items {
+				eitem := eenum.Items[item.Name]
+				if eitem == nil {
+					continue
+				}
+				if enum.GetEnumItem(item.Name) == nil {
+					// Retroactively remove the item.
+					eitem.Removed = true
+					if len(eenum.Patches) == 0 {
+						continue
+					}
+					p := eenum.Patches[len(eenum.Patches)-1]
+					addPatch(&eitem.Patches, &p.Actions[0], p.Info)
+				}
+			}
+		}
+		eenum.Element = enum.Copy().(*rbxapijson.Enum)
+		eenum.Removed = false
 	case patch.Remove:
 		eenum.Removed = true
 	case patch.Change:
 		eenum.Element.Patch([]patch.Action{action})
 	}
+	addPatch(&eenum.Patches, action, info)
 }
 
 func (entities *Entities) AddEnumItem(action *Action, info BuildInfo) {

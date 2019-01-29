@@ -463,7 +463,7 @@ func UnpackValues(a []interface{}, args ...string) interface{} {
 
 ////////////////////////////////////////////////////////////////
 
-func MergePatches(left, right []Patch) []Patch {
+func MergePatches(left, right []Patch, filter func(*Action) bool) []Patch {
 	var patches []Patch
 	for _, l := range left {
 		patch := Patch{
@@ -477,7 +477,15 @@ loop:
 	for _, r := range right {
 		for p, patch := range patches {
 			if patch.Info.Equal(r.Info) {
-				patches[p].Actions = append(patches[p].Actions, r.Actions...)
+				if filter == nil {
+					patches[p].Actions = append(patches[p].Actions, r.Actions...)
+				} else {
+					for _, action := range r.Actions {
+						if filter(&action) {
+							patches[p].Actions = append(patches[p].Actions, action)
+						}
+					}
+				}
 				continue loop
 			}
 		}
@@ -485,7 +493,16 @@ loop:
 			Info:    r.Info,
 			Actions: make([]Action, len(r.Actions)),
 		}
-		copy(patch.Actions, r.Actions)
+		if filter == nil {
+			copy(patch.Actions, r.Actions)
+		} else {
+			patch.Actions = patch.Actions[:0]
+			for _, action := range r.Actions {
+				if filter(&action) {
+					patch.Actions = append(patch.Actions, action)
+				}
+			}
+		}
 		patches = append(patches, patch)
 	}
 	return patches

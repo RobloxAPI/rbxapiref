@@ -385,9 +385,12 @@ func (data *Data) GenerateHistoryElements(entity interface{}, button bool) (temp
 	var patches []Patch
 	switch entity := entity.(type) {
 	case *ClassEntity:
-		patches = MergePatches(entity.Patches, nil)
+		patches = MergePatches(entity.Patches, nil, nil)
 		for _, member := range entity.MemberList {
-			patches = MergePatches(patches, member.Patches)
+			patches = MergePatches(patches, member.Patches, func(action *Action) bool {
+				// Filter actions where the parent entity is the cause.
+				return action.GetMember() != nil
+			})
 		}
 		sort.Slice(patches, func(i, j int) bool {
 			return patches[i].Info.Date.Before(patches[j].Info.Date)
@@ -395,9 +398,11 @@ func (data *Data) GenerateHistoryElements(entity interface{}, button bool) (temp
 	case *MemberEntity:
 		patches = entity.Patches
 	case *EnumEntity:
-		patches = MergePatches(entity.Patches, nil)
+		patches = MergePatches(entity.Patches, nil, nil)
 		for _, item := range entity.ItemList {
-			patches = MergePatches(patches, item.Patches)
+			patches = MergePatches(patches, item.Patches, func(action *Action) bool {
+				return action.GetEnumItem() != nil
+			})
 		}
 		sort.Slice(patches, func(i, j int) bool {
 			return patches[i].Info.Date.Before(patches[j].Info.Date)
