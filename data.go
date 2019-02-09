@@ -558,12 +558,46 @@ func (data *Data) LatestPatch() Patch {
 	return data.Manifest.Patches[len(data.Manifest.Patches)-1]
 }
 
+func (data *Data) NormalizeDocReference(link string) string {
+	colon := strings.IndexByte(link, ':')
+	if colon < 0 {
+		return link
+	}
+
+	switch scheme, path := link[:colon], link[colon+1:]; scheme {
+	case "res":
+		return data.FileLink("docres", filepath.Join(data.Settings.Input.DocResources, path))
+	case "class":
+		slash := strings.IndexByte(link, '/')
+		if slash < 0 {
+			return data.FileLink("class", path)
+		}
+		return data.FileLink("member", path[:slash], path[slash+1:])
+	case "enum":
+		slash := strings.IndexByte(link, '/')
+		if slash < 0 {
+			return data.FileLink("enum", path)
+		}
+		return data.FileLink("enumitem", path[:slash], path[slash+1:])
+	case "type":
+		slash := strings.IndexByte(link, '/')
+		if slash < 0 {
+			if typ, ok := data.Entities.Types[path[slash+1:]]; ok {
+				return data.FileLink("type", typ.Element.Category, typ.ID)
+			}
+		}
+		return data.FileLink("type", path[:slash], path[slash+1:])
+	case "member":
+		return data.FileLink("member", path)
+	}
+	return link
+}
+
 func (data *Data) GenerateDocuments() {
 	if data.Settings.Input.Documents == "" {
 		return
 	}
 
-	// TODO: Use RenderNodeHook to reparse links.
 	renderer := mdhtml.NewRenderer(mdhtml.RendererOptions{})
 	dummy := dummyDocument{}
 	dir := rbxapidoc.NewDirectorySection(
@@ -574,6 +608,9 @@ func (data *Data) GenerateDocuments() {
 	for _, entity := range data.Entities.ClassList {
 		if entity.Document, _ = dir.Query("class", entity.ID).(Document); entity.Document != nil {
 			entity.Document.SetRender(renderer)
+			if doc, ok := entity.Document.(rbxapidoc.LinkAdjuster); ok {
+				doc.AdjustLinks(data.NormalizeDocReference)
+			}
 			for _, member := range entity.MemberList {
 				if member.Document, _ = entity.Document.Query("Members", member.ID[1]).(Document); member.Document != nil {
 					member.Document.SetRender(renderer)
@@ -588,6 +625,9 @@ func (data *Data) GenerateDocuments() {
 	for _, entity := range data.Entities.EnumList {
 		if entity.Document, _ = dir.Query("enum", entity.ID).(Document); entity.Document != nil {
 			entity.Document.SetRender(renderer)
+			if doc, ok := entity.Document.(rbxapidoc.LinkAdjuster); ok {
+				doc.AdjustLinks(data.NormalizeDocReference)
+			}
 			for _, item := range entity.ItemList {
 				if item.Document, _ = entity.Document.Query("Members", item.ID[1]).(Document); item.Document != nil {
 					item.Document.SetRender(renderer)
@@ -602,6 +642,9 @@ func (data *Data) GenerateDocuments() {
 	for _, entity := range data.Entities.TypeList {
 		if entity.Document, _ = dir.Query("type", entity.ID).(Document); entity.Document != nil {
 			entity.Document.SetRender(renderer)
+			if doc, ok := entity.Document.(rbxapidoc.LinkAdjuster); ok {
+				doc.AdjustLinks(data.NormalizeDocReference)
+			}
 		} else {
 			entity.Document = dummy
 		}
