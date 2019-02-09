@@ -12,44 +12,61 @@
 		<section class="doc">{{$summary}}</section>
 	{{- end }}
 	{{- if eq .GetMemberType "Property" }}
-		<p>Value Type: {{template "value" .ValueType}}</p>
+		<table class="metadata-pairs">
+			<tbody>
+				<tr><th>Value Type</th><td>{{template "value" .ValueType}}</td></tr>
 		{{- if eq .ReadSecurity .WriteSecurity -}}
 			{{- if and .ReadSecurity (ne .ReadSecurity "None")}}
-				<p>Security: {{.ReadSecurity}}</p>
+				<tr><th>Security</th><td>{{.ReadSecurity}}</td></tr>
 			{{- end -}}
 		{{- else -}}
 			{{- if and .ReadSecurity (ne .ReadSecurity "None")}}
-				<p>Read Security: {{.ReadSecurity}}</p>
+				<tr><th>Read Security</th><td>{{.ReadSecurity}}</td></tr>
 			{{- end -}}
 			{{- if and .WriteSecurity (ne .WriteSecurity "None")}}
-				<p>Write Security: {{.WriteSecurity}}</p>
+				<tr><th>Write Security</th><td>{{.WriteSecurity}}</td></tr>
 			{{- end -}}
 		{{- end }}
-		<p>Category: {{.Category}}</p>
-		<p>Load/Save: {{.CanLoad}}/{{.CanSave}}</p>
+				<tr><th>Category</th><td>{{.Category}}</td></tr>
+				<tr><th>Can Load</th><td>{{.CanLoad}}</td></tr>
+				<tr><th>Can Save</th><td>{{.CanSave}}</td></tr>
+			</tbody>
+		</table>
 	{{- else if eq .GetMemberType "Function" }}
 		<p>Parameters <span class="element-count" title="{{.GetName}} has {{len .Parameters}} {{quantity (len .Parameters) "parameter" "parameters"}}."> ({{len .Parameters}})</span>:
 			{{template "param-table" .Parameters}}
 		</p>
-		<p>Return Type: {{template "value" .ReturnType}}</p>
+		<table class="metadata-pairs">
+			<tbody>
+				<tr><th>Return Type</th><td>{{template "value" .ReturnType}}</td></tr>
 		{{- if and .Security (ne .Security "None") }}
-			<p>Security: {{.Security}}</p>
+				<tr><th>Security</th><td>{{.Security}}</td></tr>
 		{{- end -}}
+			</tbody>
+		</table>
 	{{- else if eq .GetMemberType "Event" -}}
 		<p>Parameters <span class="element-count" title="{{.GetName}} has {{len .Parameters}} {{quantity (len .Parameters) "parameter" "parameters"}}."> ({{len .Parameters}})</span>:
 			{{template "param-table" .Parameters}}
 		</p>
 		{{- if and .Security (ne .Security "None") }}
-			<p>Security: {{.Security}}</p>
+		<table class="metadata-pairs">
+			<tbody>
+				<tr><th>Security</th><td>{{.Security}}</td></tr>
+			</tbody>
+		</table>
 		{{- end -}}
 	{{- else if eq .GetMemberType "Callback" }}
 		<p>Parameters <span class="element-count" title="{{.GetName}} has {{len .Parameters}} {{quantity (len .Parameters) "parameter" "parameters"}}."> ({{len .Parameters}})</span>:
 			{{template "param-table" .Parameters}}
 		</p>
-		<p>Return Type: {{template "value" .ReturnType}}</p>
+		<table class="metadata-pairs">
+			<tbody>
+				<tr><th>Return Type</th><td>{{template "value" .ReturnType}}</td></tr>
 		{{- if and .Security (ne .Security "None") }}
-			<p>Security: {{.Security}}</p>
+				<tr><th>Security</th><td>{{.Security}}</td></tr>
 		{{- end -}}
+			</tbody>
+		</table>
 	{{- end -}}
 	{{- if $details }}
 		<section class="doc">{{$details}}</section>

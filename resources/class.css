@@ -109,3 +109,14 @@ main > nav .toc-members {
 #removed-members > section {
 	border-bottom : 1px solid var(--border-color);
 }
+
+.metadata-pairs {
+	text-align : left;
+	margin     : var(--baseline) 0;
+}
+.metadata-pairs th {
+	font-weight : bold;
+}
+.metadata-pairs th:after {
+	content : ": ";
+}
