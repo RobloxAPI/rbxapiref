@@ -4,6 +4,7 @@ import (
 	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/patch"
 	"github.com/robloxapi/rbxapi/rbxapijson"
+	"github.com/robloxapi/rbxapidoc"
 	"html/template"
 	"sort"
 )
@@ -31,7 +32,7 @@ type Documentable interface {
 	GetDocument() Document
 }
 
-func QueryDocument(d Documentable, name ...string) template.HTML {
+func QueryDocument(d Documentable, level int, name ...string) template.HTML {
 	doc := d.GetDocument()
 	if doc == nil {
 		return ""
@@ -39,6 +40,13 @@ func QueryDocument(d Documentable, name ...string) template.HTML {
 	sub := doc.Query(name...)
 	if sub == nil {
 		return ""
+	}
+	if l, ok := sub.(rbxapidoc.LevelAdjuster); ok {
+		root := l.RootLevel()
+		l.AdjustLevels(level)
+		render := sub.Render()
+		l.AdjustLevels(root)
+		return render
 	}
 	return sub.Render()
 }

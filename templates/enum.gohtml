@@ -1,8 +1,8 @@
 {{- $enum := .ID -}}
-{{- $summary := document . "Summary" -}}
-{{- if not $summary -}}{{- $summary = document . "" -}}{{- end -}}
-{{- $details := document . "Details" -}}
-{{- $examples := document . "Examples" }}
+{{- $summary := document . 2 "Summary" -}}
+{{- if not $summary -}}{{- $summary = document . 2 "" -}}{{- end -}}
+{{- $details := document . 2 "Details" -}}
+{{- $examples := document . 2 "Examples" }}
 <header>
 	<h1>{{icon .}}{{.ID}} {{template "devhub-link" link "devhub" "enum" $enum}}</h1>
 </header>

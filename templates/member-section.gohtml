@@ -1,8 +1,8 @@
 {{- $entity := . -}}
-{{- $summary := document . "Summary" -}}
-{{- if not $summary -}}{{- $summary = document . "" -}}{{- end -}}
-{{- $details := document . "Details" -}}
-{{- $examples := document . "Examples" -}}
+{{- $summary := document . 3 "Summary" -}}
+{{- if not $summary -}}{{- $summary = document . 3 "" -}}{{- end -}}
+{{- $details := document . 3 "Details" -}}
+{{- $examples := document . 3 "Examples" -}}
 {{- with .Element }}
 	<section id="member-{{.GetName}}">
 		<header>
