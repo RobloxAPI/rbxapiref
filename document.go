@@ -20,3 +20,15 @@ type Section interface {
 	// Render returns the content rendered to HTML.
 	Render() template.HTML
 }
+
+// LevelAdjuster extends a Section by representing an outline with adjustable
+// heading levels.
+type LevelAdjuster interface {
+	Section
+	// AdjustLevels offsets the levels of all headings in the outline, such
+	// that RootLevel returns the given value.
+	AdjustLevels(level int)
+	// RootLevel returns the level of the root heading. This is defined as one
+	// level less than the lowest heading level present in the outline.
+	RootLevel() int
+}

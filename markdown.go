@@ -181,7 +181,7 @@ func (s *MarkdownSection) Render() template.HTML {
 // AdjustLevel adjusts the level of each heading node in the document such
 // that RootLevel returns the given value. This does not affect the Level
 // field of the section and subsections.
-func (s *MarkdownSection) AdjustLevel(level int) {
+func (s *MarkdownSection) AdjustLevels(level int) {
 	root := s.RootLevel()
 	if root < 0 {
 		return
