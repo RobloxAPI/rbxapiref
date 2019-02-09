@@ -167,7 +167,16 @@ func (s *MarkdownSection) Render() template.HTML {
 	if renderer == nil {
 		renderer = html.NewRenderer(html.RendererOptions{})
 	}
-	return template.HTML(markdown.Render(s.Document, renderer))
+	render := markdown.Render(s.Document, renderer)
+	for _, b := range render {
+		switch b {
+		case '\t', '\n', '\v', '\f', '\r', ' ', 0x85, 0xA0:
+			continue
+		}
+		return template.HTML(render)
+	}
+	// Return empty string if all characters are spaces.
+	return ""
 }
 
 // AdjustLevel adjusts the level of each heading node in the document such
