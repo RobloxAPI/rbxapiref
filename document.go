@@ -1,8 +1,6 @@
 package rbxapidoc
 
 import (
-	"github.com/gomarkdown/markdown"
-	markdownhtml "github.com/gomarkdown/markdown/html"
 	"html/template"
 )
 
