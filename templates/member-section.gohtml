@@ -63,7 +63,8 @@
 	{{- end -}}
 	{{- $history := history $entity false -}}
 	{{- if $history }}
-		<p>History: {{$history}}</p>
+		<h4>History</h4>
+		{{$history}}
 	{{- end }}
 </section>
 {{- end }}
