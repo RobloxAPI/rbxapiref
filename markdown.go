@@ -153,8 +153,12 @@ func (s *MarkdownSection) Subsections() []Section {
 	return subs
 }
 
+// SetRenderer sets the Renderer field of the section and all subsections.
 func (s *MarkdownSection) SetRender(renderer markdown.Renderer) {
 	s.Renderer = renderer
+	for _, sub := range s.Sections {
+		sub.SetRender(renderer)
+	}
 }
 
 func (s *MarkdownSection) Render() template.HTML {
