@@ -58,13 +58,13 @@
 		<h4>Examples</h4>
 		<section class="doc">{{$examples}}</section>
 	{{- end }}
-	{{- if .Tags }}
-		<p>Tags: {{tostring .Tags}}</p>
-	{{- end -}}
 	{{- $history := history $entity false -}}
 	{{- if $history }}
 		<h4>History</h4>
 		{{$history}}
 	{{- end }}
+	{{- if .Tags }}
+		<p>Tags: {{tostring .Tags}}</p>
+	{{- end -}}
 </section>
 {{- end }}
