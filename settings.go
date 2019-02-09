@@ -30,6 +30,8 @@ type SettingsInput struct {
 	Templates string
 	// Documents is the directory containing document files.
 	Documents string
+	// DocResources is the directory containing document resource files.
+	DocResources string
 }
 
 type SettingsOutput struct {
@@ -41,6 +43,9 @@ type SettingsOutput struct {
 	// Resources is the path relative to Sub where generated resource files
 	// will be written.
 	Resources string
+	// DocResources is the path relative to Sub where document resource files
+	// will be written.
+	DocResources string
 	// Manifest is the path relative to Sub that points to the manifest file.
 	Manifest string
 
@@ -52,16 +57,18 @@ func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 	dw := NewDecodeWrapper(r)
 	var jsettings struct {
 		Input struct {
-			Resources *string
-			Templates *string
-			Documents *string
+			Resources    *string
+			Templates    *string
+			Documents    *string
+			DocResources *string
 		}
 		Output struct {
-			Root      *string
-			Sub       *string
-			Resources *string
-			Manifest  *string
-			Host      *string
+			Root         *string
+			Sub          *string
+			Resources    *string
+			DocResources *string
+			Manifest     *string
+			Host         *string
 		}
 		Configs    map[string]fetch.Config
 		UseConfigs []string
@@ -79,10 +86,12 @@ func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 	merge(&settings.Input.Resources, jsettings.Input.Resources)
 	merge(&settings.Input.Templates, jsettings.Input.Templates)
 	merge(&settings.Input.Documents, jsettings.Input.Documents)
+	merge(&settings.Input.DocResources, jsettings.Input.DocResources)
 	merge(&settings.Output.Root, jsettings.Output.Root)
 	merge(&settings.Output.Sub, jsettings.Output.Sub)
 	merge(&settings.Output.Manifest, jsettings.Output.Manifest)
 	merge(&settings.Output.Resources, jsettings.Output.Resources)
+	merge(&settings.Output.DocResources, jsettings.Output.DocResources)
 	merge(&settings.Output.Host, jsettings.Output.Host)
 	for k, v := range jsettings.Configs {
 		settings.Configs[k] = v

@@ -50,6 +50,8 @@ retry:
 		s = "index" + FileExt
 	case "resource":
 		s = path.Join(data.Settings.Output.Resources, path.Join(args...))
+	case "docres":
+		s = path.Join(data.Settings.Output.DocResources, path.Join(args...))
 	case "updates":
 		if len(args) > 0 {
 			s = path.Join("updates", doubleEscape(args[0])+FileExt)

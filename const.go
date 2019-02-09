@@ -32,10 +32,11 @@ var DefaultSettings = &Settings{
 		Templates: "templates",
 	},
 	Output: SettingsOutput{
-		Root:      ".",
-		Sub:       "ref",
-		Resources: "res",
-		Manifest:  "manifest",
+		Root:         ".",
+		Sub:          "ref",
+		Resources:    "res",
+		DocResources: "docres",
+		Manifest:     "manifest",
 	},
 	Configs: map[string]fetch.Config{
 		"Archive": {
