@@ -30,3 +30,13 @@ type LevelAdjuster interface {
 	// level less than the lowest heading level present in the outline.
 	RootLevel() int
 }
+
+// LinkAdjuster extends a Section by representing a document with adjustable
+// reference links.
+type LinkAdjuster interface {
+	Section
+	// AdjustLinks receives an adjuster function, which receives a link and
+	// returns an adjusted link. The function is applied to all links within the
+	// section.
+	AdjustLinks(adjuster func(string) string)
+}

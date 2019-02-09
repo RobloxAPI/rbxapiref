@@ -206,3 +206,19 @@ func (s *MarkdownSection) RootLevel() (level int) {
 	}
 	return level - 1
 }
+
+func adjustLinks(node ast.Node, adjuster func(string) string) {
+	for _, child := range node.GetChildren() {
+		switch node := child.(type) {
+		case *ast.Link:
+			node.Destination = []byte(adjuster(string(node.Destination)))
+		case *ast.Image:
+			node.Destination = []byte(adjuster(string(node.Destination)))
+		}
+		adjustLinks(child, adjuster)
+	}
+}
+
+func (s *MarkdownSection) AdjustLinks(adjuster func(string) string) {
+	adjustLinks(s.Document, adjuster)
+}
