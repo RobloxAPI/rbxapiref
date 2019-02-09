@@ -106,12 +106,7 @@ func parseMarkdownSection(section *MarkdownSection, level int) {
 			parseMarkdownSection(&sub, level+1)
 		}
 	}
-	// `i==0` means that the section is an orphan that covers the same
-	// children as its parent, and therefore has no siblings. Sections without
-	// siblings or children are avoided to prevent infinite recursion.
-	if i > 0 || hasSub {
-		section.Sections = append(section.Sections, &sub)
-	}
+	section.Sections = append(section.Sections, &sub)
 }
 
 // NewMarkdownSection creates a new MarkdownSection from an ast.Document.
