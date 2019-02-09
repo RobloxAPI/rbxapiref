@@ -569,11 +569,11 @@ func (data *Data) GenerateDocuments() {
 		rbxapidoc.MarkdownFileHandler,
 	)
 
-	for id, entity := range data.Entities.Classes {
-		if entity.Document, _ = dir.Query("class", id).(Document); entity.Document != nil {
+	for _, entity := range data.Entities.ClassList {
+		if entity.Document, _ = dir.Query("class", entity.ID).(Document); entity.Document != nil {
 			entity.Document.SetRender(renderer)
-			for id, member := range entity.Members {
-				if member.Document, _ = entity.Document.Query("Members", id).(Document); member.Document != nil {
+			for _, member := range entity.MemberList {
+				if member.Document, _ = entity.Document.Query("Members", member.ID[1]).(Document); member.Document != nil {
 					member.Document.SetRender(renderer)
 				} else {
 					member.Document = dummy
@@ -583,11 +583,11 @@ func (data *Data) GenerateDocuments() {
 			entity.Document = dummy
 		}
 	}
-	for id, entity := range data.Entities.Enums {
-		if entity.Document, _ = dir.Query("enum", id).(Document); entity.Document != nil {
+	for _, entity := range data.Entities.EnumList {
+		if entity.Document, _ = dir.Query("enum", entity.ID).(Document); entity.Document != nil {
 			entity.Document.SetRender(renderer)
-			for id, item := range entity.Items {
-				if item.Document, _ = entity.Document.Query("Members", id).(Document); item.Document != nil {
+			for _, item := range entity.ItemList {
+				if item.Document, _ = entity.Document.Query("Members", item.ID[1]).(Document); item.Document != nil {
 					item.Document.SetRender(renderer)
 				} else {
 					item.Document = dummy
@@ -597,8 +597,8 @@ func (data *Data) GenerateDocuments() {
 			entity.Document = dummy
 		}
 	}
-	for id, entity := range data.Entities.Types {
-		if entity.Document, _ = dir.Query("type", id).(Document); entity.Document != nil {
+	for _, entity := range data.Entities.TypeList {
+		if entity.Document, _ = dir.Query("type", entity.ID).(Document); entity.Document != nil {
 			entity.Document.SetRender(renderer)
 		} else {
 			entity.Document = dummy
