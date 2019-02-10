@@ -116,3 +116,8 @@ main > nav .toc-members {
 	content     : ": ";
 	white-space : pre-wrap;
 }
+
+#members .tags, #removed-members .tags {
+	text-align : right;
+	font-size  : smaller;
+}
