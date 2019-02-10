@@ -608,8 +608,8 @@ func (data *Data) GenerateDocuments() {
 	for _, entity := range data.Entities.ClassList {
 		if entity.Document, _ = dir.Query("class", entity.ID).(Document); entity.Document != nil {
 			entity.Document.SetRender(renderer)
-			if doc, ok := entity.Document.(rbxapidoc.LinkAdjuster); ok {
-				doc.AdjustLinks(data.NormalizeDocReference)
+			if doc, ok := entity.Document.(rbxapidoc.Linkable); ok {
+				doc.SetLinks(data.NormalizeDocReference)
 			}
 			for _, member := range entity.MemberList {
 				if member.Document, _ = entity.Document.Query("Members", member.ID[1]).(Document); member.Document != nil {
@@ -625,8 +625,8 @@ func (data *Data) GenerateDocuments() {
 	for _, entity := range data.Entities.EnumList {
 		if entity.Document, _ = dir.Query("enum", entity.ID).(Document); entity.Document != nil {
 			entity.Document.SetRender(renderer)
-			if doc, ok := entity.Document.(rbxapidoc.LinkAdjuster); ok {
-				doc.AdjustLinks(data.NormalizeDocReference)
+			if doc, ok := entity.Document.(rbxapidoc.Linkable); ok {
+				doc.SetLinks(data.NormalizeDocReference)
 			}
 			for _, item := range entity.ItemList {
 				if item.Document, _ = entity.Document.Query("Members", item.ID[1]).(Document); item.Document != nil {
@@ -642,8 +642,8 @@ func (data *Data) GenerateDocuments() {
 	for _, entity := range data.Entities.TypeList {
 		if entity.Document, _ = dir.Query("type", entity.ID).(Document); entity.Document != nil {
 			entity.Document.SetRender(renderer)
-			if doc, ok := entity.Document.(rbxapidoc.LinkAdjuster); ok {
-				doc.AdjustLinks(data.NormalizeDocReference)
+			if doc, ok := entity.Document.(rbxapidoc.Linkable); ok {
+				doc.SetLinks(data.NormalizeDocReference)
 			}
 		} else {
 			entity.Document = dummy

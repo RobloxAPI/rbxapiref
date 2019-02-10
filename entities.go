@@ -41,7 +41,7 @@ func QueryDocument(d Documentable, level int, name ...string) template.HTML {
 	if sub == nil {
 		return ""
 	}
-	if l, ok := sub.(rbxapidoc.LevelAdjuster); ok {
+	if l, ok := sub.(rbxapidoc.Headingable); ok {
 		root := l.RootLevel()
 		l.AdjustLevels(level)
 		render := sub.Render()
