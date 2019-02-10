@@ -152,6 +152,7 @@
 	<section class="doc">{{$examples}}</section>
 </section>
 {{- end -}}
+{{- if $membersSorted }}
 <section id="members">
 	<header>
 		<h2>Members</h2>
@@ -160,6 +161,7 @@
 	{{- template "member-section" . -}}
 {{- end }}
 </section>
+{{- end }}
 {{- if $removedSorted }}
 <section id="removed-members">
 	<header>
