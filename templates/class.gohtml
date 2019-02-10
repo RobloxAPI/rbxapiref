@@ -79,7 +79,9 @@
 	</section>
 </nav>
 <section id="summary">
-	<h2>Summary</h2>
+	<header>
+		<h2>Summary</h2>
+	</header>
 {{- if $summary }}
 	<section class="doc">{{$summary}}</section>
 {{- end }}
@@ -121,36 +123,48 @@
 </section>
 {{- end }}
 <section id="members-index">
-	<h2>Member index<span class="element-count" title="{{.ID}} defines {{len $members}} {{quantity (len $members) "member" "members"}}."> ({{len $members}})</span></h2>
+	<header>
+		<h2>Member index<span class="element-count" title="{{.ID}} defines {{len $members}} {{quantity (len $members) "member" "members"}}."> ({{len $members}})</span></h2>
+	</header>
 	{{template "member-index-table" pack $class $members .Superclasses}}
 </section>
 {{- if $removed }}
 <section id="removed-member-index">
-	<h2>Removed member index<span class="element-count" title="{{.ID}} has {{len $removed}} removed {{quantity (len $removed) "member" "members"}}."> ({{len $removed}})</span></h2>
+	<header>
+		<h2>Removed member index<span class="element-count" title="{{.ID}} has {{len $removed}} removed {{quantity (len $removed) "member" "members"}}."> ({{len $removed}})</span></h2>
+	</header>
 	{{template "member-index-table" pack $class $removed}}
 </section>
 {{- end }}
 {{- if $details }}
 <section id="details">
-	<h2>Details</h2>
+	<header>
+		<h2>Details</h2>
+	</header>
 	<section class="doc">{{$details}}</section>
 </section>
 {{- end -}}
 {{- if $examples }}
 <section id="examples">
-	<h2>Examples</h2>
+	<header>
+		<h2>Examples</h2>
+	</header>
 	<section class="doc">{{$examples}}</section>
 </section>
 {{- end -}}
 <section id="members">
-	<h2>Members</h2>
+	<header>
+		<h2>Members</h2>
+	</header>
 {{- range $membersSorted -}}
 	{{- template "member-section" . -}}
 {{- end }}
 </section>
 {{- if $removedSorted }}
 <section id="removed-members">
-	<h2>Removed members</h2>
+	<header>
+		<h2>Removed members</h2>
+	</header>
 {{- range $removedSorted -}}
 	{{- template "member-section" . -}}
 {{- end }}
@@ -160,7 +174,9 @@
 <section id="references">
 {{- if $classes }}
 	<section id="classes">
-		<h2>Relevant classes<span class="element-count" title="{{.ID}} has {{len $classes}} related {{quantity $classes "class" "classes"}}."> ({{len $classes}})</span></h2>
+		<header>
+			<h2>Relevant classes<span class="element-count" title="{{.ID}} has {{len $classes}} related {{quantity $classes "class" "classes"}}."> ({{len $classes}})</span></h2>
+		</header>
 		<ul class="truncated-list element-list">
 		{{- range $classes }}
 			<li><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
@@ -170,7 +186,9 @@
 {{- end -}}
 {{- if $enums }}
 	<section id="enums">
-		<h2>Relevant enums<span class="element-count" title="{{.ID}} has {{len $enums}} related {{quantity $enums "enum" "enums"}}."> ({{len $enums}})</span></h2>
+		<header>
+			<h2>Relevant enums<span class="element-count" title="{{.ID}} has {{len $enums}} related {{quantity $enums "enum" "enums"}}."> ({{len $enums}})</span></h2>
+		</header>
 		<ul class="truncated-list element-list">
 		{{- range $enums }}
 			<li><a class="element-link" href="{{link "enum" .ID}}">{{icon .Element}}{{.ID}}</a></li>
