@@ -207,18 +207,34 @@ func (s *MarkdownSection) RootLevel() (level int) {
 	return level - 1
 }
 
-func adjustLinks(node ast.Node, adjuster func(string) string) {
+func getLinks(node ast.Node, walk func(string)) {
 	for _, child := range node.GetChildren() {
 		switch node := child.(type) {
 		case *ast.Link:
-			node.Destination = []byte(adjuster(string(node.Destination)))
+			walk(string(node.Destination))
 		case *ast.Image:
-			node.Destination = []byte(adjuster(string(node.Destination)))
+			walk(string(node.Destination))
 		}
-		adjustLinks(child, adjuster)
+		getLinks(child, walk)
 	}
 }
 
-func (s *MarkdownSection) AdjustLinks(adjuster func(string) string) {
-	adjustLinks(s.Document, adjuster)
+func (s *MarkdownSection) Links(walk func(string)) {
+	getLinks(s.Document, walk)
+}
+
+func setLinks(node ast.Node, walk func(string) string) {
+	for _, child := range node.GetChildren() {
+		switch node := child.(type) {
+		case *ast.Link:
+			node.Destination = []byte(walk(string(node.Destination)))
+		case *ast.Image:
+			node.Destination = []byte(walk(string(node.Destination)))
+		}
+		setLinks(child, walk)
+	}
+}
+
+func (s *MarkdownSection) SetLinks(walk func(string) string) {
+	setLinks(s.Document, walk)
 }

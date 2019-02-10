@@ -19,9 +19,9 @@ type Section interface {
 	Render() template.HTML
 }
 
-// LevelAdjuster extends a Section by representing an outline with adjustable
-// heading levels.
-type LevelAdjuster interface {
+// Headingable extends a Section by representing an outline with traversable
+// headings.
+type Headingable interface {
 	Section
 	// AdjustLevels offsets the levels of all headings in the outline, such
 	// that RootLevel returns the given value.
@@ -31,12 +31,16 @@ type LevelAdjuster interface {
 	RootLevel() int
 }
 
-// LinkAdjuster extends a Section by representing a document with adjustable
+// Linkable extends a Section by representing a document with traversable
 // reference links.
-type LinkAdjuster interface {
+type Linkable interface {
 	Section
-	// AdjustLinks receives an adjuster function, which receives a link and
-	// returns an adjusted link. The function is applied to all links within the
-	// section.
-	AdjustLinks(adjuster func(string) string)
+	// Links receives a walk function, which receives a link. The function is
+	// applied to all links within the section, which can include those within
+	// subsections.
+	Links(walk func(link string))
+	// SetLinks receives a walk function, which receives a link and returns an
+	// adjusted link. The function is applied to all links within the section,
+	// which can include those within subsections.
+	SetLinks(walk func(link string) string)
 }
