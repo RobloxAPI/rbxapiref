@@ -557,5 +557,23 @@ header .devhub-link {
 }
 
 /*////////////////////////////////////////////////////////////////*/
+/* Status boxes */
+.status-list {
+	margin : var(--baseline) 0;
+}
+.status-box {
+	background-color : var(--table-color);
+	border-left      : 4px solid var(--border-color);
+	padding          : 0.5ch 1ch;
+}
+.status-box > .status-header {
+	font-weight : bold;
+}
+
+.status-high   { border-left-color : #FF7E7E; }
+.status-medium { border-left-color : #F2B729; }
+.status-low    { border-left-color : #77D7F6; }
+
+/*////////////////////////////////////////////////////////////////*/
 /* Documentation */
 @import url("doc.css");

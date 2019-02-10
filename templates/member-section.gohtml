@@ -11,6 +11,7 @@
 	{{- if $summary }}
 		<section class="doc">{{$summary}}</section>
 	{{- end }}
+		{{- template "statuses" . -}}
 	{{- if eq .GetMemberType "Property" }}
 		<table class="metadata-pairs">
 			<tbody>

@@ -1,0 +1,3 @@
+{{- with unpack . "Level" "Header" "Text" -}}
+<div class="status-box{{if .Level}} status-{{.Level}}{{end}}">{{if .Text}}<span class="status-header">{{.Header}}</span> {{.Text}}{{else}}{{.Header}}{{end}}</div>
+{{- end -}}
