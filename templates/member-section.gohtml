@@ -34,9 +34,12 @@
 			</tbody>
 		</table>
 	{{- else if eq .GetMemberType "Function" }}
-		<p>Parameters <span class="element-count" title="{{.GetName}} has {{len .Parameters}} {{quantity (len .Parameters) "parameter" "parameters"}}."> ({{len .Parameters}})</span>:
-			{{template "param-table" .Parameters}}
-		</p>
+		<table class="metadata-pairs">
+			<tbody>
+				<tr><th>Parameters</th><td><span class="element-count">{{len .Parameters}}</td></tr>
+			</tbody>
+		</table>
+		{{template "param-table" .Parameters}}
 		<table class="metadata-pairs">
 			<tbody>
 				<tr><th>Return Type</th><td>{{template "value" .ReturnType}}</td></tr>
@@ -46,9 +49,12 @@
 			</tbody>
 		</table>
 	{{- else if eq .GetMemberType "Event" -}}
-		<p>Parameters <span class="element-count" title="{{.GetName}} has {{len .Parameters}} {{quantity (len .Parameters) "parameter" "parameters"}}."> ({{len .Parameters}})</span>:
-			{{template "param-table" .Parameters}}
-		</p>
+		<table class="metadata-pairs">
+			<tbody>
+				<tr><th>Parameters</th><td><span class="element-count">{{len .Parameters}}</td></tr>
+			</tbody>
+		</table>
+		{{template "param-table" .Parameters}}
 		{{- if and .Security (ne .Security "None") }}
 		<table class="metadata-pairs">
 			<tbody>
@@ -57,9 +63,12 @@
 		</table>
 		{{- end -}}
 	{{- else if eq .GetMemberType "Callback" }}
-		<p>Parameters <span class="element-count" title="{{.GetName}} has {{len .Parameters}} {{quantity (len .Parameters) "parameter" "parameters"}}."> ({{len .Parameters}})</span>:
-			{{template "param-table" .Parameters}}
-		</p>
+		<table class="metadata-pairs">
+			<tbody>
+				<tr><th>Parameters</th><td><span class="element-count">{{len .Parameters}}</td></tr>
+			</tbody>
+		</table>
+		{{template "param-table" .Parameters}}
 		<table class="metadata-pairs">
 			<tbody>
 				<tr><th>Return Type</th><td>{{template "value" .ReturnType}}</td></tr>
