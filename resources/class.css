@@ -10,6 +10,7 @@ main > #members-index { grid-area : index }
 main > #removed-member-index { grid-area : rindex }
 main > #details { grid-area : details }
 main > #examples { grid-area : examples }
+main > #history { grid-area : history }
 main > #members { grid-area : members }
 main > #removed-members { grid-area : rmembers }
 main > #references { grid-area : references }
@@ -18,13 +19,14 @@ main {
 	grid-template-columns : auto;
 	grid-template-areas   :
 		"header    "
-		"nav       "
 		"summary   "
+		"nav       "
 		"tree      "
 		"index     "
 		"rindex    "
 		"details   "
 		"examples  "
+		"history   "
 		"members   "
 		"rmembers  "
 		"references"
@@ -50,6 +52,7 @@ main > nav .toc-members {
 			"rindex     nav   "
 			"details    nav   "
 			"examples   nav   "
+			"history    nav   "
 			"members    nav   "
 			"rmembers   nav   "
 			"references nav   "
@@ -82,6 +85,7 @@ main > nav .toc-members {
 			"rindex     rindex     nav   "
 			"details    details    nav   "
 			"examples   examples   nav   "
+			"history    history    nav   "
 			"members    members    nav   "
 			"rmembers   rmembers   nav   "
 			"references references nav   "
@@ -117,7 +121,7 @@ main > nav .toc-members {
 	white-space : pre-wrap;
 }
 
-#members .tags, #removed-members .tags {
+.tags {
 	text-align : right;
 	font-size  : smaller;
 }

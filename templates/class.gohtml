@@ -3,6 +3,7 @@
 {{- if not $summary -}}{{- $summary = document . 2 "" -}}{{- end -}}
 {{- $details := document . 2 "Details" -}}
 {{- $examples := document . 2 "Examples" -}}
+{{- $history := history . false -}}
 {{- $superclasses := filter "added" .Superclasses -}}
 {{- $subclasses := filter "added" .Subclasses -}}
 {{- $members := filter "added" .MemberList }}
@@ -15,11 +16,27 @@
 <header>
 	<h1>{{icon .Element}}{{.ID}} {{template "devhub-link" link "devhub" "class" $class}}</h1>
 </header>
+<section id="summary">
+	<header>
+		<h2>Summary</h2>
+	</header>
+{{- if $summary }}
+	<section class="doc">{{$summary}}</section>
+{{- end }}
+	{{- template "statuses" .Element -}}
+	<table class="metadata-pairs">
+		<tbody>
+			<tr><th>Memory Category</th><td>{{tostring .Element.MemoryCategory}}</td></tr>
+		</tbody>
+	</table>
+{{- if .Element.Tags }}
+	<p class="tags">Tags: {{tostring .Element.Tags}}</p>
+{{- end -}}
+</section>
 <nav>
 	<section>
 		<h2>Table of contents</h2>
 		<ol>
-			<li><a href="#summary">Summary</a></li>
 		{{- if or $superclasses $subclasses }}
 			<li>Class tree
 				<ol>
@@ -41,6 +58,9 @@
 		{{- end -}}
 		{{- if $examples }}
 			<li><a href="#examples">Examples</a></li>
+		{{- end -}}
+		{{- if $history }}
+			<li><a href="#history">History</a></li>
 		{{- end -}}
 		{{- if $membersSorted }}
 			<li><a href="#members">Members</a>
@@ -78,22 +98,6 @@
 		</ol>
 	</section>
 </nav>
-<section id="summary">
-	<header>
-		<h2>Summary</h2>
-	</header>
-{{- if $summary }}
-	<section class="doc">{{$summary}}</section>
-{{- end }}
-	<p>Memory Category: {{tostring .Element.MemoryCategory}}</p>
-{{- if .Element.Tags }}
-	<p>Tags: {{tostring .Element.Tags}}</p>
-{{- end -}}
-{{- $history := history . false -}}
-{{- if $history }}
-	<p>History: {{$history}}</p>
-{{- end }}
-</section>
 {{- if or $superclasses $subclasses }}
 <section id="tree">
 {{- if $superclasses }}
@@ -150,6 +154,14 @@
 		<h2>Examples</h2>
 	</header>
 	<section class="doc">{{$examples}}</section>
+</section>
+{{- end -}}
+{{- if $history }}
+<section id="history">
+	<header>
+		<h2>History</h2>
+	</header>
+	{{$history}}
 </section>
 {{- end -}}
 {{- if $membersSorted }}
