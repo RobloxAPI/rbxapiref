@@ -3,7 +3,7 @@
 {{- if not $summary -}}{{- $summary = document . 2 "" -}}{{- end -}}
 {{- $details := document . 2 "Details" -}}
 {{- $examples := document . 2 "Examples" -}}
-{{- $history := history . false -}}
+{{- $history := history . false false -}}
 {{- $superclasses := filter "added" .Superclasses -}}
 {{- $subclasses := filter "added" .Subclasses -}}
 {{- $members := filter "added" .MemberList }}

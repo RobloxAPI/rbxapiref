@@ -85,7 +85,7 @@
 		<h4>Examples</h4>
 		<section class="doc">{{$examples}}</section>
 	{{- end }}
-	{{- $history := history $entity false -}}
+	{{- $history := history $entity false false -}}
 	{{- if $history }}
 		<h4>History</h4>
 		{{$history}}

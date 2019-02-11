@@ -383,7 +383,7 @@ func (data *Data) GenerateCardElements(pages ...*Page) (elements []template.HTML
 	return elements, nil
 }
 
-func (data *Data) GenerateHistoryElements(entity interface{}, button bool) (template.HTML, error) {
+func (data *Data) GenerateHistoryElements(entity interface{}, button bool, ascending bool) (template.HTML, error) {
 	var patches []Patch
 	switch entity := entity.(type) {
 	case *ClassEntity:
@@ -394,11 +394,8 @@ func (data *Data) GenerateHistoryElements(entity interface{}, button bool) (temp
 				return action.GetMember() != nil
 			})
 		}
-		sort.Slice(patches, func(i, j int) bool {
-			return patches[i].Info.Date.After(patches[j].Info.Date)
-		})
 	case *MemberEntity:
-		patches = entity.Patches
+		patches = MergePatches(entity.Patches, nil, nil)
 	case *EnumEntity:
 		patches = MergePatches(entity.Patches, nil, nil)
 		for _, item := range entity.ItemList {
@@ -406,11 +403,8 @@ func (data *Data) GenerateHistoryElements(entity interface{}, button bool) (temp
 				return action.GetEnumItem() != nil
 			})
 		}
-		sort.Slice(patches, func(i, j int) bool {
-			return patches[i].Info.Date.After(patches[j].Info.Date)
-		})
 	case *EnumItemEntity:
-		patches = entity.Patches
+		patches = MergePatches(entity.Patches, nil, nil)
 	default:
 		return "", nil
 	}
@@ -419,6 +413,15 @@ func (data *Data) GenerateHistoryElements(entity interface{}, button bool) (temp
 	}
 	if len(patches) == 1 && data.Manifest.Patches[0].Info.Equal(patches[0].Info) {
 		return "", nil
+	}
+	if ascending {
+		sort.Slice(patches, func(i, j int) bool {
+			return patches[i].Info.Date.Before(patches[j].Info.Date)
+		})
+	} else {
+		sort.Slice(patches, func(i, j int) bool {
+			return patches[i].Info.Date.After(patches[j].Info.Date)
+		})
 	}
 	return data.ExecuteTemplate("history", struct {
 		First   BuildInfo
