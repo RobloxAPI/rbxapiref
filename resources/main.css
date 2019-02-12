@@ -578,7 +578,3 @@ header .devhub-link {
 .status-high   { border-left-color : #FF7E7E; }
 .status-medium { border-left-color : #F2B729; }
 .status-low    { border-left-color : #77D7F6; }
-
-/*////////////////////////////////////////////////////////////////*/
-/* Documentation */
-@import url("doc.css");
