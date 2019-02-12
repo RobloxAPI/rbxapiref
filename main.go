@@ -13,11 +13,27 @@ import (
 )
 
 type FlagOptions struct {
-	Settings string `
-		short:"s"
-		long:"settings"
-		description:"Specify a custom settings location."
-		value-name:"PATH"`
+	Settings string `short:"s" long:"settings"`
+}
+
+var options = map[string]*flags.Option{
+	"settings": &flags.Option{
+		Description: "Specify a custom settings location.",
+		ValueName:   "PATH",
+	},
+}
+
+func ParseOptions(data interface{}, opts flags.Options) *flags.Parser {
+	fp := flags.NewParser(data, opts)
+	for name, info := range options {
+		opt := fp.FindOptionByLongName(name)
+		if opt == nil {
+			continue
+		}
+		opt.Description = info.Description
+		opt.ValueName = info.ValueName
+	}
+	return fp
 }
 
 func main() {
@@ -27,7 +43,7 @@ func main() {
 	var flagOptions FlagOptions
 	var filters []string
 	{
-		fp := flags.NewParser(&flagOptions, flags.Default|flags.PassAfterNonOption)
+		fp := ParseOptions(&flagOptions, flags.Default|flags.PassAfterNonOption)
 		var err error
 		filters, err = fp.Parse()
 		if err != nil {
