@@ -452,49 +452,19 @@ func (data *Data) RenderPageDirs(pages []Page) error {
 	return nil
 }
 
-func (data *Data) RenderResources(pages []Page) (err error) {
+func (data *Data) copyResources(srcPath, dstType string, resources map[string]*Resource) error {
 	dirs := map[string]struct{}{}
-	resources := map[string]*Resource{}
-	addResource := func(resource *Resource) {
-		if resource.Name == "" || resource.Embed {
-			return
-		}
-		if r, ok := resources[resource.Name]; ok {
-			if r.Content != nil {
-				err = errors.Errorf("multiple definitions of resource %s", resource.Name)
-				return
-			}
-		}
-		resources[resource.Name] = resource
-	}
-	for _, page := range pages {
-		for i := range page.Styles {
-			if addResource(&page.Styles[i]); err != nil {
-				return err
-			}
-		}
-		for i := range page.Scripts {
-			if addResource(&page.Scripts[i]); err != nil {
-				return err
-			}
-		}
-		for i := range page.Resources {
-			if addResource(&page.Resources[i]); err != nil {
-				return err
-			}
-		}
-	}
 	for name, resource := range resources {
 		var src io.ReadCloser
 		if resource.Content != nil {
 			src = ioutil.NopCloser(bytes.NewReader(resource.Content))
 		} else {
 			var err error
-			if src, err = os.Open(filepath.Join(data.Settings.Input.Resources, name)); err != nil {
+			if src, err = os.Open(filepath.Join(srcPath, name)); err != nil {
 				return errors.WithMessage(err, "open resource")
 			}
 		}
-		dstname := data.AbsFilePath("resource", name)
+		dstname := data.AbsFilePath(dstType, name)
 		dir := filepath.Dir(dstname)
 		if _, ok := dirs[dir]; !ok {
 			if err := os.MkdirAll(dir, 0755); err != nil {
@@ -517,6 +487,45 @@ func (data *Data) RenderResources(pages []Page) (err error) {
 		}
 	}
 	return nil
+}
+
+type Resources map[string]*Resource
+
+func (r Resources) Add(resource *Resource) {
+	// Avoid empty or embedded resources.
+	if resource.Name == "" || resource.Embed {
+		return
+	}
+	if res, ok := r[resource.Name]; ok {
+		// Prioritize resources with internal content.
+		if res.Content != nil {
+			return
+		}
+	}
+	r[resource.Name] = resource
+}
+
+func (data *Data) RenderResources(pages []Page) error {
+	resources := Resources{}
+	docres := Resources{}
+	for _, page := range pages {
+		for i := range page.Styles {
+			resources.Add(&page.Styles[i])
+		}
+		for i := range page.Scripts {
+			resources.Add(&page.Scripts[i])
+		}
+		for i := range page.Resources {
+			resources.Add(&page.Resources[i])
+		}
+		for i := range page.DocResources {
+			docres.Add(&page.DocResources[i])
+		}
+	}
+	if err := data.copyResources(data.Settings.Input.Resources, "resource", resources); err != nil {
+		return err
+	}
+	return data.copyResources(data.Settings.Input.DocResources, "docres", docres)
 }
 
 func (data *Data) RenderPages(pages []Page) error {
@@ -561,39 +570,73 @@ func (data *Data) LatestPatch() Patch {
 	return data.Manifest.Patches[len(data.Manifest.Patches)-1]
 }
 
-func (data *Data) NormalizeDocReference(link string) string {
-	colon := strings.IndexByte(link, ':')
+func (data *Data) ParseDocReference(ref string) (scheme, path, link string) {
+	colon := strings.IndexByte(ref, ':')
 	if colon < 0 {
-		return link
+		return "", "", ref
 	}
-
-	switch scheme, path := link[:colon], link[colon+1:]; scheme {
+	switch scheme, path = ref[:colon], ref[colon+1:]; scheme {
 	case "res":
-		return data.FileLink("docres", filepath.Join(data.Settings.Input.DocResources, path))
+		link = data.FileLink("docres", path)
+		return
 	case "class":
-		slash := strings.IndexByte(link, '/')
+		slash := strings.IndexByte(path, '/')
 		if slash < 0 {
-			return data.FileLink("class", path)
+			link = data.FileLink("class", path)
+			return
 		}
-		return data.FileLink("member", path[:slash], path[slash+1:])
+		link = data.FileLink("member", path[:slash], path[slash+1:])
+		return
 	case "enum":
-		slash := strings.IndexByte(link, '/')
+		slash := strings.IndexByte(path, '/')
 		if slash < 0 {
-			return data.FileLink("enum", path)
+			link = data.FileLink("enum", path)
+			return
 		}
-		return data.FileLink("enumitem", path[:slash], path[slash+1:])
+		link = data.FileLink("enumitem", path[:slash], path[slash+1:])
+		return
 	case "type":
-		slash := strings.IndexByte(link, '/')
+		slash := strings.IndexByte(path, '/')
 		if slash < 0 {
 			if typ, ok := data.Entities.Types[path[slash+1:]]; ok {
-				return data.FileLink("type", typ.Element.Category, typ.ID)
+				link = data.FileLink("type", typ.Element.Category, typ.ID)
+				return
 			}
 		}
-		return data.FileLink("type", path[:slash], path[slash+1:])
+		link = data.FileLink("type", path[:slash], path[slash+1:])
+		return
 	case "member":
-		return data.FileLink("member", path)
+		link = data.FileLink("member", path)
+		return
 	}
-	return link
+	return "", "", ref
+}
+
+// Normalizes the references within a document according to ParseDocReference,
+// and returns any resources that the document refers to.
+func (data *Data) NormalizeDocReferences(document Document) []Resource {
+	doc, ok := document.(rbxapidoc.Linkable)
+	if !ok {
+		return nil
+	}
+	resources := map[string]*Resource{}
+	doc.SetLinks(func(link string) string {
+		scheme, path, link := data.ParseDocReference(link)
+		if scheme == "res" {
+			if _, ok := resources[path]; !ok {
+				resources[path] = &Resource{Name: path}
+			}
+		}
+		return link
+	})
+	docres := make([]Resource, 0, len(resources))
+	for _, resource := range resources {
+		docres = append(docres, *resource)
+	}
+	sort.Slice(docres, func(i, j int) bool {
+		return docres[i].Name < docres[j].Name
+	})
+	return docres
 }
 
 func (data *Data) GenerateDocuments() {
@@ -611,9 +654,6 @@ func (data *Data) GenerateDocuments() {
 	for _, entity := range data.Entities.ClassList {
 		if entity.Document, _ = dir.Query("class", entity.ID).(Document); entity.Document != nil {
 			entity.Document.SetRender(renderer)
-			if doc, ok := entity.Document.(rbxapidoc.Linkable); ok {
-				doc.SetLinks(data.NormalizeDocReference)
-			}
 			for _, member := range entity.MemberList {
 				if member.Document, _ = entity.Document.Query("Members", member.ID[1]).(Document); member.Document != nil {
 					member.Document.SetRender(renderer)
@@ -628,9 +668,6 @@ func (data *Data) GenerateDocuments() {
 	for _, entity := range data.Entities.EnumList {
 		if entity.Document, _ = dir.Query("enum", entity.ID).(Document); entity.Document != nil {
 			entity.Document.SetRender(renderer)
-			if doc, ok := entity.Document.(rbxapidoc.Linkable); ok {
-				doc.SetLinks(data.NormalizeDocReference)
-			}
 			for _, item := range entity.ItemList {
 				if item.Document, _ = entity.Document.Query("Members", item.ID[1]).(Document); item.Document != nil {
 					item.Document.SetRender(renderer)
@@ -645,9 +682,6 @@ func (data *Data) GenerateDocuments() {
 	for _, entity := range data.Entities.TypeList {
 		if entity.Document, _ = dir.Query("type", entity.ID).(Document); entity.Document != nil {
 			entity.Document.SetRender(renderer)
-			if doc, ok := entity.Document.(rbxapidoc.Linkable); ok {
-				doc.SetLinks(data.NormalizeDocReference)
-			}
 		} else {
 			entity.Document = dummy
 		}

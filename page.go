@@ -23,6 +23,8 @@ type Page struct {
 	Scripts []Resource
 	// Resources is a list of other resources.
 	Resources []Resource
+	// DocResources is a list of document resources.
+	DocResources []Resource
 	// Template is the name of the template used to generate the page.
 	Template string
 	// Data is the data used by the template to generate the page.
@@ -257,10 +259,11 @@ func GeneratePageClass(data *Data) (pages []Page) {
 			Meta: Meta{
 				"Title":       Title(class.ID),
 				"Description": "Information about the " + class.ID + " class in the Roblox Lua API."},
-			Styles:   styles,
-			Scripts:  scripts,
-			Template: "class",
-			Data:     class,
+			Styles:       styles,
+			Scripts:      scripts,
+			DocResources: data.NormalizeDocReferences(class.Document),
+			Template:     "class",
+			Data:         class,
 		}
 	}
 	return pages
@@ -275,9 +278,10 @@ func GeneratePageEnum(data *Data) (pages []Page) {
 			Meta: Meta{
 				"Title":       Title(enum.ID),
 				"Description": "Information about the " + enum.ID + " enum in the Roblox Lua API."},
-			Styles:   styles,
-			Template: "enum",
-			Data:     enum,
+			Styles:       styles,
+			DocResources: data.NormalizeDocReferences(enum.Document),
+			Template:     "enum",
+			Data:         enum,
 		}
 	}
 	return pages
@@ -291,8 +295,9 @@ func GeneratePageType(data *Data) (pages []Page) {
 			Meta: Meta{
 				"Title":       Title(typ.ID),
 				"Description": "Information about the " + typ.ID + " type in the Roblox Lua API."},
-			Template: "type",
-			Data:     typ,
+			DocResources: data.NormalizeDocReferences(typ.Document),
+			Template:     "type",
+			Data:         typ,
 		}
 	}
 	return pages
