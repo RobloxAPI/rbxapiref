@@ -10,6 +10,8 @@
 	<link rel="icon" type="image/png" sizes="16x16" href="{{link "resource" "favicons/favicon-16x16.png"}}">
 	<link rel="shortcut icon" href="{{link "resource" "/favicons/favicon.ico"}}">
 	<title>{{if .Meta.Title}}{{.Meta.Title}}{{else}}{{$main.Meta.Title}}{{end}}</title>
+	<meta name="path-sub" content="{{link ""}}">
+	<meta name="search-db" content="{{link "search"}}">
 {{- range resources $main.Styles }}
 	{{.}}
 {{- end -}}

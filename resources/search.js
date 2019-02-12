@@ -424,6 +424,12 @@ function getDatabase(success, failure) {
 			failure();
 		};
 
+		let dbPath = document.head.querySelector("meta[name=\"search-db\"]");
+		if (dbPath === null) {
+			return;
+		};
+		dbPath = dbPath.content;
+
 		let req = new XMLHttpRequest();
 		req.addEventListener("load", function(event) {
 			database = new Database(event.target.response);
@@ -432,7 +438,7 @@ function getDatabase(success, failure) {
 		});
 		req.addEventListener("error", fail);
 		req.addEventListener("abort", fail);
-		req.open("GET", "/ref/search.db");
+		req.open("GET", dbPath);
 		req.responseType = "arraybuffer";
 		req.send();
 		return;
@@ -441,7 +447,17 @@ function getDatabase(success, failure) {
 	return;
 }
 
+let pathSub = null;
 function generateLink(item, devhub) {
+	if (pathSub === null) {
+		let tag = document.head.querySelector("meta[name=\"path-sub\"]");
+		if (tag === null) {
+			pathSub = "/ref";
+		} else {
+			pathSub = tag.content;
+		};
+	};
+
 	let split = item.name.indexOf(".");
 	let parent = "";
 	let member = item.name;
@@ -469,20 +485,20 @@ function generateLink(item, devhub) {
 	} else {
 		switch (item.dbType) {
 		case "class":
-			return "/ref/class/"+encodeURI(member)+".html";
+			return pathSub+"/class/"+encodeURI(member)+".html";
 		case "enum":
-			return "/ref/enum/"+encodeURI(member)+".html";
+			return pathSub+"/enum/"+encodeURI(member)+".html";
 		case "enumitem":
-			return "/ref/enum/"+encodeURI(parent)+".html#member-"+encodeURI(member);
+			return pathSub+"/enum/"+encodeURI(parent)+".html#member-"+encodeURI(member);
 		case "type":
-			return "/ref/type/"+encodeURI(member)+".html";
+			return pathSub+"/type/"+encodeURI(member)+".html";
 		case "property":
 		case "function":
 		case "event":
 		case "callback":
-			return "/ref/class/"+encodeURI(parent)+".html#member-"+encodeURI(member);
+			return pathSub+"/class/"+encodeURI(parent)+".html#member-"+encodeURI(member);
 		};
-		return "/ref";
+		return pathSub;
 	};
 };
 

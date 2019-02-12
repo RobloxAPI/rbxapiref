@@ -331,12 +331,12 @@ li .element-link .icon {
 	background-position : calc(-1 * var(--icon-index,0) * var(--icon-scale,0));
 }
 .class-icon {
-	background-image : url('/ref/res/icon-explorer.png');
+	background-image : url('icon-explorer.png');
 }
 .member-icon,
 .enum-icon,
 .enum-item-icon {
-	background-image : url('/ref/res/icon-objectbrowser.png');
+	background-image : url('icon-objectbrowser.png');
 }
 .enum-icon      { --icon-index :  9 }
 .enum-item-icon { --icon-index : 10 }
@@ -346,7 +346,7 @@ header .icon,
 	margin-right : var(--icon-spacing);
 }
 .devhub-icon {
-	background-image : url('/ref/res/icon-devhub.png');
+	background-image : url('icon-devhub.png');
 	margin : 0 var(--icon-spacing);
 }
 
