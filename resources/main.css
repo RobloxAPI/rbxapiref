@@ -512,6 +512,11 @@ li[diff-field="Parameters"] .diff-values .parameter {
 	li[diff-field="Parameters"] .diff-values .value-content {
 		display : inline;
 	}
+	li[diff-field="Parameters"] .diff-values > * {
+		background-color : var(--table-color);
+		border-left      : 2px solid var(--border-color);
+		padding          : 0.5ch 1ch;
+	}
 	li[diff-field="Parameters"] .diff-values .parameter {
 		display : block;
 		hyphens : auto;
