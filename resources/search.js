@@ -37,6 +37,12 @@ function fuzzy_match_simple(pattern, str) {
 	return patternLength != 0 && strLength != 0 && patternIdx == patternLength ? true : false;
 }
 
+function escapeHTML(text) {
+	let e = document.createElement("div");
+	e.innerText = text;
+	return e.innerHTML;
+};
+
 // Returns [bool, score, formattedStr]
 // bool: true if each character in pattern is found sequentially within str
 // score: integer; higher is better match. Value has no intrinsic meaning. Range varies with pattern.
@@ -161,10 +167,10 @@ function fuzzy_match(pattern, str) {
 	var lastIdx = 0;
 	for (var i = 0; i < matchedIndices.length; ++i) {
 		var idx = matchedIndices[i];
-		formattedStr += str.substr(lastIdx, idx - lastIdx) + "<b>" + str.charAt(idx) + "</b>";
+		formattedStr += escapeHTML(str.substr(lastIdx, idx - lastIdx)) + "<b>" + escapeHTML(str.charAt(idx)) + "</b>";
 		lastIdx = idx + 1;
 	}
-	formattedStr += str.substr(lastIdx, str.length - lastIdx);
+	formattedStr += escapeHTML(str.substr(lastIdx, str.length - lastIdx));
 
 	var matched = patternIdx == patternLength;
 	return [matched, score, formattedStr];
@@ -447,6 +453,10 @@ function getDatabase(success, failure) {
 	return;
 }
 
+function doubleEncode(uri) {
+	return encodeURI(encodeURI(uri));
+};
+
 let pathSub = null;
 function generateLink(item, devhub) {
 	if (pathSub === null) {
@@ -468,35 +478,35 @@ function generateLink(item, devhub) {
 	if (devhub) {
 		switch (item.dbType) {
 		case "class":
-			return "/class/"+encodeURI(member);
+			return "/class/"+doubleEncode(member);
 		case "enum":
-			return "/enum/"+encodeURI(member);
+			return "/enum/"+doubleEncode(member);
 		case "enumitem":
-			return "/enum/"+encodeURI(parent);
+			return "/enum/"+doubleEncode(parent);
 		case "type":
-			return "/datatype/"+encodeURI(member);
+			return "/datatype/"+doubleEncode(member);
 		case "property":
 		case "function":
 		case "event":
 		case "callback":
-			return "/"+item.dbType+"/"+encodeURI(parent)+"/"+encodeURI(member);
+			return "/"+item.dbType+"/"+doubleEncode(parent)+"/"+doubleEncode(member);
 		};
 		return "";
 	} else {
 		switch (item.dbType) {
 		case "class":
-			return pathSub+"/class/"+encodeURI(member)+".html";
+			return pathSub+"/class/"+doubleEncode(member)+".html";
 		case "enum":
-			return pathSub+"/enum/"+encodeURI(member)+".html";
+			return pathSub+"/enum/"+doubleEncode(member)+".html";
 		case "enumitem":
-			return pathSub+"/enum/"+encodeURI(parent)+".html#member-"+encodeURI(member);
+			return pathSub+"/enum/"+doubleEncode(parent)+".html#member-"+doubleEncode(member);
 		case "type":
-			return pathSub+"/type/"+encodeURI(member)+".html";
+			return pathSub+"/type/"+doubleEncode(member)+".html";
 		case "property":
 		case "function":
 		case "event":
 		case "callback":
-			return pathSub+"/class/"+encodeURI(parent)+".html#member-"+encodeURI(member);
+			return pathSub+"/class/"+doubleEncode(parent)+".html#member-"+doubleEncode(member);
 		};
 		return pathSub;
 	};
