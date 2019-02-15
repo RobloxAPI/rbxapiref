@@ -15,12 +15,16 @@ import (
 
 type FlagOptions struct {
 	Settings string `short:"s" long:"settings"`
+	Force    bool   `short:"f" long:"force"`
 }
 
 var options = map[string]*flags.Option{
 	"settings": &flags.Option{
 		Description: "Specify a custom settings location.",
 		ValueName:   "PATH",
+	},
+	"force": &flags.Option{
+		Description: "Force a complete rebuild.",
 	},
 }
 
@@ -57,7 +61,10 @@ func main() {
 	}
 
 	// Initialize root.
-	data := &Data{CurrentYear: time.Now().Year()}
+	data := &Data{
+		CurrentYear: time.Now().Year(),
+		Manifest:    &Manifest{},
+	}
 
 	// Load settings.
 	data.Settings = *DefaultSettings.Copy()
@@ -69,12 +76,12 @@ func main() {
 		data.Settings.Output.Sub,
 		data.Settings.Output.Manifest,
 	)
-	if f, err := os.Open(manifestPath); err == nil {
-		data.Manifest, err = ReadManifest(f)
-		f.Close()
-		but.IfFatal(err, "open manifest")
-	} else {
-		data.Manifest = &Manifest{}
+	if !flagOptions.Force {
+		if f, err := os.Open(manifestPath); err == nil {
+			data.Manifest, err = ReadManifest(f)
+			f.Close()
+			but.IfFatal(err, "open manifest")
+		}
 	}
 
 	// Fetch builds.
