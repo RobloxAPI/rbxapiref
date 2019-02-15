@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/anaminus/but"
 	"github.com/jessevdk/go-flags"
 	"github.com/robloxapi/rbxapiref/fetch"
 	"html/template"
@@ -52,7 +53,7 @@ func main() {
 				return
 			}
 		}
-		IfFatal(err, "flag parser error")
+		but.IfFatal(err, "flag parser error")
 	}
 
 	// Initialize root.
@@ -60,7 +61,7 @@ func main() {
 
 	// Load settings.
 	data.Settings = *DefaultSettings.Copy()
-	IfFatal(data.Settings.ReadFile(flagOptions.Settings))
+	but.IfFatal(data.Settings.ReadFile(flagOptions.Settings))
 
 	// Load manifest.
 	manifestPath := filepath.Join(
@@ -71,18 +72,18 @@ func main() {
 	if f, err := os.Open(manifestPath); err == nil {
 		data.Manifest, err = ReadManifest(f)
 		f.Close()
-		IfFatal(err, "open manifest")
+		but.IfFatal(err, "open manifest")
 	} else {
 		data.Manifest = &Manifest{}
 	}
 
 	// Fetch builds.
 	builds, err := FetchBuilds(data.Settings)
-	IfFatal(err)
+	but.IfFatal(err)
 
 	// Merge uncached builds.
 	data.Manifest.Patches, err = MergeBuilds(data.Settings, data.Manifest.Patches, builds)
-	IfFatal(err)
+	but.IfFatal(err)
 
 	// Fetch ReflectionMetadata.
 	{
@@ -91,7 +92,7 @@ func main() {
 			Config:    data.Settings.Configs[latest.Config],
 			CacheMode: fetch.CacheTemp,
 		}, latest.Info.Hash)
-		IfFatal(err)
+		but.IfFatal(err)
 	}
 
 	// Generate entities.
@@ -132,7 +133,7 @@ func main() {
 		"type":       GetType,
 		"unpack":     UnpackValues,
 	})
-	IfFatal(err, "open template")
+	but.IfFatal(err, "open template")
 
 	// Generate pages.
 	pages := data.GeneratePages([]PageGenerator{
@@ -146,31 +147,31 @@ func main() {
 	})
 	if len(filters) > 0 {
 		pages, err = FilterPages(pages, filters)
-		IfFatal(err)
+		but.IfFatal(err)
 		for _, page := range pages {
-			Log("INCLUDE PAGE", page.File)
+			but.Log("INCLUDE PAGE", page.File)
 		}
 	}
-	IfFatal(data.RenderPageDirs(pages))
-	IfFatal(data.RenderResources(pages))
-	IfFatal(data.RenderPages(pages))
+	but.IfFatal(data.RenderPageDirs(pages))
+	but.IfFatal(data.RenderResources(pages))
+	but.IfFatal(data.RenderPages(pages))
 
 	// Generate search database.
 	{
 		f, err := os.Create(data.AbsFilePath("search"))
-		IfFatal(err, "create search database file")
+		but.IfFatal(err, "create search database file")
 		db := dbWriter{data: data, w: f}
 		db.GenerateDatabase()
 		f.Close()
-		IfFatal(db.err, "generate search database")
+		but.IfFatal(db.err, "generate search database")
 	}
 
 	// Save cache.
 	{
 		f, err := os.Create(manifestPath)
-		IfFatal(err, "create manifest")
+		but.IfFatal(err, "create manifest")
 		err = WriteManifest(f, data.Manifest)
 		f.Close()
-		IfFatal(err, "encode manifest")
+		but.IfFatal(err, "encode manifest")
 	}
 }

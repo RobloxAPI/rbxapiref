@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"github.com/anaminus/but"
 	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapiref/fetch"
 	"image/png"
@@ -94,9 +95,9 @@ func GeneratePageMain(data *Data) (pages []Page) {
 		CacheMode: fetch.CacheTemp,
 	}
 	icon, err := client.ExplorerIcons(latest.Info.Hash)
-	IfFatalf(err, "%s: fetch icons %s", latest.Info.Hash)
+	but.IfFatalf(err, "%s: fetch icons %s", latest.Info.Hash)
 	var buf bytes.Buffer
-	IfFatal(png.Encode(&buf, icon), "encode icons file")
+	but.IfFatal(png.Encode(&buf, icon), "encode icons file")
 
 	return []Page{{
 		Meta: Meta{

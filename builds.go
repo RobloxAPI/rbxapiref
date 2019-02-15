@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/anaminus/but"
 	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapi/rbxapijson"
 	"github.com/robloxapi/rbxapi/rbxapijson/diff"
@@ -72,20 +73,20 @@ loop:
 				if patch.Prev != nil {
 					// Cached build is now the first, but was not originally;
 					// actions are stale.
-					Log("STALE", patch.Info)
+					but.Log("STALE", patch.Info)
 					break
 				}
 			} else {
 				if patch.Prev == nil {
 					// Cached build was not originally the first, but now is;
 					// actions are stale.
-					Log("STALE", patch.Info)
+					but.Log("STALE", patch.Info)
 					break
 				}
 				if !latest.Info.Equal(*patch.Prev) {
 					// Latest build does not match previous build; actions are
 					// stale.
-					Log("STALE", patch.Info)
+					but.Log("STALE", patch.Info)
 					break
 				}
 			}
@@ -94,10 +95,10 @@ loop:
 			latest = &Build{Info: patch.Info, Config: patch.Config}
 			continue loop
 		}
-		Log("NEW", build.Info)
+		but.Log("NEW", build.Info)
 		client.Config = settings.Configs[build.Config]
 		root, err := client.APIDump(build.Info.Hash)
-		if IfErrorf(err, "%s: fetch build %s", build.Config, build.Info.Hash) {
+		if but.IfErrorf(err, "%s: fetch build %s", build.Config, build.Info.Hash) {
 			continue
 		}
 		build.API = root
@@ -111,7 +112,7 @@ loop:
 				// current build.
 				client.Config = settings.Configs[latest.Config]
 				root, err := client.APIDump(latest.Info.Hash)
-				if IfErrorf(err, "%s: fetch build %s", latest.Config, latest.Info.Hash) {
+				if but.IfErrorf(err, "%s: fetch build %s", latest.Config, latest.Info.Hash) {
 					continue
 				}
 				latest.API = root
