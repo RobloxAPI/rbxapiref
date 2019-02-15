@@ -440,6 +440,96 @@ func (data *Data) GeneratePages(generators []PageGenerator) (pages []Page) {
 	return pages
 }
 
+type FileSet struct {
+	root string
+	set  map[string]struct{}
+}
+
+func NewFileSet(root string, file ...string) *FileSet {
+	files := &FileSet{root: root, set: map[string]struct{}{}}
+	for _, file := range file {
+		files.Add(file)
+	}
+	return files
+}
+
+func (files *FileSet) Add(file string) {
+	files.set[file] = struct{}{}
+}
+
+func (files *FileSet) Has(file string) bool {
+	_, ok := files.set[file]
+	return ok
+}
+
+func (files *FileSet) Files() []string {
+	fs := make([]string, 0, len(files.set))
+	for file := range files.set {
+		fs = append(fs, file)
+	}
+	sort.Strings(fs)
+	return fs
+}
+
+func (data *Data) ComparePages(pages []Page) error {
+	// Accumulate generated files.
+	files := NewFileSet("")
+	files.Add(data.FilePath("manifest"))
+	files.Add(data.FilePath("search"))
+	for _, page := range pages {
+		if page.File != "" {
+			files.Add(page.File)
+		}
+		for _, res := range page.Styles {
+			files.Add(data.FilePath("resource", res.Name))
+		}
+		for _, res := range page.Scripts {
+			files.Add(data.FilePath("resource", res.Name))
+		}
+		for _, res := range page.Resources {
+			files.Add(data.FilePath("resource", res.Name))
+		}
+		for _, res := range page.DocResources {
+			files.Add(data.FilePath("docres", res.Name))
+		}
+	}
+	// Include directories.
+	for _, file := range files.Files() {
+		for {
+			dir := filepath.Dir(file)
+			if dir == file || dir == string(filepath.Separator) || dir == "." {
+				break
+			}
+			file = dir
+			files.Add(dir)
+		}
+	}
+
+	// Walk the output tree.
+	root := filepath.Dir(data.AbsFilePath(""))
+	return filepath.Walk(data.AbsFilePath(""), func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return nil
+		}
+		if path, err = filepath.Rel(root, path); err != nil {
+			return nil
+		}
+		// Skip "hidden" files that start with a dot.
+		if info.Name()[0] == '.' {
+			if info.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		// Skip generated files.
+		if files.Has(path) {
+			return nil
+		}
+		return os.Remove(filepath.Join(root, path))
+	})
+	return nil
+}
+
 func (data *Data) RenderPageDirs(pages []Page) error {
 	dirs := map[string]struct{}{}
 	for _, page := range pages {
