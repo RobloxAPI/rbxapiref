@@ -402,10 +402,13 @@ func GenerateEntities(patches []Patch) (entities *Entities) {
 		}
 	}
 
-	referType := func(referrer Referrer, typ rbxapijson.Type) {
+	referType := func(referrer Referrer, typ rbxapijson.Type, current bool) {
 		var et ElementTyper
 		switch typ.Category {
 		case "Class":
+			if !current {
+				return
+			}
 			if referrer.Member.Removed {
 				return
 			}
@@ -419,6 +422,9 @@ func GenerateEntities(patches []Patch) (entities *Entities) {
 			}
 			et = eclass
 		case "Enum":
+			if !current {
+				return
+			}
 			if referrer.Member.Removed {
 				return
 			}
@@ -442,6 +448,9 @@ func GenerateEntities(patches []Patch) (entities *Entities) {
 				}
 				entities.Types[typ.Name] = etype
 			}
+			if !current {
+				return
+			}
 			if referrer.Member.Removed {
 				return
 			}
@@ -463,20 +472,64 @@ func GenerateEntities(patches []Patch) (entities *Entities) {
 	for _, entity := range entities.Members {
 		switch element := entity.Element.(type) {
 		case *rbxapijson.Property:
-			referType(Referrer{entity, nil}, element.ValueType)
+			referType(Referrer{entity, nil}, element.ValueType, true)
+			for _, p := range entity.Patches {
+				for _, a := range p.Actions {
+					member := a.Property
+					if member == nil {
+						continue
+					}
+					referType(Referrer{entity, nil}, member.ValueType, false)
+				}
+			}
 		case *rbxapijson.Function:
-			referType(Referrer{entity, nil}, element.ReturnType)
+			referType(Referrer{entity, nil}, element.ReturnType, true)
 			for i, param := range element.Parameters {
-				referType(Referrer{entity, &element.Parameters[i]}, param.Type)
+				referType(Referrer{entity, &element.Parameters[i]}, param.Type, true)
+			}
+			for _, p := range entity.Patches {
+				for _, a := range p.Actions {
+					member := a.Function
+					if member == nil {
+						continue
+					}
+					referType(Referrer{entity, nil}, member.ReturnType, false)
+					for i, param := range member.Parameters {
+						referType(Referrer{entity, &member.Parameters[i]}, param.Type, false)
+					}
+				}
 			}
 		case *rbxapijson.Event:
 			for i, param := range element.Parameters {
-				referType(Referrer{entity, &element.Parameters[i]}, param.Type)
+				referType(Referrer{entity, &element.Parameters[i]}, param.Type, true)
+			}
+			for _, p := range entity.Patches {
+				for _, a := range p.Actions {
+					member := a.Event
+					if member == nil {
+						continue
+					}
+					for i, param := range member.Parameters {
+						referType(Referrer{entity, &member.Parameters[i]}, param.Type, false)
+					}
+				}
 			}
 		case *rbxapijson.Callback:
-			referType(Referrer{entity, nil}, element.ReturnType)
+			referType(Referrer{entity, nil}, element.ReturnType, true)
 			for i, param := range element.Parameters {
-				referType(Referrer{entity, &element.Parameters[i]}, param.Type)
+				referType(Referrer{entity, &element.Parameters[i]}, param.Type, true)
+			}
+			for _, p := range entity.Patches {
+				for _, a := range p.Actions {
+					member := a.Callback
+					if member == nil {
+						continue
+					}
+					referType(Referrer{entity, nil}, member.ReturnType, false)
+					for i, param := range member.Parameters {
+						referType(Referrer{entity, &member.Parameters[i]}, param.Type, false)
+					}
+				}
 			}
 		}
 	}
