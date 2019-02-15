@@ -7,7 +7,6 @@ import (
 	"github.com/robloxapi/rbxapiref/fetch"
 	"html/template"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -71,11 +70,7 @@ func main() {
 	but.IfFatal(data.Settings.ReadFile(flagOptions.Settings))
 
 	// Load manifest.
-	manifestPath := filepath.Join(
-		data.Settings.Output.Root,
-		data.Settings.Output.Sub,
-		data.Settings.Output.Manifest,
-	)
+	manifestPath := data.AbsFilePath("manifest")
 	if !flagOptions.Force {
 		if f, err := os.Open(manifestPath); err == nil {
 			data.Manifest, err = ReadManifest(f)

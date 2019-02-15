@@ -93,6 +93,8 @@ retry:
 		return "https://github.com/robloxapi/rbxapiref/issues"
 	case "search":
 		s = "search.db"
+	case "manifest":
+		s = data.Settings.Output.Manifest
 	case "devhub":
 		switch linkType = strings.ToLower(args[0]); linkType {
 		case "class", "enumitem", "enum":
