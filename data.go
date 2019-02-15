@@ -126,15 +126,16 @@ func (data *Data) AbsFilePath(typ string, args ...string) string {
 // LinkFromPath transforms a path into a link, if possible.
 func (data *Data) LinkFromPath(p string) string {
 	if l, err := filepath.Rel(data.Settings.Output.Root, p); err == nil {
-		return l
+		return path.Clean(l)
 	}
-	return p
+	return path.Clean(p)
 }
 
 // PathFromLink transforms a link into a path, if possible.
 func (data *Data) PathFromLink(l string) string {
 	l, _ = url.PathUnescape(l)
-	return l
+	l = strings.TrimPrefix(l, "/")
+	return filepath.Clean(l)
 }
 
 // AbsPathFromLink transforms a link into an absolute path, if possible.
