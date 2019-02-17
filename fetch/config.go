@@ -35,117 +35,6 @@ import (
 	"time"
 )
 
-type unzipper struct {
-	rc       io.ReadCloser
-	deferred []func() error
-}
-
-func unzip(rc io.ReadCloser, filename string) (uz *unzipper, err error) {
-	uz = &unzipper{}
-	type readSeeker interface {
-		io.ReaderAt
-		io.Seeker
-		io.Closer
-	}
-
-	// Zip reader requires a ReaderAt and a size.
-	var readerAt io.ReaderAt
-	var size int64
-	switch rs := rc.(type) {
-	case readSeeker:
-		// Use value as readerAt directly.
-		readerAt = rs
-		if size, err = rs.Seek(0, io.SeekEnd); err != nil {
-			return nil, err
-		}
-		if _, err = rs.Seek(0, 0); err != nil {
-			return nil, err
-		}
-		uz.Defer(func() error { return rs.Close() })
-	default:
-		// Write data to temp file, use file as readerAt.
-		tmp, err := ioutil.TempFile(os.TempDir(), "")
-		if err != nil {
-			rc.Close()
-			return nil, err
-		}
-		uz.Defer(func() error { return os.Remove(tmp.Name()) })
-		uz.Defer(func() error { return tmp.Close() })
-		_, err = io.Copy(tmp, rc)
-		rc.Close()
-		if err != nil {
-			uz.Close()
-			return nil, err
-		}
-		if size, err = tmp.Seek(0, io.SeekEnd); err != nil {
-			uz.Close()
-			return nil, err
-		}
-		if _, err = tmp.Seek(0, 0); err != nil {
-			uz.Close()
-			return nil, err
-		}
-		readerAt = tmp
-	}
-
-	// Unzip data.
-	zr, err := zip.NewReader(readerAt, size)
-	if err != nil {
-		uz.Close()
-		return nil, err
-	}
-	var zfile *zip.File
-	for _, zf := range zr.File {
-		if zf.Name != filename {
-			continue
-		}
-		zfile = zf
-		break
-	}
-	if zfile == nil {
-		uz.Close()
-		return nil, errors.New("failed to find file in archive")
-	}
-	if uz.rc, err = zfile.Open(); err != nil {
-		uz.Close()
-		return nil, err
-	}
-	uz.Defer(func() error { return uz.rc.Close() })
-	return uz, nil
-}
-
-func (uz *unzipper) Defer(fn func() error) {
-	uz.deferred = append(uz.deferred, fn)
-}
-
-func (uz *unzipper) Read(p []byte) (n int, err error) {
-	return uz.rc.Read(p)
-}
-
-func (uz *unzipper) Close() (err error) {
-	for i := len(uz.deferred) - 1; i >= 0; i-- {
-		e := uz.deferred[i]()
-		uz.deferred[i] = nil
-		if err == nil {
-			err = e
-		}
-	}
-	return err
-}
-
-func handleGlobalFormat(loc Location, resp io.ReadCloser, err error) (string, io.ReadCloser, error) {
-	if err != nil || resp == nil {
-		return loc.Format, resp, err
-	}
-	format := loc.Format
-	switch format {
-	case ".zip":
-		format = path.Ext(loc.URL.Fragment)
-		resp, err = unzip(resp, loc.URL.Fragment)
-	}
-	return format, resp, err
-}
-
 func userCacheDir() (string, error) {
 	var dir string
 
@@ -372,6 +261,155 @@ type Client struct {
 
 const cacheDirName = "roblox-fetch"
 
+type readSeeker interface {
+	io.Reader
+	io.ReaderAt
+	io.Seeker
+	io.Closer
+}
+
+type readerAtSeeker interface {
+	io.Reader
+	io.ReaderAt
+	io.Seeker
+}
+
+type nopCloser struct {
+	readerAtSeeker
+}
+
+func (nopCloser) Close() error { return nil }
+
+func unzip(rs readSeeker, filename string) (r io.Reader, err error) {
+	// Find size.
+	var size int64
+	if size, err = rs.Seek(0, io.SeekEnd); err != nil {
+		return nil, err
+	}
+	if _, err = rs.Seek(0, io.SeekStart); err != nil {
+		return nil, err
+	}
+
+	// Read zipped files.
+	zr, err := zip.NewReader(rs, size)
+	if err != nil {
+		return nil, err
+	}
+
+	// Find zipped file.
+	var zfile *zip.File
+	for _, zf := range zr.File {
+		if zf.Name != filename {
+			continue
+		}
+		zfile = zf
+		break
+	}
+	if zfile == nil {
+		return nil, errors.New("failed to find file in archive")
+	}
+	zf, err := zfile.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer zf.Close()
+
+	// Copy to buffer.
+	var buf bytes.Buffer
+	if _, err = io.Copy(&buf, zf); err != nil {
+		return nil, err
+	}
+	return &buf, nil
+}
+
+func handleGlobalFormat(loc Location, rs readSeeker) (format string, rc io.ReadCloser, err error) {
+	format = loc.Format
+	rc = rs
+	switch format {
+	case ".zip":
+		format = path.Ext(loc.URL.Fragment)
+		var r io.Reader
+		r, err = unzip(rs, loc.URL.Fragment)
+		rc = ioutil.NopCloser(r)
+	}
+	return format, rc, err
+}
+
+func (client *Client) download(dst io.Writer, loc Location) (err error) {
+	c := client.Client
+	if c == nil {
+		c = http.DefaultClient
+	}
+	resp, err := c.Get(loc.URL.String())
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return errors.New("bad status")
+	}
+	_, err = io.Copy(dst, resp.Body)
+	return err
+}
+
+func (client *Client) fetchResource(loc Location) (rs readSeeker, err error) {
+	var cacheDir string
+	var cachedFilePath string
+	var downloaded bool
+	switch client.CacheMode {
+	case CacheTemp:
+		cacheDir = filepath.Join(os.TempDir(), cacheDirName)
+	case CachePerm:
+		dir, err := userCacheDir()
+		if err != nil {
+			dir = os.TempDir()
+		}
+		cacheDir = filepath.Join(dir, cacheDirName)
+	case CacheCustom:
+		cacheDir = client.CacheLocation
+	default:
+		goto direct
+	}
+	cachedFilePath = filepath.Join(cacheDir, url.PathEscape(loc.URL.Host+loc.URL.Path))
+
+tryCache:
+	if cachedFile, err := os.Open(cachedFilePath); err == nil {
+		return cachedFile, nil
+	}
+
+	if !downloaded {
+		if tempFile, err := ioutil.TempFile(cacheDir, "temp"); err == nil {
+			tempName := tempFile.Name()
+			if err := client.download(tempFile, loc); err != nil {
+				tempFile.Close()
+				os.Remove(tempFile.Name())
+				return nil, err
+			}
+			err := tempFile.Sync()
+			tempFile.Close()
+			if err != nil {
+				os.Remove(tempFile.Name())
+				return nil, err
+			}
+			downloaded = true
+
+			// Attempt to relocate temp file to cache file.
+			if err := os.Rename(tempName, cachedFilePath); err != nil {
+				// Rename failed. Data is still in temp file, so we'll reuse that.
+				cachedFilePath = tempName
+			}
+			goto tryCache
+		}
+	}
+
+direct:
+	var buf bytes.Buffer
+	if err := client.download(&buf, loc); err != nil {
+		return nil, err
+	}
+	return nopCloser{bytes.NewReader(buf.Bytes())}, nil
+}
+
 // Get performs a generic request. The loc argument specifies the address of
 // the request. Within the location URL, variables of the form "$var" or
 // "${var}" are replaced with the referred value. That said, only the $HASH
@@ -390,62 +428,17 @@ const cacheDirName = "roblox-fetch"
 // still be closed as usual.
 func (client *Client) Get(loc Location, hash string) (format string, rc io.ReadCloser, err error) {
 	loc.URL, err = expandHash(loc.URL, hash)
-	defer func() {
-		format, rc, err = handleGlobalFormat(loc, rc, err)
-	}()
 	if loc.URL.Scheme == "file" {
 		rc, err = os.Open(loc.URL.Path)
 		return loc.Format, rc, err
 	}
-	c := client.Client
-	if c == nil {
-		c = http.DefaultClient
-	}
-	var name string
-	var f *os.File
-	var cacheDir string
-	filename := url.PathEscape(loc.URL.Host + loc.URL.Path)
-	switch client.CacheMode {
-	case CacheTemp:
-		cacheDir = filepath.Join(os.TempDir(), cacheDirName)
-	case CachePerm:
-		dir, err := userCacheDir()
-		if err != nil {
-			dir = os.TempDir()
-		}
-		cacheDir = filepath.Join(dir, cacheDirName)
-	case CacheCustom:
-		cacheDir = client.CacheLocation
-	default:
-		goto download
-	}
-	if err := os.MkdirAll(cacheDir, 0755); err != nil {
-		return loc.Format, nil, err
-	}
-	name = filepath.Join(cacheDir, filename)
-	if f, err := os.Open(name); err == nil {
-		return loc.Format, f, nil
-	}
-	f, _ = os.Create(name)
-download:
-	resp, err := c.Get(loc.URL.String())
+
+	rs, err := client.fetchResource(loc)
 	if err != nil {
 		return loc.Format, nil, err
 	}
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return loc.Format, nil, errors.New("bad status")
-	}
-	if f == nil {
-		return loc.Format, resp.Body, nil
-	}
-	_, err = io.Copy(f, resp.Body)
-	resp.Body.Close()
-	if err != nil {
-		f.Close()
-		return loc.Format, nil, err
-	}
-	_, err = f.Seek(0, 0)
-	return loc.Format, f, err
+
+	return handleGlobalFormat(loc, rs)
 }
 
 // Latest returns the latest build, the hash from which can be passed to other
