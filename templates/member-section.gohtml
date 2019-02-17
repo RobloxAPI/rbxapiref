@@ -31,6 +31,7 @@
 				<tr><th>Category</th><td>{{.Category}}</td></tr>
 				<tr><th>Can Load</th><td>{{.CanLoad}}</td></tr>
 				<tr><th>Can Save</th><td>{{.CanSave}}</td></tr>
+				{{template "metadata" $entity}}
 			</tbody>
 		</table>
 	{{- else if eq .GetMemberType "Function" }}
@@ -46,6 +47,7 @@
 		{{- if and .Security (ne .Security "None") }}
 				<tr><th>Security</th><td>{{.Security}}</td></tr>
 		{{- end -}}
+				{{template "metadata" $entity}}
 			</tbody>
 		</table>
 	{{- else if eq .GetMemberType "Event" -}}
@@ -59,6 +61,7 @@
 		<table class="metadata-pairs">
 			<tbody>
 				<tr><th>Security</th><td>{{.Security}}</td></tr>
+				{{template "metadata" $entity}}
 			</tbody>
 		</table>
 		{{- end -}}
@@ -75,6 +78,7 @@
 		{{- if and .Security (ne .Security "None") }}
 				<tr><th>Security</th><td>{{.Security}}</td></tr>
 		{{- end -}}
+				{{template "metadata" $entity}}
 			</tbody>
 		</table>
 	{{- end -}}

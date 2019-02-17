@@ -1,0 +1,10 @@
+{{- if .Metadata.Instance -}}
+	{{- range $name, $value := .Metadata.Properties -}}
+	{{- if eq $name "Name" "summary" "Browsable" "Deprecated" -}}
+	{{- else if eq $name "ExplorerImageIndex" }}
+		<tr><th>{{$name}}</th><td>{{$value}} (<span class="icon class-icon" style="--icon-index: {{$value}}"></span>)</td></tr>
+	{{- else }}
+		<tr><th>{{$name}}</th><td>{{$value}}</td></tr>
+	{{- end -}}
+	{{- end -}}
+{{- end -}}

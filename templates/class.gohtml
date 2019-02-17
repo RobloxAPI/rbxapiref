@@ -27,6 +27,7 @@
 	<table class="metadata-pairs">
 		<tbody>
 			<tr><th>Memory Category</th><td>{{tostring .Element.MemoryCategory}}</td></tr>
+			{{- template "metadata" . }}
 		</tbody>
 	</table>
 {{- if .Element.Tags }}
