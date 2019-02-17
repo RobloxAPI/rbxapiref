@@ -179,6 +179,19 @@ func (a *Action) GetNext() interface{} {
 	return nil
 }
 func (a *Action) String() string { return "Action" }
+func (a *Action) GetElementType() string {
+	switch {
+	case a.Class != nil && a.GetMember() != nil:
+		return a.GetMember().GetMemberType()
+	case a.Class != nil:
+		return "Class"
+	case a.Enum != nil && a.EnumItem != nil:
+		return "EnumItem"
+	case a.Enum != nil:
+		return "Enum"
+	}
+	return ""
+}
 
 type Value struct {
 	V interface{}

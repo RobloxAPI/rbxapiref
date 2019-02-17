@@ -3,7 +3,7 @@
 {{- $sub := .Subactions -}}
 {{- $button := .Button -}}
 {{- with .Action }}
-<li id="{{$info.Hash}}-{{.Index}}"{{if .Field}} diff-field="{{.Field}}"{{end}}>
+<li id="{{$info.Hash}}-{{.Index}}"{{- if .GetElementType}} diff-element="{{.GetElementType}}"{{end}}{{- if .Field}} diff-field="{{.Field}}"{{end}}>
 {{- if $button }}
 	<a class="history-{{tolower .Type.String}}" title="{{patchtype .Type "ed"}} on {{$info.Date.Format "2006-01-02 15:04:05"}}&#10;v{{$info.Version}}&#10;{{$info.Hash}}" href="{{link "updates" $info.Date.Year}}#{{$info.Hash}}-{{.Index}}">{{$info.Version.Minor}}</a>
 {{ end -}}
