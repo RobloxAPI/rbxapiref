@@ -507,8 +507,9 @@ func (data *Data) ComparePages(pages []Page) error {
 	}
 
 	// Walk the output tree.
+	dirs := []string{}
 	root := filepath.Dir(data.AbsFilePath(""))
-	return filepath.Walk(data.AbsFilePath(""), func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(data.AbsFilePath(""), func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -526,8 +527,20 @@ func (data *Data) ComparePages(pages []Page) error {
 		if files.Has(path) {
 			return nil
 		}
+		if info.IsDir() {
+			dirs = append(dirs, path)
+			return nil
+		}
 		return os.Remove(filepath.Join(root, path))
 	})
+	if err != nil {
+		return err
+	}
+	for _, path := range dirs {
+		if err := os.Remove(filepath.Join(root, path)); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
