@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/anaminus/but"
 	"github.com/jessevdk/go-flags"
-	"github.com/robloxapi/rbxapiref/fetch"
 	"html/template"
 	"os"
 	"strconv"
@@ -87,18 +86,9 @@ func main() {
 	data.Manifest.Patches, err = MergeBuilds(data.Settings, data.Manifest.Patches, builds)
 	but.IfFatal(err)
 
-	// Fetch ReflectionMetadata.
-	{
-		latest := data.LatestPatch()
-		data.Metadata, err = GenerateMetadata(&fetch.Client{
-			Config:    data.Settings.Configs[latest.Config],
-			CacheMode: fetch.CacheTemp,
-		}, latest.Info.Hash)
-		but.IfFatal(err)
-	}
-
 	// Generate entities.
 	data.Entities = GenerateEntities(data.Manifest.Patches)
+	but.IfFatal(data.GenerateMetadata())
 	data.GenerateDocuments()
 
 	// Compile templates.

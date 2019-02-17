@@ -5,6 +5,7 @@ import (
 	"github.com/robloxapi/rbxapi/patch"
 	"github.com/robloxapi/rbxapi/rbxapijson"
 	"github.com/robloxapi/rbxapidoc"
+	"github.com/robloxapi/rbxfile"
 	"html/template"
 	"sort"
 )
@@ -59,6 +60,10 @@ type ElementTyper interface {
 	ElementType() rbxapijson.Type
 }
 
+type Metadata struct {
+	*rbxfile.Instance
+}
+
 type ClassEntity struct {
 	ID      string
 	Element *rbxapijson.Class
@@ -77,6 +82,7 @@ type ClassEntity struct {
 	ReferrerList  []Referrer
 
 	Document Document
+	Metadata Metadata
 }
 
 func (e *ClassEntity) IsRemoved() bool    { return e.Removed }
@@ -98,6 +104,7 @@ type MemberEntity struct {
 	ReferenceList []ElementTyper
 
 	Document Document
+	Metadata Metadata
 }
 
 func (e *MemberEntity) IsRemoved() bool       { return e.Removed }
@@ -116,6 +123,7 @@ type EnumEntity struct {
 	ReferrerList []Referrer
 
 	Document Document
+	Metadata Metadata
 }
 
 func (e *EnumEntity) IsRemoved() bool    { return e.Removed }
@@ -134,6 +142,7 @@ type EnumItemEntity struct {
 	Parent *EnumEntity
 
 	Document Document
+	Metadata Metadata
 }
 
 func (e *EnumItemEntity) IsRemoved() bool       { return e.Removed }
@@ -148,6 +157,7 @@ type TypeEntity struct {
 	ReferrerList []Referrer
 
 	Document Document
+	Metadata Metadata
 }
 
 func (e *TypeEntity) IsRemoved() bool    { return e.Removed }

@@ -550,7 +550,8 @@ func (client *Client) ReflectionMetadata(hash string) (root *rbxfile.Root, err e
 
 	switch format {
 	case ".xml":
-		return xml.Deserialize(resp, nil)
+		api, _ := client.APIDump(hash)
+		return xml.Deserialize(resp, api)
 	}
 	return nil, errUnsupportedFormat(format)
 }

@@ -8,6 +8,8 @@ import (
 	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/rbxapijson"
 	"github.com/robloxapi/rbxapidoc"
+	"github.com/robloxapi/rbxapiref/fetch"
+	"github.com/robloxapi/rbxfile"
 	"html"
 	"html/template"
 	"io"
@@ -24,7 +26,6 @@ type Data struct {
 	Settings    Settings
 	Manifest    *Manifest
 	CurrentYear int
-	Metadata    ReflectionMetadata
 	Entities    *Entities
 	Templates   *template.Template
 }
@@ -173,13 +174,12 @@ retry:
 	case string:
 		switch strings.ToLower(value) {
 		case "class":
-			class = "class-icon"
-			title = "Class"
-			meta, ok := data.Metadata.Classes[v[1].(string)]
+			entity, ok := data.Entities.Classes[v[1].(string)]
 			if !ok {
 				goto finish
 			}
-			index = meta.ExplorerImageIndex
+			v = []interface{}{entity}
+			goto retry
 		case "member":
 			entity := data.Entities.Members[[2]string{v[1].(string), v[2].(string)}]
 			if entity == nil {
@@ -197,11 +197,13 @@ retry:
 			index = -1
 		}
 	case *ClassEntity:
-		if value.Element == nil {
+		class = "class-icon"
+		title = "Class"
+		if value.Metadata.Instance == nil {
 			goto finish
 		}
-		v = []interface{}{value.Element}
-		goto retry
+		i, _ := value.Metadata.Get("ExplorerImageIndex").(rbxfile.ValueInt)
+		index = int(i)
 	case *MemberEntity:
 		if value.Element == nil {
 			goto finish
@@ -221,13 +223,12 @@ retry:
 		v = []interface{}{value.Element}
 		goto retry
 	case *rbxapijson.Class:
-		class = "class-icon"
-		title = "Class"
-		meta, ok := data.Metadata.Classes[value.Name]
+		entity, ok := data.Entities.Classes[value.Name]
 		if !ok {
 			goto finish
 		}
-		index = meta.ExplorerImageIndex
+		v = []interface{}{entity}
+		goto retry
 	case rbxapi.Member:
 		class = "member-icon"
 		title = value.GetMemberType()
@@ -730,6 +731,70 @@ func (data *Data) NormalizeDocReferences(document Document) []Resource {
 		return docres[i].Name < docres[j].Name
 	})
 	return docres
+}
+
+func (data *Data) GenerateMetadata() error {
+	latest := data.LatestPatch()
+	client := &fetch.Client{
+		Config:    data.Settings.Configs[latest.Config],
+		CacheMode: fetch.CacheTemp,
+	}
+	rmd, err := client.ReflectionMetadata(latest.Info.Hash)
+	if err != nil {
+		return errors.WithMessagef(err, "fetch metadata %s:", latest.Info.Hash)
+	}
+
+	for _, list := range rmd.Instances {
+		switch list.ClassName {
+		case "ReflectionMetadataClasses":
+			for _, class := range list.Children {
+				if class.ClassName != "ReflectionMetadataClass" {
+					continue
+				}
+				entity := data.Entities.Classes[class.Name()]
+				if entity == nil {
+					continue
+				}
+				entity.Metadata.Instance = class
+
+				for _, memberTypeList := range class.Children {
+					for _, member := range memberTypeList.Children {
+						if member.ClassName != "ReflectionMetadataMember" {
+							continue
+						}
+						entity := entity.Members[member.Name()]
+						if entity == nil {
+							continue
+						}
+						entity.Metadata.Instance = member
+					}
+				}
+			}
+		case "ReflectionMetadataEnums":
+			for _, enum := range list.Children {
+				if enum.ClassName != "ReflectionMetadataEnum" {
+					continue
+				}
+				entity := data.Entities.Enums[enum.Name()]
+				if entity == nil {
+					continue
+				}
+				entity.Metadata.Instance = enum
+
+				for _, item := range enum.Children {
+					if item.ClassName != "ReflectionMetadataEnumItem" {
+						continue
+					}
+					entity := entity.Items[item.Name()]
+					if entity == nil {
+						continue
+					}
+					entity.Metadata.Instance = item
+				}
+			}
+		}
+	}
+	return nil
 }
 
 func (data *Data) GenerateDocuments() {
