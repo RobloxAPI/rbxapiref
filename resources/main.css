@@ -253,6 +253,25 @@ a.header-block:hover {
 		display: none;
 	}
 }
+/* Headers with controls */
+.controlled-header {
+	display               : grid;
+	grid-template-columns : auto auto;
+	grid-template-areas   : "header controls";
+	grid-gap              : 0 var(--section-spacing);
+}
+.controlled-header .header {
+	grid-area  : header;
+	align-self : baseline;
+}
+.controlled-header .controls {
+	grid-area    : controls;
+	justify-self : end;
+	align-self   : baseline;
+}
+.controlled-header .controls label {
+	display : flex;
+}
 
 /*////////////////////////////////////////////////////////////////*/
 /* Status decorations */

@@ -159,8 +159,9 @@
 {{- end -}}
 {{- if $history }}
 <section id="history">
-	<header>
-		<h2>History</h2>
+	<header class="controlled-header">
+		<h2 class="header">History</h2>
+		<aside id="history-controls" class="controls"></aside>
 	</header>
 	{{$history}}
 </section>
