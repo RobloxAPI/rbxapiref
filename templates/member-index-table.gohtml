@@ -44,7 +44,7 @@
 {{- end }}
 	</tbody>
 {{- range .Superclasses -}}
-	{{- $members := filter "added" .MemberList -}}
+	{{- $members := filter .MemberList "Added" -}}
 	{{- if $members }}
 	<thead>
 		<tr>

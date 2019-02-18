@@ -4,15 +4,15 @@
 {{- $details := document . 2 "Details" -}}
 {{- $examples := document . 2 "Examples" -}}
 {{- $history := history . false false -}}
-{{- $superclasses := filter "added" .Superclasses -}}
-{{- $subclasses := filter "added" .Subclasses -}}
-{{- $members := filter "added" .MemberList }}
-{{- $removed := filter "removed" .MemberList -}}
+{{- $superclasses := filter .Superclasses "Added" -}}
+{{- $subclasses := filter .Subclasses "Added" -}}
+{{- $members := filter .MemberList "Added" }}
+{{- $removed := filter .MemberList "Removed" -}}
 {{- $membersSorted := sortedlist $members }}
 {{- $removedSorted := sortedlist $removed }}
-{{- $classes := filter "class" .ReferenceList -}}
-{{- $enums := filter "enum" .ReferenceList -}}
-{{- $referrers := filter "implicit added" .ReferrerList -}}
+{{- $classes := filter .ReferenceList "Class" -}}
+{{- $enums := filter .ReferenceList "Enum" -}}
+{{- $referrers := filter .ReferrerList "ImplicitAdded" -}}
 <header>
 	<h1>{{icon .Element}}{{.ID}} {{template "devhub-link" link "devhub" "class" $class}}</h1>
 </header>

@@ -16,5 +16,5 @@
 	<h2>Examples</h2>
 	<section class="doc">{{$examples}}</section>
 {{- end }}
-{{- $referrers := filter "implicit added" .ReferrerList -}}
+{{- $referrers := filter .ReferrerList "ImplicitAdded" -}}
 {{- template "referrers" pack . $referrers }}

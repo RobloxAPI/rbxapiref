@@ -143,185 +143,100 @@ func MakeSubactions(action Action) []Action {
 	return nil
 }
 
-func FilterList(filter string, list interface{}) interface{} {
-	switch list := list.(type) {
-	case []*ClassEntity:
-		var filtered []*ClassEntity
-		switch filter {
-		case "added":
-			for _, entity := range list {
-				if !entity.Removed {
-					filtered = append(filtered, entity)
-				}
-			}
-			return filtered
-		case "removed":
-			for _, entity := range list {
-				if entity.Removed {
-					filtered = append(filtered, entity)
-				}
-			}
-			return filtered
-		}
-	case []*MemberEntity:
-		var filtered []*MemberEntity
-		switch filter {
-		case "added":
-			for _, entity := range list {
-				if !entity.Removed {
-					filtered = append(filtered, entity)
-				}
-			}
-			return filtered
-		case "removed":
-			for _, entity := range list {
-				if entity.Removed {
-					filtered = append(filtered, entity)
-				}
-			}
-			return filtered
-		case "implicit added":
-			for _, entity := range list {
-				if !entity.Removed && !entity.Parent.Removed {
-					filtered = append(filtered, entity)
-				}
-			}
-			return filtered
-		case "implicit removed":
-			for _, entity := range list {
-				if entity.Removed || entity.Parent.Removed {
-					filtered = append(filtered, entity)
-				}
-			}
-			return filtered
-		}
-	case []Referrer:
-		var filtered []Referrer
-		switch filter {
-		case "added":
-			for _, referrer := range list {
-				if !referrer.Member.Removed {
-					filtered = append(filtered, referrer)
-				}
-			}
-			return filtered
-		case "removed":
-			for _, referrer := range list {
-				if referrer.Member.Removed {
-					filtered = append(filtered, referrer)
-				}
-			}
-			return filtered
-		case "implicit added":
-			for _, referrer := range list {
-				if !referrer.Member.Removed && !referrer.Member.Parent.Removed {
-					filtered = append(filtered, referrer)
-				}
-			}
-			return filtered
-		case "implicit removed":
-			for _, referrer := range list {
-				if referrer.Member.Removed || referrer.Member.Parent.Removed {
-					filtered = append(filtered, referrer)
-				}
-			}
-			return filtered
-		}
-	case []*EnumEntity:
-		var filtered []*EnumEntity
-		switch filter {
-		case "added":
-			for _, entity := range list {
-				if !entity.Removed {
-					filtered = append(filtered, entity)
-				}
-			}
-			return filtered
-		case "removed":
-			for _, entity := range list {
-				if entity.Removed {
-					filtered = append(filtered, entity)
-				}
-			}
-			return filtered
-		}
-	case []*EnumItemEntity:
-		var filtered []*EnumItemEntity
-		switch filter {
-		case "implicit added":
-			for _, entity := range list {
-				if !entity.Removed && !entity.Parent.Removed {
-					filtered = append(filtered, entity)
-				}
-			}
-			return filtered
-		case "implicit removed":
-			for _, entity := range list {
-				if entity.Removed || entity.Parent.Removed {
-					filtered = append(filtered, entity)
-				}
-			}
-			return filtered
-		case "added":
-			for _, entity := range list {
-				if !entity.Removed {
-					filtered = append(filtered, entity)
-				}
-			}
-			return filtered
-		case "removed":
-			for _, entity := range list {
-				if entity.Removed {
-					filtered = append(filtered, entity)
-				}
-			}
-			return filtered
-		}
-	case []*TypeEntity:
-		var filtered []*TypeEntity
-		switch filter {
-		case "added":
-			for _, entity := range list {
-				if !entity.Removed {
-					filtered = append(filtered, entity)
-				}
-			}
-			return filtered
-		case "removed":
-			for _, entity := range list {
-				if entity.Removed {
-					filtered = append(filtered, entity)
-				}
-			}
-			return filtered
-		}
-	case []ElementTyper:
-		var filtered []ElementTyper
-		switch filter {
-		case "class":
-			for _, entity := range list {
-				if entity.ElementType().Category == "Class" && !entity.IsRemoved() {
-					filtered = append(filtered, entity)
-				}
-			}
-			return filtered
-		case "enum":
-			for _, entity := range list {
-				if entity.ElementType().Category == "Enum" && !entity.IsRemoved() {
-					filtered = append(filtered, entity)
-				}
-			}
-			return filtered
-		case "type":
-			for _, entity := range list {
-				if cat := entity.ElementType().Category; cat != "Class" && cat != "Enum" && !entity.IsRemoved() {
-					filtered = append(filtered, entity)
-				}
-			}
-			return filtered
+type listFilter struct {
+	Type    reflect.Type
+	Filters string
+}
+
+var listFilters = map[listFilter]reflect.Value{}
+
+func AddListFilter(t interface{}, filter string, fn interface{}) {
+	var typ reflect.Type
+	{
+		typ = reflect.TypeOf(t)
+		if typ == nil || typ.Kind() != reflect.Slice {
+			panic("invalid list filter type")
 		}
 	}
-	return list
+	var filterFunc reflect.Value
+	{
+		filterFunc = reflect.ValueOf(fn)
+		t := filterFunc.Type()
+		if t == nil || t.Kind() != reflect.Func {
+			panic("invalid list filter function")
+		}
+		if t.NumOut() != 1 || t.Out(0).Kind() != reflect.Bool {
+			panic("invalid list filter function output parameter")
+		}
+		if t.NumIn() != 1 || t.In(0) != typ.Elem() {
+			panic("invalid list filter function input parameter")
+		}
+	}
+	listFilters[listFilter{typ, filter}] = filterFunc
+}
+
+func init() {
+	AddListFilter([]*ClassEntity{}, "Added", func(v *ClassEntity) bool { return !v.Removed })
+	AddListFilter([]*ClassEntity{}, "Removed", func(v *ClassEntity) bool { return v.Removed })
+
+	AddListFilter([]*MemberEntity{}, "Added", func(v *MemberEntity) bool { return !v.Removed })
+	AddListFilter([]*MemberEntity{}, "Removed", func(v *MemberEntity) bool { return v.Removed })
+	AddListFilter([]*MemberEntity{}, "ImplicitAdded", func(v *MemberEntity) bool { return !v.Removed && !v.Parent.Removed })
+	AddListFilter([]*MemberEntity{}, "ImplicitRemoved", func(v *MemberEntity) bool { return v.Removed || v.Parent.Removed })
+
+	AddListFilter([]Referrer{}, "Added", func(v Referrer) bool { return !v.Member.Removed })
+	AddListFilter([]Referrer{}, "Removed", func(v Referrer) bool { return v.Member.Removed })
+	AddListFilter([]Referrer{}, "ImplicitAdded", func(v Referrer) bool { return !v.Member.Removed && !v.Member.Parent.Removed })
+	AddListFilter([]Referrer{}, "ImplicitRemoved", func(v Referrer) bool { return v.Member.Removed || v.Member.Parent.Removed })
+
+	AddListFilter([]*EnumEntity{}, "Added", func(v *EnumEntity) bool { return !v.Removed })
+	AddListFilter([]*EnumEntity{}, "Removed", func(v *EnumEntity) bool { return v.Removed })
+
+	AddListFilter([]*EnumItemEntity{}, "Added", func(v *EnumItemEntity) bool { return !v.Removed })
+	AddListFilter([]*EnumItemEntity{}, "Removed", func(v *EnumItemEntity) bool { return v.Removed })
+	AddListFilter([]*EnumItemEntity{}, "ImplicitAdded", func(v *EnumItemEntity) bool { return !v.Removed && !v.Parent.Removed })
+	AddListFilter([]*EnumItemEntity{}, "ImplicitRemoved", func(v *EnumItemEntity) bool { return v.Removed || v.Parent.Removed })
+
+	AddListFilter([]*TypeEntity{}, "Added", func(v *TypeEntity) bool { return !v.Removed })
+	AddListFilter([]*TypeEntity{}, "Removed", func(v *TypeEntity) bool { return v.Removed })
+
+	AddListFilter([]ElementTyper{}, "Class", func(v ElementTyper) bool { return v.ElementType().Category == "Class" && !v.IsRemoved() })
+	AddListFilter([]ElementTyper{}, "Enum", func(v ElementTyper) bool { return v.ElementType().Category == "Enum" && !v.IsRemoved() })
+	AddListFilter([]ElementTyper{}, "Type", func(v ElementTyper) bool {
+		cat := v.ElementType().Category
+		return cat != "Class" && cat != "Enum" && !v.IsRemoved()
+	})
+}
+
+func FilterList(list interface{}, filters ...string) interface{} {
+	rlist := reflect.ValueOf(list)
+	typ := rlist.Type()
+	if typ == nil || typ.Kind() != reflect.Slice {
+		return list
+	}
+
+	filterFuncs := []reflect.Value{}
+	for _, filter := range filters {
+		if fn, ok := listFilters[listFilter{typ, filter}]; ok {
+			filterFuncs = append(filterFuncs, fn)
+		}
+	}
+	if len(filterFuncs) == 0 {
+		return list
+	}
+
+	filtered := reflect.MakeSlice(typ, 0, rlist.Len())
+loop:
+	for i, n := 0, rlist.Len(); i < n; i++ {
+		v := rlist.Index(i)
+		for _, filter := range filterFuncs {
+			if !filter.Call([]reflect.Value{v})[0].Bool() {
+				continue loop
+			}
+		}
+		filtered = reflect.Append(filtered, v)
+	}
+	return filtered.Interface()
 }
 
 func SortedList(list interface{}) interface{} {

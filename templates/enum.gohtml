@@ -20,7 +20,7 @@
 {{- end }}
 </section>
 <section id="enumitems">
-	{{- $items := filter "added" .ItemList }}
+	{{- $items := filter .ItemList "Added" }}
 	<h2>Enum items<span class="element-count" title="{{$enum}} defines {{len $items}} enum {{quantity $items "item" "items"}}."> ({{len $items}})</span></h2>
 	<table class="index-card enumitem-index-card">
 		<tr>
@@ -50,9 +50,9 @@
 	<h2>Examples</h2>
 	<section class="doc">{{$examples}}</section>
 {{- end }}
-{{- $referrers := filter "implicit added" .ReferrerList -}}
+{{- $referrers := filter .ReferrerList "ImplicitAdded" -}}
 {{- template "referrers" pack . $referrers -}}
-{{- $removed := filter "removed" .ItemList -}}
+{{- $removed := filter .ItemList "Removed" -}}
 {{- if $removed }}
 <section id="removed">
 	<h2>Removed enum items<span class="element-count" title="{{$enum}} has {{len $removed}} removed enum {{quantity $removed "item" "items"}}."> ({{len $removed}})</span></h2>
