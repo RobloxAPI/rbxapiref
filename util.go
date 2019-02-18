@@ -150,65 +150,55 @@ type listFilter struct {
 
 var listFilters = map[listFilter]reflect.Value{}
 
-func AddListFilter(t interface{}, filter string, fn interface{}) {
-	var typ reflect.Type
-	{
-		typ = reflect.TypeOf(t)
-		if typ == nil || typ.Kind() != reflect.Slice {
-			panic("invalid list filter type")
-		}
+func AddListFilter(filter string, fn interface{}) {
+	filterFunc := reflect.ValueOf(fn)
+	t := filterFunc.Type()
+	if t == nil || t.Kind() != reflect.Func {
+		panic("invalid list filter function")
 	}
-	var filterFunc reflect.Value
-	{
-		filterFunc = reflect.ValueOf(fn)
-		t := filterFunc.Type()
-		if t == nil || t.Kind() != reflect.Func {
-			panic("invalid list filter function")
-		}
-		if t.NumOut() != 1 || t.Out(0).Kind() != reflect.Bool {
-			panic("invalid list filter function output parameter")
-		}
-		if t.NumIn() != 1 || t.In(0) != typ.Elem() {
-			panic("invalid list filter function input parameter")
-		}
+	if t.NumOut() != 1 || t.Out(0).Kind() != reflect.Bool {
+		panic("invalid list filter function output parameter")
 	}
-	listFilters[listFilter{typ, filter}] = filterFunc
+	if t.NumIn() != 1 {
+		panic("invalid list filter function input parameter")
+	}
+	listFilters[listFilter{reflect.SliceOf(t.In(0)), filter}] = filterFunc
 }
 
 func init() {
-	AddListFilter([]*ClassEntity{}, "Added", func(v *ClassEntity) bool { return !v.Removed })
-	AddListFilter([]*ClassEntity{}, "Removed", func(v *ClassEntity) bool { return v.Removed })
-	AddListFilter([]*ClassEntity{}, "Documented", func(v *ClassEntity) bool { return v.Document != nil })
+	AddListFilter("Added", func(v *ClassEntity) bool { return !v.Removed })
+	AddListFilter("Removed", func(v *ClassEntity) bool { return v.Removed })
+	AddListFilter("Documented", func(v *ClassEntity) bool { return v.Document != nil })
 
-	AddListFilter([]*MemberEntity{}, "Added", func(v *MemberEntity) bool { return !v.Removed })
-	AddListFilter([]*MemberEntity{}, "Removed", func(v *MemberEntity) bool { return v.Removed })
-	AddListFilter([]*MemberEntity{}, "ImplicitAdded", func(v *MemberEntity) bool { return !v.Removed && !v.Parent.Removed })
-	AddListFilter([]*MemberEntity{}, "ImplicitRemoved", func(v *MemberEntity) bool { return v.Removed || v.Parent.Removed })
-	AddListFilter([]*MemberEntity{}, "Documented", func(v *MemberEntity) bool { return v.Document != nil })
+	AddListFilter("Added", func(v *MemberEntity) bool { return !v.Removed })
+	AddListFilter("Removed", func(v *MemberEntity) bool { return v.Removed })
+	AddListFilter("ImplicitAdded", func(v *MemberEntity) bool { return !v.Removed && !v.Parent.Removed })
+	AddListFilter("ImplicitRemoved", func(v *MemberEntity) bool { return v.Removed || v.Parent.Removed })
+	AddListFilter("Documented", func(v *MemberEntity) bool { return v.Document != nil })
 
-	AddListFilter([]Referrer{}, "Added", func(v Referrer) bool { return !v.Member.Removed })
-	AddListFilter([]Referrer{}, "Removed", func(v Referrer) bool { return v.Member.Removed })
-	AddListFilter([]Referrer{}, "ImplicitAdded", func(v Referrer) bool { return !v.Member.Removed && !v.Member.Parent.Removed })
-	AddListFilter([]Referrer{}, "ImplicitRemoved", func(v Referrer) bool { return v.Member.Removed || v.Member.Parent.Removed })
-	AddListFilter([]Referrer{}, "Documented", func(v Referrer) bool { return v.Member.Document != nil })
+	AddListFilter("Added", func(v Referrer) bool { return !v.Member.Removed })
+	AddListFilter("Removed", func(v Referrer) bool { return v.Member.Removed })
+	AddListFilter("ImplicitAdded", func(v Referrer) bool { return !v.Member.Removed && !v.Member.Parent.Removed })
+	AddListFilter("ImplicitRemoved", func(v Referrer) bool { return v.Member.Removed || v.Member.Parent.Removed })
+	AddListFilter("Documented", func(v Referrer) bool { return v.Member.Document != nil })
 
-	AddListFilter([]*EnumEntity{}, "Added", func(v *EnumEntity) bool { return !v.Removed })
-	AddListFilter([]*EnumEntity{}, "Removed", func(v *EnumEntity) bool { return v.Removed })
-	AddListFilter([]*EnumEntity{}, "Documented", func(v *EnumEntity) bool { return v.Document != nil })
+	AddListFilter("Added", func(v *EnumEntity) bool { return !v.Removed })
+	AddListFilter("Removed", func(v *EnumEntity) bool { return v.Removed })
+	AddListFilter("Documented", func(v *EnumEntity) bool { return v.Document != nil })
 
-	AddListFilter([]*EnumItemEntity{}, "Added", func(v *EnumItemEntity) bool { return !v.Removed })
-	AddListFilter([]*EnumItemEntity{}, "Removed", func(v *EnumItemEntity) bool { return v.Removed })
-	AddListFilter([]*EnumItemEntity{}, "ImplicitAdded", func(v *EnumItemEntity) bool { return !v.Removed && !v.Parent.Removed })
-	AddListFilter([]*EnumItemEntity{}, "ImplicitRemoved", func(v *EnumItemEntity) bool { return v.Removed || v.Parent.Removed })
-	AddListFilter([]*EnumItemEntity{}, "Documented", func(v *EnumItemEntity) bool { return v.Document != nil })
+	AddListFilter("Added", func(v *EnumItemEntity) bool { return !v.Removed })
+	AddListFilter("Removed", func(v *EnumItemEntity) bool { return v.Removed })
+	AddListFilter("ImplicitAdded", func(v *EnumItemEntity) bool { return !v.Removed && !v.Parent.Removed })
+	AddListFilter("ImplicitRemoved", func(v *EnumItemEntity) bool { return v.Removed || v.Parent.Removed })
+	AddListFilter("Documented", func(v *EnumItemEntity) bool { return v.Document != nil })
 
-	AddListFilter([]*TypeEntity{}, "Added", func(v *TypeEntity) bool { return !v.Removed })
-	AddListFilter([]*TypeEntity{}, "Removed", func(v *TypeEntity) bool { return v.Removed })
-	AddListFilter([]*TypeEntity{}, "Documented", func(v *TypeEntity) bool { return v.Document != nil })
+	AddListFilter("Added", func(v *TypeEntity) bool { return !v.Removed })
+	AddListFilter("Removed", func(v *TypeEntity) bool { return v.Removed })
+	AddListFilter("Documented", func(v *TypeEntity) bool { return v.Document != nil })
 
-	AddListFilter([]ElementTyper{}, "Class", func(v ElementTyper) bool { return v.ElementType().Category == "Class" && !v.IsRemoved() })
-	AddListFilter([]ElementTyper{}, "Enum", func(v ElementTyper) bool { return v.ElementType().Category == "Enum" && !v.IsRemoved() })
-	AddListFilter([]ElementTyper{}, "Type", func(v ElementTyper) bool {
+	AddListFilter("Class", func(v ElementTyper) bool { return v.ElementType().Category == "Class" && !v.IsRemoved() })
+	AddListFilter("Enum", func(v ElementTyper) bool { return v.ElementType().Category == "Enum" && !v.IsRemoved() })
+	AddListFilter("Type", func(v ElementTyper) bool {
 		cat := v.ElementType().Category
 		return cat != "Class" && cat != "Enum" && !v.IsRemoved()
 	})
