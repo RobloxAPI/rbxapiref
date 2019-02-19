@@ -849,7 +849,6 @@ func (data *Data) GenerateDocuments() {
 	}
 
 	renderer := mdhtml.NewRenderer(mdhtml.RendererOptions{})
-	dummy := dummyDocument{}
 	dir := rbxapidoc.NewDirectorySection(
 		data.Settings.Input.Documents,
 		rbxapidoc.MarkdownFileHandler,
@@ -861,12 +860,8 @@ func (data *Data) GenerateDocuments() {
 			for _, member := range entity.MemberList {
 				if member.Document, _ = entity.Document.Query("Members", member.ID[1]).(Document); member.Document != nil {
 					member.Document.SetRender(renderer)
-				} else {
-					member.Document = dummy
 				}
 			}
-		} else {
-			entity.Document = dummy
 		}
 	}
 	for _, entity := range data.Entities.EnumList {
@@ -875,19 +870,13 @@ func (data *Data) GenerateDocuments() {
 			for _, item := range entity.ItemList {
 				if item.Document, _ = entity.Document.Query("Members", item.ID[1]).(Document); item.Document != nil {
 					item.Document.SetRender(renderer)
-				} else {
-					item.Document = dummy
 				}
 			}
-		} else {
-			entity.Document = dummy
 		}
 	}
 	for _, entity := range data.Entities.TypeList {
 		if entity.Document, _ = dir.Query("type", entity.ID).(Document); entity.Document != nil {
 			entity.Document.SetRender(renderer)
-		} else {
-			entity.Document = dummy
 		}
 	}
 }
