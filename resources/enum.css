@@ -1,13 +1,115 @@
-main {
-	display    : flex;
-	flex-flow  : wrap row;
-	column-gap : var(--section-spacing);
+#main {
+	display  : grid;
+	grid-gap : 0 var(--section-spacing);
 }
-main > header, #summary {
-	flex-basis : 100%;
+#main > header           { grid-area : header }
+#main > #summary         { grid-area : summary }
+#main > nav              { grid-area : nav }
+#main > #members-index   { grid-area : index }
+#main > #details         { grid-area : details }
+#main > #examples        { grid-area : examples }
+#main > #members         { grid-area : members }
+#main > #removed-members { grid-area : rmembers }
+#main > #history         { grid-area : history }
+#main > #referrers       { grid-area : referrers }
+
+#main {
+	grid-template-columns : auto;
+	grid-template-areas   :
+		"header   "
+		"summary  "
+		"nav      "
+		"index    "
+		"details  "
+		"examples "
+		"members  "
+		"rmembers "
+		"history  "
+		"referrers"
+	;
 }
-@media screen and (max-width: 600px) {
-	main {
+#main > nav > section {
+	overflow-y    : auto;
+	padding-right : var(--scrollbar-width);
+	max-height    : 61.8vh;
+	--indent      : var(--indent-half);
+}
+#main > nav .toc-members {
+	display : none;
+}
+@media screen and (min-width: 800px) {
+	#main {
+		grid-template-columns : 1fr auto;
+		grid-template-areas   :
+			"header    header"
+			"summary   nav   "
+			"index     nav   "
+			"details   nav   "
+			"examples  nav   "
+			"history   nav   "
+			"members   nav   "
+			"rmembers  nav   "
+			"referrers nav   "
+		;
+		justify-content    : start;
+		grid-template-rows : repeat(8,auto) 1fr;
+	}
+	#main > nav {
+		border-left  : 1px solid var(--border-color);
+		padding-left : var(--section-spacing);
+	}
+	#main > nav .toc-members {
 		display : block;
 	}
+	@supports (position:sticky) {
+		#main > nav > section {
+			position   : sticky;
+			top        : 0;
+			max-height : calc(100vh - var(--baseline) - var(--header-height));
+		}
+	}
+}
+@media screen and (min-width: 1000px) {
+	#main:not(.descriptive) {
+		grid-template-columns : auto 1fr auto;
+		grid-template-areas   :
+			"header header    header"
+			"index  summary   nav   "
+			"index  details   nav   "
+			"index  examples  nav   "
+			"index  history   nav   "
+			"index  members   nav   "
+			"index  rmembers  nav   "
+			"index  referrers nav   "
+		;
+		justify-content    : start;
+		grid-template-rows : repeat(7,auto) 1fr;
+	}
+}
+
+:target > header {
+	background-color : var(--member-target-color);
+}
+
+#members > section,
+#removed-members > section {
+	border-bottom : 1px solid var(--border-color);
+}
+
+.metadata-pairs {
+	text-align      : left;
+	margin          : var(--baseline) 0;
+	border-collapse : collapse;
+}
+.metadata-pairs th {
+	font-weight : bold;
+}
+.metadata-pairs th:after {
+	content     : ": ";
+	white-space : pre-wrap;
+}
+
+.tags {
+	text-align : right;
+	font-size  : smaller;
 }

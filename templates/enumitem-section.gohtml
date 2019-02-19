@@ -1,0 +1,31 @@
+{{- $entity := . -}}
+{{- $summary := document . 3 "Summary" -}}
+{{- if not $summary -}}{{- $summary = document . 3 "" -}}{{- end -}}
+{{- $details := document . 3 "Details" -}}
+{{- $examples := document . 3 "Examples" -}}
+{{- with .Element }}
+	<section id="member-{{.Name}}">
+		<header>
+			<h3>{{icon .}}{{.Name}} {{template "devhub-link" link "devhub" "enumitem" $entity.Parent.ID .Name}}</h3>
+		</header>
+	{{- if $summary }}
+		<section class="doc">{{$summary}}</section>
+	{{- end }}
+		{{- template "statuses" . -}}
+	{{- if $details }}
+		<section class="doc">{{$details}}</section>
+	{{- end }}
+	{{- if $examples }}
+		<h4>Examples</h4>
+		<section class="doc">{{$examples}}</section>
+	{{- end }}
+	{{- $history := history $entity false false -}}
+	{{- if $history }}
+		<h4>History</h4>
+		{{$history}}
+	{{- end }}
+	{{- if .Tags }}
+		<p class="tags">Tags: {{tostring .Tags}}</p>
+	{{- end -}}
+</section>
+{{- end }}

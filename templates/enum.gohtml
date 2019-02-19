@@ -3,77 +3,127 @@
 {{- if not $summary -}}{{- $summary = document . 2 "" -}}{{- end -}}
 {{- $details := document . 2 "Details" -}}
 {{- $examples := document . 2 "Examples" }}
+{{- $history := history . false false -}}
+{{- $members := filter .ItemList "Added" }}
+{{- $removed := filter .ItemList "Removed" -}}
+{{- $membersSorted := sortedlist (filter .ItemList "Added" "Documented") }}
+{{- $removedSorted := sortedlist (filter .ItemList "Removed" "Documented") }}
+{{- $referrers := filter .ReferrerList "ImplicitAdded" -}}
+<section id="main"{{if or $membersSorted $removedSorted}} class="descriptive"{{end}}>
 <header>
 	<h1>{{icon .}}{{.ID}} {{template "devhub-link" link "devhub" "enum" $enum}}</h1>
 </header>
 <section id="summary">
-	<h2>Summary</h2>
+	<header>
+		<h2>Summary</h2>
+	</header>
 {{- if $summary }}
 	<section class="doc">{{$summary}}</section>
 {{- end }}
+	{{- template "statuses" .Element -}}
 {{- if .Element.Tags }}
-	<p>Tags: {{tostring .Element.Tags}}</p>
+	<p class="tags">Tags: {{tostring .Element.Tags}}</p>
 {{- end -}}
-{{- $history := history . false false -}}
-{{- if $history }}
-	<p>History: {{$history}}</p>
-{{- end }}
 </section>
-<section id="enumitems">
-	{{- $items := filter .ItemList "Added" }}
-	<h2>Enum items<span class="element-count" title="{{$enum}} defines {{len $items}} enum {{quantity $items "item" "items"}}."> ({{len $items}})</span></h2>
-	<table class="index-card enumitem-index-card">
-		<tr>
-			<th class="col-icon">{{icon "enum"}}</th>
-			<th class="col-member">Name</th>
-			<th class="col-value">Value</th>
-			<th class="col-history">History</th>
-		</tr>
-	{{- range $items -}}
-	{{- $entity := . -}}
-	{{- with .Element }}
-		<tr id="member-{{.Name}}" class="row-EnumItem">
-			<td class="col-icon">{{icon "enumitem"}}</td>
-			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}{{if .GetTag "NotBrowsable"}} api-not-browsable{{end}}"><a href="{{link "enumitem" $enum .Name}}">{{.Name}}</a></td>
-			<td class="col-value">{{.Value}}</td>
-			<td class="col-history">{{history $entity true true}}</td>
-		</tr>
-	{{- end -}}
-	{{- end }}
-	</table>
+<nav>
+	<section>
+		<h2>Table of Contents</h2>
+		<ol>
+			<li><a href="#members-index">{{if $membersSorted}}Item index{{else}}Items{{end}}</a></li>
+		{{- if $removed }}
+			<li><a href="#removed-member-index">{{if $removedSorted}}Removed item index{{else}}Removed items{{end}}</a></li>
+		{{- end }}
+		{{- if $details }}
+			<li><a href="#details">Details</a></li>
+		{{- end -}}
+		{{- if $examples }}
+			<li><a href="#examples">Examples</a></li>
+		{{- end -}}
+		{{- if $history }}
+			<li><a href="#history">History</a></li>
+		{{- end -}}
+		{{- if $membersSorted }}
+			<li><a href="#members">Items</a>
+				<ol class="toc-members">
+				{{ range $membersSorted }}
+					<li><a href="#member-{{.Element.GetName}}">{{.Element.GetName}}</a></li>
+				{{- end }}
+				</ol>
+			</li>
+		{{- end -}}
+		{{- if $removedSorted }}
+			<li><a href="#removed-members">Removed items</a>
+				<ol class="toc-members">
+				{{ range $removedSorted }}
+					<li><a href="#member-{{.Element.GetName}}">{{.Element.GetName}}</a></li>
+				{{- end }}
+				</ol>
+			</li>
+		{{- end -}}
+		{{- if $referrers }}
+			<li><a href="#referrers">Relevant members</a></li>
+		{{- end -}}
+		</ol>
+	</section>
+</nav>
+<section id="members-index">
+	<header>
+		<h2>{{if $membersSorted}}Item index{{else}}Items{{end}}<span class="element-count" title="{{$enum}} defines {{len $members}} enum {{quantity $members "item" "items"}}."> ({{len $members}})</span></h2>
+	</header>
+	{{template "enumitem-index-table" pack $enum $members}}
+{{- if $removed }}
+	<section id="removed-members-index">
+		<header>
+			<h2>{{if $removedSorted}}Removed item index{{else}}Removed items{{end}}<span class="element-count" title="{{$enum}} has {{len $removed}} removed enum {{quantity $removed "item" "items"}}."> ({{len $removed}})</span></h2>
+		</header>
+		{{template "enumitem-index-table" pack $enum $removed}}
+	</section>
+{{- end }}
 </section>
 {{- if $details }}
-	<h2>Details</h2>
+<section id="details">
+	<header>
+		<h2>Details</h2>
+	</header>
 	<section class="doc">{{$details}}</section>
-{{- end }}
+</section>
+{{- end -}}
 {{- if $examples }}
-	<h2>Examples</h2>
+<section id="examples">
+	<header>
+		<h2>Examples</h2>
+	</header>
 	<section class="doc">{{$examples}}</section>
+</section>
+{{- end -}}
+{{- if $membersSorted }}
+<section id="members">
+	<header>
+		<h2>Items</h2>
+	</header>
+{{- range $membersSorted -}}
+	{{- template "enumitem-section" . -}}
 {{- end }}
-{{- $referrers := filter .ReferrerList "ImplicitAdded" -}}
-{{- template "referrers" pack . $referrers -}}
-{{- $removed := filter .ItemList "Removed" -}}
-{{- if $removed }}
-<section id="removed">
-	<h2>Removed enum items<span class="element-count" title="{{$enum}} has {{len $removed}} removed enum {{quantity $removed "item" "items"}}."> ({{len $removed}})</span></h2>
-	<table class="index-card enumitem-index-card">
-		<tr>
-			<th class="col-icon">{{icon "enum"}}</th>
-			<th class="col-member">Name</th>
-			<th class="col-value">Value</th>
-			<th class="col-history">History</th>
-		</tr>
-	{{- range $removed -}}
-	{{- $entity := . -}}
-	{{- with .Element }}
-		<tr id="member-{{.Name}}" class="row-EnumItem">
-			<td class="col-icon">{{icon "enumitem"}}</td>
-			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}{{if .GetTag "NotBrowsable"}} api-not-browsable{{end}}"><a href="{{link "enumitem" $enum .Name}}">{{.Name}}</a></td>
-			<td class="col-value">{{.Value}}</td>
-			<td class="col-history">{{history $entity true true}}</td>
-		</tr>
-	{{- end -}}
-	{{- end }}
-	</table>
 </section>
 {{- end }}
+{{- if $removedSorted }}
+<section id="removed-members">
+	<header>
+		<h2>Removed items</h2>
+	</header>
+{{- range $removedSorted -}}
+	{{- template "enumitem-section" . -}}
+{{- end }}
+</section>
+{{- end -}}
+{{- if $history }}
+<section id="history">
+	<header class="controlled-header">
+		<h2 class="header">History</h2>
+		<aside id="history-controls" class="controls"></aside>
+	</header>
+	{{$history}}
+</section>
+{{- end -}}
+{{- template "referrers" pack . $referrers -}}
+</section>
