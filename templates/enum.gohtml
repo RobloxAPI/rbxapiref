@@ -13,6 +13,7 @@
 <header>
 	<h1>{{icon .}}{{.ID}} {{template "devhub-link" link "devhub" "enum" $enum}}</h1>
 </header>
+{{- if or $summary .Element.Tags }}
 <section id="summary">
 	<header>
 		<h2>Summary</h2>
@@ -23,8 +24,9 @@
 	{{- template "statuses" .Element -}}
 {{- if .Element.Tags }}
 	<p class="tags">Tags: {{tostring .Element.Tags}}</p>
-{{- end -}}
+{{- end }}
 </section>
+{{- end }}
 <nav>
 	<section>
 		<h2>Table of Contents</h2>
