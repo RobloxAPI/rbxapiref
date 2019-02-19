@@ -11,7 +11,7 @@
 {{- range .Items -}}
 	{{- $entity := . -}}
 	{{- with .Element }}
-		<tr id="member-{{.Name}}" class="row-EnumItem">
+		<tr{{if not $entity.Document}} id="member-{{.Name}}"{{end}} class="row-EnumItem">
 			<td class="col-icon">{{icon "enumitem"}}</td>
 			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}{{if .GetTag "NotBrowsable"}} api-not-browsable{{end}}"><a href="{{link "enumitem" $enum .Name}}">{{.Name}}</a></td>
 			<td class="col-value">{{.Value}}</td>
