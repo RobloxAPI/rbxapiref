@@ -58,7 +58,7 @@ main > nav .toc-members {
 			"references nav   "
 		;
 		justify-content    : start;
-		grid-template-rows : repeat(9,auto) 1fr;
+		grid-template-rows : repeat(10,auto) 1fr;
 	}
 	main > nav {
 		border-left  : 1px solid var(--border-color);
@@ -69,9 +69,9 @@ main > nav .toc-members {
 	}
 	@supports (position:sticky) {
 		main > nav > section {
-			position      : sticky;
-			top           : 0;
-			max-height    : calc(100vh - var(--baseline) - var(--header-height));
+			position   : sticky;
+			top        : 0;
+			max-height : calc(100vh - var(--baseline) - var(--header-height));
 		}
 	}
 }
@@ -91,7 +91,7 @@ main > nav .toc-members {
 			"references references nav   "
 		;
 		justify-content    : start;
-		grid-template-rows : repeat(8,auto) 1fr;
+		grid-template-rows : repeat(9,auto) 1fr;
 	}
 	main > #tree {
 		border-right  : 1px solid var(--border-color);
