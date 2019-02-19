@@ -14,7 +14,7 @@
 {{- $enums := filter .ReferenceList "Enum" -}}
 {{- $referrers := filter .ReferrerList "ImplicitAdded" -}}
 <header>
-	<h1>{{icon .Element}}{{.ID}} {{template "devhub-link" link "devhub" "class" $class}}</h1>
+	<h1>{{icon .Element}}{{.ID}}{{if ne .ID "<<<ROOT>>>"}} {{template "devhub-link" link "devhub" "class" $class}}{{end}}</h1>
 </header>
 <section id="summary">
 	<header>
