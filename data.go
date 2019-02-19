@@ -20,6 +20,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"unicode"
 )
 
 type Data struct {
@@ -41,6 +42,36 @@ type Patch struct {
 // Escape once to escape the file name, then again to escape the URL.
 func doubleEscape(s string) string {
 	return url.PathEscape(url.PathEscape(s))
+}
+
+func pathText(text string) string {
+	var s []rune
+	var dash bool
+	for _, r := range text {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) {
+			s = append(s, r)
+			dash = false
+		} else if !dash && unicode.IsSpace(r) {
+			s = append(s, '-')
+			dash = true
+		}
+	}
+	return string(s)
+}
+
+func anchorText(text string) string {
+	var s []rune
+	var dash bool
+	for _, r := range text {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) {
+			s = append(s, unicode.ToLower(r))
+			dash = false
+		} else if !dash {
+			s = append(s, '-')
+			dash = true
+		}
+	}
+	return string(s)
 }
 
 // FileLink generates a URL, relative to an arbitrary host.
@@ -98,12 +129,14 @@ retry:
 		s = data.Settings.Output.Manifest
 	case "devhub":
 		switch linkType = strings.ToLower(args[0]); linkType {
-		case "class", "enumitem", "enum":
-			return "https://" + path.Join(DevHubURL, linkType, doubleEscape(args[1]))
+		case "class", "enum":
+			return "https://" + path.Join(DevHubURL, linkType, pathText(args[1]))
 		case "property", "function", "event", "callback":
-			return "https://" + path.Join(DevHubURL, linkType, doubleEscape(args[1]), doubleEscape(args[2]))
+			return "https://" + path.Join(DevHubURL, linkType, pathText(args[1]), pathText(args[2]))
+		case "enumitem":
+			return "https://" + path.Join(DevHubURL, "enum", pathText(args[1])) + "#" + anchorText(args[2])
 		case "type":
-			return "https://" + path.Join(DevHubURL, "datatype", doubleEscape(args[1]))
+			return "https://" + path.Join(DevHubURL, "datatype", pathText(args[1]))
 		}
 	}
 	s = path.Join("/", data.Settings.Output.Sub, s)
