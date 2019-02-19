@@ -63,32 +63,29 @@ func getHeadingText(heading *ast.Heading) string {
 	return string(text.Literal)
 }
 
-func parseMarkdownSection(section *MarkdownSection, level int) {
+func parseMarkdownSection(section *MarkdownSection, level int, orphan bool) {
 	children := section.Document.Children
 
 	var i int
 	var name string
-	var hasSub bool
 	for k, child := range children {
 		heading, ok := child.(*ast.Heading)
 		if !ok || heading.Level > level {
-			if ok {
-				// Section has a subsection.
-				hasSub = true
-			}
 			continue
 		}
 		sub := MarkdownSection{
 			Heading:  name,
 			Level:    level,
 			Document: &ast.Document{},
+			Renderer: section.Renderer,
 		}
 		if i < k {
 			sub.Document.Children = children[i:k]
 		}
-		parseMarkdownSection(&sub, level+1)
+		if !orphan {
+			parseMarkdownSection(&sub, level+1, name == "")
+		}
 		section.Sections = append(section.Sections, &sub)
-		hasSub = false
 		i = k + 1
 		name = getHeadingText(heading)
 	}
@@ -98,13 +95,11 @@ func parseMarkdownSection(section *MarkdownSection, level int) {
 		Document: &ast.Document{},
 		Renderer: section.Renderer,
 	}
-	// `i>=len` means that the previously added section is the last, and is
-	// empty.
 	if i < len(children) {
 		sub.Document.Children = children[i:]
-		if hasSub {
-			parseMarkdownSection(&sub, level+1)
-		}
+	}
+	if !orphan {
+		parseMarkdownSection(&sub, level+1, name == "")
 	}
 	section.Sections = append(section.Sections, &sub)
 }
@@ -121,7 +116,7 @@ func parseMarkdownSection(section *MarkdownSection, level int) {
 // within a section is modified, the parent section will be affected.
 func NewMarkdownSection(document *ast.Document) *MarkdownSection {
 	section := &MarkdownSection{Document: document}
-	parseMarkdownSection(section, 1)
+	parseMarkdownSection(section, 1, false)
 	return section
 }
 
