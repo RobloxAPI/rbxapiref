@@ -4,6 +4,7 @@ import (
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/ast"
 	"github.com/gomarkdown/markdown/html"
+	"github.com/gomarkdown/markdown/parser"
 	"html/template"
 	"io/ioutil"
 	"os"
@@ -44,7 +45,9 @@ func MarkdownFileHandler(dir string, info os.FileInfo, query string) Section {
 	if err != nil {
 		return nil
 	}
-	doc, ok := markdown.Parse(b, nil).(*ast.Document)
+	doc, ok := parser.NewWithExtensions(
+		parser.CommonExtensions | parser.AutoHeadingIDs,
+	).Parse(b).(*ast.Document)
 	if !ok {
 		return nil
 	}
