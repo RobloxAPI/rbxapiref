@@ -1,0 +1,69 @@
+main {
+	display  : grid;
+	grid-gap : 0 var(--section-spacing);
+}
+main > header           { grid-area : header }
+main > #summary         { grid-area : summary }
+main > nav              { grid-area : nav }
+main > #details         { grid-area : details }
+main > #examples        { grid-area : examples }
+main > #referrers       { grid-area : referrers }
+
+main {
+	grid-template-columns : auto;
+	grid-template-areas   :
+		"header   "
+		"summary  "
+		"nav      "
+		"details  "
+		"examples "
+		"referrers"
+	;
+}
+main > nav > section {
+	overflow-y    : auto;
+	padding-right : var(--scrollbar-width);
+	max-height    : 61.8vh;
+	--indent      : var(--indent-half);
+}
+main > nav .toc-members {
+	display : none;
+}
+@media screen and (min-width: 800px) {
+	main {
+		grid-template-columns : 1fr auto;
+		grid-template-areas   :
+			"header    header"
+			"summary   nav   "
+			"details   nav   "
+			"examples  nav   "
+			"referrers nav   "
+		;
+		justify-content    : start;
+		grid-template-rows : repeat(4,auto) 1fr;
+	}
+	main > nav {
+		border-left  : 1px solid var(--border-color);
+		padding-left : var(--section-spacing);
+	}
+	main > nav .toc-members {
+		display : block;
+	}
+	@supports (position:sticky) {
+		main > nav > section {
+			position   : sticky;
+			top        : 0;
+			max-height : calc(100vh - var(--baseline) - var(--header-height));
+		}
+	}
+}
+
+:target > header,
+.doc h1:target,
+.doc h2:target,
+.doc h3:target,
+.doc h4:target,
+.doc h5:target,
+.doc h6:target {
+	background-color : var(--member-target-color);
+}

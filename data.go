@@ -848,7 +848,9 @@ func (data *Data) GenerateDocuments() {
 		return
 	}
 
-	renderer := mdhtml.NewRenderer(mdhtml.RendererOptions{})
+	renderer := mdhtml.NewRenderer(mdhtml.RendererOptions{
+		HeadingIDPrefix: "doc-",
+	})
 	dir := rbxapidoc.NewDirectorySection(
 		data.Settings.Input.Documents,
 		rbxapidoc.MarkdownFileHandler,

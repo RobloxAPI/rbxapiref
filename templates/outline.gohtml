@@ -1,0 +1,17 @@
+{{- $ok := false -}}
+{{- range . -}}
+{{- if .Name -}}
+{{- $ok = true -}}
+{{- end -}}
+{{- end -}}
+{{- if $ok }}
+<ol>
+{{- range . -}}
+{{- if .Name }}
+<li><a href="#doc-{{.HeadingID}}">{{.Name}}</a>
+{{- template "outline" .Subsections }}
+</li>
+{{- end -}}
+{{- end -}}
+</ol>
+{{- end -}}

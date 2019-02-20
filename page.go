@@ -289,6 +289,7 @@ func GeneratePageEnum(data *Data) (pages []Page) {
 }
 
 func GeneratePageType(data *Data) (pages []Page) {
+	styles := []Resource{{Name: "type.css"}}
 	pages = make([]Page, len(data.Entities.TypeList))
 	for i, typ := range data.Entities.TypeList {
 		pages[i] = Page{
@@ -296,6 +297,7 @@ func GeneratePageType(data *Data) (pages []Page) {
 			Meta: Meta{
 				"Title":       Title(typ.ID),
 				"Description": "Information about the " + typ.ID + " type in the Roblox Lua API."},
+			Styles:       styles,
 			DocResources: data.NormalizeDocReferences(typ.Document),
 			Template:     "type",
 			Data:         typ,

@@ -2,19 +2,51 @@
 {{- if not $summary -}}{{- $summary = document . 2 "" -}}{{- end -}}
 {{- $details := document . 2 "Details" -}}
 {{- $examples := document . 2 "Examples" -}}
+{{- $referrers := filter .ReferrerList "ImplicitAdded" -}}
 <header>
 	<h1>{{.ID}} {{template "devhub-link" link "devhub" "type" .ID}}</h1>
 </header>
 {{- if $summary }}
+<section id="summary">
 	<section class="doc">{{$summary}}</section>
-{{- end }}
+</section>
+{{- end -}}
+{{- if or $details $examples  }}
+<nav>
+	<section>
+		<h2>Table of Contents</h2>
+		<ol>
+		{{- if $details }}
+			<li><a href="#details">Details</a>
+				{{- template "outline" (.Document.Query "Details").Subsections }}
+			</li>
+		{{- end -}}
+		{{- if $examples }}
+			<li><a href="#examples">Examples</a>
+				{{- template "outline" (.Document.Query "Examples").Subsections }}
+			</li>
+		{{- end -}}
+		{{- if $referrers }}
+			<li><a href="#referrers">Relevant members</a></li>
+		{{- end -}}
+		</ol>
+	</section>
+</nav>
+{{- end -}}
 {{- if $details }}
-	<h2>Details</h2>
+<section id="details">
+	<header>
+		<h2>Details</h2>
+	</header>
 	<section class="doc">{{$details}}</section>
-{{- end }}
+</section>
+{{- end -}}
 {{- if $examples }}
-	<h2>Examples</h2>
+<section id="examples">
+	<header>
+		<h2>Examples</h2>
+	</header>
 	<section class="doc">{{$examples}}</section>
-{{- end }}
-{{- $referrers := filter .ReferrerList "ImplicitAdded" -}}
+</section>
+{{- end -}}
 {{- template "referrers" pack . $referrers }}
