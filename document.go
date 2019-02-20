@@ -29,6 +29,8 @@ type Headingable interface {
 	// RootLevel returns the level of the root heading. This is defined as one
 	// level less than the lowest heading level present in the outline.
 	RootLevel() int
+	// HeadingID returns the ID atrribute of the heading.
+	HeadingID() string
 }
 
 // Linkable extends a Section by representing a document with traversable

@@ -18,6 +18,8 @@ type MarkdownSection struct {
 	Heading string
 	// Level is the level of the outer heading enclosing the section.
 	Level int
+	// ID is "id" atrribute of the outer heading enclosing the section.
+	ID string
 	// Document is the raw content of the section.
 	Document *ast.Document
 	// Sections contains each subsection.
@@ -71,6 +73,7 @@ func parseMarkdownSection(section *MarkdownSection, level int, orphan bool) {
 
 	var i int
 	var name string
+	var id string
 	for k, child := range children {
 		heading, ok := child.(*ast.Heading)
 		if !ok || heading.Level > level {
@@ -79,6 +82,7 @@ func parseMarkdownSection(section *MarkdownSection, level int, orphan bool) {
 		sub := MarkdownSection{
 			Heading:  name,
 			Level:    level,
+			ID:       id,
 			Document: &ast.Document{},
 			Renderer: section.Renderer,
 		}
@@ -91,10 +95,12 @@ func parseMarkdownSection(section *MarkdownSection, level int, orphan bool) {
 		section.Sections = append(section.Sections, &sub)
 		i = k + 1
 		name = getHeadingText(heading)
+		id = heading.HeadingID
 	}
 	sub := MarkdownSection{
 		Heading:  name,
 		Level:    level,
+		ID:       id,
 		Document: &ast.Document{},
 		Renderer: section.Renderer,
 	}
@@ -203,6 +209,10 @@ func (s *MarkdownSection) RootLevel() (level int) {
 		}
 	}
 	return level - 1
+}
+
+func (s *MarkdownSection) HeadingID() string {
+	return s.ID
 }
 
 func getLinks(node ast.Node, walk func(string)) {
