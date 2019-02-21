@@ -2,12 +2,12 @@ main {
 	display  : grid;
 	grid-gap : 0 var(--section-spacing);
 }
-main > header           { grid-area : header }
-main > #summary         { grid-area : summary }
-main > nav              { grid-area : nav }
-main > #details         { grid-area : details }
-main > #examples        { grid-area : examples }
-main > #referrers       { grid-area : referrers }
+main > header     { grid-area : header }
+main > #summary   { grid-area : summary }
+main > nav        { grid-area : nav }
+main > #details   { grid-area : details }
+main > #examples  { grid-area : examples }
+main > #referrers { grid-area : referrers }
 
 main {
 	grid-template-columns : auto;

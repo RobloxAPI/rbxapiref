@@ -2,18 +2,18 @@ main {
 	display  : grid;
 	grid-gap : 0 var(--section-spacing);
 }
-main > header { grid-area : header }
-main > nav { grid-area : nav }
-main > #summary { grid-area : summary }
-main > #tree { grid-area : tree }
-main > #members-index { grid-area : index }
+main > header                { grid-area : header }
+main > nav                   { grid-area : nav }
+main > #summary              { grid-area : summary }
+main > #tree                 { grid-area : tree }
+main > #members-index        { grid-area : index }
 main > #removed-member-index { grid-area : rindex }
-main > #details { grid-area : details }
-main > #examples { grid-area : examples }
-main > #history { grid-area : history }
-main > #members { grid-area : members }
-main > #removed-members { grid-area : rmembers }
-main > #references { grid-area : references }
+main > #details              { grid-area : details }
+main > #examples             { grid-area : examples }
+main > #history              { grid-area : history }
+main > #members              { grid-area : members }
+main > #removed-members      { grid-area : rmembers }
+main > #references           { grid-area : references }
 
 main {
 	grid-template-columns : auto;
