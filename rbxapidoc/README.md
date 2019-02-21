@@ -1,4 +1,4 @@
-[![GoDoc](https://godoc.org/github.com/RobloxAPI/rbxapiref/rbxapidoc?status.png)](https://godoc.org/github.com/RobloxAPI/rbxapidoc)
+[![GoDoc](https://godoc.org/github.com/RobloxAPI/rbxapiref/rbxapidoc?status.png)](https://godoc.org/github.com/RobloxAPI/rbxapiref/rbxapidoc)
 
 # rbxapidoc
 
