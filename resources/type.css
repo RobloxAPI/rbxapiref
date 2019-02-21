@@ -57,13 +57,3 @@ main > nav .toc-members {
 		}
 	}
 }
-
-:target > header,
-.doc h1:target,
-.doc h2:target,
-.doc h3:target,
-.doc h4:target,
-.doc h5:target,
-.doc h6:target {
-	background-color : var(--member-target-color);
-}

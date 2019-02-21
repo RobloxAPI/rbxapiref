@@ -99,29 +99,7 @@ main > nav .toc-members {
 	}
 }
 
-:target > header {
-	background-color : var(--member-target-color);
-}
-
 #members > section,
 #removed-members > section {
 	border-bottom : 1px solid var(--border-color);
-}
-
-.metadata-pairs {
-	text-align      : left;
-	margin          : var(--baseline) 0;
-	border-collapse : collapse;
-}
-.metadata-pairs th {
-	font-weight : bold;
-}
-.metadata-pairs th:after {
-	content     : ": ";
-	white-space : pre-wrap;
-}
-
-.tags {
-	text-align : right;
-	font-size  : smaller;
 }
