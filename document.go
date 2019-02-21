@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gomarkdown/markdown"
-	"github.com/robloxapi/rbxapidoc"
+	"github.com/robloxapi/rbxapiref/rbxapidoc"
 	"html/template"
 )
 

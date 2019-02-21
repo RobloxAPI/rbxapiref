@@ -4,7 +4,7 @@ import (
 	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/patch"
 	"github.com/robloxapi/rbxapi/rbxapijson"
-	"github.com/robloxapi/rbxapidoc"
+	"github.com/robloxapi/rbxapiref/rbxapidoc"
 	"github.com/robloxapi/rbxfile"
 	"html/template"
 	"sort"
