@@ -301,11 +301,25 @@ a.header-block:hover {
 
 /*////////////////////////////////////////////////////////////////*/
 /* Status decorations */
-.api-deprecated {
+.index-card .api-deprecated {
+	text-decoration : unset;
+}
+.api-deprecated,
+.index-card .api-deprecated > * {
 	text-decoration : line-through rgb(0, 0, 0, 0.5);
 }
-.api-hidden > *, .api-not-browsable {
-	/* TODO: Figure out how to exclude border-top from this.*/
+.index-card .api-not-browsable {
+	opacity : unset;
+}
+.api-not-browsable,
+.index-card .api-not-browsable > * {
+	opacity : 0.5;
+}
+.index-card .api-hidden {
+	opacity : unset;
+}
+.api-hidden,
+.index-card .api-hidden > * {
 	opacity : 0.5;
 }
 .api-no-default,

@@ -12,27 +12,40 @@
 {{- $class := .Class -}}
 {{- range .Members -}}
 	{{- $entity := . -}}
-	{{- with .Element }}
+	{{- with .Element -}}
+		{{- $deprecated := "" -}}
+		{{- if .GetTag "Deprecated" -}}
+			{{- $deprecated = " api-deprecated" -}}
+		{{- end -}}
+		{{- $notbrowsable := "" -}}
+		{{- if .GetTag "NotBrowsable" -}}
+			{{- $notbrowsable = " api-not-browsable" -}}
+		{{- end -}}
+		{{- $hidden := "" -}}
+		{{- if .GetTag "Hidden" -}}
+			{{- $hidden = " api-hidden" -}}
+		{{- end -}}
+		{{- $status := print $deprecated $notbrowsable $hidden }}
 		<tr class="member-{{.GetName}} row-{{.GetMemberType}}">
 		{{- if eq .GetMemberType "Property" }}
-			<td class="col-type">{{template "value" .ValueType}}</td>
-			<td class="col-icon">{{icon .}}</td>
-			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}{{if .GetTag "NotBrowsable"}} api-not-browsable{{end}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a></span></td>
+			<td class="col-type{{$status}}">{{template "value" .ValueType}}</td>
+			<td class="col-icon{{$status}}">{{icon .}}</td>
+			<td class="col-member{{$status}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a></span></td>
 			<td class="col-history">{{history $entity true true}}</td>
 		{{- else if eq .GetMemberType "Function" }}
-			<td class="col-type">{{template "value" .ReturnType}}</td>
-			<td class="col-icon">{{icon .}}</td>
-			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}{{if .GetTag "NotBrowsable"}} api-not-browsable{{end}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
+			<td class="col-type{{$status}}">{{template "value" .ReturnType}}</td>
+			<td class="col-icon{{$status}}">{{icon .}}</td>
+			<td class="col-member{{$status}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
 			<td class="col-history">{{history $entity true true}}</td>
 		{{- else if eq .GetMemberType "Event" }}
-			<td class="col-type"></td>
-			<td class="col-icon">{{icon .}}</td>
-			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}{{if .GetTag "NotBrowsable"}} api-not-browsable{{end}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
+			<td class="col-type{{$status}}"></td>
+			<td class="col-icon{{$status}}">{{icon .}}</td>
+			<td class="col-member{{$status}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
 			<td class="col-history">{{history $entity true true}}</td>
 		{{- else if eq .GetMemberType "Callback" }}
-			<td class="col-type">{{template "value" .ReturnType}}</td>
-			<td class="col-icon">{{icon .}}</td>
-			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}{{if .GetTag "NotBrowsable"}} api-not-browsable{{end}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
+			<td class="col-type{{$status}}">{{template "value" .ReturnType}}</td>
+			<td class="col-icon{{$status}}">{{icon .}}</td>
+			<td class="col-member{{$status}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
 			<td class="col-history">{{history $entity true true}}</td>
 		{{- end }}
 		</tr>

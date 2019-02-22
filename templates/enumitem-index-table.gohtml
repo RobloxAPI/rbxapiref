@@ -10,11 +10,20 @@
 {{- $enum := .Enum -}}
 {{- range .Items -}}
 	{{- $entity := . -}}
-	{{- with .Element }}
+	{{- with .Element -}}
+		{{- $deprecated := "" -}}
+		{{- if .GetTag "Deprecated" -}}
+			{{- $deprecated = " api-deprecated" -}}
+		{{- end -}}
+		{{- $notbrowsable := "" -}}
+		{{- if .GetTag "NotBrowsable" -}}
+			{{- $notbrowsable = " api-not-browsable" -}}
+		{{- end -}}
+		{{- $status := print $deprecated $notbrowsable }}
 		<tr{{if not $entity.Document}} id="member-{{.Name}}"{{end}} class="row-EnumItem">
-			<td class="col-icon">{{icon "enumitem"}}</td>
-			<td class="col-member{{if .GetTag "Deprecated"}} api-deprecated{{end}}{{if .GetTag "NotBrowsable"}} api-not-browsable{{end}}"><a href="{{link "enumitem" $enum .Name}}">{{.Name}}</a></td>
-			<td class="col-value">{{.Value}}</td>
+			<td class="col-icon{{$status}}">{{icon "enumitem"}}</td>
+			<td class="col-member{{$status}}"><a href="{{link "enumitem" $enum .Name}}">{{.Name}}</a></td>
+			<td class="col-value{{$status}}">{{.Value}}</td>
 			<td class="col-history">{{history $entity true true}}</td>
 		</tr>
 	{{- end -}}
