@@ -102,6 +102,7 @@ func main() {
 		"icon":     data.Icon,
 		"istype":   IsType,
 		"last":     LastIndex,
+		"list":     ParseStringList,
 		"link": func(linkType string, args ...interface{}) string {
 			sargs := make([]string, len(args))
 			for i, arg := range args {

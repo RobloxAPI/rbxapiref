@@ -169,6 +169,9 @@ main > header .history {
 	margin          : var(--baseline) 0;
 	border-collapse : collapse;
 }
+.metadata-pairs tr {
+	vertical-align : top;
+}
 .metadata-pairs th {
 	font-weight : bold;
 }

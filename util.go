@@ -420,3 +420,22 @@ loop:
 }
 
 ////////////////////////////////////////////////////////////////
+
+func ParseStringList(v interface{}) []string {
+	var s string
+	r := reflect.ValueOf(v)
+	if t := r.Type(); t.Kind() == reflect.String {
+		s = r.String()
+	} else if t.Kind() == reflect.Slice && t.Elem().Kind() == reflect.Uint8 {
+		s = string(r.Bytes())
+	} else {
+		return nil
+	}
+	list := strings.Split(s, ",")
+	for i, s := range list {
+		list[i] = strings.TrimSpace(s)
+	}
+	return list
+}
+
+////////////////////////////////////////////////////////////////
