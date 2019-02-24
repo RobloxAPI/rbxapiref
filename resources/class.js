@@ -1,10 +1,7 @@
 "use strict";
 
-function expandMemberList(event) {
-	// Prevent clicked anchor from doing anything else.
-	event.preventDefault();
-
-	let placehold = event.target.closest(".inherited-members");
+function expandMemberList(element, force) {
+	let placehold = element.closest(".inherited-members");
 	if (placehold === null) {
 		return;
 	};
@@ -31,6 +28,14 @@ function expandMemberList(event) {
 	// Attempt to toggle a list that was loaded previously.
 	let body = nextMatching(head, "tbody.inherited-members-list", "thead");
 	if (body !== null) {
+		if (typeof(force) === "boolean") {
+			if (force) {
+				body.style.display = "";
+			} else {
+				body.style.display = "none";
+			};
+			return;
+		};
 		if (body.style.display === "none") {
 			body.style.display = "";
 		} else {
@@ -38,6 +43,10 @@ function expandMemberList(event) {
 		};
 		return;
 	}
+
+	if (force === false) {
+		return;
+	};
 
 	let link = placehold.querySelector("a.element-link");
 	if (link === null || link.href.length === 0) {
@@ -92,7 +101,7 @@ function expandMemberList(event) {
 	req.send();
 };
 
-document.addEventListener("DOMContentLoaded", function(event) {
+document.addEventListener("rbxapiSettingsLoaded", function() {
 	for (parent of document.getElementsByClassName("inherited-members")) {
 		var count = parent.querySelector("a.member-count");
 		if (count === null) {
@@ -100,6 +109,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		};
 		count.href = "#";
 		count.title = "Click to toggle visibility of members.";
-		count.addEventListener("click", expandMemberList);
+		count.addEventListener("click", function(event) {
+			// Prevent clicked anchor from doing anything else.
+			event.preventDefault();
+			expandMemberList(event.target);
+		});
 	};
+	RegisterSettingListener("ExpandMembers", function(name, value, initial) {
+		for (count of document.querySelectorAll(".inherited-members a.member-count")) {
+			expandMemberList(count, value);
+		};
+	});
 });

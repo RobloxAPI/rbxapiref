@@ -28,11 +28,10 @@ const settings = [
 		],
 	},
 	{
-		"name"     : "ExpandMembers",
-		"type"     : "checkbox",
-		"default"  : false,
-		"text"     : "Expand all members",
-		"disabled" : true,
+		"name"    : "ExpandMembers",
+		"type"    : "checkbox",
+		"default" : false,
+		"text"    : "Expand all members",
 	},
 	{
 		"name"     : "ShowDeprecated",
