@@ -31,18 +31,21 @@
 <body>
 	<a id="top"></a>
 	<header id="main-header">
-		<aside id="search" class="header-block">
-			<noscript>
-				<section id="no-search">Searching requires Javascript.</section>
-			</noscript>
-		</aside>
-		<h1 class="header-block"><a href="{{link "index"}}">Roblox API Reference</a></h1>
-		<nav class="main-nav">
-			<ul>
-				<li><a class="header-block" href="{{link "updates"}}">Updates</a></li>
-				<li><a class="header-block" href="{{link "about"}}">About</a></li>
-			</ul>
-		</nav>
+		<div id="main-header-left">
+			<aside id="search" class="header-block">
+				<noscript>
+					<section id="no-search">Searching requires Javascript.</section>
+				</noscript>
+			</aside>
+			<h1 class="header-block"><a href="{{link "index"}}">Roblox API Reference</a></h1>
+			<nav class="main-nav">
+				<ul>
+					<li><a class="header-block" href="{{link "updates"}}">Updates</a></li>
+					<li><a class="header-block" href="{{link "about"}}">About</a></li>
+				</ul>
+			</nav>
+		</div>
+		<div id="main-header-right"></div>
 	</header>
 	<main>
 {{execute .Template .Data -}}

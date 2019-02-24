@@ -112,11 +112,13 @@ func GeneratePageMain(data *Data) (pages []Page) {
 		Scripts: []Resource{
 			{Name: "main.js"},
 			{Name: "search.js"},
+			{Name: "settings.js"},
 		},
 		Resources: []Resource{
 			{Name: "icon-explorer.png", Content: buf.Bytes()},
 			{Name: "icon-objectbrowser.png"},
 			{Name: "icon-devhub.png"},
+			{Name: "settings.svg"},
 			{Name: "favicons/favicon-512x512.png"},
 			{Name: "favicons/favicon-32x32.png"},
 			{Name: "favicons/favicon-16x16.png"},

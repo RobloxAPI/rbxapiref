@@ -56,6 +56,7 @@ Viewport thresholds:
 	--layer-content          : auto;
 	--layer-below-foreground : 10;
 	--layer-foreground       : 20;
+	--layer-menu             : 30;
 
 	/* Misc. */
 	--scrollbar-width : 4ch;
@@ -186,15 +187,22 @@ main > header .history {
 
 /*////////////////////////////////////////////////////////////////*/
 /* Header / Footer */
-#main-header, #main-footer {
+/* Header */
+#main-header {
+	display               : grid;
+	grid-template-columns : 1fr auto;
+	background-color      : var(--table-color);
+}
+#main-header-left {
 	display     : flex;
 	align-items : center;
 	flex-flow   : wrap row;
 }
-/* Header */
-#main-header {
-	/* Header colors */
-	background-color : var(--table-color);
+#main-header-right {
+	position : relative;
+	/* Fixes erroneous spacing apparently caused by grid.
+	TODO: investigate why this happens. */
+	line-height : 0;
 }
 #main-header .header-block {
 	/* Header colors */
@@ -212,7 +220,9 @@ main > header .history {
 #main-header #search { order: 2 }
 /* Footer */
 #main-footer {
-	/* Place content on the right */
+	display         : flex;
+	align-items     : center;
+	flex-flow       : wrap row;
 	justify-content : right;
 }
 #main-footer {
@@ -300,6 +310,72 @@ a.header-block:hover {
 }
 .controlled-header .controls label {
 	display : flex;
+}
+
+/*////////////////////////////////////////////////////////////////*/
+/* Settings */
+#settings-button {
+	--block-color       : var(--table-color);
+	--block-color-dim   : var(--table-color-dim);
+	width               : var(--baseline);
+	height              : var(--baseline);
+	background-image    : url('settings.svg');
+	background-position : center;
+	background-size     : 150%;
+	background-origin   : content-box;
+	background-repeat   : no-repeat;
+	cursor              : pointer;
+}
+#settings-button:hover {
+	background-color : var(--block-color-dim);
+	transition       : background-color 100ms linear;
+}
+#settings-menu {
+	z-index          : var(--layer-menu);
+	position         : absolute;
+	right            : 0;
+	background-color : var(--table-color);
+	border           : 1px solid var(--border-color);
+}
+#settings-menu {
+	padding : 0 var(--baseline);
+}
+#settings-menu > div {
+	display : flex;
+	margin  : calc(var(--baseline)/2) 0;
+}
+#settings-menu label {
+	--border-size    : 2px;
+	flex-grow        : 1;
+	display          : inline-block;
+	cursor           : pointer;
+	background-color : var(--table-color);
+	font-size        : var(--font-size);
+	line-height      : var(--line-height);
+	padding          : calc(var(--baseline)/2) 0;
+}
+#settings-menu .radio input {
+	display : none;
+}
+#settings-menu .radio input+label {
+	padding-top    : calc(var(--baseline)/2);
+	padding-bottom : calc(var(--baseline)/2 - var(--border-size));
+	border-bottom  : var(--border-size) solid transparent;
+	transition     : border-bottom 100ms linear;
+	text-align     : center;
+}
+#settings-menu .radio input:checked+label {
+	border-bottom-color : var(--border-color);
+}
+#settings-menu .select > label  { order : 1; }
+#settings-menu .select > select { order : 2; }
+#settings-menu .select label,
+#settings-menu .checkbox input {
+	margin-right : calc(var(--baseline)/2);
+}
+#settings-menu input:disabled+label,
+#settings-menu select:disabled+label {
+	opacity : 0.5;
 }
 
 /*////////////////////////////////////////////////////////////////*/
