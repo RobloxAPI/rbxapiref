@@ -13,39 +13,27 @@
 {{- range .Members -}}
 	{{- $entity := . -}}
 	{{- with .Element -}}
-		{{- $deprecated := "" -}}
-		{{- if .GetTag "Deprecated" -}}
-			{{- $deprecated = " api-deprecated" -}}
-		{{- end -}}
-		{{- $notbrowsable := "" -}}
-		{{- if .GetTag "NotBrowsable" -}}
-			{{- $notbrowsable = " api-not-browsable" -}}
-		{{- end -}}
-		{{- $hidden := "" -}}
-		{{- if .GetTag "Hidden" -}}
-			{{- $hidden = " api-hidden" -}}
-		{{- end -}}
-		{{- $status := print $deprecated $notbrowsable $hidden }}
-		<tr class="member-{{.GetName}} row-{{.GetMemberType}}">
+		{{- $status := status . true }}
+		<tr class="member-{{.GetName}} row-{{.GetMemberType}}{{$status}}">
 		{{- if eq .GetMemberType "Property" }}
-			<td class="col-type{{$status}}">{{template "value" .ValueType}}</td>
-			<td class="col-icon{{$status}}">{{icon .}}</td>
-			<td class="col-member{{$status}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a></span></td>
+			<td class="col-type">{{template "value" .ValueType}}</td>
+			<td class="col-icon">{{icon .}}</td>
+			<td class="col-member"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a></span></td>
 			<td class="col-history">{{history $entity true true}}</td>
 		{{- else if eq .GetMemberType "Function" }}
-			<td class="col-type{{$status}}">{{template "value" .ReturnType}}</td>
-			<td class="col-icon{{$status}}">{{icon .}}</td>
-			<td class="col-member{{$status}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
+			<td class="col-type">{{template "value" .ReturnType}}</td>
+			<td class="col-icon">{{icon .}}</td>
+			<td class="col-member"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
 			<td class="col-history">{{history $entity true true}}</td>
 		{{- else if eq .GetMemberType "Event" }}
-			<td class="col-type{{$status}}"></td>
-			<td class="col-icon{{$status}}">{{icon .}}</td>
-			<td class="col-member{{$status}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
+			<td class="col-type"></td>
+			<td class="col-icon">{{icon .}}</td>
+			<td class="col-member"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
 			<td class="col-history">{{history $entity true true}}</td>
 		{{- else if eq .GetMemberType "Callback" }}
-			<td class="col-type{{$status}}">{{template "value" .ReturnType}}</td>
-			<td class="col-icon{{$status}}">{{icon .}}</td>
-			<td class="col-member{{$status}}"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
+			<td class="col-type">{{template "value" .ReturnType}}</td>
+			<td class="col-icon">{{icon .}}</td>
+			<td class="col-member"><span class="member-text"><a href="{{link "member" $class .Name}}">{{.Name}}</a>{{template "value" .Parameters}}</span></td>
 			<td class="col-history">{{history $entity true true}}</td>
 		{{- end }}
 		</tr>
@@ -61,7 +49,7 @@
 	{{- if $members }}
 	<thead>
 		<tr>
-			<th class="inherited-members" colspan="4"><a class="member-count">{{len $members}} {{quantity $members "member" "members"}}</a> inherited from <a class="element-link" href="{{link "class" .ID}}#members">{{icon .Element}}{{.ID}}</a></th>
+			<th class="inherited-members" colspan="4"><a class="member-count">{{len $members}} {{quantity $members "member" "members"}}</a> inherited from <a class="element-link{{status .Element true}}" href="{{link "class" .ID}}#members">{{icon .Element}}{{.ID}}</a></th>
 		</tr>
 	</thead>
 	{{- end -}}

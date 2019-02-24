@@ -13,8 +13,9 @@
 	</header>
 	<ul id="class-list" class="element-list">
 		{{- define "tree" -}}
-		{{- range . }}
-		<li><a class="element-link" href="{{link "class" .ID}}">{{icon .}}{{.ID}}</a>
+		{{- range . -}}
+		{{- $status := status .Element false }}
+		<li{{if $status}} class="{{$status}}"{{end}}><a class="element-link" href="{{link "class" .ID}}">{{icon .}}{{.ID}}</a>
 		{{- if .Subclasses }}
 		<ul>
 		{{- template "tree" .Subclasses }}
@@ -29,8 +30,9 @@
 {{- if $removed }}
 	<h3>Removed classes<span class="element-count" title="The API has {{len $removed}} removed {{quantity $removed "class" "classes"}}."> ({{len $removed}})</span></h3>
 	<ul id="removed-class-list" class="element-list">
-	{{- range $removed }}
-		<li><a class="element-link" href="{{link "class" .ID}}">{{icon .}}{{.ID}}</a>
+	{{- range $removed -}}
+		{{- $status := status .Element false }}
+		<li{{if $status}} class="{{$status}}"{{end}}><a class="element-link" href="{{link "class" .ID}}">{{icon .}}{{.ID}}</a>
 	{{- end -}}
 	</ul>
 {{- end }}
@@ -41,16 +43,18 @@
 		<h2>Enums<span class="element-count" title="The API defines {{len $enums}} {{quantity $enums "enum" "enums"}}."> ({{len $enums}})</span></h2>
 	</header>
 	<ul id="enum-list" class="element-list">
-		{{- range $enums }}
-		<li><a class="element-link" href="{{link "enum" .ID}}">{{icon .}}{{.ID}}</a></li>
-		{{- end }}
+	{{- range $enums -}}
+		{{- $status := status .Element false }}
+		<li{{if $status}} class="{{$status}}"{{end}}><a class="element-link" href="{{link "enum" .ID}}">{{icon .}}{{.ID}}</a></li>
+	{{- end }}
 	</ul>
 {{- $removed := filter .Entities.EnumList "Removed" -}}
 {{- if $removed }}
 	<h3>Removed enums<span class="element-count" title="The API has {{len $removed}} removed {{quantity $removed "enum" "enums"}}."> ({{len $removed}})</span></h3>
 	<ul id="removed-enum-list" class="element-list">
-	{{- range $removed }}
-		<li><a class="element-link" href="{{link "enum" .ID}}">{{icon .}}{{.ID}}</a>
+	{{- range $removed -}}
+		{{- $status := status .Element false }}
+		<li{{if $status}} class="{{$status}}"{{end}}><a class="element-link" href="{{link "enum" .ID}}">{{icon .}}{{.ID}}</a>
 	{{- end -}}
 	</ul>
 {{- end }}

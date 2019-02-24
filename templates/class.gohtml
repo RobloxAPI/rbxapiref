@@ -107,8 +107,9 @@
 			<h2>Inherits<span class="element-count" title="{{.ID}} inherits {{len $superclasses}} {{quantity (len $superclasses) "class" "classes"}}."> ({{len $superclasses}})</span></h2>
 		</header>
 		<ul class="truncated-list element-list">
-		{{- range $superclasses }}
-			<li><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
+		{{- range $superclasses -}}
+			{{- $status := status .Element false }}
+			<li{{if $status}} class="{{$status}}"{{end}}><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
 		{{- end }}
 		</ul>
 	</section>
@@ -119,8 +120,9 @@
 			<h2>Inherited by<span class="element-count" title="{{.ID}} is inherited by {{len $subclasses}} {{quantity (len $subclasses) "class" "classes"}}."> ({{len $subclasses}})</span></h2>
 		</header>
 		<ul class="truncated-list element-list">
-		{{- range $subclasses }}
-			<li><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
+		{{- range $subclasses -}}
+			{{- $status := status .Element false }}
+			<li{{if $status}} class="{{$status}}"{{end}}><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
 		{{- end }}
 		</ul>
 	</section>
@@ -194,8 +196,9 @@
 			<h2>Relevant classes<span class="element-count" title="{{.ID}} has {{len $classes}} related {{quantity $classes "class" "classes"}}."> ({{len $classes}})</span></h2>
 		</header>
 		<ul class="truncated-list element-list">
-		{{- range $classes }}
-			<li><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
+		{{- range $classes -}}
+			{{- $status := status .Element false }}
+			<li{{if $status}} class="{{$status}}"{{end}}><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
 		{{- end }}
 		</ul>
 	</section>
@@ -206,8 +209,9 @@
 			<h2>Relevant enums<span class="element-count" title="{{.ID}} has {{len $enums}} related {{quantity $enums "enum" "enums"}}."> ({{len $enums}})</span></h2>
 		</header>
 		<ul class="truncated-list element-list">
-		{{- range $enums }}
-			<li><a class="element-link" href="{{link "enum" .ID}}">{{icon .Element}}{{.ID}}</a></li>
+		{{- range $enums -}}
+			{{- $status := status .Element false }}
+			<li{{if $status}} class="{{$status}}"{{end}}><a class="element-link" href="{{link "enum" .ID}}">{{icon .Element}}{{.ID}}</a></li>
 		{{- end }}
 		</ul>
 	</section>

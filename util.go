@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/pkg/errors"
+	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/rbxapijson"
 	"html/template"
 	"io"
@@ -436,6 +437,41 @@ func ParseStringList(v interface{}) []string {
 		list[i] = strings.TrimSpace(s)
 	}
 	return list
+}
+
+////////////////////////////////////////////////////////////////
+
+func ElementStatusClasses(t rbxapi.Taggable, suffix bool) string {
+	var s []string
+	for _, tag := range t.GetTags() {
+		switch tag {
+		case "Deprecated":
+			s = append(s, "api-deprecated")
+		case "NotBrowsable":
+			s = append(s, "api-not-browsable")
+		case "Hidden":
+			s = append(s, "api-hidden")
+		}
+	}
+	if len(s) == 0 {
+		return ""
+	}
+
+	sort.Strings(s)
+	j := 0
+	for i := 1; i < len(s); i++ {
+		if s[j] != s[i] {
+			j++
+			s[j] = s[i]
+		}
+	}
+	s = s[:j+1]
+
+	classes := strings.Join(s, " ")
+	if suffix {
+		classes = " " + classes
+	}
+	return classes
 }
 
 ////////////////////////////////////////////////////////////////

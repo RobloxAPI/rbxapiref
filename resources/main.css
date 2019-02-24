@@ -383,28 +383,42 @@ a.header-block:hover {
 
 /*////////////////////////////////////////////////////////////////*/
 /* Status decorations */
-.index-card .api-deprecated {
+
+/* Deprecated */
+.index-card tr.api-deprecated {
 	text-decoration : unset;
 }
-.api-deprecated,
+.index-card tr.api-deprecated .col-type,
+.index-card tr.api-deprecated .col-member,
+.index-card tr.api-deprecated .col-value,
 a.api-deprecated,
-.index-card .api-deprecated > * {
+.api-deprecated {
 	text-decoration : line-through rgb(0, 0, 0, 0.5);
 }
-.index-card .api-not-browsable {
+
+/* NotBrowsable */
+.index-card tr.api-not-browsable {
 	opacity : unset;
 }
-.api-not-browsable,
-.index-card .api-not-browsable > * {
+.index-card tr.api-not-browsable .col-type,
+.index-card tr.api-not-browsable .col-member,
+.index-card tr.api-not-browsable .col-value,
+.api-not-browsable {
 	opacity : 0.5;
 }
-.index-card .api-hidden {
+
+/* Hidden */
+.index-card tr.api-hidden {
 	opacity : unset;
 }
-.api-hidden,
-.index-card .api-hidden > * {
+.index-card tr.api-hidden .col-type,
+.index-card tr.api-hidden .col-member,
+.index-card tr.api-hidden .col-value,
+.api-hidden {
 	opacity : 0.5;
 }
+
+/* Strings */
 .api-no-default,
 .api-empty-string {
 	font-style : italic;
@@ -413,6 +427,8 @@ a.api-deprecated,
 .api-empty-string::before {
 	content : "(empty)";
 }
+
+/* History tags */
 .history-add::before    { content: "+" }
 .history-change::before { content: "Δ" }
 .history-remove::before { content: "−" }

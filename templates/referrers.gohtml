@@ -7,8 +7,9 @@
 	<ul class="truncated-list element-list">
 	{{- range .Referrers -}}
 		{{- $class := (index .Member.ID 0) -}}
-		{{- $member := (index .Member.ID 1) }}
-		<li><a class="element-link" href="{{link "member" $class $member}}">{{icon .Member}}{{$class}}.{{$member}}</a>{{if .Parameter}} ({{.Parameter.Name}}){{end}}</li>
+		{{- $member := (index .Member.ID 1) -}}
+		{{- $status := status .Member.Element false }}
+		<li{{if $status}} class="{{$status}}"{{end}}><a class="element-link" href="{{link "member" $class $member}}">{{icon .Member}}{{$class}}.{{$member}}</a>{{if .Parameter}} ({{.Parameter.Name}}){{end}}</li>
 	{{- end }}
 	</ul>
 </section>
