@@ -23,7 +23,7 @@
 {{- if $summary }}
 	<section class="doc">{{$summary}}</section>
 {{- end }}
-	{{- template "statuses" .Element -}}
+	{{- template "status-boxes" .Element -}}
 	<table class="metadata-pairs">
 		<tbody>
 			<tr><th>Memory Category</th><td>{{tostring .Element.MemoryCategory}}</td></tr>

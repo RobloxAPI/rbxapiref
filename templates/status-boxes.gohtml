@@ -1,0 +1,48 @@
+{{- if len .Tags -}}
+<div class="status-list">
+{{- if .GetTag "NotCreatable" -}}
+	{{- template "status-box" pack "low" "This class is not creatable." "An object of this class cannot be created with Instance.new." -}}
+{{- end -}}
+{{- if .GetTag "PlayerReplicated" -}}
+	{{- template "status-box" pack "low" "This class is player-replicated." "Its data is replicated between the server and only a single client." -}}
+{{- end -}}
+{{- if .GetTag "Service" -}}
+	{{- template "status-box" pack "low" "This class is a service." "It may be acquired with GetService." -}}
+{{- end -}}
+{{- if .GetTag "Settings" -}}
+	{{- template "status-box" pack "low" "This class is a settings container." "It contains settings that affect the behavior of the peer." -}}
+{{- end -}}
+{{- if .GetTag "ReadOnly" -}}
+	{{- template "status-box" pack "low" "This property is read-only." "Its value can be read, but it cannot be modified." -}}
+{{- end -}}
+{{- if .GetTag "noyield" -}}
+	{{- template "status-box" pack "medium" "This callback cannot yield." "Attempting to yield within this callback will result in an error." -}}
+{{- end -}}
+{{- if .GetTag "CanYield" -}}
+	{{- template "status-box" pack "medium" "This function can yield." "It may or may not block the calling thread until completion." -}}
+{{- end -}}
+{{- /*
+{{ - if .GetTag "CustomLuaState" -} }
+	{{- template "status-box" pack "low" "This function has a custom lua state." "It may behave in a non-standard way." -} }
+{{- end -} }
+*/ -}}
+{{- if .GetTag "Yields" -}}
+	{{- template "status-box" pack "medium" "This function yields." "It will block the calling thread until completion." -}}
+{{- end -}}
+{{- if .GetTag "Hidden" -}}
+	{{- template "status-box" pack "low" "This member is hidden." "It is not meant to be used, and may have unresolved issues." -}}
+{{- end -}}
+{{- if .GetTag "NotScriptable" -}}
+	{{- template "status-box" pack "medium" "This member is not scriptable." "It cannot be accessed by Lua code." -}}
+{{- end -}}
+{{- if .GetTag "Deprecated" -}}
+	{{- template "status-box" pack "high" "This item is deprecated." "It exists for backwards-compatibility only, and should not be used for new work." -}}
+{{- end -}}
+{{- if .GetTag "NotBrowsable" -}}
+	{{- template "status-box" pack "low" "This item is not browsable." "It is not visible in Studio's object browser." -}}
+{{- end -}}
+{{- if .GetTag "NotReplicated" -}}
+	{{- template "status-box" pack "medium" "This item is not replicated." "Its interface does not cross the network boundary." -}}
+{{- end -}}
+</div>
+{{- end -}}

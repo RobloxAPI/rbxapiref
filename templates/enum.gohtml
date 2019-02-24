@@ -21,7 +21,7 @@
 {{- if $summary }}
 	<section class="doc">{{$summary}}</section>
 {{- end }}
-	{{- template "statuses" .Element -}}
+	{{- template "status-boxes" .Element -}}
 {{- if .Element.Tags }}
 	<p class="tags">Tags: {{tostring .Element.Tags}}</p>
 {{- end }}
