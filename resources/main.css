@@ -369,9 +369,12 @@ a.header-block:hover {
 }
 #settings-menu .select > label  { order : 1; }
 #settings-menu .select > select { order : 2; }
-#settings-menu .select label,
-#settings-menu .checkbox input {
+#settings-menu .select label {
 	margin-right : calc(var(--baseline)/2);
+}
+#settings-menu .checkbox input {
+	margin      : calc(var(--baseline)/2);
+	margin-left : 0;
 }
 #settings-menu input:disabled+label,
 #settings-menu select:disabled+label {
