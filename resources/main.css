@@ -385,36 +385,29 @@ a.header-block:hover {
 /* Status decorations */
 
 /* Deprecated */
-.index-card tr.api-deprecated {
-	text-decoration : unset;
-}
-.index-card tr.api-deprecated .col-type,
-.index-card tr.api-deprecated .col-member,
-.index-card tr.api-deprecated .col-value,
-a.api-deprecated,
-.api-deprecated {
+li.api-deprecated > :not(ul),
+.index-card tr.api-deprecated .col-type > *,
+.index-card tr.api-deprecated .col-member > *,
+.index-card tr.api-deprecated .col-value > *,
+.element-link.api-deprecated {
 	text-decoration : line-through rgb(0, 0, 0, 0.5);
 }
 
 /* NotBrowsable */
-.index-card tr.api-not-browsable {
-	opacity : unset;
-}
-.index-card tr.api-not-browsable .col-type,
-.index-card tr.api-not-browsable .col-member,
-.index-card tr.api-not-browsable .col-value,
-.api-not-browsable {
+li.api-not-browsable > :not(ul),
+.index-card tr.api-not-browsable .col-type > *,
+.index-card tr.api-not-browsable .col-member > *,
+.index-card tr.api-not-browsable .col-value > *,
+.element-link.api-not-browsable {
 	opacity : 0.5;
 }
 
 /* Hidden */
-.index-card tr.api-hidden {
-	opacity : unset;
-}
-.index-card tr.api-hidden .col-type,
-.index-card tr.api-hidden .col-member,
-.index-card tr.api-hidden .col-value,
-.api-hidden {
+li.api-hidden > :not(ul),
+.index-card tr.api-hidden .col-type > *,
+.index-card tr.api-hidden .col-member > *,
+.index-card tr.api-hidden .col-value > *,
+.element-link.api-hidden {
 	opacity : 0.5;
 }
 
