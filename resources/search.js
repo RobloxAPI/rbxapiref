@@ -660,7 +660,7 @@ document.addEventListener("DOMContentLoaded", function() {
 			searchInput.blur();
 			return;
 		};
-		if (e.key === "s" && searchInput !== document.activeElement) {
+		if ((e.key === "s" || e.key === "S") && searchInput !== document.activeElement) {
 			e.preventDefault();
 			searchInput.focus();
 			searchInput.select();
