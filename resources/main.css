@@ -215,9 +215,6 @@ main > header .history {
 	padding-left  : var(--baseline);
 	padding-right : var(--baseline);
 }
-#main-header h1      { order: 0 }
-#main-header nav     { order: 1 }
-#main-header #search { order: 2 }
 /* Footer */
 #main-footer {
 	display         : flex;
@@ -251,6 +248,13 @@ main > header .history {
 	background-color : var(--background-color);
 	color            : var(--text-color);
 	border           : 1px solid var(--border-color);
+}
+#search-input:focus {
+	outline    : 1px solid var(--anchor-color);
+	box-shadow : 0 0 4px var(--anchor-color);
+}
+#search-results .element-link:focus {
+	background-color : var(--member-target-color);
 }
 /* Top navigation */
 #top-nav {

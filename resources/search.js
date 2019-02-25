@@ -548,7 +548,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 	search.insertAdjacentHTML("afterbegin",
 		'<form id="search-form">' +
-			'<input type="text" id="search-input" placeholder="Search...">' +
+			'<input type="text" id="search-input" placeholder="Press S to search...">' +
 		'</form>'
 	);
 	main.insertAdjacentHTML("beforebegin", '<section id="search-results" style="display: none;"></section>');
@@ -651,7 +651,24 @@ document.addEventListener("DOMContentLoaded", function() {
 		);
 	};
 
-	// Show results as user types.
+	// Shortcuts to focus on search bar.
+	document.addEventListener("keydown",function(e) {
+		if (e.altKey || e.ctrlKey || e.metaKey) {
+			return;
+		};
+		if (e.key === "Escape" && searchInput === document.activeElement) {
+			searchInput.blur();
+			return;
+		};
+		if (e.key === "s" && searchInput !== document.activeElement) {
+			e.preventDefault();
+			searchInput.focus();
+			searchInput.select();
+			return;
+		};
+	});
+
+	// Show results as the user types.
 	let timer;
 	searchInput.addEventListener("input", function() {
 		timer && clearTimeout(timer);
@@ -660,13 +677,33 @@ document.addEventListener("DOMContentLoaded", function() {
 		}, 200);
 	});
 
+	// Reshow results on focus.
+	searchInput.addEventListener("focus", function() {
+		if (searchInput.value.length > 0) {
+			doSearch(searchInput.value);
+		};
+	});
+
+	// Hide results when a result on the current page is selected.
+	searchResults.addEventListener("click", function(event) {
+		let anchor = event.target.closest("a");
+		if (anchor === null) {
+			return;
+		};
+		if (document.location.origin == anchor.origin &&
+			document.location.pathname == anchor.pathname) {
+			renderResults(null);
+		};
+	});
+
 	// Go to the first result when the user presses enter.
 	searchForm.addEventListener("submit", function(event) {
 		event.preventDefault();
 		if (firstResult !== null) {
 			var parseURL = document.createElement('a');
 			parseURL.href = firstResult;
-			if (document.location.pathname == parseURL.pathname) {
+			if (document.location.origin == parseURL.origin &&
+				document.location.pathname == parseURL.pathname) {
 				renderResults(null);
 				if (parseURL.hash.length > 0) {
 					document.location.hash = parseURL.hash;
