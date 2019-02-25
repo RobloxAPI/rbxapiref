@@ -3,9 +3,6 @@
 	z-index  : var(--layer-foreground);
 }
 main {
-	margin : 0;
-}
-#main {
 	display    : flex;
 	flex-flow  : wrap row;
 	column-gap : var(--section-spacing);
@@ -77,10 +74,10 @@ main {
 	#toc {
 		display: block;
 	}
-	#main {
+	main {
 		display: block;
 	}
-	#main > article > ul {
+	main > article > ul {
 		padding-left : 0;
 	}
 }

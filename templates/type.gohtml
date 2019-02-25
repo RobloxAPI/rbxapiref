@@ -3,6 +3,7 @@
 {{- $details := document . 2 "Details" -}}
 {{- $examples := document . 2 "Examples" -}}
 {{- $referrers := filter .ReferrerList "ImplicitAdded" -}}
+<main>
 <header>
 	<h1>{{.ID}} {{template "devhub-link" link "devhub" "type" .ID}}</h1>
 </header>
@@ -50,3 +51,4 @@
 </section>
 {{- end -}}
 {{- template "referrers" pack . $referrers }}
+</main>

@@ -9,7 +9,7 @@
 {{- $membersSorted := sortedlist (filter .ItemList "Added" "Documented") }}
 {{- $removedSorted := sortedlist (filter .ItemList "Removed" "Documented") }}
 {{- $referrers := filter .ReferrerList "ImplicitAdded" -}}
-<section id="main"{{if or $membersSorted $removedSorted}} class="descriptive"{{end}}>
+<main{{if or $membersSorted $removedSorted}} class="descriptive"{{end}}>
 <header>
 	<h1>{{icon .}}{{.ID}} {{template "devhub-link" link "devhub" "enum" $enum}}</h1>
 </header>
@@ -127,5 +127,5 @@
 	{{$history}}
 </section>
 {{- end -}}
-{{- template "referrers" pack . $referrers -}}
-</section>
+{{- template "referrers" pack . $referrers }}
+</main>

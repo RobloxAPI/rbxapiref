@@ -13,6 +13,7 @@
 {{- $classes := filter .ReferenceList "Class" -}}
 {{- $enums := filter .ReferenceList "Enum" -}}
 {{- $referrers := filter .ReferrerList "ImplicitAdded" -}}
+<main>
 <header>
 	<h1>{{icon .Element}}{{.ID}}{{if ne .ID "<<<ROOT>>>"}} {{template "devhub-link" link "devhub" "class" $class}}{{end}}</h1>
 </header>
@@ -219,3 +220,4 @@
 {{- template "referrers" pack . $referrers -}}
 </section>
 {{- end }}
+</main>
