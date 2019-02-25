@@ -571,6 +571,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		while (searchResults.lastChild) {
 			searchResults.removeChild(searchResults.lastChild);
 		};
+		firstResult = null;
 		if (!results) {
 			main.style.display = "";
 			searchResults.style.display = "none";
@@ -586,7 +587,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
 		// Limit number of results.
 		var max = results.length > 20 ? 20 : results.length;
-		firstResult = null;
 		for (let i = 0; i < max; i++) {
 			let result = results[i];
 			let item = document.createElement("li");
