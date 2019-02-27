@@ -184,6 +184,10 @@ main > header .history {
 	text-align : right;
 	font-size  : smaller;
 }
+.element-link-list .element-link:not(:last-child):after {
+	content : ", ";
+	white-space: normal;
+}
 
 /*////////////////////////////////////////////////////////////////*/
 /* Header / Footer */

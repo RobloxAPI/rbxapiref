@@ -11,7 +11,7 @@
 {{- range .Items -}}
 	{{- $entity := . -}}
 	{{- with .Element -}}
-		{{- $status := status . true }}
+		{{- $status := status true . }}
 		<tr{{if not $entity.Document}} id="member-{{.Name}}"{{end}} class="row-EnumItem{{$status}}">
 			<td class="col-icon">{{icon "enumitem"}}</td>
 			<td class="col-member"><a href="{{link "enumitem" $enum .Name}}">{{.Name}}</a></td>

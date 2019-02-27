@@ -5,9 +5,15 @@
 		<tr><th>{{$name}}</th><td>{{$value}} (<span class="icon class-icon" style="--icon-index: {{$value}}"></span>)</td></tr>
 	{{- else if eq $name "PreferredParent" "PreferredParents" }}
 		{{- $list := list $value -}}
-		{{- if $list -}}
-		{{- $last := last $list }}
-		<tr><th>{{$name}}</th><td>{{range $i, $v := $list}}<a class="element-link" href="{{link "class" $v}}">{{icon "class" $v}}{{$v}}</a>{{if ne $i $last}}, {{end}}{{end}}</td></tr>
+		{{- if $list }}
+		<tr>
+			<th>{{$name}}</th>
+			<td class="element-link-list">
+			{{- range $list }}
+				<a class="element-link{{status true "class" .}}" href="{{link "class" .}}">{{icon "class" .}}{{.}}</a>
+			{{- end }}
+			</td>
+		</tr>
 		{{- else }}
 		<tr><th>{{$name}}</th><td>{{$value}}</td></tr>
 		{{- end }}

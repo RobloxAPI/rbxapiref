@@ -120,7 +120,7 @@ func main() {
 		"quantity":   FormatQuantity,
 		"resources":  data.GenerateResourceElements,
 		"sortedlist": SortedList,
-		"status":     ElementStatusClasses,
+		"status":     data.ElementStatusClasses,
 		"subactions": MakeSubactions,
 		"tolower":    strings.ToLower,
 		"tostring":   ToString,

@@ -320,6 +320,92 @@ finish:
 	return template.HTML(fmt.Sprintf(body, template.HTMLEscapeString(class), template.HTMLEscapeString(title), style))
 }
 
+func (data *Data) ElementStatusClasses(suffix bool, v ...interface{}) string {
+	var t rbxapi.Taggable
+	switch value := v[0].(type) {
+	case rbxapi.Taggable:
+		t = value
+	case string:
+		switch value {
+		case "class":
+			class, ok := data.Entities.Classes[v[1].(string)]
+			if !ok {
+				return ""
+			}
+			t = class.Element
+		case "member":
+			class, ok := data.Entities.Classes[v[1].(string)]
+			if !ok {
+				return ""
+			}
+			member, ok := class.Members[v[2].(string)]
+			if !ok {
+				return ""
+			}
+			t = member.Element
+		case "enum":
+			enum, ok := data.Entities.Enums[v[1].(string)]
+			if !ok {
+				return ""
+			}
+			t = enum.Element
+		case "enumitem":
+			enum, ok := data.Entities.Enums[v[1].(string)]
+			if !ok {
+				return ""
+			}
+			item, ok := enum.Items[v[2].(string)]
+			if !ok {
+				return ""
+			}
+			t = item.Element
+		default:
+			return ""
+		}
+	case *ClassEntity:
+		t = value.Element
+	case *MemberEntity:
+		t = value.Element
+	case *EnumEntity:
+		t = value.Element
+	case *EnumItemEntity:
+		t = value.Element
+	default:
+		return ""
+	}
+
+	var s []string
+	for _, tag := range t.GetTags() {
+		switch tag {
+		case "Deprecated":
+			s = append(s, "api-deprecated")
+		case "NotBrowsable":
+			s = append(s, "api-not-browsable")
+		case "Hidden":
+			s = append(s, "api-hidden")
+		}
+	}
+	if len(s) == 0 {
+		return ""
+	}
+
+	sort.Strings(s)
+	j := 0
+	for i := 1; i < len(s); i++ {
+		if s[j] != s[i] {
+			j++
+			s[j] = s[i]
+		}
+	}
+	s = s[:j+1]
+
+	classes := strings.Join(s, " ")
+	if suffix {
+		classes = " " + classes
+	}
+	return classes
+}
+
 func (data *Data) ExecuteTemplate(name string, tdata interface{}) (template.HTML, error) {
 	var buf bytes.Buffer
 	err := data.Templates.ExecuteTemplate(&buf, name, tdata)
