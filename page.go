@@ -5,6 +5,7 @@ import (
 	"github.com/anaminus/but"
 	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapiref/fetch"
+	"html/template"
 	"image/png"
 	"path"
 	"strconv"
@@ -34,6 +35,11 @@ type Page struct {
 
 type Meta map[string]string
 
+type Attr struct {
+	Name  template.HTMLAttr
+	Value string
+}
+
 type Resource struct {
 	// Name indicates the name of the source file located in the input
 	// resource directory, as well as the name of the generated file within
@@ -46,9 +52,9 @@ type Resource struct {
 	// generated page, rather than being written to the output resource
 	// directory.
 	Embed bool
-	// ID, if non-empty, specifies the ID attribute of the generated HTML node
+	// Attr contains additional attributes of the generated HTML node
 	// representing the resource.
-	ID string
+	Attr []Attr
 }
 
 func Title(sub string) string {
@@ -222,7 +228,7 @@ func GeneratePageUpdates(data *Data) (pages []Page) {
 		}
 	}
 
-	styles := []Resource{{Name: "updates.css", ID: "updates-style"}}
+	styles := []Resource{{Name: "updates.css", Attr: []Attr{{"id", "updates-style"}}}}
 	scripts := []Resource{{Name: "updates.js"}}
 	pages = make([]Page, len(patchesByYear)+1)
 	for i, patches := range patchesByYear {
