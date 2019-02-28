@@ -116,9 +116,9 @@ func GeneratePageMain(data *Data) (pages []Page) {
 			{Name: "doc.css"},
 		},
 		Scripts: []Resource{
-			{Name: "main.js"},
-			{Name: "search.js"},
-			{Name: "settings.js"},
+			{Name: "main.js", Attr: []Attr{{"async", ""}}},
+			{Name: "search.js", Attr: []Attr{{"async", ""}}},
+			{Name: "settings.js", Attr: []Attr{{"async", ""}}},
 		},
 		Resources: []Resource{
 			{Name: "icon-explorer.png", Content: buf.Bytes()},
@@ -138,7 +138,7 @@ func GeneratePageIndex(data *Data) (pages []Page) {
 	return []Page{{
 		File:     data.FilePath("index"),
 		Styles:   []Resource{{Name: "index.css", Embed: true}},
-		Scripts:  []Resource{{Name: "sort-classes.js"}},
+		Scripts:  []Resource{{Name: "sort-classes.js", Attr: []Attr{{"async", ""}}}},
 		Template: "index",
 	}}
 }
@@ -229,7 +229,7 @@ func GeneratePageUpdates(data *Data) (pages []Page) {
 	}
 
 	styles := []Resource{{Name: "updates.css", Attr: []Attr{{"id", "updates-style"}}}}
-	scripts := []Resource{{Name: "updates.js"}}
+	scripts := []Resource{{Name: "updates.js", Attr: []Attr{{"async", ""}}}}
 	pages = make([]Page, len(patchesByYear)+1)
 	for i, patches := range patchesByYear {
 		year := strconv.Itoa(patches.Year)
@@ -260,7 +260,7 @@ func GeneratePageUpdates(data *Data) (pages []Page) {
 
 func GeneratePageClass(data *Data) (pages []Page) {
 	styles := []Resource{{Name: "class.css"}}
-	scripts := []Resource{{Name: "class.js"}}
+	scripts := []Resource{{Name: "class.js", Attr: []Attr{{"async", ""}}}}
 	pages = make([]Page, len(data.Entities.ClassList))
 	for i, class := range data.Entities.ClassList {
 		pages[i] = Page{
