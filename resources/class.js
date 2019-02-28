@@ -1,5 +1,5 @@
 "use strict";
-
+{
 function expandMemberList(element, force) {
 	let placehold = element.closest(".inherited-members");
 	if (placehold === null) {
@@ -101,9 +101,17 @@ function expandMemberList(element, force) {
 	req.send();
 };
 
-document.addEventListener("rbxapiSettingsLoaded", function() {
+function initSettingListener() {
+	window.rbxapiSettings.Listen("ExpandMembers", function(name, value, initial) {
+		for (let count of document.querySelectorAll(".inherited-members a.member-count")) {
+			expandMemberList(count, value);
+		};
+	});
+}
+
+function initExpandMembers() {
 	for (parent of document.getElementsByClassName("inherited-members")) {
-		var count = parent.querySelector("a.member-count");
+		let count = parent.querySelector("a.member-count");
 		if (count === null) {
 			continue;
 		};
@@ -115,9 +123,16 @@ document.addEventListener("rbxapiSettingsLoaded", function() {
 			expandMemberList(event.target);
 		});
 	};
-	RegisterSettingListener("ExpandMembers", function(name, value, initial) {
-		for (count of document.querySelectorAll(".inherited-members a.member-count")) {
-			expandMemberList(count, value);
-		};
-	});
-});
+	if (window.rbxapiSettings) {
+		initSettingListener();
+	} else {
+		window.addEventListener("rbxapiSettings", initSettingListener);
+	};
+};
+
+if (document.readyState === "loading") {
+	window.addEventListener("DOMContentLoaded", initExpandMembers);
+} else {
+	initExpandMembers();
+};
+};

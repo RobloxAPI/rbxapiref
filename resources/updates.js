@@ -1,5 +1,5 @@
 "use strict";
-
+{
 function toggleList(event) {
 	let parent = event.target.closest(".update");
 	if (parent === null) {
@@ -38,7 +38,7 @@ function toggleAll(show, scroll) {
 	};
 };
 
-document.addEventListener("DOMContentLoaded", function(event) {
+function initUpdates() {
 	let controls = document.getElementById("update-controls");
 	if (controls !== null) {
 		controls.insertAdjacentHTML("beforeend", '<label><input type="checkbox" id="expand-all">Show all changes</label>');
@@ -87,4 +87,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
 			};
 		};
 	};
-});
+};
+
+if (document.readyState === "loading") {
+	document.addEventListener("DOMContentLoaded", initUpdates);
+} else {
+	initUpdates();
+};
+};

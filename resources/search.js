@@ -1,4 +1,5 @@
 "use strict";
+{
 const devhubBaseURL = "https://developer.roblox.com/api-reference";
 
 /* BEGIN fts_fuzzy_match.js */
@@ -536,7 +537,7 @@ function sortResults(a,b) {
 	return (a[1].deprecated && !b[1].deprecated) ? 1 : -1;
 };
 
-document.addEventListener("DOMContentLoaded", function() {
+function initSearch() {
 	let search = document.getElementById("search");
 	if (search === null) {
 		return;
@@ -741,4 +742,11 @@ document.addEventListener("DOMContentLoaded", function() {
 			});
 		};
 	};
-});
+};
+
+if (document.readyState === "loading") {
+	document.addEventListener("DOMContentLoaded", initSearch());
+} else {
+	initSearch();
+};
+};

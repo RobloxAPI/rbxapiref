@@ -1,5 +1,5 @@
 "use strict";
-
+{
 function clearList(list) {
 	while (list.lastChild) {
 		list.removeChild(list.lastChild);
@@ -79,4 +79,9 @@ function initSortClasses() {
 	};
 };
 
-document.addEventListener("DOMContentLoaded", initSortClasses);
+if (document.readyState === "loading") {
+	document.addEventListener("DOMContentLoaded", initSortClasses);
+} else {
+	initSortClasses();
+};
+};

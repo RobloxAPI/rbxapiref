@@ -1,5 +1,5 @@
 "use strict";
-
+{
 const settings = [
 	{
 		"name"     : "Theme",
@@ -134,39 +134,42 @@ function generateMenu(parent, settings, changed) {
 	};
 };
 
-let registeredSettings = new Map();
-function settingChanged(name, value, initial) {
-	let setting = registeredSettings[name];
-	if (setting === undefined) {
-		return;
+class Settings {
+	constructor() {
+		this.settings = new Map();
 	};
-	window.localStorage.setItem(name, value);
-	for (let listener of setting.listeners) {
-		listener(name, value, initial);
-	};
-};
-function RegisterSettingListener(name, listener) {
-	let setting = registeredSettings[name];
-	if (setting === undefined) {
-		throw "unknown setting " + name;
-		return;
-	};
-	if (typeof(listener) !== "function") {
-		throw "listener must be a function";
-	};
-	setting.listeners.push(listener);
+	Listen(name, listener) {
+		let setting = this.settings[name];
+		if (setting === undefined) {
+			throw "unknown setting " + name;
+		};
+		if (typeof(listener) !== "function") {
+			throw "listener must be a function";
+		};
+		setting.listeners.push(listener);
 
-	let value = window.localStorage.getItem(name);
-	if (value === null) {
-		value = setting.config.default;
+		let value = window.localStorage.getItem(name);
+		if (value === null) {
+			value = setting.config.default;
+		};
+		if (setting.config.type === "checkbox") {
+			value = value === true || value === "true";
+		};
+		listener(name, value, true);
 	};
-	if (setting.config.type === "checkbox") {
-		value = value === true || value === "true";
+	Changed(name, value, initial) {
+		let setting = this.settings[name];
+		if (setting === undefined) {
+			return;
+		};
+		window.localStorage.setItem(name, value);
+		for (let listener of setting.listeners) {
+			listener(name, value, initial);
+		};
 	};
-	listener(name, value, true);
-};
+}
 
-document.addEventListener("DOMContentLoaded", function(event) {
+function initSettings() {
 	let container = document.getElementById("main-header-right");
 	if (container === null) {
 		return;
@@ -183,9 +186,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		return;
 	};
 
-	generateMenu(menu, settings, settingChanged);
+	let rbxapiSettings = new Settings();
+	generateMenu(menu, settings, function(name, value, initial) {
+		rbxapiSettings.Changed(name, value, initial)
+	});
 	for (let setting of settings) {
-		registeredSettings[setting.name] = {
+		rbxapiSettings.settings[setting.name] = {
 			"config": setting,
 			"listeners": [],
 		};
@@ -211,5 +217,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		event.stopPropagation();
 	});
 
-	document.dispatchEvent(new Event("rbxapiSettingsLoaded"));
-});
+	window.rbxapiSettings = rbxapiSettings;
+	window.dispatchEvent(new Event("rbxapiSettings"));
+};
+
+if (document.readyState === "loading") {
+	document.addEventListener("DOMContentLoaded", initSettings);
+} else {
+	initSettings();
+};
+};

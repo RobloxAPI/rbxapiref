@@ -1,5 +1,5 @@
 "use strict";
-
+{
 function initTopNav() {
 	let topnav = document.getElementById("top-nav");
 	if (topnav === null) {
@@ -43,7 +43,13 @@ function initHistoryToggle() {
 	};
 };
 
-document.addEventListener("DOMContentLoaded", function() {
+if (document.readyState === "loading") {
+	document.addEventListener("DOMContentLoaded", function() {
+		initTopNav();
+		initHistoryToggle();
+	});
+} else {
 	initTopNav();
 	initHistoryToggle();
-});
+};
+};
