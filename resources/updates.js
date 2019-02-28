@@ -65,14 +65,6 @@ function initUpdates() {
 		list.parentElement.insertBefore(note, list);
 	};
 
-	let style = document.getElementById("updates-style");
-	if (style !== null) {
-		try {
-			style.sheet.insertRule(".patch-list-toggle {cursor: pointer;}");
-		} catch (error) {
-		};
-	};
-
 	if (!document.querySelector(".update :target")) {
 		// No specific update is being targeted; expand latest updates.
 		for (let update of document.querySelectorAll("#update-list .update")) {
@@ -86,6 +78,22 @@ function initUpdates() {
 				break;
 			};
 		};
+	};
+
+	function initStyle() {
+		let style = document.getElementById("updates-style");
+		if (style !== null) {
+			try {
+				style.sheet.insertRule(".patch-list-toggle {cursor: pointer;}");
+			} catch (error) {
+			};
+		};
+	};
+
+	if (document.readyState === "complete") {
+		initStyle();
+	} else {
+		window.addEventListener("load", initStyle);
 	};
 };
 
