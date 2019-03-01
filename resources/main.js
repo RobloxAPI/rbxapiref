@@ -43,6 +43,16 @@ function initHistoryToggle() {
 	};
 };
 
+const securityIdentities = [7, 4, 5, 6, 3, 2];
+const securityContexts = [
+	"NotAccessibleSecurity",
+	"RobloxSecurity",
+	"RobloxScriptSecurity",
+	"LocalUserSecurity",
+	"PluginSecurity",
+	"RobloxPlaceSecurity",
+];
+
 function initSettingListeners() {
 	let head = document.head;
 
@@ -85,6 +95,32 @@ function initSettingListeners() {
 			showHidden.remove();
 		} else {
 			head.appendChild(showHidden);
+		};
+	});
+
+	let security = [];
+	for (let i=0; i<securityIdentities.length; i++) {
+		let content = "";
+		for (let c=0; c<=i; c++) {
+			content += ".api-sec-" + securityContexts[c];
+			for (let n=i+1; n<securityContexts.length; n++) {
+				content += ":not(.api-sec-" + securityContexts[n] + ")";
+			};
+			if (c < i) {
+				content += ", ";
+			};
+		};
+		content += " { display: none; }\n";
+		security[i] = document.createElement("style");
+		security[i].innerHTML = content;
+	};
+	window.rbxapiSettings.Listen("SecurityIdentity", function(name, value, initial) {
+		for (let i=0; i<security.length; i++) {
+			if (Number(value) === securityIdentities[i]) {
+				head.appendChild(security[i]);
+			} else {
+				security[i].remove();
+			};
 		};
 	});
 };

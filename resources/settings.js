@@ -15,8 +15,7 @@ const settings = [
 		"name"     : "SecurityIdentity",
 		"type"     : "select",
 		"default"  : "0",
-		"text"     : "Context",
-		"disabled" : true,
+		"text"     : "Permission",
 		"options"  : [
 			{"text": "All",          "value": "0"},
 			{"text": "Server",       "value": "7"},

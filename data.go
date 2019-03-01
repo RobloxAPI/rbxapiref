@@ -385,6 +385,20 @@ func (data *Data) ElementStatusClasses(suffix bool, v ...interface{}) string {
 			s = append(s, "api-hidden")
 		}
 	}
+	switch m := t.(type) {
+	case interface{ GetSecurity() (string, string) }:
+		r, w := m.GetSecurity()
+		if r != "" && r != "None" {
+			s = append(s, "api-sec-"+r)
+		}
+		if w != "" && w != "None" {
+			s = append(s, "api-sec-"+w)
+		}
+	case interface{ GetSecurity() string }:
+		if v := m.GetSecurity(); v != "" && v != "None" {
+			s = append(s, "api-sec-"+v)
+		}
+	}
 	if len(s) == 0 {
 		return ""
 	}
