@@ -49,7 +49,7 @@
 	{{- if $members }}
 	<thead>
 		<tr>
-			<th class="inherited-members" colspan="4"><a class="member-count">{{len $members}} {{quantity $members "member" "members"}}</a> inherited from <a class="element-link{{status true .Element}}" href="{{link "class" .ID}}#members">{{icon .Element}}{{.ID}}</a></th>
+			<th class="inherited-members" colspan="4"><a class="member-count">{{len $members}} {{quantity $members "member" "members"}}</a> inherited from <a class="element-link" href="{{link "class" .ID}}#members">{{icon .Element}}{{.ID}}</a></th>
 		</tr>
 	</thead>
 	{{- end -}}
