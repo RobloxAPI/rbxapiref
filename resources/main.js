@@ -43,6 +43,52 @@ function initHistoryToggle() {
 	};
 };
 
+function initSettingListeners() {
+	let head = document.head;
+
+	let showDeprecated = document.createElement("style");
+	showDeprecated.innerHTML =
+		".api-deprecated { display: none; }\n" +
+		"#class-list .api-deprecated { display: unset; }\n" +
+		"#class-list .api-deprecated > .element-link { display: none; }\n" +
+		"#class-list .api-deprecated > ul { padding-left:0; border-left:none; }\n";
+	window.rbxapiSettings.Listen("ShowDeprecated", function(name, value, initial) {
+		if (value) {
+			showDeprecated.remove();
+		} else {
+			head.appendChild(showDeprecated);
+		};
+	});
+
+	let showNotBrowsable = document.createElement("style");
+	showNotBrowsable.innerHTML =
+		".api-not-browsable { display: none; }\n" +
+		"#class-list .api-not-browsable { display: unset; }\n" +
+		"#class-list .api-not-browsable > .element-link { display: none; }\n" +
+		"#class-list .api-not-browsable > ul { padding-left:0; border-left:none; }\n";
+	window.rbxapiSettings.Listen("ShowNotBrowsable", function(name, value, initial) {
+		if (value) {
+			showNotBrowsable.remove();
+		} else {
+			head.appendChild(showNotBrowsable);
+		};
+	});
+
+	let showHidden = document.createElement("style");
+	showHidden.innerHTML =
+		".api-hidden { display: none; }\n" +
+		"#class-list .api-hidden { display: unset; }\n" +
+		"#class-list .api-hidden > .element-link { display: none; }\n" +
+		"#class-list .api-hidden > ul { padding-left:0; border-left:none; }\n";
+	window.rbxapiSettings.Listen("ShowHidden", function(name, value, initial) {
+		if (value) {
+			showHidden.remove();
+		} else {
+			head.appendChild(showHidden);
+		};
+	});
+};
+
 if (document.readyState === "loading") {
 	document.addEventListener("DOMContentLoaded", function() {
 		initTopNav();
@@ -51,5 +97,11 @@ if (document.readyState === "loading") {
 } else {
 	initTopNav();
 	initHistoryToggle();
+};
+
+if (window.rbxapiSettings) {
+	initSettingListeners();
+} else {
+	window.addEventListener("rbxapiSettings", initSettingListeners);
 };
 };

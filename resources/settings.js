@@ -38,21 +38,18 @@ const settings = [
 		"type"     : "checkbox",
 		"default"  : true,
 		"text"     : "Show deprecated",
-		"disabled" : true,
 	},
 	{
-		"name"     : "ShowBrowsable",
+		"name"     : "ShowNotBrowsable",
 		"type"     : "checkbox",
 		"default"  : true,
-		"text"     : "Show browsable",
-		"disabled" : true,
+		"text"     : "Show unbrowsable",
 	},
 	{
 		"name"     : "ShowHidden",
 		"type"     : "checkbox",
 		"default"  : true,
 		"text"     : "Show hidden",
-		"disabled" : true,
 	}
 ];
 
