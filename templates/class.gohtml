@@ -67,8 +67,9 @@
 		{{- if $membersSorted }}
 			<li><a href="#members">Members</a>
 				<ol class="toc-members">
-				{{ range $membersSorted }}
-					<li><a href="#member-{{.Element.GetName}}">{{.Element.GetName}}</a></li>
+				{{- range $membersSorted -}}
+					{{- $status := status false .Element }}
+					<li{{if $status}} class="{{$status}}"{{end}}><a href="#member-{{.Element.GetName}}">{{.Element.GetName}}</a></li>
 				{{- end }}
 				</ol>
 			</li>
@@ -76,8 +77,9 @@
 		{{- if $removedSorted }}
 			<li><a href="#removed-members">Removed members</a>
 				<ol class="toc-members">
-				{{ range $removedSorted }}
-					<li><a href="#member-{{.Element.GetName}}">{{.Element.GetName}}</a></li>
+				{{- range $removedSorted -}}
+					{{- $status := status false .Element }}
+					<li{{if $status}} class="{{$status}}"{{end}}><a href="#member-{{.Element.GetName}}">{{.Element.GetName}}</a></li>
 				{{- end }}
 				</ol>
 			</li>
