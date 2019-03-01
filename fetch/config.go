@@ -139,6 +139,18 @@ func NewLocation(s string) (loc Location) {
 	return loc
 }
 
+// NewLocations is like NewLocation, but parses a number of URLs into a slice of
+// Locations.
+func NewLocations(s ...string) (locs []Location) {
+	locs = make([]Location, len(s))
+	for i := range locs {
+		if err := locs[i].FromString(s[i]); err != nil {
+			panic(err)
+		}
+	}
+	return locs
+}
+
 // Ext returns the extension of the URL path.
 func (loc *Location) Ext() string {
 	return path.Ext(loc.URL.Path)
@@ -205,7 +217,7 @@ type Config struct {
 	Latest,
 	APIDump,
 	ReflectionMetadata,
-	ExplorerIcons Location
+	ExplorerIcons []Location
 }
 
 // Load sets the config from a JSON-formatted stream.
@@ -449,23 +461,32 @@ func (client *Client) Get(loc Location, hash string) (format string, rc io.ReadC
 //     - (other): A raw stream indicating a version hash. Other build
 //       information is empty.
 func (client *Client) Latest() (build Build, err error) {
-	format, resp, err := client.Get(client.Config.Latest, "")
-	if err != nil {
-		return build, err
-	}
-	defer resp.Close()
-
-	switch format {
-	case ".json":
-		err = json.NewDecoder(resp).Decode(&build)
-		return build, err
-	default:
-		b, err := ioutil.ReadAll(resp)
+	try := func(loc Location) (build Build, err error) {
+		format, resp, err := client.Get(loc, "")
 		if err != nil {
 			return build, err
 		}
-		return Build{Hash: string(b)}, nil
+		defer resp.Close()
+
+		switch format {
+		case ".json":
+			err = json.NewDecoder(resp).Decode(&build)
+			return build, err
+		default:
+			b, err := ioutil.ReadAll(resp)
+			if err != nil {
+				return build, err
+			}
+			return Build{Hash: string(b)}, nil
+		}
 	}
+	locs := client.Config.Latest
+	for i, loc := range locs {
+		if build, err = try(loc); err == nil || i == len(locs)-1 {
+			break
+		}
+	}
+	return build, err
 }
 
 // Builds returns a list of builds. The following formats are readable:
@@ -474,49 +495,58 @@ func (client *Client) Latest() (build Build, err error) {
 //       include only those that are interoperable with the fetch package.
 //     - .json: A build list in JSON format.
 func (client *Client) Builds() (builds []Build, err error) {
-	format, resp, err := client.Get(client.Config.Builds, "")
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Close()
-
-	switch format {
-	case ".json":
-		err = json.NewDecoder(resp).Decode(&builds)
-		return builds, err
-	case ".txt":
-		b, err := ioutil.ReadAll(resp)
+	try := func(loc Location) (builds []Build, err error) {
+		format, resp, err := client.Get(loc, "")
 		if err != nil {
 			return nil, err
 		}
-		stream := rbxdhist.Lex(b)
-		pst, _ := time.LoadLocation("America/Los_Angeles")
-		// Builds after this date are interoperable.
-		epoch := time.Date(2018, 8, 7, 0, 0, 0, 0, pst)
-		for i := 0; i < len(stream); i++ {
-			switch job := stream[i].(type) {
-			case *rbxdhist.Job:
-				// Only Studio builds.
-				if job.Build != "Studio" || !job.Time.After(epoch) {
-					continue
-				}
-				// Only completed builds.
-				if i+1 >= len(stream) {
-					continue
-				}
-				if status, ok := stream[i+1].(*rbxdhist.Status); !ok || *status != "Done" {
-					continue
-				}
-				builds = append(builds, Build{
-					Hash:    job.Hash,
-					Date:    job.Time,
-					Version: job.Version,
-				})
+		defer resp.Close()
+
+		switch format {
+		case ".json":
+			err = json.NewDecoder(resp).Decode(&builds)
+			return builds, err
+		case ".txt":
+			b, err := ioutil.ReadAll(resp)
+			if err != nil {
+				return nil, err
 			}
+			stream := rbxdhist.Lex(b)
+			pst, _ := time.LoadLocation("America/Los_Angeles")
+			// Builds after this date are interoperable.
+			epoch := time.Date(2018, 8, 7, 0, 0, 0, 0, pst)
+			for i := 0; i < len(stream); i++ {
+				switch job := stream[i].(type) {
+				case *rbxdhist.Job:
+					// Only Studio builds.
+					if job.Build != "Studio" || !job.Time.After(epoch) {
+						continue
+					}
+					// Only completed builds.
+					if i+1 >= len(stream) {
+						continue
+					}
+					if status, ok := stream[i+1].(*rbxdhist.Status); !ok || *status != "Done" {
+						continue
+					}
+					builds = append(builds, Build{
+						Hash:    job.Hash,
+						Date:    job.Time,
+						Version: job.Version,
+					})
+				}
+			}
+			return builds, nil
 		}
-		return builds, nil
+		return nil, errUnsupportedFormat(format)
 	}
-	return nil, errUnsupportedFormat(format)
+	locs := client.Config.Builds
+	for i, loc := range locs {
+		if builds, err = try(loc); err == nil || i == len(locs)-1 {
+			break
+		}
+	}
+	return builds, err
 }
 
 // APIDump returns the API dump of the given hash. The following formats are
@@ -524,17 +554,26 @@ func (client *Client) Builds() (builds []Build, err error) {
 //
 //     - .json: An API dump in JSON format.
 func (client *Client) APIDump(hash string) (root *rbxapijson.Root, err error) {
-	format, resp, err := client.Get(client.Config.APIDump, hash)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Close()
+	try := func(loc Location) (root *rbxapijson.Root, err error) {
+		format, resp, err := client.Get(loc, hash)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Close()
 
-	switch format {
-	case ".json":
-		return rbxapijson.Decode(resp)
+		switch format {
+		case ".json":
+			return rbxapijson.Decode(resp)
+		}
+		return nil, errUnsupportedFormat(format)
 	}
-	return nil, errUnsupportedFormat(format)
+	locs := client.Config.APIDump
+	for i, loc := range locs {
+		if root, err = try(loc); err == nil || i == len(locs)-1 {
+			break
+		}
+	}
+	return root, err
 }
 
 // ReflectionMetadata returns the reflection metadata for the given hash. The
@@ -542,18 +581,28 @@ func (client *Client) APIDump(hash string) (root *rbxapijson.Root, err error) {
 //
 //     - .xml: The RBXMX format.
 func (client *Client) ReflectionMetadata(hash string) (root *rbxfile.Root, err error) {
-	format, resp, err := client.Get(client.Config.ReflectionMetadata, hash)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Close()
+	try := func(loc Location) (root *rbxfile.Root, err error) {
+		format, resp, err := client.Get(loc, hash)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Close()
 
-	switch format {
-	case ".xml":
-		api, _ := client.APIDump(hash)
-		return xml.Deserialize(resp, api)
+		switch format {
+		case ".xml":
+			api, _ := client.APIDump(hash)
+			return xml.Deserialize(resp, api)
+		}
+		return nil, errUnsupportedFormat(format)
 	}
-	return nil, errUnsupportedFormat(format)
+	locs := client.Config.ReflectionMetadata
+	for i, loc := range locs {
+		if root, err = try(loc); err == nil || i == len(locs)-1 {
+			break
+		}
+	}
+	return root, err
+
 }
 
 // readBytes scans until the given delimitor is reached.
@@ -583,33 +632,42 @@ func readBytes(r *bufio.Reader, sep []byte) error {
 //       used: the height of the image is 16, the width is a multiple of 16,
 //       and is the widest such image.
 func (client *Client) ExplorerIcons(hash string) (icons image.Image, err error) {
-	format, resp, err := client.Get(client.Config.ExplorerIcons, hash)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Close()
-
-	switch format {
-	case ".png":
-		return png.Decode(resp)
-	default:
-		header := []byte("\x89PNG\r\n\x1a\n")
-		for br := bufio.NewReader(resp); ; {
-			if err := readBytes(br, header); err != nil {
-				if err == io.EOF {
-					break
-				}
-				return nil, err
-			}
-			img, err := png.Decode(br)
-			if err != nil || img.Bounds().Dy() != 16 || img.Bounds().Dx()%16 != 0 {
-				continue
-			}
-			if icons == nil || img.Bounds().Dx() > icons.Bounds().Dx() {
-				icons = img
-			}
+	try := func(loc Location) (icons image.Image, err error) {
+		format, resp, err := client.Get(loc, hash)
+		if err != nil {
+			return nil, err
 		}
-		return icons, nil
+		defer resp.Close()
+
+		switch format {
+		case ".png":
+			return png.Decode(resp)
+		default:
+			header := []byte("\x89PNG\r\n\x1a\n")
+			for br := bufio.NewReader(resp); ; {
+				if err := readBytes(br, header); err != nil {
+					if err == io.EOF {
+						break
+					}
+					return nil, err
+				}
+				img, err := png.Decode(br)
+				if err != nil || img.Bounds().Dy() != 16 || img.Bounds().Dx()%16 != 0 {
+					continue
+				}
+				if icons == nil || img.Bounds().Dx() > icons.Bounds().Dx() {
+					icons = img
+				}
+			}
+			return icons, nil
+		}
+		return nil, errUnsupportedFormat(format)
 	}
-	return nil, errUnsupportedFormat(format)
+	locs := client.Config.ExplorerIcons
+	for i, loc := range locs {
+		if icons, err = try(loc); err == nil || i == len(locs)-1 {
+			break
+		}
+	}
+	return icons, err
 }
