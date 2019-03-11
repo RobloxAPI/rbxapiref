@@ -51,6 +51,7 @@ const securityContexts = [
 	"LocalUserSecurity",
 	"PluginSecurity",
 	"RobloxPlaceSecurity",
+	"None",
 ];
 
 function initSettingListeners() {

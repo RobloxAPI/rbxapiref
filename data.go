@@ -388,10 +388,12 @@ func (data *Data) ElementStatusClasses(suffix bool, v ...interface{}) string {
 	switch m := t.(type) {
 	case interface{ GetSecurity() (string, string) }:
 		r, w := m.GetSecurity()
-		if r != "" && r != "None" {
+		if r == w {
+			if r != "" && r != "None" {
+				s = append(s, "api-sec-"+r)
+			}
+		} else {
 			s = append(s, "api-sec-"+r)
-		}
-		if w != "" && w != "None" {
 			s = append(s, "api-sec-"+w)
 		}
 	case interface{ GetSecurity() string }:
