@@ -40,18 +40,24 @@ var DefaultSettings = &Settings{
 	},
 	Configs: map[string]fetch.Config{
 		"Archive": {
-			Builds:             fetch.NewLocation(ArchiveURL + "builds.json"),
-			Latest:             fetch.NewLocation(ArchiveURL + "latest.json"),
-			APIDump:            fetch.NewLocation(ArchiveURL + "data/api-dump/json/$HASH.json"),
-			ReflectionMetadata: fetch.NewLocation(ArchiveURL + "data/reflection-metadata/xml/$HASH.xml"),
-			ExplorerIcons:      fetch.NewLocation(CDNURL + "$HASH-RobloxStudio.zip#RobloxStudioBeta.exe"),
+			Builds:             fetch.NewLocations(ArchiveURL + "builds.json"),
+			Latest:             fetch.NewLocations(ArchiveURL + "latest.json"),
+			APIDump:            fetch.NewLocations(ArchiveURL + "data/api-dump/json/$HASH.json"),
+			ReflectionMetadata: fetch.NewLocations(ArchiveURL + "data/reflection-metadata/xml/$HASH.xml"),
+			ExplorerIcons: fetch.NewLocations(
+				CDNURL+"$HASH-content-textures2.zip#ClassImages.PNG",
+				CDNURL+"$HASH-RobloxStudio.zip#RobloxStudioBeta.exe",
+			),
 		},
 		"Production": {
-			Builds:             fetch.NewLocation(CDNURL + "DeployHistory.txt"),
-			Latest:             fetch.NewLocation(CDNURL + "versionQTStudio"),
-			APIDump:            fetch.NewLocation(CDNURL + "$HASH-API-Dump.json"),
-			ReflectionMetadata: fetch.NewLocation(CDNURL + "$HASH-RobloxStudio.zip#ReflectionMetadata.xml"),
-			ExplorerIcons:      fetch.NewLocation(CDNURL + "$HASH-RobloxStudio.zip#RobloxStudioBeta.exe"),
+			Builds:             fetch.NewLocations(CDNURL + "DeployHistory.txt"),
+			Latest:             fetch.NewLocations(CDNURL + "versionQTStudio"),
+			APIDump:            fetch.NewLocations(CDNURL + "$HASH-API-Dump.json"),
+			ReflectionMetadata: fetch.NewLocations(CDNURL + "$HASH-RobloxStudio.zip#ReflectionMetadata.xml"),
+			ExplorerIcons: fetch.NewLocations(
+				CDNURL+"$HASH-content-textures2.zip#ClassImages.PNG",
+				CDNURL+"$HASH-RobloxStudio.zip#RobloxStudioBeta.exe",
+			),
 		},
 	},
 	UseConfigs: []string{
