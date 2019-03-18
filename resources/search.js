@@ -745,7 +745,7 @@ function initSearch() {
 };
 
 if (document.readyState === "loading") {
-	document.addEventListener("DOMContentLoaded", initSearch());
+	document.addEventListener("DOMContentLoaded", initSearch);
 } else {
 	initSearch();
 };
