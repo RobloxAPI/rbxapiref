@@ -1,4 +1,14 @@
 "use strict";
+const securityIdentities = [7, 4, 5, 6, 3, 2];
+const securityContexts = [
+	"NotAccessibleSecurity",
+	"RobloxSecurity",
+	"RobloxScriptSecurity",
+	"LocalUserSecurity",
+	"PluginSecurity",
+	"RobloxPlaceSecurity",
+	"None",
+];
 {
 function initTopNav() {
 	let topnav = document.getElementById("top-nav");
@@ -42,17 +52,6 @@ function initHistoryToggle() {
 		toggleAll(false, true);
 	};
 };
-
-const securityIdentities = [7, 4, 5, 6, 3, 2];
-const securityContexts = [
-	"NotAccessibleSecurity",
-	"RobloxSecurity",
-	"RobloxScriptSecurity",
-	"LocalUserSecurity",
-	"PluginSecurity",
-	"RobloxPlaceSecurity",
-	"None",
-];
 
 function initSettingListeners() {
 	let head = document.head;

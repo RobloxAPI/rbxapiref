@@ -8,6 +8,77 @@ import (
 	"io"
 )
 
+/*
+// Search Database Format
+
+main struct {
+	// Database version.
+	Version   uint:8 = 1
+	// Number of icons.
+	IconCount uint:16
+	// Starting index of items that are classes. Subtracted from item index to
+	// retrieve icon index.
+	ClassOffset uint:16
+	// Total number of items.
+	ItemCount uint:16
+	// List of ExplorerImageIndex for each class. Index corresponds to
+	// Items[index - ClassOffset].
+	Icons [.IconCount]uint:8
+	// List of items.
+	Items [.ItemCount]Item
+	// List of item strings. Index corresponds to index of Items.
+	Strings [.ItemCount]String
+}
+
+String struct {
+	Size  uint:8
+	Value [.Size]uint:8
+}
+
+ItemType enum uint:3 {
+	Class
+	Enum
+	EnumItem
+	Type
+	Property
+	Function
+	Event
+	Callback
+}
+
+Security enum uint:3 {
+	None
+	RobloxPlaceSecurity
+	PluginSecurity
+	LocalUserSecurity
+	RobloxScriptSecurity
+	RobloxSecurity
+	NotAccessibleSecurity
+}
+
+Item struct {
+	Type        ItemType
+	Removed     bool:1
+	Deprecated  bool:1
+	Unbrowsable bool:1
+	if .Type == Class {
+		Uncreatable bool:1
+	}
+	if .Type == Property {
+		Hidden bool:1
+		@8
+		ReadSecurity  Security
+		WriteSecurity Security
+	}
+	if .Type > Property {
+		@8
+		Security Security
+	}
+	@16
+}
+
+*/
+
 // Writer wrapper that keeps track of the number of bytes written.
 type dbWriter struct {
 	data *Data
@@ -103,7 +174,26 @@ func getbits(p uint64, a, b int) int {
 	return int((p >> uint(a)) & (1<<uint(b-a) - 1))
 }
 
-func (dw *dbWriter) writeItem(v interface{}) bool {
+func (dw *dbWriter) writeSecurity(data *uint64, i int, security string) {
+	var sec int
+	switch security {
+	case "RobloxPlaceSecurity":
+		sec = 1
+	case "PluginSecurity":
+		sec = 2
+	case "LocalUserSecurity":
+		sec = 3
+	case "RobloxScriptSecurity":
+		sec = 4
+	case "RobloxSecurity":
+		sec = 5
+	case "NotAccessibleSecurity":
+		sec = 6
+	}
+	setbits(data, i, i+3, sec)
+}
+
+func (dw *dbWriter) writeItem(v interface{}, removed bool) bool {
 	var data uint64
 
 	var typ int
@@ -126,49 +216,61 @@ func (dw *dbWriter) writeItem(v interface{}) bool {
 		typ = 7
 	}
 	setbits(&data, 0, 3, typ)
+	setbit(&data, 3, removed)
 
 	if v, ok := v.(rbxapi.Taggable); ok {
 		setbit(&data, 4, v.GetTag("Deprecated"))
+		setbit(&data, 5, v.GetTag("NotBrowsable"))
+		switch typ {
+		case 0: // Class
+			setbit(&data, 6, v.GetTag("NotCreatable"))
+		case 4: // Property
+			setbit(&data, 6, v.GetTag("Hidden"))
+		}
 	}
 
 	if v, ok := v.(interface{ GetSecurity() string }); ok {
-		s := v.GetSecurity()
-		setbit(&data, 5, s != "" && s != "None")
+		dw.writeSecurity(&data, 8, v.GetSecurity())
 	} else if v, ok := v.(interface{ GetSecurity() (string, string) }); ok {
 		r, w := v.GetSecurity()
-		setbit(&data, 5, (r != "" && r != "None") || (w != "" && w != "None"))
+		dw.writeSecurity(&data, 8, r)
+		dw.writeSecurity(&data, 11, w)
 	}
 
-	return dw.writeNumber(uint8(data))
+	return dw.writeNumber(uint16(data))
 }
 
 func (dw *dbWriter) GenerateDatabase() bool {
 	// Version
-	if dw.writeNumber(byte(0)) {
+	if dw.writeNumber(uint8(1)) {
 		return true
 	}
 
-	// Class icon count
+	// IconCount
 	if dw.writeNumber(uint16(len(dw.data.Entities.ClassList))) {
 		return true
 	}
 
-	// Item count
 	items := 0
+	items += len(dw.data.Entities.TypeList)
+	// ClassOffset
+	if dw.writeNumber(uint16(items)) {
+		return true
+	}
 	items += len(dw.data.Entities.ClassList)
+	items += len(dw.data.Entities.EnumList)
 	for _, class := range dw.data.Entities.ClassList {
 		items += len(class.MemberList)
 	}
-	items += len(dw.data.Entities.EnumList)
 	for _, enum := range dw.data.Entities.EnumList {
 		items += len(enum.ItemList)
 	}
-	items += len(dw.data.Entities.TypeList)
+	// ItemCount
 	if dw.writeNumber(uint16(items)) {
 		return true
 	}
 
-	// Class icons
+	// Icons
 	for _, class := range dw.data.Entities.ClassList {
 		var icon int
 		if class.Metadata.Instance != nil {
@@ -181,37 +283,49 @@ func (dw *dbWriter) GenerateDatabase() bool {
 	}
 
 	// Items
+	for _, typ := range dw.data.Entities.TypeList {
+		if dw.writeItem(typ.Element, typ.Removed) {
+			return true
+		}
+	}
 	for _, class := range dw.data.Entities.ClassList {
-		if dw.writeItem(class.Element) {
+		if dw.writeItem(class.Element, class.Removed) {
+			return true
+		}
+	}
+	for _, enum := range dw.data.Entities.EnumList {
+		if dw.writeItem(enum.Element, enum.Removed) {
 			return true
 		}
 	}
 	for _, class := range dw.data.Entities.ClassList {
 		for _, member := range class.MemberList {
-			if dw.writeItem(member.Element) {
+			if dw.writeItem(member.Element, member.Removed) {
 				return true
 			}
-		}
-	}
-	for _, enum := range dw.data.Entities.EnumList {
-		if dw.writeItem(enum.Element) {
-			return true
 		}
 	}
 	for _, enum := range dw.data.Entities.EnumList {
 		for _, item := range enum.ItemList {
-			if dw.writeItem(item.Element) {
+			if dw.writeItem(item.Element, item.Removed) {
 				return true
 			}
 		}
 	}
-	for _, typ := range dw.data.Entities.TypeList {
-		dw.writeItem(typ.Element)
-	}
 
-	// Item strings
+	// Strings
+	for _, typ := range dw.data.Entities.TypeList {
+		if dw.writeString(typ.ID) {
+			return true
+		}
+	}
 	for _, class := range dw.data.Entities.ClassList {
 		if dw.writeString(class.ID) {
+			return true
+		}
+	}
+	for _, enum := range dw.data.Entities.EnumList {
+		if dw.writeString(enum.ID) {
 			return true
 		}
 	}
@@ -223,20 +337,10 @@ func (dw *dbWriter) GenerateDatabase() bool {
 		}
 	}
 	for _, enum := range dw.data.Entities.EnumList {
-		if dw.writeString(enum.ID) {
-			return true
-		}
-	}
-	for _, enum := range dw.data.Entities.EnumList {
 		for _, item := range enum.ItemList {
 			if dw.writeString(item.ID[0] + "." + item.ID[1]) {
 				return true
 			}
-		}
-	}
-	for _, typ := range dw.data.Entities.TypeList {
-		if dw.writeString(typ.ID) {
-			return true
 		}
 	}
 

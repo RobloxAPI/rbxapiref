@@ -1,6 +1,58 @@
 "use strict";
 {
 const devhubBaseURL = "https://developer.roblox.com/api-reference";
+const maxResults = 50;
+
+let statusFilter = null;
+function initStatusFilters() {
+	let securityID = 0;
+	let deprecated = true;
+	let unbrowsable = true;
+	let hidden = true;
+	window.rbxapiSettings.Listen("SecurityIdentity", function(name, value, initial) {
+		securityID = Number(value);
+	});
+	window.rbxapiSettings.Listen("ShowDeprecated", function(name, value, initial) {
+		deprecated = value;
+	});
+	window.rbxapiSettings.Listen("ShowNotBrowsable", function(name, value, initial) {
+		unbrowsable = value;
+	});
+	window.rbxapiSettings.Listen("ShowHidden", function(name, value, initial) {
+		hidden = value;
+	});
+	statusFilter = function(item) {
+		if (item.deprecated && !deprecated) {
+			return true;
+		};
+		if (item.unbrowsable && !unbrowsable) {
+			return true;
+		};
+		if (item.hidden && !hidden) {
+			return true;
+		};
+
+		if (securityIdentities && securityContexts && securityID > 0) {
+			let ctxIndex = -1;
+			let sec = item.security;
+			if (sec && typeof(sec) == "string") {
+				ctxIndex = securityContexts.indexOf(sec);
+			} else if (sec) {
+				let r = securityContexts.indexOf(sec.read);
+				let w = securityContexts.indexOf(sec.write);
+				r = r < 0 ? securityContexts.length-1 : r;
+				w = w < 0 ? securityContexts.length-1 : w;
+				ctxIndex = r > w ? r : w;
+			};
+			ctxIndex = ctxIndex < 0 ? securityContexts.length-1 : ctxIndex;
+			let idIndex = securityIdentities.indexOf(securityID);
+			if (ctxIndex <= idIndex) {
+				return true;
+			};
+		};
+		return false;
+	};
+};
 
 /* BEGIN fts_fuzzy_match.js */
 // LICENSE
@@ -52,6 +104,7 @@ function escapeHTML(text) {
 function fuzzy_match(pattern, str) {
 
 	// Score consts
+	var perfect_bonus = 100;                // bonus for perfect, case-insensitive matches
 	var adjacency_bonus = 5;                // bonus for adjacent matches
 	var separator_bonus = 10;               // bonus if match occurs after a separator
 	var camel_bonus = 10;                   // bonus if match is uppercase and prev is lower
@@ -162,6 +215,11 @@ function fuzzy_match(pattern, str) {
 		matchedIndices.push(bestLetterIdx);
 	}
 
+	// Apply bonus for perfect match
+	if (pattern.toLowerCase() === str.toLowerCase()) {
+		score += perfect_bonus;
+	};
+
 	// Finish out formatted string after last pattern matched
 	// Build formated string based on matched letters
 	var formattedStr = "";
@@ -181,19 +239,32 @@ function fuzzy_match(pattern, str) {
 // Uses setTimeout to process matches before a maximum amount of time before sleeping
 //
 // To use:
-//      var asyncMatcher = new fts_fuzzy_match(fuzzy_match, "fts", "ForrestTheWoods",
-//                                              function(results) { console.log(results); });
+//      var asyncMatcher = fts_fuzzy_match(fuzzy_match, "fts", "ForrestTheWoods",
+//                                         function(results) { console.log(results); });
 //      asyncMatcher.start();
 //
 function fts_fuzzy_match_async(pattern, database, onComplete) {
+	var queryType = null;
+	var queryTypeSplit = pattern.indexOf(":");
+	if (queryTypeSplit >= 0) {
+		queryType = pattern.slice(0, queryTypeSplit).toLowerCase();
+		if (!validEntityTypes.has(queryType)) {
+			onComplete([]);
+			return null;
+		};
+		pattern = pattern.slice(queryTypeSplit+1);
+	};
+	var queryPrimarySplit = pattern.indexOf(".");
+
 	var ITEMS_PER_CHECK = 1000;         // performance.now can be very slow depending on platform
 
 	var max_ms_per_frame = 1000.0/30.0; // 30FPS
 	var itemIndex = 0;
 	var itemCount = database.itemCount;
-	var itemOffset = database.OFFSET_STRINGS;
+	var itemOffset = database.STRINGS;
 	var results = [];
 	var resumeTimeout = null;
+	var decoder = new TextDecoder();
 
 	// Perform matches for at most max_ms
 	function step() {
@@ -209,23 +280,43 @@ function fts_fuzzy_match_async(pattern, database, onComplete) {
 				}
 			}
 
+			let item = database.item(itemIndex);
+			itemIndex++;
+
 			let len = database.data.getUint8(itemOffset);
 			itemOffset++;
-			let item = new DatabaseItem(
-				database.itemData(itemIndex),
-				new TextDecoder().decode(database.data.buffer.slice(itemOffset, itemOffset + len))
-			)
-			if (item.dbType === "class") {
-				item.iconIndex = database.icon(itemIndex);
-			};
+			item.name = decoder.decode(database.data.buffer.slice(itemOffset, itemOffset + len))
 			itemOffset += len;
-			itemIndex++;
-			let split = item.name.indexOf(".");
+
+			if (queryType) {
+				let type = item.dbType;
+				if (queryType === "member") {
+					switch (type) {
+					case "property":
+					case "function":
+					case "event":
+					case "callback":
+						break;
+					default:
+						continue;
+					};
+				} else if (type !== queryType) {
+					continue;
+				};
+			};
+
+			if (statusFilter !== null && statusFilter(item)) {
+				continue;
+			};
+
 			let prefix = "";
 			let suffix = item.name;
-			if (split > 0) {
-				prefix = item.name.slice(0,split+1);
-				suffix = item.name.slice(split+1);
+			if (queryPrimarySplit < 0) {
+				let split = item.name.indexOf(".");
+				if (split >= 0) {
+					prefix = item.name.slice(0,split+1);
+					suffix = item.name.slice(split+1);
+				};
 			};
 			let result = fuzzy_match(pattern, suffix);
 			if (result[0] === true) {
@@ -238,24 +329,25 @@ function fts_fuzzy_match_async(pattern, database, onComplete) {
 		return null;
 	};
 
-	// Abort current process
-	this.cancel = function() {
-		if (resumeTimeout !== null)
-			clearTimeout(resumeTimeout);
+	return {
+		// Abort current process
+		cancel: function() {
+			if (resumeTimeout !== null)
+				clearTimeout(resumeTimeout);
+		},
+		// Must be called to start matching.
+		// I tried to make asyncMatcher auto-start via "var resumeTimeout = step();"
+		// However setTimout behaving in an unexpected fashion as onComplete insisted on triggering twice.
+		start: function() {
+			step();
+		},
+		// Process full list. Blocks script execution until complete
+		flush: function() {
+			max_ms_per_frame = Infinity;
+			step();
+		},
 	};
 
-	// Must be called to start matching.
-	// I tried to make asyncMatcher auto-start via "var resumeTimeout = step();"
-	// However setTimout behaving in an unexpected fashion as onComplete insisted on triggering twice.
-	this.start = function() {
-		step();
-	}
-
-	// Process full list. Blocks script execution until complete
-	this.flush = function() {
-		max_ms_per_frame = Infinity;
-		step();
-	}
 };
 /* END fts_fuzzy_match.js */
 
@@ -266,6 +358,26 @@ function getbit(p, a) {
 function getbits(p, a, b) {
 	return (p >> a) & ((1<<(b-a)) - 1);
 };
+
+function securityString(sec) {
+	if (!securityContexts) {
+		return "None";
+	};
+	sec = sec >= securityContexts.length ? 0 : sec;
+	return securityContexts[securityContexts.length-1-sec];
+};
+
+let validEntityTypes = new Set([
+	"class",
+	"enum",
+	"enumitem",
+	"type",
+	"member",
+	"property",
+	"function",
+	"event",
+	"callback",
+])
 
 class DatabaseItem {
 	constructor(data, string) {
@@ -279,8 +391,43 @@ class DatabaseItem {
 	get deprecated() {
 		return !!getbit(this.data, 4);
 	};
-	get protected() {
+	get unbrowsable() {
 		return !!getbit(this.data, 5);
+	};
+	get uncreatable() {
+		if (getbits(this.data, 0, 3) == 0) {
+			return !!getbit(this.data, 6);
+		};
+		return null;
+	};
+	get hidden() {
+		if (getbits(this.data, 0, 3) == 4) {
+			return !!getbit(this.data, 6);
+		};
+		return null;
+	};
+	get protected() {
+		let type = getbits(this.data, 0, 3)
+		if (type < 4) {
+			return null;
+		};
+		if (getbits(this.data, 8, 11) > 0) {
+			return true;
+		};
+		return type == 4 && getbits(this.data, 11, 14) > 0
+	};
+	get security() {
+		let type = getbits(this.data, 0, 3);
+		if (type < 4) {
+			return null;
+		};
+		if (type == 4) {
+			return {
+				read:  securityString(getbits(this.data, 8, 11)),
+				write: securityString(getbits(this.data, 11, 14)),
+			}
+		};
+		return securityString(getbits(this.data, 8, 11));
 	};
 	get dbType() {
 		switch (getbits(this.data, 0, 3)) {
@@ -341,31 +488,36 @@ class DatabaseItem {
 class Database {
 	constructor(data) {
 		this.data = new DataView(data);
-		this.SIZE_ICON = 1;
-		this.SIZE_ITEM = 1;
-		this.OFFSET_VERSION = 0;
-		this.OFFSET_ICON_COUNT = 1;
-		this.OFFSET_ITEM_COUNT = 3;
-		this.OFFSET_ICONS = 5;
-		this.OFFSET_ITEMS = this.OFFSET_ICONS + this.SIZE_ICON*this.iconCount;
-		this.OFFSET_STRINGS = this.OFFSET_ITEMS + this.SIZE_ITEM*this.itemCount;
+		this.ICON_SIZE = 1;
+		this.ITEM_SIZE = 2;
+
+		this.VERSION      = 0;
+		this.ICON_COUNT   = this.VERSION      + 1;
+		this.CLASS_OFFSET = this.ICON_COUNT   + 2;
+		this.ITEM_COUNT   = this.CLASS_OFFSET + 2;
+		this.ICONS        = this.ITEM_COUNT   + 2;
+		this.ITEMS        = this.ICONS        + this.ICON_SIZE*this.iconCount;
+		this.STRINGS      = this.ITEMS        + this.ITEM_SIZE*this.itemCount;
 	};
 	get version() {
-		return this.data.getUint8(this.OFFSET_VERSION);
+		return this.data.getUint8(this.VERSION);
 	};
 	get iconCount() {
-		return this.data.getUint16(this.OFFSET_ICON_COUNT, true);
+		return this.data.getUint16(this.ICON_COUNT, true);
 	};
 	get itemCount() {
-		return this.data.getUint16(this.OFFSET_ITEM_COUNT, true);
+		return this.data.getUint16(this.ITEM_COUNT, true);
+	};
+	get classOffset() {
+		return this.data.getUint16(this.CLASS_OFFSET, true);
 	};
 	icon(index) {
 		index = index % this.iconCount;
-		return this.data.getUint8(this.OFFSET_ICONS + this.SIZE_ICON*index);
+		return this.data.getUint8(this.ICONS + this.ICON_SIZE*index);
 	};
 	itemData(index) {
 		index = index % this.itemCount;
-		return this.data.getUint16(this.OFFSET_ITEMS + this.SIZE_ITEM*index, true);
+		return this.data.getUint16(this.ITEMS + this.ITEM_SIZE*index, true);
 	};
 	string(indices) {
 		let single = false;
@@ -378,7 +530,7 @@ class Database {
 		let filled = 0;
 		let i = 0;
 		let n = this.itemCount;
-		let off = this.OFFSET_STRINGS;
+		let off = this.STRINGS;
 		while (off < this.data.byteLength && i < n) {
 			let len = this.data.getUint8(off);
 			off++;
@@ -403,14 +555,14 @@ class Database {
 		};
 		return strings;
 	};
-	item(index) {
-		index = index % this.data.getUint16(this.OFFSET_ITEM_COUNT, true);
-		let item = new DatabaseItem(
-			this.itemData(index),
-			this.string(index)
-		)
+	item(index, useString) {
+		index = index % this.itemCount;
+		let item = new DatabaseItem(this.itemData(index))
+		if (useString) {
+			item.name = this.string(index)
+		};
 		if (item.dbType === "class") {
-			item.iconIndex = this.icon(index);
+			item.iconIndex = this.icon(index - this.classOffset);
 		};
 		return item;
 	};
@@ -528,13 +680,13 @@ function generateIcon(item) {
 };
 
 function sortResults(a,b) {
-	if (a[1].deprecated === b[1].deprecated) {
-		if (a[0][0] === b[0][0]) {
-			return b[0][1] - a[0][1]
-		};
-		return (a[0][0] && !b[0][0]) ? 1 : -1;
+	// [0][0]: matched bool
+	// [0][1]: score   int
+	// [0][2]: value   string
+	if (a[0][0] === b[0][0]) {
+		return b[0][1] - a[0][1]
 	};
-	return (a[1].deprecated && !b[1].deprecated) ? 1 : -1;
+	return (a[0][0] && !b[0][0]) ? 1 : -1;
 };
 
 function initSearch() {
@@ -586,14 +738,38 @@ function initSearch() {
 		let list = document.createElement("ul");
 		searchResults.appendChild(list);
 
+		if (results.length === 0) {
+			let item = document.createElement("div");
+			item.innerText = "No results";
+			list.appendChild(item);
+			return;
+		};
+
 		// Limit number of results.
-		var max = results.length > 20 ? 20 : results.length;
+		var max = results.length > maxResults ? maxResults : results.length;
 		for (let i = 0; i < max; i++) {
 			let result = results[i];
 			let item = document.createElement("li");
 			if (result[1].deprecated) {
 				item.classList.add("api-deprecated");
 			};
+			if (result[1].unbrowsable) {
+				item.classList.add("api-not-browsable");
+			};
+			if (result[1].hidden) {
+				item.classList.add("api-hidden");
+			};
+			let sec = result[1].security;
+			if (sec !== null) {
+				if (typeof(sec) === "string") {
+					item.classList.add("api-sec-" + sec);
+				} else {
+					item.classList.add("api-sec-" + sec.read);
+					item.classList.add("api-sec-" + sec.write);
+				};
+			};
+			item.title = "score: " + result[0][1];
+
 			{
 				let link = document.createElement("a");
 				link.classList.add("element-link");
@@ -642,8 +818,10 @@ function initSearch() {
 					asyncMatcher.cancel();
 					asyncMatcher = null;
 				};
-				asyncMatcher = new fts_fuzzy_match_async(query, database, render);
-				asyncMatcher.start();
+				asyncMatcher = fts_fuzzy_match_async(query, database, render);
+				if (asyncMatcher !== null) {
+					asyncMatcher.start();
+				};
 			},
 			function() {
 				// TODO: error message.
@@ -749,4 +927,12 @@ if (document.readyState === "loading") {
 } else {
 	initSearch();
 };
+
+
+if (window.rbxapiSettings) {
+	initStatusFilters();
+} else {
+	window.addEventListener("rbxapiSettings", initStatusFilters);
+};
+
 };
