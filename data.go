@@ -953,13 +953,18 @@ func (data *Data) GenerateDocuments() {
 	renderer := mdhtml.NewRenderer(mdhtml.RendererOptions{
 		HeadingIDPrefix: "doc-",
 	})
-	dir := rbxapidoc.NewDirectorySection(
+
+	docDir := rbxapidoc.NewDirectorySection(
 		data.Settings.Input.Documents,
 		rbxapidoc.MarkdownFileHandler,
 	)
+	apiDir := docDir.Query("api")
+	if apiDir == nil {
+		return
+	}
 
 	for _, entity := range data.Entities.ClassList {
-		if entity.Document, _ = dir.Query("class", entity.ID).(Document); entity.Document != nil {
+		if entity.Document, _ = apiDir.Query("class", entity.ID).(Document); entity.Document != nil {
 			entity.Document.SetRender(renderer)
 			for _, member := range entity.MemberList {
 				if member.Document, _ = entity.Document.Query("Members", member.ID[1]).(Document); member.Document != nil {
@@ -969,7 +974,7 @@ func (data *Data) GenerateDocuments() {
 		}
 	}
 	for _, entity := range data.Entities.EnumList {
-		if entity.Document, _ = dir.Query("enum", entity.ID).(Document); entity.Document != nil {
+		if entity.Document, _ = apiDir.Query("enum", entity.ID).(Document); entity.Document != nil {
 			entity.Document.SetRender(renderer)
 			for _, item := range entity.ItemList {
 				if item.Document, _ = entity.Document.Query("Members", item.ID[1]).(Document); item.Document != nil {
@@ -979,7 +984,7 @@ func (data *Data) GenerateDocuments() {
 		}
 	}
 	for _, entity := range data.Entities.TypeList {
-		if entity.Document, _ = dir.Query("type", entity.ID).(Document); entity.Document != nil {
+		if entity.Document, _ = apiDir.Query("type", entity.ID).(Document); entity.Document != nil {
 			entity.Document.SetRender(renderer)
 		}
 	}
