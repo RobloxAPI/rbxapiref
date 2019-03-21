@@ -3,6 +3,11 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/alecthomas/chroma"
+	chhtml "github.com/alecthomas/chroma/formatters/html"
+	"github.com/alecthomas/chroma/lexers"
+	"github.com/alecthomas/chroma/styles"
+	"github.com/gomarkdown/markdown/ast"
 	mdhtml "github.com/gomarkdown/markdown/html"
 	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapi"
@@ -24,11 +29,13 @@ import (
 )
 
 type Data struct {
-	Settings    Settings
-	Manifest    *Manifest
-	CurrentYear int
-	Entities    *Entities
-	Templates   *template.Template
+	Settings      Settings
+	Manifest      *Manifest
+	CurrentYear   int
+	Entities      *Entities
+	Templates     *template.Template
+	CodeFormatter *chhtml.Formatter
+	CodeStyle     *chroma.Style
 }
 
 type Patch struct {
@@ -966,8 +973,44 @@ func (data *Data) GenerateDocuments() {
 		return
 	}
 
+	data.CodeFormatter = chhtml.New(
+		chhtml.WithClasses(),
+		chhtml.TabWidth(4),
+		chhtml.WithLineNumbers(),
+		chhtml.LineNumbersInTable(),
+	)
+	data.CodeStyle = styles.Get(data.Settings.CodeStyle)
+
 	renderer := mdhtml.NewRenderer(mdhtml.RendererOptions{
 		HeadingIDPrefix: "doc-",
+		RenderNodeHook: func(w io.Writer, node ast.Node, entering bool) (ast.WalkStatus, bool) {
+			switch node := node.(type) {
+			case *ast.CodeBlock:
+				// io.WriteString
+				i := bytes.IndexAny(node.Info, "\t ")
+				if i < 0 {
+					i = len(node.Info)
+				}
+				lang := string(node.Info[:i])
+				lexer := lexers.Get(lang)
+				if lexer == nil {
+					return ast.GoToNext, false
+				}
+				lexer = chroma.Coalesce(lexer)
+				iterator, err := lexer.Tokenise(nil, string(node.Literal))
+				if err != nil {
+					return ast.GoToNext, false
+				}
+				var buf bytes.Buffer
+				if err := data.CodeFormatter.Format(&buf, data.CodeStyle, iterator); err != nil {
+					return ast.GoToNext, false
+				}
+				io.Copy(w, &buf)
+
+				return ast.SkipChildren, true
+			}
+			return ast.GoToNext, false
+		},
 	})
 
 	docDir := rbxapidoc.NewDirectorySection(

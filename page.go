@@ -126,7 +126,7 @@ func GeneratePageMain(data *Data) (pages []Page) {
 	var buf bytes.Buffer
 	but.IfFatal(png.Encode(&buf, icon), "encode icons file")
 
-	return []Page{{
+	page := Page{
 		Meta: Meta{
 			"Title":       MainTitle,
 			"Description": "Reference for the Roblox Lua API.",
@@ -152,7 +152,18 @@ func GeneratePageMain(data *Data) (pages []Page) {
 			{Name: "favicons/favicon.ico"},
 		},
 		Template: "main",
-	}}
+	}
+	if data.CodeFormatter != nil && data.CodeStyle != nil {
+		var buf strings.Builder
+		buf.WriteString("/* Style: " + data.CodeStyle.Name + " */\n")
+		if err := data.CodeFormatter.WriteCSS(&buf, data.CodeStyle); err == nil {
+			page.Styles = append(page.Styles, Resource{
+				Name:    "syntax-" + data.CodeStyle.Name + ".css",
+				Content: []byte(buf.String()),
+			})
+		}
+	}
+	return []Page{page}
 }
 
 func GeneratePageIndex(data *Data) (pages []Page) {
