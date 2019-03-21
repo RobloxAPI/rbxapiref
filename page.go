@@ -40,6 +40,27 @@ type Attr struct {
 	Value string
 }
 
+type Attrs []Attr
+
+func (a Attrs) Find(name string) *Attr {
+	for i := range a {
+		if string(a[i].Name) == name {
+			return &a[i]
+		}
+	}
+	return nil
+}
+
+func (a *Attrs) Merge(b Attrs) {
+	for _, attrb := range b {
+		if attra := a.Find(string(attrb.Name)); attra != nil {
+			attra.Value = attrb.Value
+			continue
+		}
+		*a = append(*a, attrb)
+	}
+}
+
 type Resource struct {
 	// Name indicates the name of the source file located in the input
 	// resource directory, as well as the name of the generated file within
@@ -54,7 +75,7 @@ type Resource struct {
 	Embed bool
 	// Attr contains additional attributes of the generated HTML node
 	// representing the resource.
-	Attr []Attr
+	Attr Attrs
 }
 
 func Title(sub string) string {
@@ -116,9 +137,9 @@ func GeneratePageMain(data *Data) (pages []Page) {
 			{Name: "doc.css"},
 		},
 		Scripts: []Resource{
-			{Name: "main.js", Attr: []Attr{{"async", ""}}},
-			{Name: "search.js", Attr: []Attr{{"async", ""}}},
-			{Name: "settings.js", Attr: []Attr{{"async", ""}}},
+			{Name: "main.js", Attr: Attrs{{"async", ""}}},
+			{Name: "search.js", Attr: Attrs{{"async", ""}}},
+			{Name: "settings.js", Attr: Attrs{{"async", ""}}},
 		},
 		Resources: []Resource{
 			{Name: "icon-explorer.png", Content: buf.Bytes()},

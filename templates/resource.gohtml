@@ -1,14 +1,14 @@
 {{- if eq .Type ".css" -}}
 	{{- if .Resource.Embed -}}
-		<style{{if .Resource.Attr}}{{range .Resource.Attr}} {{.Name}}{{if .Value}}="{{.Value}}"{{end}}{{end}}{{end}}>{{.Content}}</style>
+		<style{{range .Resource.Attr}} {{.Name}}{{if .Value}}="{{.Value}}"{{end}}{{end}}>{{.Content}}</style>
 	{{- else -}}
-		<link href="{{link "resource" .Resource.Name}}" rel="stylesheet" type="text/css"{{if .Resource.Attr}}{{range .Resource.Attr}} {{.Name}}{{if .Value}}="{{.Value}}"{{end}}{{end}}{{end}} />
+		<link{{range .Resource.Attr}} {{.Name}}{{if .Value}}="{{.Value}}"{{end}}{{end}} />
 	{{- end -}}
 {{- else if eq .Type ".js" -}}
 	{{- if .Resource.Embed -}}
-		<script{{if .Resource.Attr}}{{range .Resource.Attr}} {{.Name}}{{if .Value}}="{{.Value}}"{{end}}{{end}}{{end}}>{{.Content}}</script>
+		<script{{range .Resource.Attr}} {{.Name}}{{if .Value}}="{{.Value}}"{{end}}{{end}}>{{.Content}}</script>
 	{{- else -}}
-		<script src="{{link "resource" .Resource.Name}}" charset="utf-8"{{if .Resource.Attr}}{{range .Resource.Attr}} {{.Name}}{{if .Value}}="{{.Value}}"{{end}}{{end}}{{end}}></script>
+		<script{{range .Resource.Attr}} {{.Name}}{{if .Value}}="{{.Value}}"{{end}}{{end}}></script>
 	{{- end -}}
 {{- else -}}
 	{{- if .Resource.Embed -}}

@@ -450,6 +450,7 @@ func (data *Data) GenerateResourceElements(resources []Resource) (v []interface{
 		}
 		ResData.Type = filepath.Ext(resource.Name)
 		ResData.Resource = resource
+		ResData.Resource.Attr = nil
 		if resource.Embed {
 			var content []byte
 			if resource.Content != nil {
@@ -470,7 +471,22 @@ func (data *Data) GenerateResourceElements(resources []Resource) (v []interface{
 			default:
 				ResData.Content = string(content)
 			}
+		} else {
+			switch ResData.Type {
+			case ".css":
+				ResData.Resource.Attr = append(ResData.Resource.Attr,
+					Attr{Name: "href", Value: data.FileLink("resource", resource.Name)},
+					Attr{Name: "rel", Value: "stylesheet"},
+					Attr{Name: "type", Value: "text/css"},
+				)
+			case ".js":
+				ResData.Resource.Attr = append(ResData.Resource.Attr,
+					Attr{Name: "src", Value: data.FileLink("resource", resource.Name)},
+					Attr{Name: "charset", Value: "utf-8"},
+				)
+			}
 		}
+		ResData.Resource.Attr.Merge(resource.Attr)
 		r, err := data.ExecuteTemplate("resource", ResData)
 		if err != nil {
 			return nil, err
