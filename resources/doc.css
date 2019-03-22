@@ -1,5 +1,4 @@
 .doc pre:not(.chroma) {
-	margin           : 0 1em;
 	background-color : var(--table-color);
 	border-left      : 2px solid var(--border-color);
 	padding          : 1em 1.618em;
@@ -11,7 +10,6 @@
 }
 
 .doc > div.chroma {
-	margin           : 0 1em;
 	background-color : var(--table-color);
 	border-left      : 2px solid var(--border-color);
 }
