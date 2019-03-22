@@ -15,8 +15,16 @@
 }
 .doc > div.chroma pre {
 	background-color : unset;
-	white-space      : pre-wrap;
 	-moz-tab-size    : var(--indent);
 	-o-tab-size      : var(--indent);
 	tab-size         : var(--indent);
+}
+.doc > div.chroma .lntd:last-child {
+	display  : block;
+	overflow : auto;
+}
+.doc > div.chroma .lntd:last-child pre {
+	display      : table;
+	table-layout : fixed;
+	width        : 100%;
 }
