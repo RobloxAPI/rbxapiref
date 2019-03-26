@@ -135,7 +135,7 @@ class Settings {
 		this.settings = new Map();
 	};
 	Listen(name, listener) {
-		let setting = this.settings[name];
+		let setting = this.settings.get(name);
 		if (setting === undefined) {
 			throw "unknown setting " + name;
 		};
@@ -154,7 +154,7 @@ class Settings {
 		listener(name, value, true);
 	};
 	Changed(name, value, initial) {
-		let setting = this.settings[name];
+		let setting = this.settings.get(name);
 		if (setting === undefined) {
 			return;
 		};
@@ -187,10 +187,10 @@ function initSettings() {
 		rbxapiSettings.Changed(name, value, initial)
 	});
 	for (let setting of settings) {
-		rbxapiSettings.settings[setting.name] = {
+		rbxapiSettings.settings.set(setting.name, {
 			"config": setting,
 			"listeners": [],
-		};
+		});
 		if (setting.disabled) {
 			continue;
 		};
