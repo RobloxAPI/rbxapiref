@@ -170,7 +170,7 @@ func GeneratePageIndex(data *Data) (pages []Page) {
 	return []Page{{
 		File:     data.FilePath("index"),
 		Styles:   []Resource{{Name: "index.css", Embed: true}},
-		Scripts:  []Resource{{Name: "sort-classes.js", Attr: []Attr{{"async", ""}}}},
+		Scripts:  []Resource{{Name: "index.js", Attr: []Attr{{"async", ""}}}},
 		Template: "index",
 	}}
 }
