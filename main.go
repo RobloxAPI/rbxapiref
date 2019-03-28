@@ -13,7 +13,7 @@ import (
 
 type FlagOptions struct {
 	Settings string `short:"s" long:"settings"`
-	Force    bool   `short:"f" long:"force"`
+	Force    bool   `long:"force"`
 }
 
 var options = map[string]*flags.Option{
