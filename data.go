@@ -758,8 +758,8 @@ func (data *Data) copyResources(srcPath, dstType string, resources map[string]*R
 type Resources map[string]*Resource
 
 func (r Resources) Add(resource *Resource) {
-	// Avoid empty or embedded resources.
-	if resource.Name == "" || resource.Embed {
+	// Avoid empty, embedded, or ignored resources.
+	if resource.Name == "" || resource.Embed || resource.Ignore {
 		return
 	}
 	if res, ok := r[resource.Name]; ok {

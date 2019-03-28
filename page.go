@@ -76,6 +76,9 @@ type Resource struct {
 	// Attr contains additional attributes of the generated HTML node
 	// representing the resource.
 	Attr Attrs
+	// Ignore allows the resource to exist, but otherwise be ignored when
+	// copying. This will prevent the resource destination from being deleted.
+	Ignore bool
 }
 
 func Title(sub string) string {
@@ -133,7 +136,11 @@ func GeneratePageMain(data *Data) (pages []Page) {
 		},
 		Template: "main",
 	}
-	if !data.ResOnly {
+	if data.ResOnly {
+		page.Resources = append(page.Resources,
+			Resource{Name: "icon-explorer.png", Ignore: true},
+		)
+	} else {
 		// Fetch explorer icons.
 		latest := data.LatestPatch()
 		client := &fetch.Client{
