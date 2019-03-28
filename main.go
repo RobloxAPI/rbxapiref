@@ -43,10 +43,10 @@ func main() {
 	var err error
 
 	// Parse flags.
-	var flagOptions FlagOptions
+	var opt FlagOptions
 	var filters []string
 	{
-		fp := ParseOptions(&flagOptions, flags.Default|flags.PassAfterNonOption)
+		fp := ParseOptions(&opt, flags.Default|flags.PassAfterNonOption)
 		var err error
 		filters, err = fp.Parse()
 		if err != nil {
@@ -66,11 +66,11 @@ func main() {
 
 	// Load settings.
 	data.Settings = *DefaultSettings.Copy()
-	but.IfFatal(data.Settings.ReadFile(flagOptions.Settings))
+	but.IfFatal(data.Settings.ReadFile(opt.Settings))
 
 	// Load manifest.
 	manifestPath := data.AbsFilePath("manifest")
-	if !flagOptions.Force {
+	if !opt.Force {
 		if f, err := os.Open(manifestPath); err == nil {
 			data.Manifest, err = ReadManifest(f)
 			f.Close()
