@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/anaminus/but"
 	"github.com/jessevdk/go-flags"
 	"html/template"
+	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -71,10 +73,9 @@ func main() {
 	// Load manifest.
 	manifestPath := data.AbsFilePath("manifest")
 	if !opt.Force {
-		if f, err := os.Open(manifestPath); err == nil {
-			data.Manifest, err = ReadManifest(f)
-			f.Close()
-			but.IfFatal(err, "open manifest")
+		if b, err := ioutil.ReadFile(manifestPath); err == nil {
+			data.Manifest, err = ReadManifest(bytes.NewReader(b))
+			but.IfFatal(err, "read manifest")
 		}
 	}
 
@@ -161,12 +162,20 @@ func main() {
 		but.IfFatal(db.err, "generate search database")
 	}
 
-	// Save cache.
+	// Save manifest.
 	{
+		var buf bytes.Buffer
+		err := WriteManifest(&buf, data.Manifest)
+		but.IfFatal(err, "encode manifest")
+
 		f, err := os.Create(manifestPath)
 		but.IfFatal(err, "create manifest")
-		err = WriteManifest(f, data.Manifest)
-		f.Close()
-		but.IfFatal(err, "encode manifest")
+		defer f.Close()
+
+		_, err = buf.WriteTo(f)
+		but.IfFatal(err, "write manifest")
+
+		err = f.Sync()
+		but.IfFatal(err, "sync manifest")
 	}
 }
