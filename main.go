@@ -16,6 +16,7 @@ import (
 type FlagOptions struct {
 	Settings string `short:"s" long:"settings"`
 	Force    bool   `long:"force"`
+	ResOnly  bool   `long:"res-only"`
 }
 
 var options = map[string]*flags.Option{
@@ -25,6 +26,9 @@ var options = map[string]*flags.Option{
 	},
 	"force": &flags.Option{
 		Description: "Force a complete rebuild.",
+	},
+	"res-only": &flags.Option{
+		Description: "Only regenerate resource files.",
 	},
 }
 
@@ -64,6 +68,7 @@ func main() {
 	data := &Data{
 		CurrentYear: time.Now().Year(),
 		Manifest:    &Manifest{},
+		ResOnly:     opt.ResOnly,
 	}
 
 	// Load settings.
@@ -79,56 +84,61 @@ func main() {
 		}
 	}
 
-	// Fetch builds.
-	builds, err := FetchBuilds(data.Settings)
-	but.IfFatal(err)
+	if !opt.ResOnly {
+		// Fetch builds.
+		builds, err := FetchBuilds(data.Settings)
+		but.IfFatal(err)
 
-	// Merge uncached builds.
-	data.Manifest.Patches, err = MergeBuilds(data.Settings, data.Manifest.Patches, builds)
-	but.IfFatal(err)
+		// Merge uncached builds.
+		data.Manifest.Patches, err = MergeBuilds(data.Settings, data.Manifest.Patches, builds)
+		but.IfFatal(err)
+	}
 
 	// Generate entities.
 	data.Entities = GenerateEntities(data.Manifest.Patches)
-	but.IfFatal(data.GenerateMetadata())
-	data.GenerateDocuments()
 
-	// Compile templates.
-	data.Templates, err = CompileTemplates(data.Settings.Input.Templates, template.FuncMap{
-		"cards":    data.GenerateCardElements,
-		"document": QueryDocument,
-		"embed":    data.EmbedResource,
-		"execute":  data.ExecuteTemplate,
-		"filter":   FilterList,
-		"history":  data.GenerateHistoryElements,
-		"icon":     data.Icon,
-		"istype":   IsType,
-		"last":     LastIndex,
-		"list":     ParseStringList,
-		"link": func(linkType string, args ...interface{}) string {
-			sargs := make([]string, len(args))
-			for i, arg := range args {
-				switch arg := arg.(type) {
-				case int:
-					sargs[i] = strconv.Itoa(arg)
-				default:
-					sargs[i] = arg.(string)
+	if !opt.ResOnly {
+		but.IfFatal(data.GenerateMetadata())
+		data.GenerateDocuments()
+
+		// Compile templates.
+		data.Templates, err = CompileTemplates(data.Settings.Input.Templates, template.FuncMap{
+			"cards":    data.GenerateCardElements,
+			"document": QueryDocument,
+			"embed":    data.EmbedResource,
+			"execute":  data.ExecuteTemplate,
+			"filter":   FilterList,
+			"history":  data.GenerateHistoryElements,
+			"icon":     data.Icon,
+			"istype":   IsType,
+			"last":     LastIndex,
+			"list":     ParseStringList,
+			"link": func(linkType string, args ...interface{}) string {
+				sargs := make([]string, len(args))
+				for i, arg := range args {
+					switch arg := arg.(type) {
+					case int:
+						sargs[i] = strconv.Itoa(arg)
+					default:
+						sargs[i] = arg.(string)
+					}
 				}
-			}
-			return data.FileLink(linkType, sargs...)
-		},
-		"pack":       PackValues,
-		"patchtype":  PatchTypeString,
-		"quantity":   FormatQuantity,
-		"resources":  data.GenerateResourceElements,
-		"sortedlist": SortedList,
-		"status":     data.ElementStatusClasses,
-		"subactions": MakeSubactions,
-		"tolower":    strings.ToLower,
-		"tostring":   ToString,
-		"type":       GetType,
-		"unpack":     UnpackValues,
-	})
-	but.IfFatal(err, "open template")
+				return data.FileLink(linkType, sargs...)
+			},
+			"pack":       PackValues,
+			"patchtype":  PatchTypeString,
+			"quantity":   FormatQuantity,
+			"resources":  data.GenerateResourceElements,
+			"sortedlist": SortedList,
+			"status":     data.ElementStatusClasses,
+			"subactions": MakeSubactions,
+			"tolower":    strings.ToLower,
+			"tostring":   ToString,
+			"type":       GetType,
+			"unpack":     UnpackValues,
+		})
+		but.IfFatal(err, "open template")
+	}
 
 	// Generate pages.
 	pages := data.GeneratePages([]PageGenerator{
@@ -150,6 +160,9 @@ func main() {
 	}
 	but.IfFatal(data.RenderPageDirs(pages))
 	but.IfFatal(data.RenderResources(pages))
+	if opt.ResOnly {
+		return
+	}
 	but.IfFatal(data.RenderPages(pages))
 
 	// Generate search database.

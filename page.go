@@ -115,17 +115,6 @@ func FilterPages(pages []Page, filters []string) ([]Page, error) {
 ////////////////////////////////////////////////////////////////
 
 func GeneratePageMain(data *Data) (pages []Page) {
-	// Fetch explorer icons.
-	latest := data.LatestPatch()
-	client := &fetch.Client{
-		Config:    data.Settings.Configs[latest.Config],
-		CacheMode: fetch.CacheTemp,
-	}
-	icon, err := client.ExplorerIcons(latest.Info.Hash)
-	but.IfFatalf(err, "%s: fetch icons %s", latest.Info.Hash)
-	var buf bytes.Buffer
-	but.IfFatal(png.Encode(&buf, icon), "encode icons file")
-
 	page := Page{
 		Meta: Meta{
 			"Title":       MainTitle,
@@ -142,18 +131,32 @@ func GeneratePageMain(data *Data) (pages []Page) {
 			{Name: "settings.js", Attr: Attrs{{"async", ""}}},
 			{Name: "actions.js", Attr: Attrs{{"async", ""}}},
 		},
-		Resources: []Resource{
-			{Name: "icon-explorer.png", Content: buf.Bytes()},
-			{Name: "icon-objectbrowser.png"},
-			{Name: "icon-devhub.png"},
-			{Name: "settings.svg"},
-			{Name: "favicons/favicon-512x512.png"},
-			{Name: "favicons/favicon-32x32.png"},
-			{Name: "favicons/favicon-16x16.png"},
-			{Name: "favicons/favicon.ico"},
-		},
 		Template: "main",
 	}
+	if !data.ResOnly {
+		// Fetch explorer icons.
+		latest := data.LatestPatch()
+		client := &fetch.Client{
+			Config:    data.Settings.Configs[latest.Config],
+			CacheMode: fetch.CacheTemp,
+		}
+		icon, err := client.ExplorerIcons(latest.Info.Hash)
+		but.IfFatalf(err, "%s: fetch icons %s", latest.Info.Hash)
+		var buf bytes.Buffer
+		but.IfFatal(png.Encode(&buf, icon), "encode icons file")
+		page.Resources = append(page.Resources,
+			Resource{Name: "icon-explorer.png", Content: buf.Bytes()},
+		)
+	}
+	page.Resources = append(page.Resources,
+		Resource{Name: "icon-objectbrowser.png"},
+		Resource{Name: "icon-devhub.png"},
+		Resource{Name: "settings.svg"},
+		Resource{Name: "favicons/favicon-512x512.png"},
+		Resource{Name: "favicons/favicon-32x32.png"},
+		Resource{Name: "favicons/favicon-16x16.png"},
+		Resource{Name: "favicons/favicon.ico"},
+	)
 	if data.CodeFormatter != nil && data.CodeStyle != nil {
 		var buf strings.Builder
 		buf.WriteString("/* Style: " + data.CodeStyle.Name + " */\n")

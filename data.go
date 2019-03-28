@@ -36,6 +36,7 @@ type Data struct {
 	Templates     *template.Template
 	CodeFormatter *chhtml.Formatter
 	CodeStyle     *chroma.Style
+	ResOnly       bool
 }
 
 type Patch struct {
