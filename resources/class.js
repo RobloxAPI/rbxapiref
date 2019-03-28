@@ -34,6 +34,7 @@ function expandMemberList(element, force) {
 			} else {
 				body.style.display = "none";
 			};
+			rbxapiActions.Update(head, element);
 			return;
 		};
 		if (body.style.display === "none") {
@@ -41,6 +42,7 @@ function expandMemberList(element, force) {
 		} else {
 			body.style.display = "none";
 		};
+		rbxapiActions.Update(head, element);
 		return;
 	}
 
@@ -73,6 +75,12 @@ function expandMemberList(element, force) {
 		loader.parentElement.removeChild(loader);
 	};
 
+	function formatSingular(c) {
+		return c + " member";
+	};
+	function formatPlural(c) {
+		return c + " members";
+	};
 	function onLoaded(event) {
 		if (event.target.response === null) {
 			return;
@@ -87,6 +95,9 @@ function expandMemberList(element, force) {
 		};
 		body.classList.add("inherited-members-list");
 		head.insertAdjacentElement("afterend", body);
+		window.rbxapiActions.Link(head, false, ["HideIfZero", body, ">*"])
+		window.rbxapiActions.Link(element, false, ["Count", body, ">*", formatSingular, formatPlural]);
+		rbxapiActions.Update(head, element);
 	};
 
 	let req = new XMLHttpRequest();
@@ -101,16 +112,16 @@ function expandMemberList(element, force) {
 	req.send();
 };
 
-function initSettingListener() {
+function settingsLoaded() {
 	window.rbxapiSettings.Listen("ExpandMembers", function(name, value, initial) {
 		for (let count of document.querySelectorAll(".inherited-members a.member-count")) {
 			expandMemberList(count, value);
 		};
 	});
-}
+};
 
-function initExpandMembers() {
-	for (parent of document.getElementsByClassName("inherited-members")) {
+function domLoaded() {
+	for (let parent of document.getElementsByClassName("inherited-members")) {
 		let count = parent.querySelector("a.member-count");
 		if (count === null) {
 			continue;
@@ -123,16 +134,164 @@ function initExpandMembers() {
 			expandMemberList(event.target);
 		});
 	};
+
+	// ToC
+	rbxapiActions.QuickLink(
+		"#toc-superclasses",
+		"#superclasses > ul",
+		["HideIfZero", ">*"]
+	);
+	rbxapiActions.QuickLink(
+		"#toc-subclasses",
+		"#subclasses > ul",
+		["HideIfZero", ">*"]
+	);
+	rbxapiActions.QuickLink(
+		"#toc-class-tree",
+		"#toc-class-tree > ol",
+		["HideIfZero", ">*"]
+	);
+	rbxapiActions.QuickLink(
+		"#toc-removed-member-index",
+		"#removed-member-index > .index-card > tbody:first-of-type",
+		["HideIfZero", ">:not(.empty)"]
+	);
+	rbxapiActions.QuickLink(
+		"#toc-members",
+		"#member-sections",
+		["HideIfZero", ">*"]
+	);
+	rbxapiActions.QuickLink(
+		"#toc-removed-members",
+		"#removed-member-sections",
+		["HideIfZero", ">*"]
+	);
+	rbxapiActions.QuickLink(
+		"#toc-classes",
+		"#classes > ul",
+		["HideIfZero", ">*"]
+	);
+	rbxapiActions.QuickLink(
+		"#toc-enums",
+		"#enums > ul",
+		["HideIfZero", ">*"]
+	);
+	rbxapiActions.QuickLink(
+		"#toc-referrers",
+		"#referrers > ul",
+		["HideIfZero", ">*"]
+	);
+	rbxapiActions.QuickLink(
+		"#toc-references",
+		"#toc-references > ol",
+		["HideIfZero", ">*"]
+	);
+
+	// Sections
+	rbxapiActions.QuickLink(
+		"#superclasses",
+		"#superclasses > ul",
+		["HideIfZero", ">*"]
+	);
+	rbxapiActions.QuickLink(
+		"#subclasses",
+		"#subclasses > ul",
+		["HideIfZero", ">*"]
+	);
+	rbxapiActions.QuickLink(
+		"#tree",
+		"#tree",
+		["HideIfZero", ">*"]
+	);
+	rbxapiActions.QuickLink(
+		"#removed-member-index",
+		"#removed-member-index > .index-card > tbody:first-of-type",
+		["HideIfZero", ">:not(.empty)"]
+	);
+	rbxapiActions.QuickLink(
+		"#members",
+		"#member-sections",
+		["HideIfZero", ">*"]
+	);
+	rbxapiActions.QuickLink(
+		"#removed-members",
+		"#removed-member-sections",
+		["HideIfZero", ">*"]
+	);
+	rbxapiActions.QuickLink(
+		"#classes",
+		"#classes > ul",
+		["HideIfZero", ">*"]
+	);
+	rbxapiActions.QuickLink(
+		"#enums",
+		"#enums > ul",
+		["HideIfZero", ">*"]
+	);
+	rbxapiActions.QuickLink(
+		"#referrers",
+		"#referrers > ul",
+		["HideIfZero", ">*"]
+	);
+
+	// Counters
+	function formatCount(c) {
+		return "(" + c + ")";
+	};
+	rbxapiActions.QuickLink(
+		"#superclasses > header .element-count",
+		"#superclasses > ul",
+		["Count", ">*", formatCount]
+	);
+	rbxapiActions.QuickLink(
+		"#subclasses > header .element-count",
+		"#subclasses > ul",
+		["Count", ">*", formatCount]
+	);
+	rbxapiActions.QuickLink(
+		"#members-index > header .element-count",
+		"#members-index > .index-card > tbody:first-of-type",
+		["Count", ">:not(.empty)", formatCount]
+	);
+	rbxapiActions.QuickLink(
+		"#removed-member-index > header .element-count",
+		"#removed-member-index > .index-card > tbody:first-of-type",
+		["Count", ">:not(.empty)", formatCount]
+	);
+	rbxapiActions.QuickLink(
+		"#classes > header .element-count",
+		"#classes > ul",
+		["Count", ">*", formatCount]
+	);
+	rbxapiActions.QuickLink(
+		"#enums > header .element-count",
+		"#enums > ul",
+		["Count", ">*", formatCount]
+	);
+	rbxapiActions.QuickLink(
+		"#referrers > header .element-count",
+		"#referrers > ul",
+		["Count", ">*", formatCount]
+	);
+
 	if (window.rbxapiSettings) {
-		initSettingListener();
+		settingsLoaded();
 	} else {
-		window.addEventListener("rbxapiSettings", initSettingListener);
+		window.addEventListener("rbxapiSettings", settingsLoaded);
 	};
 };
 
-if (document.readyState === "loading") {
-	window.addEventListener("DOMContentLoaded", initExpandMembers);
+function actionsLoaded() {
+	if (document.readyState === "loading") {
+		window.addEventListener("DOMContentLoaded", domLoaded);
+	} else {
+		domLoaded();
+	};
+};
+
+if (window.rbxapiActions) {
+	actionsLoaded();
 } else {
-	initExpandMembers();
+	window.addEventListener("rbxapiActions", actionsLoaded);
 };
 };

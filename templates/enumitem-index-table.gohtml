@@ -1,12 +1,14 @@
 {{- with unpack . "Enum" "Items" -}}
 <table class="index-card enumitem-index-card">
-	<tbody>
+	<thead>
 		<tr>
 			<th class="col-icon">{{icon "enum"}}</th>
 			<th class="col-member">Name</th>
 			<th class="col-value">Value</th>
 			<th class="col-history">History</th>
 		</tr>
+	</thead>
+	<tbody>
 {{- $enum := .Enum -}}
 {{- range .Items -}}
 	{{- $entity := . -}}
@@ -20,7 +22,7 @@
 		</tr>
 	{{- end -}}
 {{- else }}
-		<tr>
+		<tr class="empty">
 			<td colspan="4">No items.</td>
 		</tr>
 {{- end }}

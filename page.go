@@ -140,6 +140,7 @@ func GeneratePageMain(data *Data) (pages []Page) {
 			{Name: "main.js", Attr: Attrs{{"async", ""}}},
 			{Name: "search.js", Attr: Attrs{{"async", ""}}},
 			{Name: "settings.js", Attr: Attrs{{"async", ""}}},
+			{Name: "actions.js", Attr: Attrs{{"async", ""}}},
 		},
 		Resources: []Resource{
 			{Name: "icon-explorer.png", Content: buf.Bytes()},
@@ -312,6 +313,7 @@ func GeneratePageClass(data *Data) (pages []Page) {
 
 func GeneratePageEnum(data *Data) (pages []Page) {
 	styles := []Resource{{Name: "enum.css"}}
+	scripts := []Resource{{Name: "enum.js", Attr: []Attr{{"async", ""}}}}
 	pages = make([]Page, len(data.Entities.EnumList))
 	for i, enum := range data.Entities.EnumList {
 		pages[i] = Page{
@@ -320,6 +322,7 @@ func GeneratePageEnum(data *Data) (pages []Page) {
 				"Title":       Title(enum.ID),
 				"Description": "Information about the " + enum.ID + " enum in the Roblox Lua API."},
 			Styles:       styles,
+			Scripts:      scripts,
 			DocResources: data.NormalizeDocReferences(enum.Document),
 			Template:     "enum",
 			Data:         enum,
@@ -330,6 +333,7 @@ func GeneratePageEnum(data *Data) (pages []Page) {
 
 func GeneratePageType(data *Data) (pages []Page) {
 	styles := []Resource{{Name: "type.css"}}
+	scripts := []Resource{{Name: "type.js", Attr: []Attr{{"async", ""}}}}
 	pages = make([]Page, len(data.Entities.TypeList))
 	for i, typ := range data.Entities.TypeList {
 		pages[i] = Page{
@@ -338,6 +342,7 @@ func GeneratePageType(data *Data) (pages []Page) {
 				"Title":       Title(typ.ID),
 				"Description": "Information about the " + typ.ID + " type in the Roblox Lua API."},
 			Styles:       styles,
+			Scripts:      scripts,
 			DocResources: data.NormalizeDocReferences(typ.Document),
 			Template:     "type",
 			Data:         typ,

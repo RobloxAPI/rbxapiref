@@ -40,20 +40,20 @@
 		<h2>Table of contents</h2>
 		<ol>
 		{{- if or $superclasses $subclasses }}
-			<li>Class tree
+			<li id="toc-class-tree">Class tree
 				<ol>
 			{{- if $superclasses }}
-					<li><a href="#superclasses">Inherits</a></li>
+					<li id="toc-superclasses"><a href="#superclasses">Inherits</a></li>
 			{{- end -}}
 			{{- if $subclasses }}
-					<li><a href="#subclasses">Inherited by</a></li>
+					<li id="toc-subclasses"><a href="#subclasses">Inherited by</a></li>
 			{{- end }}
 				</ol>
 			</li>
 		{{- end -}}
 			<li><a href="#members-index">Member index</a></li>
 		{{- if $removed }}
-			<li><a href="#removed-member-index">Removed member index</a></li>
+			<li id="toc-removed-member-index"><a href="#removed-member-index">Removed member index</a></li>
 		{{- end }}
 		{{- if $details }}
 			<li><a href="#details">Details</a></li>
@@ -65,7 +65,7 @@
 			<li><a href="#history">History</a></li>
 		{{- end -}}
 		{{- if $membersSorted }}
-			<li><a href="#members">Members</a>
+			<li id="toc-members"><a href="#members">Members</a>
 				<ol class="toc-members">
 				{{- range $membersSorted -}}
 					{{- $status := status false .Element }}
@@ -75,7 +75,7 @@
 			</li>
 		{{- end -}}
 		{{- if $removedSorted }}
-			<li><a href="#removed-members">Removed members</a>
+			<li id="toc-removed-members"><a href="#removed-members">Removed members</a>
 				<ol class="toc-members">
 				{{- range $removedSorted -}}
 					{{- $status := status false .Element }}
@@ -85,16 +85,16 @@
 			</li>
 		{{- end -}}
 		{{- if or $classes $enums $referrers }}
-			<li>References
+			<li id="toc-references">References
 				<ol>
 				{{- if $classes }}
-					<li><a href="#classes">Relevant classes</a></li>
+					<li id="toc-classes"><a href="#classes">Relevant classes</a></li>
 				{{- end -}}
 				{{- if $enums }}
-					<li><a href="#enums">Relevant enums</a></li>
+					<li id="toc-enums"><a href="#enums">Relevant enums</a></li>
 				{{- end -}}
 				{{- if $referrers }}
-					<li><a href="#referrers">Relevant members</a></li>
+					<li id="toc-referrers"><a href="#referrers">Relevant members</a></li>
 				{{- end }}
 				</ol>
 			</li>
@@ -107,7 +107,7 @@
 {{- if $superclasses }}
 	<section id="superclasses">
 		<header>
-			<h2>Inherits<span class="element-count" title="{{.ID}} inherits {{len $superclasses}} {{quantity (len $superclasses) "class" "classes"}}."> ({{len $superclasses}})</span></h2>
+			<h2>Inherits <span class="element-count">({{len $superclasses}})</span></h2>
 		</header>
 		<ul class="truncated-list element-list">
 		{{- range $superclasses -}}
@@ -120,7 +120,7 @@
 {{- if $subclasses }}
 	<section id="subclasses">
 		<header>
-			<h2>Inherited by<span class="element-count" title="{{.ID}} is inherited by {{len $subclasses}} {{quantity (len $subclasses) "class" "classes"}}."> ({{len $subclasses}})</span></h2>
+			<h2>Inherited by <span class="element-count">({{len $subclasses}})</span></h2>
 		</header>
 		<ul class="truncated-list element-list">
 		{{- range $subclasses -}}
@@ -134,14 +134,14 @@
 {{- end }}
 <section id="members-index">
 	<header>
-		<h2>Member index<span class="element-count" title="{{.ID}} defines {{len $members}} {{quantity (len $members) "member" "members"}}."> ({{len $members}})</span></h2>
+		<h2>Member index <span class="element-count">({{len $members}})</span></h2>
 	</header>
 	{{template "member-index-table" pack $class $members .Superclasses}}
 </section>
 {{- if $removed }}
 <section id="removed-member-index">
 	<header>
-		<h2>Removed member index<span class="element-count" title="{{.ID}} has {{len $removed}} removed {{quantity (len $removed) "member" "members"}}."> ({{len $removed}})</span></h2>
+		<h2>Removed member index <span class="element-count">({{len $removed}})</span></h2>
 	</header>
 	{{template "member-index-table" pack $class $removed}}
 </section>
@@ -176,9 +176,11 @@
 	<header>
 		<h2>Members</h2>
 	</header>
-{{- range $membersSorted -}}
-	{{- template "member-section" . -}}
-{{- end }}
+	<div id="member-sections">
+	{{- range $membersSorted -}}
+		{{- template "member-section" . -}}
+	{{- end }}
+	</div>
 </section>
 {{- end }}
 {{- if $removedSorted }}
@@ -186,9 +188,11 @@
 	<header>
 		<h2>Removed members</h2>
 	</header>
-{{- range $removedSorted -}}
-	{{- template "member-section" . -}}
-{{- end }}
+	<div id="removed-member-sections">
+	{{- range $removedSorted -}}
+		{{- template "member-section" . -}}
+	{{- end }}
+	</div>
 </section>
 {{- end -}}
 {{- if or $classes $enums $referrers }}
@@ -196,7 +200,7 @@
 {{- if $classes }}
 	<section id="classes">
 		<header>
-			<h2>Relevant classes<span class="element-count" title="{{.ID}} has {{len $classes}} related {{quantity $classes "class" "classes"}}."> ({{len $classes}})</span></h2>
+			<h2>Relevant classes <span class="element-count">({{len $classes}})</span></h2>
 		</header>
 		<ul class="truncated-list element-list">
 		{{- range $classes -}}
@@ -209,7 +213,7 @@
 {{- if $enums }}
 	<section id="enums">
 		<header>
-			<h2>Relevant enums<span class="element-count" title="{{.ID}} has {{len $enums}} related {{quantity $enums "enum" "enums"}}."> ({{len $enums}})</span></h2>
+			<h2>Relevant enums <span class="element-count">({{len $enums}})</span></h2>
 		</header>
 		<ul class="truncated-list element-list">
 		{{- range $enums -}}

@@ -79,9 +79,45 @@ function initSortClasses() {
 	};
 };
 
-if (document.readyState === "loading") {
-	document.addEventListener("DOMContentLoaded", initSortClasses);
-} else {
+function domLoaded() {
+	function formatCount(c) {
+		return "(" + c + ")";
+	};
+	rbxapiActions.QuickLink(
+		"#classes > header .element-count",
+		"#class-list",
+		["Count", "li > .element-link", formatCount]
+	);
+	rbxapiActions.QuickLink(
+		"#removed-classes > header .element-count",
+		"#removed-class-list",
+		["Count", ">*", formatCount]
+	);
+	rbxapiActions.QuickLink(
+		"#enums > header .element-count",
+		"#enum-list",
+		["Count", ">*", formatCount]
+	);
+	rbxapiActions.QuickLink(
+		"#removed-enums > header .element-count",
+		"#removed-enum-list",
+		["Count", ">*", formatCount]
+	);
+
 	initSortClasses();
+};
+
+function actionsLoaded() {
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", domLoaded);
+	} else {
+		domLoaded();
+	};
+};
+
+if (window.rbxapiActions) {
+	actionsLoaded();
+} else {
+	window.addEventListener("rbxapiActions", actionsLoaded);
 };
 };

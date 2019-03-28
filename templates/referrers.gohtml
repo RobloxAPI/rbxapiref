@@ -2,7 +2,7 @@
 {{- if .Referrers }}
 <section id="referrers">
 	<header>
-		<h2>Relevant members<span class="element-count" title="{{.Entity.ID}} has {{len .Referrers}} related {{quantity .Referrers "member" "members"}}."> ({{len .Referrers}})</span></h2>
+		<h2>Relevant members <span class="element-count">({{len .Referrers}})</span></h2>
 	</header>
 	<ul class="truncated-list element-list">
 	{{- range .Referrers -}}

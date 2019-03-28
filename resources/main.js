@@ -53,7 +53,7 @@ function initHistoryToggle() {
 	};
 };
 
-function initSettingListeners() {
+function settingsLoaded() {
 	let head = document.head;
 
 	let showDeprecated = document.createElement("style");
@@ -68,6 +68,7 @@ function initSettingListeners() {
 		} else {
 			head.appendChild(showDeprecated);
 		};
+		rbxapiActions.UpdateAll();
 	});
 
 	let showNotBrowsable = document.createElement("style");
@@ -82,6 +83,7 @@ function initSettingListeners() {
 		} else {
 			head.appendChild(showNotBrowsable);
 		};
+		rbxapiActions.UpdateAll();
 	});
 
 	let showHidden = document.createElement("style");
@@ -96,6 +98,7 @@ function initSettingListeners() {
 		} else {
 			head.appendChild(showHidden);
 		};
+		rbxapiActions.UpdateAll();
 	});
 
 	let security = [];
@@ -122,7 +125,16 @@ function initSettingListeners() {
 				security[i].remove();
 			};
 		};
+		rbxapiActions.UpdateAll();
 	});
+};
+
+function actionsLoaded() {
+	if (window.rbxapiSettings) {
+		settingsLoaded();
+	} else {
+		window.addEventListener("rbxapiSettings", settingsLoaded);
+	};
 };
 
 if (document.readyState === "loading") {
@@ -135,9 +147,9 @@ if (document.readyState === "loading") {
 	initHistoryToggle();
 };
 
-if (window.rbxapiSettings) {
-	initSettingListeners();
+if (window.rbxapiActions) {
+	actionsLoaded();
 } else {
-	window.addEventListener("rbxapiSettings", initSettingListeners);
+	window.addEventListener("rbxapiActions", actionsLoaded);
 };
 };
