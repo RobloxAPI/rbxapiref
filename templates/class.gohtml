@@ -53,7 +53,7 @@
 		{{- end -}}
 			<li><a href="#members-index">Member index</a></li>
 		{{- if $removed }}
-			<li id="toc-removed-member-index"><a href="#removed-member-index">Removed member index</a></li>
+			<li id="toc-removed-members-index"><a href="#removed-members-index">Removed member index</a></li>
 		{{- end }}
 		{{- if $details }}
 			<li><a href="#details">Details</a></li>
@@ -139,7 +139,7 @@
 	{{template "member-index-table" pack $class $members .Superclasses}}
 </section>
 {{- if $removed }}
-<section id="removed-member-index">
+<section id="removed-members-index">
 	<header>
 		<h2>Removed member index <span class="element-count">({{len $removed}})</span></h2>
 	</header>

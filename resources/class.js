@@ -152,8 +152,8 @@ function domLoaded() {
 		["HideIfZero", ">*"]
 	);
 	rbxapiActions.QuickLink(
-		"#toc-removed-member-index",
-		"#removed-member-index > .index-card > tbody:first-of-type",
+		"#toc-removed-members-index",
+		"#removed-members-index > .index-card > tbody:first-of-type",
 		["HideIfZero", ">:not(.empty)"]
 	);
 	rbxapiActions.QuickLink(
@@ -204,8 +204,8 @@ function domLoaded() {
 		["HideIfZero", ">*"]
 	);
 	rbxapiActions.QuickLink(
-		"#removed-member-index",
-		"#removed-member-index > .index-card > tbody:first-of-type",
+		"#removed-members-index",
+		"#removed-members-index > .index-card > tbody:first-of-type",
 		["HideIfZero", ">:not(.empty)"]
 	);
 	rbxapiActions.QuickLink(
@@ -254,8 +254,8 @@ function domLoaded() {
 		["Count", ">:not(.empty)", formatCount]
 	);
 	rbxapiActions.QuickLink(
-		"#removed-member-index > header .element-count",
-		"#removed-member-index > .index-card > tbody:first-of-type",
+		"#removed-members-index > header .element-count",
+		"#removed-members-index > .index-card > tbody:first-of-type",
 		["Count", ">:not(.empty)", formatCount]
 	);
 	rbxapiActions.QuickLink(
