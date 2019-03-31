@@ -33,23 +33,23 @@ type Documentable interface {
 	GetDocument() Document
 }
 
-func QueryDocument(d Documentable, level int, name ...string) template.HTML {
+func QueryDocument(d Documentable, name ...string) rbxapidoc.Section {
 	doc := d.GetDocument()
 	if doc == nil {
-		return ""
+		return nil
 	}
-	sub := doc.Query(name...)
-	if sub == nil {
-		return ""
-	}
-	if l, ok := sub.(rbxapidoc.Headingable); ok {
-		root := l.RootLevel()
-		l.AdjustLevels(level)
-		render := sub.Render()
-		l.AdjustLevels(root)
+	return doc.Query(name...)
+}
+
+func RenderDocument(s rbxapidoc.Section, level int) template.HTML {
+	if h, ok := s.(rbxapidoc.Headingable); ok {
+		root := h.RootLevel()
+		h.AdjustLevels(level)
+		render := s.Render()
+		h.AdjustLevels(root)
 		return render
 	}
-	return sub.Render()
+	return s.Render()
 }
 
 // ElementTyper is implemented by an entity that can be referred to by an

@@ -1,8 +1,8 @@
 {{- $entity := . -}}
-{{- $summary := document . 3 "Summary" -}}
-{{- if not $summary -}}{{- $summary = document . 3 "" -}}{{- end -}}
-{{- $details := document . 3 "Details" -}}
-{{- $examples := document . 3 "Examples" -}}
+{{- $summary := document . "Summary" -}}
+{{- if not $summary -}}{{- $summary = document . "" -}}{{- end -}}
+{{- $details := document . "Details" -}}
+{{- $examples := document . "Examples" -}}
 {{- with .Element -}}
 	{{- $status := status false . }}
 	<section id="member-{{.GetName}}"{{if $status}} class="{{$status}}"{{end}}>
@@ -10,7 +10,7 @@
 			<h3>{{icon .}}{{.GetName}} {{template "devhub-link" link "devhub" .GetMemberType $entity.Parent.ID .GetName}}</h3>
 		</header>
 	{{- if $summary }}
-		<section class="doc">{{$summary}}</section>
+		<section class="doc">{{renderdoc $summary 3}}</section>
 	{{- end }}
 		{{- template "status-boxes" . -}}
 	{{- if eq .GetMemberType "Property" }}
@@ -84,11 +84,11 @@
 		</table>
 	{{- end -}}
 	{{- if $details }}
-		<section class="doc">{{$details}}</section>
+		<section class="doc">{{renderdoc $details 3}}</section>
 	{{- end }}
 	{{- if $examples }}
 		<h4>Examples</h4>
-		<section class="doc">{{$examples}}</section>
+		<section class="doc">{{renderdoc $examples 3}}</section>
 	{{- end }}
 	{{- $history := history $entity false false -}}
 	{{- if $history }}

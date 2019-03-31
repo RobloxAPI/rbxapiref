@@ -1,8 +1,8 @@
 {{- $enum := .ID -}}
-{{- $summary := document . 2 "Summary" -}}
-{{- if not $summary -}}{{- $summary = document . 2 "" -}}{{- end -}}
-{{- $details := document . 2 "Details" -}}
-{{- $examples := document . 2 "Examples" }}
+{{- $summary := document . "Summary" -}}
+{{- if not $summary -}}{{- $summary = document . "" -}}{{- end -}}
+{{- $details := document . "Details" -}}
+{{- $examples := document . "Examples" }}
 {{- $history := history . false false -}}
 {{- $members := filter .ItemList "Added" }}
 {{- $removed := filter .ItemList "Removed" -}}
@@ -19,7 +19,7 @@
 		<h2>Summary</h2>
 	</header>
 {{- if $summary }}
-	<section class="doc">{{$summary}}</section>
+	<section class="doc">{{renderdoc $summary 2}}</section>
 {{- end }}
 	{{- template "status-boxes" .Element -}}
 {{- if .Element.Tags }}
@@ -48,8 +48,8 @@
 			<li id="toc-members"><a href="#members">Items</a>
 				<ol class="toc-members">
 				{{- range $membersSorted -}}
-					{{- $details := document . 3 "Details" -}}
-					{{- $examples := document . 3 "Examples" -}}
+					{{- $details := document . "Details" -}}
+					{{- $examples := document . "Examples" -}}
 					{{- if or $details $examples -}}
 					{{- $status := status false .Element }}
 					<li{{if $status}} class="{{$status}}"{{end}}><a href="#member-{{.Element.GetName}}">{{.Element.GetName}}</a></li>
@@ -93,7 +93,7 @@
 	<header>
 		<h2>Details</h2>
 	</header>
-	<section class="doc">{{$details}}</section>
+	<section class="doc">{{renderdoc $details 2}}</section>
 </section>
 {{- end -}}
 {{- if $examples }}
@@ -101,7 +101,7 @@
 	<header>
 		<h2>Examples</h2>
 	</header>
-	<section class="doc">{{$examples}}</section>
+	<section class="doc">{{renderdoc $examples 2}}</section>
 </section>
 {{- end -}}
 {{- if $membersSorted }}

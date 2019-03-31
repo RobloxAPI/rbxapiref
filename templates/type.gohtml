@@ -1,7 +1,7 @@
-{{- $summary := document . 2 "Summary" -}}
-{{- if not $summary -}}{{- $summary = document . 2 "" -}}{{- end -}}
-{{- $details := document . 2 "Details" -}}
-{{- $examples := document . 2 "Examples" -}}
+{{- $summary := document . "Summary" -}}
+{{- if not $summary -}}{{- $summary = document . "" -}}{{- end -}}
+{{- $details := document . "Details" -}}
+{{- $examples := document . "Examples" -}}
 {{- $referrers := filter .ReferrerList "ImplicitAdded" -}}
 <main>
 <header>
@@ -9,7 +9,7 @@
 </header>
 {{- if $summary }}
 <section id="summary">
-	<section class="doc">{{$summary}}</section>
+	<section class="doc">{{renderdoc $summary 2}}</section>
 </section>
 {{- end -}}
 {{- if or $details $examples  }}
@@ -39,7 +39,7 @@
 	<header>
 		<h2>Details</h2>
 	</header>
-	<section class="doc">{{$details}}</section>
+	<section class="doc">{{renderdoc $details 2}}</section>
 </section>
 {{- end -}}
 {{- if $examples }}
@@ -47,7 +47,7 @@
 	<header>
 		<h2>Examples</h2>
 	</header>
-	<section class="doc">{{$examples}}</section>
+	<section class="doc">{{renderdoc $examples 2}}</section>
 </section>
 {{- end -}}
 {{- template "referrers" pack . $referrers }}

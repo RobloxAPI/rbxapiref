@@ -128,6 +128,7 @@ func main() {
 			"pack":       PackValues,
 			"patchtype":  PatchTypeString,
 			"quantity":   FormatQuantity,
+			"renderdoc":  RenderDocument,
 			"resources":  data.GenerateResourceElements,
 			"sortedlist": SortedList,
 			"status":     data.ElementStatusClasses,

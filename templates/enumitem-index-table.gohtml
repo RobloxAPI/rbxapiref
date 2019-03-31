@@ -16,8 +16,8 @@
 {{- $enum := .Enum -}}
 {{- range .Items -}}
 	{{- $entity := . -}}
-	{{- $summary := document . 3 "Summary" -}}
-	{{- if not $summary -}}{{- $summary = document . 3 "" -}}{{- end -}}
+	{{- $summary := document . "Summary" -}}
+	{{- if not $summary -}}{{- $summary = document . "" -}}{{- end -}}
 	{{- with .Element -}}
 		{{- $status := status true . }}
 		<tr{{if not $entity.Document}} id="member-{{.Name}}"{{end}} class="row-EnumItem{{$status}}">
@@ -28,7 +28,7 @@
 		{{- if $descriptive }}
 			<td class="col-description">
 			{{- if $summary }}
-				<section class="doc">{{$summary}}</section>
+				<section class="doc">{{renderdoc $summary 3}}</section>
 			{{- else }}
 				<span class="no-description">No description.</span>
 			{{- end }}

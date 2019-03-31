@@ -1,6 +1,6 @@
 {{- $entity := . -}}
-{{- $details := document . 3 "Details" -}}
-{{- $examples := document . 3 "Examples" -}}
+{{- $details := document . "Details" -}}
+{{- $examples := document . "Examples" -}}
 {{- if or $details $examples }}
 {{- with .Element }}
 	{{- $status := status false . }}
@@ -10,11 +10,11 @@
 		</header>
 		{{- template "status-boxes" . -}}
 	{{- if $details }}
-		<section class="doc">{{$details}}</section>
+		<section class="doc">{{renderdoc $details 3}}</section>
 	{{- end }}
 	{{- if $examples }}
 		<h4>Examples</h4>
-		<section class="doc">{{$examples}}</section>
+		<section class="doc">{{renderdoc $examples 3}}</section>
 	{{- end }}
 	{{- $history := history $entity false false -}}
 	{{- if $history }}
