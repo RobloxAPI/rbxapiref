@@ -1,4 +1,5 @@
-{{- with unpack . "Enum" "Items" -}}
+{{- with unpack . "Enum" "Items" "Descriptive" -}}
+{{- $descriptive := .Descriptive -}}
 <table class="index-card enumitem-index-card">
 	<thead>
 		<tr>
@@ -6,12 +7,17 @@
 			<th class="col-member">Name</th>
 			<th class="col-value">Value</th>
 			<th class="col-history">History</th>
+		{{- if $descriptive }}
+			<th class="col-description">Description</th>
+		{{- end -}}
 		</tr>
 	</thead>
 	<tbody>
 {{- $enum := .Enum -}}
 {{- range .Items -}}
 	{{- $entity := . -}}
+	{{- $summary := document . 3 "Summary" -}}
+	{{- if not $summary -}}{{- $summary = document . 3 "" -}}{{- end -}}
 	{{- with .Element -}}
 		{{- $status := status true . }}
 		<tr{{if not $entity.Document}} id="member-{{.Name}}"{{end}} class="row-EnumItem{{$status}}">
@@ -19,6 +25,15 @@
 			<td class="col-member"><a href="{{link "enumitem" $enum .Name}}">{{.Name}}</a></td>
 			<td class="col-value">{{.Value}}</td>
 			<td class="col-history">{{history $entity true true}}</td>
+		{{- if $descriptive }}
+			<td class="col-description">
+			{{- if $summary }}
+				<section class="doc">{{$summary}}</section>
+			{{- else }}
+				<span class="no-description">No description.</span>
+			{{- end }}
+			</td>
+		{{- end }}
 		</tr>
 	{{- end -}}
 {{- else }}

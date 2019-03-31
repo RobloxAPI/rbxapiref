@@ -188,6 +188,10 @@ main > header .history {
 	content : ", ";
 	white-space: normal;
 }
+.no-description {
+	font-style : italic;
+	opacity    : 0.5;
+}
 
 /*////////////////////////////////////////////////////////////////*/
 /* Header / Footer */
@@ -588,6 +592,9 @@ header .icon,
 .index-card .member-text {
 	display   : flex;
 	flex-flow : wrap row;
+}
+.index-card p {
+	margin : 0;
 }
 @media screen and (max-width: 600px) {
 	.member-index-card .col-type,

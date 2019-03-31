@@ -48,8 +48,12 @@
 			<li id="toc-members"><a href="#members">Items</a>
 				<ol class="toc-members">
 				{{- range $membersSorted -}}
+					{{- $details := document . 3 "Details" -}}
+					{{- $examples := document . 3 "Examples" -}}
+					{{- if or $details $examples -}}
 					{{- $status := status false .Element }}
 					<li{{if $status}} class="{{$status}}"{{end}}><a href="#member-{{.Element.GetName}}">{{.Element.GetName}}</a></li>
+					{{- end -}}
 				{{- end }}
 				</ol>
 			</li>
@@ -74,13 +78,13 @@
 	<header>
 		<h2>{{if $membersSorted}}Item index{{else}}Items{{end}} <span class="element-count">({{len $members}})</span></h2>
 	</header>
-	{{template "enumitem-index-table" pack $enum $members}}
+	{{template "enumitem-index-table" pack $enum $members $membersSorted}}
 {{- if $removed }}
 	<section id="removed-members-index">
 		<header>
 			<h2>{{if $removedSorted}}Removed item index{{else}}Removed items{{end}} <span class="element-count">({{len $removed}})</span></h2>
 		</header>
-		{{template "enumitem-index-table" pack $enum $removed}}
+		{{template "enumitem-index-table" pack $enum $removed $removedSorted}}
 	</section>
 {{- end }}
 </section>

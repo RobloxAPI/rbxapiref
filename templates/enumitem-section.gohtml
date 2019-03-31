@@ -1,17 +1,13 @@
 {{- $entity := . -}}
-{{- $summary := document . 3 "Summary" -}}
-{{- if not $summary -}}{{- $summary = document . 3 "" -}}{{- end -}}
 {{- $details := document . 3 "Details" -}}
 {{- $examples := document . 3 "Examples" -}}
+{{- if or $details $examples }}
 {{- with .Element }}
 	{{- $status := status false . }}
 	<section id="member-{{.Name}}"{{if $status}} class="{{$status}}"{{end}}>
 		<header>
 			<h3>{{icon .}}{{.Name}} {{template "devhub-link" link "devhub" "enumitem" $entity.Parent.ID .Name}}</h3>
 		</header>
-	{{- if $summary }}
-		<section class="doc">{{$summary}}</section>
-	{{- end }}
 		{{- template "status-boxes" . -}}
 	{{- if $details }}
 		<section class="doc">{{$details}}</section>
@@ -29,4 +25,5 @@
 		<p class="tags">Tags: {{tostring .Tags}}</p>
 	{{- end -}}
 </section>
+{{- end -}}
 {{- end }}
