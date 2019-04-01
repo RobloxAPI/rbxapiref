@@ -906,6 +906,10 @@ func (data *Data) NormalizeDocReferences(document Document) []Resource {
 }
 
 func (data *Data) GenerateMetadata() error {
+	if data.ResOnly {
+		return nil
+	}
+
 	latest := data.LatestPatch()
 	client := &fetch.Client{
 		Config:    data.Settings.Configs[latest.Config],
@@ -981,6 +985,10 @@ func (data *Data) GenerateDocuments() {
 		chhtml.LineNumbersInTable(),
 	)
 	data.CodeStyle = styles.Get(data.Settings.CodeStyle)
+
+	if data.ResOnly {
+		return
+	}
 
 	renderer := mdhtml.NewRenderer(mdhtml.RendererOptions{
 		HeadingIDPrefix: "doc-",
