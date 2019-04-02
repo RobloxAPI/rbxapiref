@@ -129,16 +129,6 @@ loop:
 		latest = &b
 	}
 
-	// Ensure that the latest API is present.
-	if latest.API == nil {
-		client.Config = settings.Configs[latest.Config]
-		root, err := client.APIDump(latest.Info.Hash)
-		if err != nil {
-			return nil, errors.WithMessagef(err, "fetch build %s", latest.Info.Hash)
-		}
-		latest.API = root
-	}
-
 	// Set action indices.
 	for i, patch := range patches {
 		for j := range patch.Actions {
