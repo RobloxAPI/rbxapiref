@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"io"
 	"io/ioutil"
+	"path"
 	"path/filepath"
 	"reflect"
 	"sort"
@@ -325,28 +326,43 @@ func LastIndex(v interface{}) int {
 	return length - 1
 }
 
-// Compiles templates in specified folder as a single template. Templates are
-// named as the file name without the extension.
-func CompileTemplates(dir string, funcs template.FuncMap) (tmpl *template.Template, err error) {
+func compileTemplates(tmpl *template.Template, dir, sub string) (err error) {
 	fis, err := ioutil.ReadDir(dir)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	tmpl = template.New("")
-	tmpl.Funcs(funcs)
 	for _, fi := range fis {
+		if fi.IsDir() {
+			err = compileTemplates(
+				tmpl,
+				filepath.Join(dir, fi.Name()),
+				path.Join(sub, fi.Name()),
+			)
+			if err != nil {
+				return err
+			}
+			continue
+		}
 		base := filepath.Base(fi.Name())
 		name := base[:len(base)-len(filepath.Ext(base))]
+		name = path.Join(sub, name)
 		b, err := ioutil.ReadFile(filepath.Join(dir, fi.Name()))
 		if err != nil {
-			return nil, err
+			return err
 		}
 		t := tmpl.New(name)
 		if _, err = t.Parse(string(b)); err != nil {
-			return nil, err
+			return err
 		}
-		t.Funcs(funcs)
 	}
+	return nil
+}
+
+// Compiles templates in specified folder as a single template. Templates are
+// named as the file name without the extension.
+func CompileTemplates(dir string, funcs template.FuncMap) (tmpl *template.Template, err error) {
+	tmpl = template.New("").Funcs(funcs)
+	err = compileTemplates(tmpl, dir, "")
 	return
 }
 
