@@ -382,6 +382,9 @@ func (client *Client) fetchResource(loc Location) (rs readSeeker, err error) {
 	default:
 		goto direct
 	}
+	if err := os.MkdirAll(cacheDir, 0755); err != nil {
+		return nil, err
+	}
 	cachedFilePath = filepath.Join(cacheDir, url.PathEscape(loc.URL.Host+loc.URL.Path))
 
 tryCache:
