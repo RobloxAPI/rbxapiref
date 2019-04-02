@@ -46,7 +46,7 @@ main > article {
 	}
 }
 
-.anchor:target + .patch-list-toggle,
+.update:target > .patch-list-toggle,
 .patch-list > li:target {
 	background-color : var(--member-target-color);
 }

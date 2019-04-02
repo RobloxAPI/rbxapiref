@@ -26,8 +26,7 @@
 		{{- with .Patches -}}
 		{{- range . }}
 		<li>
-			<section class="update">
-				<a id="{{.Info.Hash}}" class="anchor"></a>
+			<section id="{{.Info.Hash}}" class="update">
 				<span class="patch-list-toggle"><time datetime="{{.Info.Date.Format "2006-01-02 15:04:05-0700" }}">{{.Info.Date.Format "2006-01-02 15:04" }}</time> (v{{.Info.Version}})</span>
 				<a class="permalink" title="Permanent link" href="{{link "updates" .Info.Date.Year}}#{{.Info.Hash}}"><span>{{.Info.Hash}}</span></a>
 				<ul class="patch-list">
