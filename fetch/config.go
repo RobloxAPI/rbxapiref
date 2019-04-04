@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/rbxapijson"
 	"github.com/robloxapi/rbxdhist"
 	"github.com/robloxapi/rbxfile"
@@ -269,6 +270,9 @@ type Client struct {
 	CacheLocation string
 	// Client is the HTTP client that performs requests.
 	Client *http.Client
+	// API is an optional rbxapi.Root that improves parsing of information
+	// formatted as Roblox files.
+	API rbxapi.Root
 }
 
 const cacheDirName = "roblox-fetch"
@@ -592,8 +596,7 @@ func (client *Client) ReflectionMetadata(hash string) (root *rbxfile.Root, err e
 
 		switch format {
 		case ".xml":
-			api, _ := client.APIDump(hash)
-			return xml.Deserialize(resp, api)
+			return xml.Deserialize(resp, client.API)
 		}
 		return nil, errUnsupportedFormat(format)
 	}
