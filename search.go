@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/rbxapijson"
-	"github.com/robloxapi/rbxfile"
 	"io"
 )
 
@@ -274,8 +273,7 @@ func (dw *dbWriter) GenerateDatabase() bool {
 	for _, class := range dw.data.Entities.ClassList {
 		var icon int
 		if class.Metadata.Instance != nil {
-			i, _ := class.Metadata.Get("ExplorerImageIndex").(rbxfile.ValueInt)
-			icon = int(i)
+			icon = GetMetadataInt(class.Metadata, "ExplorerImageIndex")
 		}
 		if dw.writeNumber(uint8(icon)) {
 			return true

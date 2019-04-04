@@ -14,7 +14,6 @@ import (
 	"github.com/robloxapi/rbxapi/rbxapijson"
 	"github.com/robloxapi/rbxapiref/fetch"
 	"github.com/robloxapi/rbxapiref/rbxapidoc"
-	"github.com/robloxapi/rbxfile"
 	"html"
 	"html/template"
 	"io"
@@ -243,8 +242,7 @@ retry:
 		if value.Metadata.Instance == nil {
 			goto finish
 		}
-		i, _ := value.Metadata.Get("ExplorerImageIndex").(rbxfile.ValueInt)
-		index = int(i)
+		index = GetMetadataInt(value.Metadata, "ExplorerImageIndex")
 	case *MemberEntity:
 		if value.Element == nil {
 			goto finish

@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapi/rbxapijson"
+	"github.com/robloxapi/rbxfile"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -452,6 +453,18 @@ func ParseStringList(v interface{}) []string {
 		list[i] = strings.TrimSpace(s)
 	}
 	return list
+}
+
+////////////////////////////////////////////////////////////////
+
+func GetMetadataInt(metadata Metadata, prop string) (i int) {
+	switch v := metadata.Get(prop).(type) {
+	case rbxfile.ValueInt:
+		i = int(v)
+	case rbxfile.ValueString:
+		i, _ = strconv.Atoi(string(v))
+	}
+	return i
 }
 
 ////////////////////////////////////////////////////////////////
