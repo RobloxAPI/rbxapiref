@@ -515,9 +515,8 @@ func (client *Client) Builds() (builds []Build, err error) {
 				return nil, err
 			}
 			stream := rbxdhist.Lex(b)
-			pst, _ := time.LoadLocation("America/Los_Angeles")
 			// Builds after this date are interoperable.
-			epoch := time.Date(2018, 8, 7, 0, 0, 0, 0, pst)
+			epoch := time.Date(2018, 8, 7, 0, 0, 0, 0, rbxdhist.ZonePST())
 			for i := 0; i < len(stream); i++ {
 				switch job := stream[i].(type) {
 				case *rbxdhist.Job:
