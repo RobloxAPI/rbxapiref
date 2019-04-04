@@ -167,12 +167,15 @@ func main() {
 
 	// Generate search database.
 	{
+		var buf bytes.Buffer
+		db := dbWriter{data: data, w: &buf}
+		db.GenerateDatabase()
+		but.IfFatal(db.err, "generate search database")
+
 		f, err := os.Create(data.AbsFilePath("search"))
 		but.IfFatal(err, "create search database file")
-		db := dbWriter{data: data, w: f}
-		db.GenerateDatabase()
+		buf.WriteTo(f)
 		f.Close()
-		but.IfFatal(db.err, "generate search database")
 	}
 
 	// Save manifest.
