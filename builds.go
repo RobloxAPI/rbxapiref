@@ -52,6 +52,16 @@ func FetchBuilds(settings Settings) (builds []Build, err error) {
 			builds = append(builds, Build{Config: cfg, Info: BuildInfo(b)})
 		}
 	}
+	if live, err := client.Live(); err != nil {
+		but.Logf("fetch live build: %v", err)
+	} else if live.Hash != "" {
+		for i := len(builds) - 1; i >= 0; i-- {
+			if builds[i].Info.Hash == live.Hash {
+				builds = builds[:i+1]
+				break
+			}
+		}
+	}
 	sort.Slice(builds, func(i, j int) bool {
 		return builds[i].Info.Date.Before(builds[j].Info.Date)
 	})

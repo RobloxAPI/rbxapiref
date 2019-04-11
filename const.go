@@ -4,6 +4,7 @@ import (
 	"github.com/alecthomas/chroma"
 	"github.com/alecthomas/chroma/styles"
 	"github.com/robloxapi/rbxapiref/fetch"
+	"net/url"
 )
 
 const (
@@ -27,6 +28,14 @@ const (
 	MainTitle           = "Roblox API Reference"
 	TitleSep            = "-"
 )
+
+func mustParseURL(rawurl string) url.URL {
+	u, err := url.Parse(rawurl)
+	if err != nil {
+		panic(err)
+	}
+	return *u
+}
 
 var DefaultSettings = &Settings{
 	Input: SettingsInput{
@@ -60,6 +69,10 @@ var DefaultSettings = &Settings{
 				CDNURL+"$HASH-content-textures2.zip#ClassImages.PNG",
 				CDNURL+"$HASH-RobloxStudio.zip#RobloxStudioBeta.exe",
 			),
+			Live: []fetch.Location{{
+				Format: ".json",
+				URL:    mustParseURL("https://versioncompatibility.api.roblox.com/GetCurrentClientVersionUpload/?apiKey=76e5a40c-3ae1-4028-9f10-7c62520bd94f&binaryType=WindowsStudio"),
+			}},
 		},
 	},
 	UseConfigs: []string{
