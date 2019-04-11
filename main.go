@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/anaminus/but"
 	"github.com/jessevdk/go-flags"
 	"html/template"
@@ -55,11 +54,8 @@ func main() {
 		fp := ParseOptions(&opt, flags.Default|flags.PassAfterNonOption)
 		var err error
 		filters, err = fp.Parse()
-		if err != nil {
-			if err, ok := err.(*flags.Error); ok && err.Type == flags.ErrHelp {
-				fmt.Fprintln(os.Stdout, err)
-				return
-			}
+		if err, ok := err.(*flags.Error); ok && err.Type == flags.ErrHelp {
+			return
 		}
 		but.IfFatal(err, "flag parser error")
 	}
