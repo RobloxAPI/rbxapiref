@@ -12,10 +12,55 @@ import (
 	"time"
 )
 
+type Range struct {
+	Min, Max int
+	Count    int
+}
+
+func (r *Range) UnmarshalFlag(flag string) (err error) {
+	sep := strings.Index(flag, ":")
+	if sep < 0 {
+		r.Min, err = strconv.Atoi(flag)
+		r.Count = 1
+		return err
+	}
+
+	if r.Min, err = strconv.Atoi(flag[:sep]); err != nil {
+		return err
+	}
+	if r.Max, err = strconv.Atoi(flag[sep+1:]); err != nil {
+		return err
+	}
+	r.Count = 2
+	return nil
+}
+
+func (r Range) Norm(length int) Range {
+	if r.Count == 1 {
+		r.Max = length
+	}
+	if r.Min < 0 {
+		r.Min = length + r.Min
+	} else if r.Min > length {
+		r.Min = length
+	}
+	if r.Max < 0 {
+		r.Max = length + r.Max
+	} else if r.Max > length {
+		r.Max = length
+	}
+	if r.Min > r.Max {
+		r.Min, r.Max = 0, 0
+	}
+	r.Count = 2
+	return r
+}
+
 type FlagOptions struct {
 	Settings string `short:"s" long:"settings"`
 	Force    bool   `long:"force"`
 	ResOnly  bool   `long:"res-only"`
+	Range    Range  `long:"range"`
 }
 
 var options = map[string]*flags.Option{
@@ -28,6 +73,10 @@ var options = map[string]*flags.Option{
 	},
 	"res-only": &flags.Option{
 		Description: "Only regenerate resource files.",
+	},
+	"range": &flags.Option{
+		Description: "Select a range of builds.",
+		ValueName:   "RANGE",
 	},
 }
 
@@ -84,6 +133,11 @@ func main() {
 		// Fetch builds.
 		builds, err := FetchBuilds(data.Settings)
 		but.IfFatal(err)
+
+		if opt.Range.Count > 0 {
+			r := opt.Range.Norm(len(builds))
+			builds = builds[r.Min:r.Max]
+		}
 
 		// Merge uncached builds.
 		data.Manifest.Patches, err = MergeBuilds(data.Settings, data.Manifest.Patches, builds)
