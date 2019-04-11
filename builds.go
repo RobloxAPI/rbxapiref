@@ -53,7 +53,7 @@ func FetchBuilds(settings Settings) (builds []Build, err error) {
 		}
 	}
 	if live, err := client.Live(); err != nil {
-		but.Logf("fetch live build: %v", err)
+		but.Logf("fetch live build: %v\n", err)
 	} else if live.Hash != "" {
 		for i := len(builds) - 1; i >= 0; i-- {
 			if builds[i].Info.Hash == live.Hash {
