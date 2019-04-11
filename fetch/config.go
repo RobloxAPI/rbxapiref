@@ -218,7 +218,8 @@ type Config struct {
 	Latest,
 	APIDump,
 	ReflectionMetadata,
-	ExplorerIcons []Location
+	ExplorerIcons,
+	Live []Location
 }
 
 // Load sets the config from a JSON-formatted stream.
@@ -488,6 +489,48 @@ func (client *Client) Latest() (build Build, err error) {
 		}
 	}
 	locs := client.Config.Latest
+	for i, loc := range locs {
+		if build, err = try(loc); err == nil || i == len(locs)-1 {
+			break
+		}
+	}
+	return build, err
+}
+
+// Live returns the current live build, the hash from which can be passed to
+// other methods to fetch data corresponding the current live version. If no
+// live endpoint is configured, Live returns the zero Build.
+//
+// The Client deals primarily with builds that have been deployed. Latest
+// returns the most recently deployed build. However, the latest build is not
+// necessarily the "live" build, or the build currently running on production.
+//
+// The following formats are readable:
+//
+//     - .json: A single build hash as a JSON string.
+//     - (other): A raw stream indicating a version hash. Other build
+//       information is empty.
+func (client *Client) Live() (build Build, err error) {
+	try := func(loc Location) (build Build, err error) {
+		format, resp, err := client.Get(loc, "")
+		if err != nil {
+			return build, err
+		}
+		defer resp.Close()
+
+		switch format {
+		case ".json":
+			err = json.NewDecoder(resp).Decode(&build.Hash)
+			return build, err
+		default:
+			b, err := ioutil.ReadAll(resp)
+			if err != nil {
+				return build, err
+			}
+			return Build{Hash: string(b)}, nil
+		}
+	}
+	locs := client.Config.Live
 	for i, loc := range locs {
 		if build, err = try(loc); err == nil || i == len(locs)-1 {
 			break
