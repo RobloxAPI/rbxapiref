@@ -1,8 +1,8 @@
-{{- with unpack . "Entity" "Referrers" -}}
+{{- with unpack . "Entity" "Referrers" "Removed" -}}
 {{- if .Referrers }}
 <section id="referrers">
 	<header>
-		<h2>Relevant members <span class="element-count">({{len .Referrers}})</span></h2>
+		<h2>{{if .Removed}}Formerly relevant{{else}}Relevant{{end}} members <span class="element-count">({{len .Referrers}})</span></h2>
 	</header>
 	<ul class="truncated-list element-list">
 	{{- range .Referrers -}}

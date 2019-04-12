@@ -156,6 +156,9 @@ type TypeEntity struct {
 	Referrers    map[[2]string]Referrer
 	ReferrerList []Referrer
 
+	RemovedRefs    map[[2]string]Referrer
+	RemovedRefList []Referrer
+
 	Document Document
 	Metadata Metadata
 }
@@ -451,12 +454,19 @@ func GenerateEntities(patches []Patch) (entities *Entities) {
 			etype := entities.Types[typ.Name]
 			if etype == nil {
 				etype = &TypeEntity{
-					ID:        typ.Name,
-					Element:   typ,
-					Removed:   true,
-					Referrers: map[[2]string]Referrer{},
+					ID:          typ.Name,
+					Element:     typ,
+					Removed:     true,
+					Referrers:   map[[2]string]Referrer{},
+					RemovedRefs: map[[2]string]Referrer{},
 				}
 				entities.Types[typ.Name] = etype
+			}
+			if !current || referrer.Member.Removed || referrer.Member.Parent.Removed {
+				if _, ok := etype.RemovedRefs[referrer.Member.ID]; !ok {
+					etype.RemovedRefs[referrer.Member.ID] = referrer
+					etype.RemovedRefList = append(etype.RemovedRefList, referrer)
+				}
 			}
 			if !current {
 				return
@@ -592,6 +602,12 @@ func GenerateEntities(patches []Patch) (entities *Entities) {
 				return etype.ReferrerList[i].Member.ID[1] < etype.ReferrerList[j].Member.ID[1]
 			}
 			return etype.ReferrerList[i].Member.ID[0] < etype.ReferrerList[j].Member.ID[0]
+		})
+		sort.Slice(etype.RemovedRefList, func(i, j int) bool {
+			if etype.RemovedRefList[i].Member.ID[0] == etype.RemovedRefList[j].Member.ID[0] {
+				return etype.RemovedRefList[i].Member.ID[1] < etype.RemovedRefList[j].Member.ID[1]
+			}
+			return etype.RemovedRefList[i].Member.ID[0] < etype.RemovedRefList[j].Member.ID[0]
 		})
 	}
 

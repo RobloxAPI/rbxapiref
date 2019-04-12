@@ -3,6 +3,11 @@
 {{- $details := document . "Details" -}}
 {{- $examples := document . "Examples" -}}
 {{- $referrers := filter .ReferrerList "ImplicitAdded" -}}
+{{- $removed := false -}}
+{{- if not $referrers -}}
+{{- $referrers = .RemovedRefList -}}
+{{- $removed = true -}}
+{{- end -}}
 <main>
 <header>
 	<h1>{{.ID}} {{template "devhub-link" link "devhub" "type" .ID}}</h1>
@@ -50,5 +55,5 @@
 	<section class="doc">{{renderdoc $examples 2}}</section>
 </section>
 {{- end -}}
-{{- template "referrers" pack . $referrers }}
+{{- template "referrers" pack . $referrers $removed }}
 </main>
