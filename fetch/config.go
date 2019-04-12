@@ -518,8 +518,10 @@ func (client *Client) Latest() (build Build, err error) {
 }
 
 // Live returns the current live build, the hash from which can be passed to
-// other methods to fetch data corresponding the current live version. If no
-// live endpoint is configured, Live returns the zero Build.
+// other methods to fetch data corresponding the current live version. Live
+// visits every configured location, returning a list of builds. It returns the
+// first error that occurs. If no locations are configured, Live returns an
+// empty slice.
 //
 // The Client deals primarily with builds that have been deployed. Latest
 // returns the most recently deployed build. However, the latest build is not
@@ -531,7 +533,7 @@ func (client *Client) Latest() (build Build, err error) {
 //       the hash, or a full object containing the hash, date, and version.
 //     - (other): A raw stream indicating a version hash. Other build
 //       information is empty.
-func (client *Client) Live() (build Build, err error) {
+func (client *Client) Live() (builds []Build, err error) {
 	try := func(loc Location) (build Build, err error) {
 		format, resp, err := client.Get(loc, "")
 		if err != nil {
@@ -551,13 +553,14 @@ func (client *Client) Live() (build Build, err error) {
 			return Build{Hash: string(b)}, nil
 		}
 	}
-	locs := client.Config.Live
-	for i, loc := range locs {
-		if build, err = try(loc); err == nil || i == len(locs)-1 {
-			break
+	for _, loc := range client.Config.Live {
+		build, err := try(loc)
+		if err != nil {
+			return nil, err
 		}
+		builds = append(builds, build)
 	}
-	return build, err
+	return builds, nil
 }
 
 // Builds returns a list of builds. The following formats are readable:

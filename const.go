@@ -69,10 +69,16 @@ var DefaultSettings = &Settings{
 				CDNURL+"$HASH-content-textures2.zip#ClassImages.PNG",
 				CDNURL+"$HASH-RobloxStudio.zip#RobloxStudioBeta.exe",
 			),
-			Live: []fetch.Location{{
-				Format: ".json",
-				URL:    mustParseURL("https://versioncompatibility.api.roblox.com/GetCurrentClientVersionUpload/?apiKey=76e5a40c-3ae1-4028-9f10-7c62520bd94f&binaryType=WindowsStudio"),
-			}},
+			Live: []fetch.Location{
+				fetch.Location{
+					Format: ".json",
+					URL:    mustParseURL("https://versioncompatibility.api.roblox.com/GetCurrentClientVersionUpload/?apiKey=76e5a40c-3ae1-4028-9f10-7c62520bd94f&binaryType=WindowsStudio"),
+				},
+				fetch.Location{
+					Format: ".json",
+					URL:    mustParseURL("https://versioncompatibility.api.roblox.com/GetCurrentClientVersionUpload/?apiKey=76e5a40c-3ae1-4028-9f10-7c62520bd94f&binaryType=WindowsStudio64"),
+				},
+			},
 		},
 	},
 	UseConfigs: []string{
