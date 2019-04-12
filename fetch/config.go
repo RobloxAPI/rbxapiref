@@ -245,6 +245,24 @@ type Build struct {
 	Version Version
 }
 
+func (b *Build) UnmarshalJSON(p []byte) (err error) {
+	var s string
+	if err = json.Unmarshal(p, &s); err == nil {
+		b.Hash = s
+		return nil
+	}
+	var build struct {
+		Hash    string
+		Date    time.Time
+		Version Version
+	}
+	if err = json.Unmarshal(p, &build); err == nil {
+		*b = Build(build)
+		return nil
+	}
+	return err
+}
+
 // Client is used to perform the fetching of information. It controls where
 // data is retrieved from, and how the data is cached.
 //
@@ -465,7 +483,8 @@ func (client *Client) Get(loc Location, hash string) (format string, rc io.ReadC
 // methods to fetch data corresponding to the latest version. The following
 // formats are readable:
 //
-//     - .json: A single build in JSON format.
+//     - .json: A single build in JSON format. May be a JSON string containing
+//       the hash, or a full object containing the hash, date, and version.
 //     - (other): A raw stream indicating a version hash. Other build
 //       information is empty.
 func (client *Client) Latest() (build Build, err error) {
@@ -507,7 +526,8 @@ func (client *Client) Latest() (build Build, err error) {
 //
 // The following formats are readable:
 //
-//     - .json: A single build hash as a JSON string.
+//     - .json: A single build in JSON format. May be a JSON string containing
+//       the hash, or a full object containing the hash, date, and version.
 //     - (other): A raw stream indicating a version hash. Other build
 //       information is empty.
 func (client *Client) Live() (build Build, err error) {
@@ -520,7 +540,7 @@ func (client *Client) Live() (build Build, err error) {
 
 		switch format {
 		case ".json":
-			err = json.NewDecoder(resp).Decode(&build.Hash)
+			err = json.NewDecoder(resp).Decode(&build)
 			return build, err
 		default:
 			b, err := ioutil.ReadAll(resp)
