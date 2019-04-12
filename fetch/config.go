@@ -266,10 +266,11 @@ func (b *Build) UnmarshalJSON(p []byte) (err error) {
 // Client is used to perform the fetching of information. It controls where
 // data is retrieved from, and how the data is cached.
 //
-// Each type of information is retrieved by a specific method on a Client.
-// Each method reads data in one of several formats, specified by the
-// corresponding location. The formats accepted by a particular method are
-// described in the documentation for the method.
+// Each type of information is retrieved by a specific method on a Client. Each
+// method corresponds to the field of the same name in Config. They read data in
+// one of several formats, specified by each configured location. The formats
+// accepted by a particular method are described in the documentation for the
+// method.
 //
 // There are also global formats read by every method. The following global
 // formats are available:
