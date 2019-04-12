@@ -52,6 +52,20 @@ func FetchBuilds(settings Settings) (builds []Build, err error) {
 			builds = append(builds, Build{Config: cfg, Info: BuildInfo(b)})
 		}
 	}
+
+	// Collapse adjacent builds of equal versions.
+	b := builds[:0]
+	for _, build := range builds {
+		if len(b) == 0 || build.Info.Version != b[len(b)-1].Info.Version {
+			b = append(b, build)
+		}
+	}
+	for i := len(b); i < len(builds); i++ {
+		builds[i] = Build{}
+	}
+	builds = b
+
+	// Rewind to current live build.
 	if live, err := client.Live(); err != nil {
 		but.Logf("fetch live build: %v\n", err)
 	} else if live.Hash != "" {
@@ -62,6 +76,7 @@ func FetchBuilds(settings Settings) (builds []Build, err error) {
 			}
 		}
 	}
+
 	sort.Slice(builds, func(i, j int) bool {
 		return builds[i].Info.Date.Before(builds[j].Info.Date)
 	})
