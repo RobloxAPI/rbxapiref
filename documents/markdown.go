@@ -1,4 +1,4 @@
-package rbxapidoc
+package documents
 
 import (
 	"github.com/gomarkdown/markdown"

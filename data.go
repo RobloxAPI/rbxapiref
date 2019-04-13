@@ -12,8 +12,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/rbxapijson"
+	"github.com/robloxapi/rbxapiref/documents"
 	"github.com/robloxapi/rbxapiref/fetch"
-	"github.com/robloxapi/rbxapiref/rbxapidoc"
 	"html"
 	"html/template"
 	"io"
@@ -879,7 +879,7 @@ func (data *Data) ParseDocReference(ref string) (scheme, path, link string) {
 // Normalizes the references within a document according to ParseDocReference,
 // and returns any resources that the document refers to.
 func (data *Data) NormalizeDocReferences(document Document) []Resource {
-	doc, ok := document.(rbxapidoc.Linkable)
+	doc, ok := document.(documents.Linkable)
 	if !ok {
 		return nil
 	}
@@ -1020,9 +1020,9 @@ func (data *Data) GenerateDocuments() {
 		},
 	})
 
-	docDir := rbxapidoc.NewDirectorySection(
+	docDir := documents.NewDirectorySection(
 		data.Settings.Input.Documents,
-		rbxapidoc.MarkdownFileHandler,
+		documents.MarkdownFileHandler,
 	)
 	apiDir := docDir.Query("api")
 	if apiDir == nil {

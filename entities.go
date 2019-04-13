@@ -4,7 +4,7 @@ import (
 	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/patch"
 	"github.com/robloxapi/rbxapi/rbxapijson"
-	"github.com/robloxapi/rbxapiref/rbxapidoc"
+	"github.com/robloxapi/rbxapiref/documents"
 	"github.com/robloxapi/rbxfile"
 	"html/template"
 	"sort"
@@ -33,7 +33,7 @@ type Documentable interface {
 	GetDocument() Document
 }
 
-func QueryDocument(d Documentable, name ...string) rbxapidoc.Section {
+func QueryDocument(d Documentable, name ...string) documents.Section {
 	doc := d.GetDocument()
 	if doc == nil {
 		return nil
@@ -41,8 +41,8 @@ func QueryDocument(d Documentable, name ...string) rbxapidoc.Section {
 	return doc.Query(name...)
 }
 
-func RenderDocument(s rbxapidoc.Section, level int) template.HTML {
-	if h, ok := s.(rbxapidoc.Headingable); ok {
+func RenderDocument(s documents.Section, level int) template.HTML {
+	if h, ok := s.(documents.Headingable); ok {
 		root := h.RootLevel()
 		h.AdjustLevels(level)
 		render := s.Render()
