@@ -114,6 +114,15 @@ function expandMemberList(element, force) {
 
 function settingsLoaded() {
 	window.rbxapiSettings.Listen("ExpandMembers", function(name, value, initial) {
+		if (initial && value) {
+			let id = document.location.hash.slice(1);
+			if (id !== "") {
+				if (document.getElementById(id)) {
+					// Don't auto-expand if there's a target.
+					return;
+				};
+			};
+		};
 		for (let count of document.querySelectorAll(".inherited-members a.member-count")) {
 			expandMemberList(count, value);
 		};
