@@ -39,11 +39,42 @@ function toggleAll(show, scroll) {
 };
 
 function initUpdates() {
+	// Inject pointer style.
+	function initStyle() {
+		let style = document.getElementById("updates-style");
+		if (style !== null) {
+			try {
+				style.sheet.insertRule(".patch-list-toggle {cursor: pointer;}");
+			} catch (error) {
+			};
+		};
+	};
+	if (document.readyState === "complete") {
+		initStyle();
+	} else {
+		window.addEventListener("load", initStyle);
+	};
+
+	// Insert update controls.
 	let controls = document.getElementById("update-controls");
 	if (controls !== null) {
 		controls.insertAdjacentHTML("beforeend", '<label><input type="checkbox" id="expand-all">Show all changes</label>');
 	};
 
+	// Init visibility toggle.
+	for (let item of document.querySelectorAll("#update-list > li .patch-list-toggle")) {
+		item.addEventListener("click", toggleList);
+	};
+
+	// Insert instructions.
+	let list = document.getElementById("update-list");
+	if (list !== null) {
+		let note = document.createElement("div");
+		note.innerText = "Click a date to expand or collapse changes.";
+		list.parentElement.insertBefore(note, list);
+	};
+
+	// Init expand-all control.
 	let expandAll = document.getElementById("expand-all");
 	if (expandAll !== null) {
 		expandAll.addEventListener("click", function(event) {
@@ -54,46 +85,37 @@ function initUpdates() {
 		toggleAll(false, true);
 	};
 
-	for (let item of document.querySelectorAll("#update-list > li .patch-list-toggle")) {
-		item.addEventListener("click", toggleList);
-	};
+	// Scroll to targeted patch item.
+	let targetID = document.location.hash.slice(1);
+	if (targetID !== "") {
+		let target = document.getElementById(targetID);
+		if (target) {
+			if (target.parentElement.matches(".patch-list")) {
+				target.parentElement.style.display = "";
+				// TODO: The browser should automatically scroll to the target
+				// at some point, but this might race.
 
-	let list = document.getElementById("update-list");
-	if (list !== null) {
-		let note = document.createElement("div");
-		note.innerText = "Click a date to expand or collapse changes.";
-		list.parentElement.insertBefore(note, list);
-	};
+				// Enabling scrollIntoView cancels the automatic scroll by the
+				// browser, but then misses the target. Probably because the
+				// scroll position is set before the list expansion is rendered.
 
-	if (!document.querySelector(".update :target")) {
-		// No specific update is being targeted; expand latest updates.
-		for (let update of document.querySelectorAll("#update-list .update")) {
-			let list = update.querySelector(".patch-list");
-			if (list === null) {
-				continue;
-			};
-			list.style.display = "";
-			// Expand up to first non-empty update.
-			if (list.querySelector(".no-changes") === null) {
-				break;
+				// target.scrollIntoView(true);
+				return;
 			};
 		};
 	};
 
-	function initStyle() {
-		let style = document.getElementById("updates-style");
-		if (style !== null) {
-			try {
-				style.sheet.insertRule(".patch-list-toggle {cursor: pointer;}");
-			} catch (error) {
-			};
+	// No specific update is being targeted; expand latest updates.
+	for (let update of document.querySelectorAll("#update-list .update")) {
+		let list = update.querySelector(".patch-list");
+		if (list === null) {
+			continue;
 		};
-	};
-
-	if (document.readyState === "complete") {
-		initStyle();
-	} else {
-		window.addEventListener("load", initStyle);
+		list.style.display = "";
+		// Expand up to first non-empty update.
+		if (list.querySelector(".no-changes") === null) {
+			break;
+		};
 	};
 };
 
