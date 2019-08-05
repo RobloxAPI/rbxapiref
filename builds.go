@@ -80,7 +80,7 @@ func FetchBuilds(settings Settings) (builds []Build, err error) {
 		}
 		if max >= 0 {
 			for i := len(builds) - 1; i > max; i-- {
-				but.Logf("REWIND", builds[i].Info.Hash)
+				but.Log("REWIND", builds[i].Info.Hash)
 			}
 			builds = builds[:max+1]
 		}
