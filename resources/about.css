@@ -30,7 +30,7 @@ main header { grid-area : header }
 #other      { grid-area : other  }
 
 #who {
-	border-left  : 1px solid var(--border-color);
+	border-left  : 1px solid var(--theme-border);
 	padding-left : var(--section-spacing);
 }
 #who li a::before {

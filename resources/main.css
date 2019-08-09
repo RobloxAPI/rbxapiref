@@ -8,6 +8,55 @@ Viewport thresholds:
 
 */
 /*////////////////////////////////////////////////////////////////*/
+/*
+
+Theme variables
+
+All coloring is based of off these variables:
+
+	--theme-sky                  : Area behind the body.
+	--theme-background           : Main background.
+	--theme-text                 : Main text.
+	--theme-text-decor           : Main text decoration.
+	--theme-link                 : Anchor text.
+	--theme-border               : General borders, separators.
+	--theme-highlight            : Target highlight background.
+	--theme-highlight-text       : Target highlight text.
+	--theme-scroll-track         : Scrollbar track background.
+	--theme-scroll-thumb         : Scrollbar thumb background.
+	--theme-symbol               : Solid icon.
+	--theme-table                : Table background.
+	--theme-table-text           : Table text.
+	--theme-table-header         : Table header background.
+	--theme-table-header-text    : Table header text.
+	--theme-table-border         : Table borders.
+	--theme-table-highlight      : Target highlight background within a table.
+	--theme-table-highlight-text : Target highlight text within a table.
+	--theme-menu                 : Menu background.
+	--theme-field                : Input field background.
+	--theme-header               : Top-level header background.
+	--theme-header-text          : Top-level header text.
+	--theme-header-hover         : Header button on hover.
+	--theme-header-text-hover    : Header button text on hover.
+	--theme-footer               : Top-level footer background.
+	--theme-footer-text          : Top-level footer text.
+	--theme-footer-hover         : Footer button on hover.
+	--theme-footer-text-hover    : Footer button text on hover.
+	--theme-status               : Status box background.
+	--theme-status-text          : Status box text.
+	--theme-status-border        : Status box border.
+	--theme-status-high          : Status box decoration, high importance.
+	--theme-status-medium        : Status box decoration, medium importance.
+	--theme-status-low           : Status box decoration, low importance.
+	--theme-patch-add            : Patch added tag background.
+	--theme-patch-change         : Patch changed tag background.
+	--theme-patch-remove         : Patch removed tag background.
+	--theme-patch-text           : Patch tag text.
+	--theme-radio                : Radio button background.
+	--theme-radio-decor          : Radio button decoration.
+
+*/
+/*////////////////////////////////////////////////////////////////*/
 /* Variables */
 :root {
 	/* Vertical rhythm */
@@ -70,16 +119,16 @@ Viewport thresholds:
 /*////////////////////////////////////////////////////////////////*/
 /* Global */
 html {
-	background-color : var(--sky-color);
+	background-color : var(--theme-sky);
 	/* Default layout appears to have a problem with overflowing elements, causing
-	   mobile layouts to look awful. */
+	   mobile layouts to look awful.*/
 	display          : flex;
 }
 body {
 	flex             : auto;
 	font             : var(--font-size)/var(--line-height) var(--sans-serif);
-	color            : var(--text-color);
-	background-color : var(--background-color);
+	color            : var(--theme-text);
+	background-color : var(--theme-background);
 	margin           : 0 auto;
 	padding          : 0;
 	max-width        : 1200px;
@@ -101,7 +150,7 @@ main > header > h1 {
 	width : 100%;
 }
 a[href] {
-	color           : var(--anchor-color);
+	color           : var(--theme-link);
 	text-decoration : none;
 }
 h1,h2,h3,h4,h5,h6 {
@@ -126,7 +175,8 @@ main :target > header,
 .doc h4:target,
 .doc h5:target,
 .doc h6:target {
-	background-color : var(--member-target-color);
+	background-color : var(--theme-highlight);
+	color            : var(--theme-highlight-text);
 }
 
 p, ul, ol {
@@ -194,12 +244,34 @@ main > header .history {
 }
 
 /*////////////////////////////////////////////////////////////////*/
+/* Scrollbar */
+:root {
+	/* Firefox */
+	scrollbar-color : var(--theme-scroll-thumb) var(--theme-scroll-track);
+
+	/* Internet Exploder */
+	scrollbar-base-color  : var(--theme-scroll-thumb);
+	scrollbar-track-color : var(--theme-scroll-track);
+}
+/* Webkit */
+::-webkit-scrollbar {
+	background-color: var(--theme-scroll-track);
+}
+::-webkit-scrollbar-track {
+	background-color: var(--theme-scroll-track);
+}
+::-webkit-scrollbar-thumb {
+	background-color: var(--theme-scroll-thumb);
+}
+
+/*////////////////////////////////////////////////////////////////*/
 /* Header / Footer */
 /* Header */
 #main-header {
 	display               : grid;
 	grid-template-columns : 1fr auto;
-	background-color      : var(--table-color);
+	background-color      : var(--theme-header);
+	color                 : var(--theme-header-text);
 }
 #main-header-left {
 	display     : flex;
@@ -214,8 +286,10 @@ main > header .history {
 }
 #main-header .header-block {
 	/* Header colors */
-	--block-color     : var(--table-color);
-	--block-color-dim : var(--table-color-dim);
+	--block-color          : var(--theme-header);
+	--block-text-color     : var(--theme-header-text);
+	--block-color-dim      : var(--theme-header-hover);
+	--block-text-color-dim : var(--theme-header-text-hover);
 }
 #main-header h1 {
 	font-size     : var(--heading-font-size);
@@ -232,13 +306,14 @@ main > header .history {
 }
 #main-footer {
 	/* Footer colors */
-	background-color : var(--sky-color);
-	color            : var(--background-color);
+	background-color : var(--theme-footer);
+	color            : var(--theme-footer-text);
 }
 #main-footer .header-block {
-	--block-color     : var(--sky-color);
-	--block-color-dim : var(--sky-color-dim);
-	color             : var(--background-color);
+	--block-color          : var(--theme-footer);
+	--block-text-color     : var(--theme-footer-text);
+	--block-color-dim      : var(--theme-footer-hover);
+	--block-text-color-dim : var(--theme-footer-text-hover);
 }
 /* Main navigation */
 .main-nav {
@@ -253,16 +328,17 @@ main > header .history {
 	padding         : 0;
 }
 #search-input {
-	background-color : var(--background-color);
-	color            : var(--text-color);
-	border           : 1px solid var(--border-color);
+	background-color : var(--theme-background);
+	color            : var(--theme-text);
+	border           : 1px solid var(--theme-border);
 }
 #search-input:focus {
-	outline    : 1px solid var(--anchor-color);
-	box-shadow : 0 0 4px var(--anchor-color);
+	outline    : 1px solid var(--theme-highlight);
+	box-shadow : 0 0 4px var(--theme-highlight);
 }
 #search-results .element-link:focus {
-	background-color : var(--member-target-color);
+	background-color : var(--theme-highlight);
+	color            : var(--theme-highlight-text);
 }
 /* Top navigation */
 #top-nav {
@@ -274,25 +350,29 @@ main > header .history {
 	margin         : 0 var(--baseline);
 }
 #top-nav .header-block {
-	--block-color     : var(--table-color);
-	--block-color-dim : var(--table-color-dim);
-	border            : 1px solid var(--border-color);
-	pointer-events    : auto;
+	--block-color          : var(--theme-header);
+	--block-text-color     : var(--theme-header-text);
+	--block-color-dim      : var(--theme-header-hover);
+	--block-text-color-dim : var(--theme-header-text-hover);
+	border                 : 1px solid var(--theme-border);
+	pointer-events         : auto;
 }
 /* Header block: has particular sizing. */
 .header-block {
 	display            : inline-block;
 	font-size          : var(--font-size);
 	line-height        : var(--line-height);
-	transition         : background-color 100ms linear;
+	transition         : background-color 100ms linear, color 100ms linear;
 	--current-baseline : calc(1em * var(--line-height));
 	padding            : calc((var(--header-height) - var(--current-baseline) - var(--baseline)*var(--height-factor,0) )/2) var(--current-baseline);
-	background-color   : var(--block-color);
+	background-color   : var(--block-color) !important;
+	color              : var(--block-text-color) !important;
 }
 a.header-block:hover {
 	/* Links have a hover effect */
-	background-color : var(--block-color-dim);
-	transition       : background-color 100ms linear;
+	background-color : var(--block-color-dim) !important;
+	color            : var(--block-text-color-dim) !important;
+	transition       : background-color 100ms linear, color 100ms linear;
 }
 @media screen and (max-width: 800px) {
 	.header-block {
@@ -327,27 +407,31 @@ a.header-block:hover {
 /*////////////////////////////////////////////////////////////////*/
 /* Settings */
 #settings-button {
-	--block-color       : var(--table-color);
-	--block-color-dim   : var(--table-color-dim);
-	width               : var(--baseline);
-	height              : var(--baseline);
-	background-image    : url('settings.svg');
-	background-position : center;
-	background-size     : 150%;
-	background-origin   : content-box;
-	background-repeat   : no-repeat;
-	cursor              : pointer;
+	--block-color            : var(--theme-header);
+	--block-text-color       : var(--theme-header-text);
+	--block-color-dim        : var(--theme-header-hover);
+	--block-text-color-dim   : var(--theme-header-text-hover);
+	width                    : var(--baseline);
+	height                   : var(--baseline);
+	background-image         : url('settings.svg');
+	background-position      : center;
+	background-size          : 150%;
+	background-origin        : content-box;
+	background-repeat        : no-repeat;
+	cursor                   : pointer;
 }
 #settings-button:hover {
 	background-color : var(--block-color-dim);
-	transition       : background-color 100ms linear;
+	color            : var(--block-text-color-dim);
+	transition       : background-color 100ms linear, color 100ms linear;
 }
 #settings-menu {
 	z-index          : var(--layer-menu);
 	position         : absolute;
 	right            : 0;
-	background-color : var(--table-color);
-	border           : 1px solid var(--border-color);
+	background-color : var(--theme-menu);
+	color            : var(--theme-text);
+	border           : 1px solid var(--theme-border);
 }
 #settings-menu {
 	padding : 0 var(--baseline);
@@ -361,7 +445,6 @@ a.header-block:hover {
 	flex-grow        : 1;
 	display          : inline-block;
 	cursor           : pointer;
-	background-color : var(--table-color);
 	font-size        : var(--font-size);
 	line-height      : var(--line-height);
 	padding          : calc(var(--baseline)/2) 0;
@@ -377,7 +460,7 @@ a.header-block:hover {
 	text-align     : center;
 }
 #settings-menu .radio input:checked+label {
-	border-bottom-color : var(--border-color);
+	border-bottom-color : var(--theme-radio-decor);
 }
 #settings-menu .select > label  { order : 1; }
 #settings-menu .select > select { order : 2; }
@@ -394,6 +477,16 @@ a.header-block:hover {
 }
 
 /*////////////////////////////////////////////////////////////////*/
+/* Inputs */
+/* Dropdown */
+select {
+	background-color : var(--theme-field);
+	color            : var(--theme-text);
+	border           : 1px solid var(--theme-border);
+	-moz-appearance  : none;
+}
+
+/*////////////////////////////////////////////////////////////////*/
 /* Status decorations */
 
 /* Deprecated */
@@ -402,7 +495,7 @@ li.api-deprecated > :not(ul),
 .index-card tr.api-deprecated .col-member > *,
 .index-card tr.api-deprecated .col-value > *,
 .element-link.api-deprecated {
-	text-decoration : line-through rgb(0, 0, 0, 0.5);
+	text-decoration : line-through var(--theme-text-decor);
 }
 
 /* NotBrowsable */
@@ -438,13 +531,13 @@ li.api-hidden > :not(ul),
 .history-change::before { content: "Δ" }
 .history-remove::before { content: "−" }
 .history-add, .history-change, .history-remove {
-	color         : black !important;
+	color         : var(--theme-patch-text) !important;
 	padding       : 0 0.5ch;
 	border-radius : 2px;
 }
-.history-add    { background-color: #7EBA72 }
-.history-change { background-color: #DFCE88 }
-.history-remove { background-color: #D8848C }
+.history-add    { background-color : var(--theme-patch-add) }
+.history-change { background-color : var(--theme-patch-change) }
+.history-remove { background-color : var(--theme-patch-remove) }
 
 /*////////////////////////////////////////////////////////////////*/
 /* Wrapping */
@@ -527,7 +620,7 @@ header .icon,
 	animation         : loading-spinner 600ms infinite linear;
 	transform         : rotate(0deg);
 	border-radius     : 50%;
-	border            : 2px solid var(--text-color);
+	border            : 2px solid var(--theme-text);
 	border-left-color : transparent;
 	width             : 14px;
 	height            : 14px;
@@ -545,8 +638,9 @@ header .icon,
 	font-family      : var(--monospace);
 	border-collapse  : separate;
 	border-spacing   : 0;
-	background-color : var(--table-color);
-	border           : 1px solid var(--border-color);
+	background-color : var(--theme-table);
+	color            : var(--theme-table-text);
+	border           : 1px solid var(--theme-table-border);
 	margin           : var(--card-margin);
 	padding          : var(--card-padding);
 	border-radius    : var(--card-padding);
@@ -556,10 +650,11 @@ header .icon,
 	padding: 0.25em 0;
 }
 .index-card tr:not(:first-of-type) > td {
-	border-top: 1px solid var(--border-color);
+	border-top: 1px solid var(--theme-table-border);
 }
 .index-card th {
-	background-color: var(--border-color);
+	background-color : var(--theme-table-header);
+	color            : var(--theme-table-header-text);
 }
 .index-card td:first-child,
 .index-card th:first-child {
@@ -570,7 +665,8 @@ header .icon,
 	padding-right: var(--cell-spacing);
 }
 .index-card :target {
-	background-color : var(--member-target-color);
+	background-color : var(--theme-table-highlight);
+	color            : var(--theme-table-highlight-text);
 }
 .index-card td {
 	vertical-align : top;
@@ -679,8 +775,9 @@ li[diff-field="Parameters"] .diff-values .parameter {
 		display : inline;
 	}
 	li[diff-field="Parameters"] .diff-values > * {
-		background-color : var(--table-color);
-		border-left      : 2px solid var(--border-color);
+		background-color : var(--theme-table);
+		color            : var(--theme-table-text);
+		border-left      : 2px solid var(--theme-table-border);
 		padding          : 0.5ch 1ch;
 	}
 	li[diff-field="Parameters"] .diff-values .parameter {
@@ -717,13 +814,13 @@ header .devhub-link {
 	width  : var(--font-size);
 }
 .publication path {
-	fill : var(--text-color);
+	fill : var(--theme-text);
 }
 #main-footer .publication path {
-	fill : var(--background-color);
+	fill : var(--theme-footer-text);
 }
 #main-footer .license a[href] {
-	color       : gold;
+	color       : var(--theme-highlight);
 	white-space : nowrap;
 }
 
@@ -733,14 +830,14 @@ header .devhub-link {
 	margin : var(--baseline) 0;
 }
 .status-box {
-	background-color : var(--table-color);
-	border-left      : 4px solid var(--border-color);
+	background-color : var(--theme-status);
+	border-left      : 4px solid var(--theme-status-border);
 	padding          : 0.5ch 1ch;
 }
 .status-box > .status-header {
 	font-weight : bold;
 }
 
-.status-high   { border-left-color : #FF7E7E; }
-.status-medium { border-left-color : #F2B729; }
-.status-low    { border-left-color : #77D7F6; }
+.status-high   { border-left-color : var(--theme-status-high) }
+.status-medium { border-left-color : var(--theme-status-medium) }
+.status-low    { border-left-color : var(--theme-status-low) }

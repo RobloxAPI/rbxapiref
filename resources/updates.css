@@ -41,14 +41,14 @@ main > article {
 		;
 	}
 	main > nav {
-		border-right  : 1px solid var(--border-color);
+		border-right  : 1px solid var(--theme-border);
 		padding-right : var(--section-spacing);
 	}
 }
 
 .update:target > .patch-list-toggle,
 .patch-list > li:target {
-	background-color : var(--member-target-color);
+	background-color : var(--theme-target);
 }
 a.permalink {
 	display : none;

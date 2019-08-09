@@ -43,7 +43,7 @@ main > nav .toc-members {
 		grid-template-rows : repeat(4,auto) 1fr;
 	}
 	main > nav {
-		border-left  : 1px solid var(--border-color);
+		border-left  : 1px solid var(--theme-border);
 		padding-left : var(--section-spacing);
 	}
 	main > nav .toc-members {

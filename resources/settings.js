@@ -5,7 +5,6 @@ const settings = [
 		"name"     : "Theme",
 		"type"     : "radio",
 		"default"  : "Light",
-		"disabled" : true,
 		"options"  : [
 			{"text": "Light", "value": "Light"},
 			{"text": "Dark",  "value": "Dark"},

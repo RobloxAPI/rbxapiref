@@ -125,10 +125,13 @@ func GeneratePageMain(data *Data) (pages []Page) {
 			"Image":       "favicons/favicon-512x512.png",
 		},
 		Styles: []Resource{
+			{Name: "theme-light.css"},
+			{Name: "theme-dark.css"},
 			{Name: "main.css"},
 			{Name: "doc.css"},
 		},
 		Scripts: []Resource{
+			{Name: "quick-theme.js", Embed: true},
 			{Name: "main.js", Attr: Attrs{{"async", ""}}},
 			{Name: "search.js", Attr: Attrs{{"async", ""}}},
 			{Name: "settings.js", Attr: Attrs{{"async", ""}}},

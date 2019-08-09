@@ -31,8 +31,8 @@ main {
 	pointer-events : auto;
 }
 #toc .header-block {
-	--block-color     : var(--table-color);
-	--block-color-dim : var(--table-color-dim);
+	--block-color     : var(--theme-header);
+	--block-color-dim : var(--theme-header-hover);
 }
 @media screen and (min-width: 1200px) {
 	#toc {
@@ -54,7 +54,7 @@ main {
 	flex-grow        : 1;
 	display          : inline-block;
 	cursor           : pointer;
-	background-color : var(--table-color);
+	background-color : var(--theme-radio);
 	font-size        : var(--font-size);
 	line-height      : var(--line-height);
 	padding-top      : calc(var(--baseline)/2);
@@ -64,10 +64,10 @@ main {
 	text-align       : center;
 }
 .class-list-controls input:checked + label {
-	border-bottom-color : var(--border-color);
+	border-bottom-color : var(--theme-radio-decor);
 }
 #class-list ul {
-	border-left : 1px dotted var(--border-color);
+	border-left : 1px dotted var(--theme-border);
 }
 
 @media screen and (max-width: 600px) {

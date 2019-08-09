@@ -56,6 +56,14 @@ function initHistoryToggle() {
 function settingsLoaded() {
 	let head = document.head;
 
+	window.rbxapiSettings.Listen("Theme", function(name, value, initial) {
+		if (initial) {
+			// Handled by quick-theme.js.
+			return;
+		};
+		document.documentElement.className = value;
+	});
+
 	let showDeprecated = document.createElement("style");
 	showDeprecated.innerHTML =
 		".api-deprecated { display: none; }\n" +

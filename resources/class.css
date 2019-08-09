@@ -61,7 +61,7 @@ main > nav .toc-members {
 		grid-template-rows : repeat(10,auto) 1fr;
 	}
 	main > nav {
-		border-left  : 1px solid var(--border-color);
+		border-left  : 1px solid var(--theme-border);
 		padding-left : var(--section-spacing);
 	}
 	main > nav .toc-members {
@@ -94,12 +94,12 @@ main > nav .toc-members {
 		grid-template-rows : repeat(9,auto) 1fr;
 	}
 	main > #tree {
-		border-right  : 1px solid var(--border-color);
+		border-right  : 1px solid var(--theme-border);
 		padding-right : var(--section-spacing);
 	}
 }
 
 #members > section,
 #removed-members > section {
-	border-bottom : 1px solid var(--border-color);
+	border-bottom : 1px solid var(--theme-border);
 }
