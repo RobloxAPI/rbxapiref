@@ -31,8 +31,10 @@ main {
 	pointer-events : auto;
 }
 #toc .header-block {
-	--block-color     : var(--theme-header);
-	--block-color-dim : var(--theme-header-hover);
+	--block-color          : var(--theme-header);
+	--block-text-color     : var(--theme-header-text);
+	--block-color-dim      : var(--theme-header-hover);
+	--block-text-color-dim : var(--theme-header-text-hover);
 }
 @media screen and (min-width: 1200px) {
 	#toc {
