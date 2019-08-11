@@ -22,6 +22,8 @@ All coloring is based of off these variables:
 	--theme-border               : General borders, separators.
 	--theme-highlight            : Target highlight background.
 	--theme-highlight-text       : Target highlight text.
+	--theme-selection            : Selection background.
+	--theme-selection-text       : Selection text.
 	--theme-scroll-track         : Scrollbar track background.
 	--theme-scroll-thumb         : Scrollbar thumb background.
 	--theme-symbol               : Solid icon.
@@ -50,9 +52,11 @@ All coloring is based of off these variables:
 	--theme-status-medium        : Status box decoration, medium importance.
 	--theme-status-low           : Status box decoration, low importance.
 	--theme-patch-add            : Patch added tag background.
+	--theme-patch-add-text       : Patch added tag text.
 	--theme-patch-change         : Patch changed tag background.
+	--theme-patch-change-text    : Patch changed tag text.
 	--theme-patch-remove         : Patch removed tag background.
-	--theme-patch-text           : Patch tag text.
+	--theme-patch-remove-text    : Patch removed tag text.
 	--theme-radio                : Radio button background.
 	--theme-radio-decor          : Radio button decoration.
 
@@ -139,6 +143,10 @@ body {
 	body {
 		margin-bottom: var(--baseline);
 	}
+}
+::selection {
+	background-color : var(--theme-selection);
+	color            : var(--theme-selection-text);
 }
 code {
 	font-family : var(--monospace);
@@ -539,13 +547,21 @@ li.api-hidden > :not(ul),
 .history-change::before { content: "Δ" }
 .history-remove::before { content: "−" }
 .history-add, .history-change, .history-remove {
-	color         : var(--theme-patch-text) !important;
 	padding       : 0 0.5ch;
 	border-radius : 2px;
 }
-.history-add    { background-color : var(--theme-patch-add) }
-.history-change { background-color : var(--theme-patch-change) }
-.history-remove { background-color : var(--theme-patch-remove) }
+.history-add    {
+	background-color : var(--theme-patch-add);
+	color            : var(--theme-patch-add-text) !important;
+}
+.history-change {
+	background-color : var(--theme-patch-change);
+	color            : var(--theme-patch-change-text) !important;
+}
+.history-remove {
+	background-color : var(--theme-patch-remove);
+	color            : var(--theme-patch-remove-text) !important;
+}
 
 /*////////////////////////////////////////////////////////////////*/
 /* Wrapping */
@@ -806,6 +822,9 @@ header .devhub-link {
 	float          : right;
 	font-size      : var(--font-size);
 	font-weight    : normal;
+}
+:target > header .devhub-link {
+	color : var(--theme-highlight-text);
 }
 
 /*////////////////////////////////////////////////////////////////*/

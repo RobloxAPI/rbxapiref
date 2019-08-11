@@ -8,6 +8,8 @@
 	--theme-border               : #CCCCCC;
 	--theme-highlight            : #FFD700;
 	--theme-highlight-text       : var(--theme-text);
+	--theme-selection            : #82CBFF;
+	--theme-selection-text       : #000000;
 	--theme-scroll-track         : var(--theme-table);
 	--theme-scroll-thumb         : var(--theme-border);
 	--theme-symbol               : #AAAAAA;
@@ -36,9 +38,11 @@
 	--theme-status-medium        : #F2B729;
 	--theme-status-low           : #77D7F6;
 	--theme-patch-add            : #7EBA72;
+	--theme-patch-add-text       : #143E0C;
 	--theme-patch-change         : #DFCE88;
+	--theme-patch-change-text    : #543B00;
 	--theme-patch-remove         : #D8848C;
-	--theme-patch-text           : var(--theme-text);
+	--theme-patch-remove-text    : #670E17;
 	--theme-radio                : var(--theme-table);
 	--theme-radio-decor          : var(--theme-border);
 }

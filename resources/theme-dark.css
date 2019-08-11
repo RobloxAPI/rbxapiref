@@ -6,8 +6,10 @@
 	--theme-text-decor           : rgb(143, 143, 143, 0.5);
 	--theme-link                 : #8E9FC2;
 	--theme-border               : #404040;
-	--theme-highlight            : #AD7C00;
+	--theme-highlight            : #FFB700;
 	--theme-highlight-text       : var(--theme-background);
+	--theme-selection            : #11A5D6;
+	--theme-selection-text       : #000000;
 	--theme-scroll-track         : var(--theme-table);
 	--theme-scroll-thumb         : var(--theme-border);
 	--theme-symbol               : #666666;
@@ -32,13 +34,15 @@
 	--theme-status               : var(--theme-table);
 	--theme-status-text          : var(--theme-text);
 	--theme-status-border        : var(--theme-border);
-	--theme-status-high          : #981212;
-	--theme-status-medium        : #BB7203;
-	--theme-status-low           : #066888;
-	--theme-patch-add            : #20421A;
-	--theme-patch-change         : #4C3200;
+	--theme-status-high          : #F71818;
+	--theme-status-medium        : #E89619;
+	--theme-status-low           : #11A5D6;
+	--theme-patch-add            : #27581E;
+	--theme-patch-add-text       : #BDFFB1;
+	--theme-patch-change         : #825500;
+	--theme-patch-change-text    : #FFE7BA;
 	--theme-patch-remove         : #731212;
-	--theme-patch-text           : #CCCCCC;
+	--theme-patch-remove-text    : #FFB9B9;
 	--theme-radio                : var(--theme-table);
-	--theme-radio-decor          : var(--theme-border);
+	--theme-radio-decor          : var(--theme-highlight);
 }

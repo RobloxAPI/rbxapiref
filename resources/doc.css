@@ -1,17 +1,17 @@
 .doc pre:not(.chroma) {
-	background-color : var(--table-color);
-	border-left      : 2px solid var(--border-color);
+	background-color : var(--theme-table);
+	border-left      : 2px solid var(--theme-border);
 	padding          : 1em 1.618em;
 	white-space      : pre-wrap;
 }
 .doc :not(pre) code {
-	background-color : var(--table-color);
+	background-color : var(--theme-table);
 	padding          : 0 0.5ch;
 }
 
 .doc > div.chroma {
-	background-color : var(--table-color);
-	border-left      : 2px solid var(--border-color);
+	background-color : var(--theme-table);
+	border-left      : 2px solid var(--theme-border);
 }
 .doc > div.chroma pre {
 	background-color : unset;
