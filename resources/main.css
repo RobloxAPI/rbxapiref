@@ -520,7 +520,7 @@ li.api-not-browsable > :not(ul),
 .index-card tr.api-not-browsable .col-member > *,
 .index-card tr.api-not-browsable .col-value > *,
 .element-link.api-not-browsable {
-	opacity : 0.5;
+	filter : blur(0.8px);
 }
 
 /* Hidden */
