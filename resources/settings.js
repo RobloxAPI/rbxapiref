@@ -169,7 +169,7 @@ function initSettings() {
 	if (container === null) {
 		return;
 	};
-	container.insertAdjacentHTML('beforeend', '<div id="settings-button" class="header-block"></div>');
+	container.insertAdjacentHTML('beforeend', '<div id="settings-button" class="header-block"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 14 14" height="14" width="14"><path d="M 6,0 5,2 3,1 1,3 2,5 0,6 v 2 l 2,1 -1,2 2,2 2,-1 1,2 h 2 l 1,-2 2,1 2,-2 -1,-2 2,-1 V 6 L 12,5 13,3 11,1 9,2 8,0 Z M 7,4 9,5 10,7 9,9 7,10 5,9 4,7 5,5 Z"/></svg></div>');
 	container.insertAdjacentHTML('beforeend', '<form id="settings-menu" style="display:none;"></form>');
 
 	let button = document.getElementById("settings-button");

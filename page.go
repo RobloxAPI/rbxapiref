@@ -161,7 +161,6 @@ func GeneratePageMain(data *Data) (pages []Page) {
 	page.Resources = append(page.Resources,
 		Resource{Name: "icon-objectbrowser.png"},
 		Resource{Name: "icon-devhub.png"},
-		Resource{Name: "settings.svg"},
 		Resource{Name: "favicons/favicon-512x512.png"},
 		Resource{Name: "favicons/favicon-32x32.png"},
 		Resource{Name: "favicons/favicon-16x16.png"},

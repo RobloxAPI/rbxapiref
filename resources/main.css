@@ -25,6 +25,7 @@ All coloring is based of off these variables:
 	--theme-scroll-track         : Scrollbar track background.
 	--theme-scroll-thumb         : Scrollbar thumb background.
 	--theme-symbol               : Solid icon.
+	--theme-symbol-hover         : Solid icon on hover.
 	--theme-table                : Table background.
 	--theme-table-text           : Table text.
 	--theme-table-header         : Table header background.
@@ -407,23 +408,30 @@ a.header-block:hover {
 /*////////////////////////////////////////////////////////////////*/
 /* Settings */
 #settings-button {
-	--block-color            : var(--theme-header);
-	--block-text-color       : var(--theme-header-text);
-	--block-color-dim        : var(--theme-header-hover);
-	--block-text-color-dim   : var(--theme-header-text-hover);
-	width                    : var(--baseline);
-	height                   : var(--baseline);
-	background-image         : url('settings.svg');
-	background-position      : center;
-	background-size          : 150%;
-	background-origin        : content-box;
-	background-repeat        : no-repeat;
-	cursor                   : pointer;
+	width           : var(--baseline);
+	height          : var(--baseline);
+	cursor          : pointer;
+	display         : flex;
+	align-items     : center;
+	justify-content : center;
 }
-#settings-button:hover {
-	background-color : var(--block-color-dim);
-	color            : var(--block-text-color-dim);
-	transition       : background-color 100ms linear, color 100ms linear;
+#settings-button svg {
+	width     : 100%;
+	height    : 100%;
+	transform : scale(1.5);
+}
+#settings-button svg path {
+	fill       : var(--theme-symbol);
+	transition : fill 100ms linear;
+}
+#settings-button:hover svg path {
+	fill       : var(--theme-symbol-hover);
+	transition : fill 100ms linear;
+}
+@media screen and (max-width: 800px) {
+	#settings-button svg {
+		transform : scale(1);
+	}
 }
 #settings-menu {
 	z-index          : var(--layer-menu);

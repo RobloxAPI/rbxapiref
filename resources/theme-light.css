@@ -10,7 +10,8 @@
 	--theme-highlight-text       : var(--theme-text);
 	--theme-scroll-track         : var(--theme-table);
 	--theme-scroll-thumb         : var(--theme-border);
-	--theme-symbol               : var(--theme-border);
+	--theme-symbol               : #AAAAAA;
+	--theme-symbol-hover         : #555555;
 	--theme-table                : #F4F4F4;
 	--theme-table-text           : var(--theme-text);
 	--theme-table-header         : var(--theme-border);
