@@ -23,8 +23,3 @@
 	display  : block;
 	overflow : auto;
 }
-.doc > div.chroma .lntd:last-child pre {
-	display      : table;
-	table-layout : fixed;
-	width        : 100%;
-}
