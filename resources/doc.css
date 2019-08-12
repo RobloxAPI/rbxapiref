@@ -23,3 +23,299 @@
 	display  : block;
 	overflow : auto;
 }
+
+/*////////////////////////////////////////////////////////////////*/
+/* Syntax highlighting style */
+
+/* Background */ .chroma {
+	background-color : var(--syntax-background);
+	-moz-tab-size    : 4;
+	-o-tab-size      : 4;
+	tab-size         : 4;
+}
+/* LineTableTD */
+.chroma .lntd:last-child {
+	width : 100%;
+}
+/* Error */ .chroma .err {
+	color : var(--syntax-error);
+}
+/* LineTableTD */
+.chroma .lntd {
+	vertical-align : top;
+	padding        : 0;
+	margin         : 0;
+	border         : 0;
+}
+/* LineTable */
+.chroma .lntable {
+	border-spacing : 0;
+	padding        : 0;
+	margin         : 0;
+	border         : 0;
+	width          : auto;
+	overflow       : auto;
+	display        : block;
+}
+/* LineHighlight */
+.chroma .hl {
+	display          : block;
+	width            : 100%;
+	background-color : var(--syntax-line-highlight);
+}
+/* LineNumbersTable */
+.chroma .lnt {
+	margin-right : 0.4em;
+	padding      : 0 0.4em 0 0.4em;
+	color        : var(--syntax-line-numbers-table);
+}
+/* LineNumbers */
+.chroma .ln {
+	margin-right : 0.4em;
+	padding      : 0 0.4em 0 0.4em;
+	color        : var(--syntax-line-numbers);
+}
+/* Keyword */
+.chroma .k {
+	color       : var(--syntax-keyword);
+	font-weight : bold;
+}
+/* KeywordConstant */
+.chroma .kc {
+	color       : var(--syntax-keyword);
+	font-weight : bold;
+}
+/* KeywordDeclaration */
+.chroma .kd {
+	color       : var(--syntax-keyword);
+	font-weight : bold;
+}
+/* KeywordNamespace */
+.chroma .kn {
+	color       : var(--syntax-keyword);
+	font-weight : bold;
+}
+/* KeywordPseudo */
+.chroma .kp {
+	color       : var(--syntax-keyword);
+	font-weight : bold;
+}
+/* KeywordReserved */
+.chroma .kr {
+	color       : var(--syntax-keyword);
+	font-weight : bold
+}
+/* KeywordType */
+.chroma .kt {
+	color       : var(--syntax-keyword);
+	font-weight : bold;
+}
+/* Name */
+.chroma .n {
+	color : var(--syntax-name);
+}
+/* NameAttribute */
+.chroma .na {
+	color : var(--syntax-name);
+}
+/* NameBuiltin */
+.chroma .nb {
+	color : var(--syntax-name);
+}
+/* NameBuiltinPseudo */
+.chroma .bp {
+	color : var(--syntax-name);
+}
+/* NameClass */
+.chroma .nc {
+	color : var(--syntax-name);
+}
+/* NameConstant */
+.chroma .no {
+	color : var(--syntax-name);
+}
+/* NameDecorator */
+.chroma .nd {
+	color : var(--syntax-name);
+}
+/* NameEntity */
+.chroma .ni {
+	color : var(--syntax-name);
+}
+/* NameException */
+.chroma .ne {
+	color : var(--syntax-name);
+}
+/* NameFunction */
+.chroma .nf {
+	color : var(--syntax-name);
+}
+/* NameFunctionMagic */
+.chroma .fm {
+	color : var(--syntax-name);
+}
+/* NameLabel */
+.chroma .nl {
+	color : var(--syntax-name);
+}
+/* NameNamespace */
+.chroma .nn {
+	color : var(--syntax-name);
+}
+/* NameOther */
+.chroma .nx {
+	color : var(--syntax-name);
+}
+/* NameProperty */
+.chroma .py {
+	color : var(--syntax-name);
+}
+/* NameTag */
+.chroma .nt {
+	color : var(--syntax-name);
+}
+/* NameVariable */
+.chroma .nv {
+	color : var(--syntax-name);
+}
+/* NameVariableClass */
+.chroma .vc {
+	color : var(--syntax-name);
+}
+/* NameVariableGlobal */
+.chroma .vg {
+	color : var(--syntax-name);
+}
+/* NameVariableInstance */
+.chroma .vi {
+	color : var(--syntax-name);
+}
+/* NameVariableMagic */
+.chroma .vm {
+	color : var(--syntax-name);
+}
+/* LiteralString */
+.chroma .s {
+	color : var(--syntax-literal-string);
+}
+/* LiteralStringAffix */
+.chroma .sa {
+	color : var(--syntax-literal-string);
+}
+/* LiteralStringBacktick */
+.chroma .sb {
+	color : var(--syntax-literal-string);
+}
+/* LiteralStringChar */
+.chroma .sc {
+	color : var(--syntax-literal-string);
+}
+/* LiteralStringDelimiter */
+.chroma .dl {
+	color : var(--syntax-literal-string);
+}
+/* LiteralStringDoc */
+.chroma .sd {
+	color : var(--syntax-literal-string);
+}
+/* LiteralStringDouble */
+.chroma .s2 {
+	color : var(--syntax-literal-string);
+}
+/* LiteralStringEscape */
+.chroma .se {
+	color : var(--syntax-literal-string);
+}
+/* LiteralStringHeredoc */
+.chroma .sh {
+	color : var(--syntax-literal-string);
+}
+/* LiteralStringInterpol */
+.chroma .si {
+	color : var(--syntax-literal-string);
+}
+/* LiteralStringOther */
+.chroma .sx {
+	color : var(--syntax-literal-string);
+}
+/* LiteralStringRegex */
+.chroma .sr {
+	color : var(--syntax-literal-string);
+}
+/* LiteralStringSingle */
+.chroma .s1 {
+	color : var(--syntax-literal-string);
+}
+/* LiteralStringSymbol */
+.chroma .ss {
+	color : var(--syntax-literal-string);
+}
+/* LiteralNumber */
+.chroma .m {
+	color : var(--syntax-literal-number);
+}
+/* LiteralNumberBin */
+.chroma .mb {
+	color : var(--syntax-literal-number);
+}
+/* LiteralNumberFloat */
+.chroma .mf {
+	color : var(--syntax-literal-number);
+}
+/* LiteralNumberHex */
+.chroma .mh {
+	color : var(--syntax-literal-number);
+}
+/* LiteralNumberInteger */
+.chroma .mi {
+	color : var(--syntax-literal-number);
+}
+/* LiteralNumberIntegerLong */
+.chroma .il {
+	color : var(--syntax-literal-number);
+}
+/* LiteralNumberOct */
+.chroma .mo {
+	color : var(--syntax-literal-number);
+}
+/* Operator */
+.chroma .o {
+	color : var(--syntax-operator);
+}
+/* OperatorWord */
+.chroma .ow {
+	color       : var(--syntax-operator-word);
+	font-weight : bold;
+}
+/* Punctuation */
+.chroma .p {
+	color : var(--syntax-punctuation);
+}
+/* Comment */
+.chroma .c {
+	color : var(--syntax-comment);
+}
+/* CommentHashbang */
+.chroma .ch {
+	color : var(--syntax-comment);
+}
+/* CommentMultiline */
+.chroma .cm {
+	color : var(--syntax-comment);
+}
+/* CommentSingle */
+.chroma .c1 {
+	color : var(--syntax-comment);
+}
+/* CommentSpecial */
+.chroma .cs {
+	color : var(--syntax-comment);
+}
+/* CommentPreproc */
+.chroma .cp {
+	color : var(--syntax-comment-preproc);
+}
+/* CommentPreprocFile */
+.chroma .cpf {
+	color : var(--syntax-comment-preproc);
+}

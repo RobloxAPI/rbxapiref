@@ -45,4 +45,19 @@
 	--theme-patch-remove-text    : #FFB9B9;
 	--theme-radio                : var(--theme-table);
 	--theme-radio-decor          : var(--theme-highlight);
+
+	--syntax-background         : #252525;
+	--syntax-line-highlight     : #555555;
+	--syntax-line-numbers-table : #B4B4B4;
+	--syntax-line-numbers       : #B4B4B4;
+	--syntax-error              : #FF0000;
+	--syntax-keyword            : #F86D7C;
+	--syntax-name               : #CCCCCC;
+	--syntax-literal-string     : #ADF195;
+	--syntax-literal-number     : #FFC600;
+	--syntax-operator           : #CCCCCC;
+	--syntax-operator-word      : #F86D7C;
+	--syntax-punctuation        : #CCCCCC;
+	--syntax-comment            : #666666;
+	--syntax-comment-preproc    : #66FFCC;
 }

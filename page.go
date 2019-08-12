@@ -166,16 +166,6 @@ func GeneratePageMain(data *Data) (pages []Page) {
 		Resource{Name: "favicons/favicon-16x16.png"},
 		Resource{Name: "favicons/favicon.ico"},
 	)
-	if data.CodeFormatter != nil && data.CodeStyle != nil {
-		var buf strings.Builder
-		buf.WriteString("/* Style: " + data.CodeStyle.Name + " */\n")
-		if err := data.CodeFormatter.WriteCSS(&buf, data.CodeStyle); err == nil {
-			page.Styles = append(page.Styles, Resource{
-				Name:    "syntax-" + data.CodeStyle.Name + ".css",
-				Content: []byte(buf.String()),
-			})
-		}
-	}
 	return []Page{page}
 }
 
