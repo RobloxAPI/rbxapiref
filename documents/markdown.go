@@ -18,7 +18,7 @@ type MarkdownSection struct {
 	Heading string
 	// Level is the level of the outer heading enclosing the section.
 	Level int
-	// ID is "id" atrribute of the outer heading enclosing the section.
+	// ID is "id" attribute of the outer heading enclosing the section.
 	ID string
 	// Document is the raw content of the section.
 	Document *ast.Document
