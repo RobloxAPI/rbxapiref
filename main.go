@@ -61,6 +61,8 @@ type FlagOptions struct {
 	Force    bool   `long:"force"`
 	ResOnly  bool   `long:"res-only"`
 	Range    Range  `long:"range"`
+	UseGit   bool   `long:"use-git"`
+	NoGit    bool   `long:"no-git"`
 }
 
 var options = map[string]*flags.Option{
@@ -77,6 +79,12 @@ var options = map[string]*flags.Option{
 	"range": &flags.Option{
 		Description: "Select a range of builds.",
 		ValueName:   "RANGE",
+	},
+	"use-git": &flags.Option{
+		Description: "Force git-aware document parsing.",
+	},
+	"no-git": &flags.Option{
+		Description: "Force git-unaware document parsing.",
 	},
 }
 
@@ -119,6 +127,11 @@ func main() {
 	// Load settings.
 	data.Settings = *DefaultSettings.Copy()
 	but.IfFatal(data.Settings.ReadFile(opt.Settings))
+	if opt.NoGit {
+		data.Settings.Input.UseGit = false
+	} else if opt.UseGit {
+		data.Settings.Input.UseGit = true
+	}
 
 	// Load manifest.
 	manifestPath := data.AbsFilePath("manifest")
