@@ -32,6 +32,10 @@ type SettingsInput struct {
 	Documents string
 	// DocResources is the directory containing document resource files.
 	DocResources string
+	// UseGit sets whether document parsing is aware of git. If so, only
+	// committed content will be used. That is, untracked files are ignored, and
+	// only committed modifications to a file are used.
+	UseGit bool
 }
 
 type SettingsOutput struct {
@@ -61,6 +65,7 @@ func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 			Templates    *string
 			Documents    *string
 			DocResources *string
+			UseGit       *bool
 		}
 		Output struct {
 			Root         *string
@@ -87,6 +92,9 @@ func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 	merge(&settings.Input.Templates, jsettings.Input.Templates)
 	merge(&settings.Input.Documents, jsettings.Input.Documents)
 	merge(&settings.Input.DocResources, jsettings.Input.DocResources)
+	if jsettings.Input.UseGit != nil && *jsettings.Input.UseGit {
+		settings.Input.UseGit = *jsettings.Input.UseGit
+	}
 	merge(&settings.Output.Root, jsettings.Output.Root)
 	merge(&settings.Output.Sub, jsettings.Output.Sub)
 	merge(&settings.Output.Manifest, jsettings.Output.Manifest)

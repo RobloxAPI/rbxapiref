@@ -29,8 +29,16 @@ type MarkdownSection struct {
 	Renderer markdown.Renderer
 }
 
-// MarkdownFileHandler is a FileHandler that parses a markdown file.
-func MarkdownFileHandler(dir string, info os.FileInfo, query string) Section {
+// MarkdownHandler has a configurable FileHandler that parses a markdown file.
+type MarkdownHandler struct {
+	// UseGit sets whether the handler is aware of git. If so, only committed
+	// content will be used. That is, untracked files are ignored, and only
+	// committed modifications to a file are used.
+	UseGit bool
+}
+
+// FileHandler is a FileHandler that parses a markdown file.
+func (h MarkdownHandler) FileHandler(dir string, info os.FileInfo, query string) Section {
 	if info.IsDir() {
 		return nil
 	}
@@ -43,10 +51,17 @@ func MarkdownFileHandler(dir string, info os.FileInfo, query string) Section {
 		return nil
 	}
 
-	b, err := ioutil.ReadFile(filepath.Join(dir, info.Name()))
+	var b []byte
+	var err error
+	if path := filepath.Join(dir, info.Name()); h.UseGit {
+		b, err = GitRead(FindGit(), path)
+	} else {
+		b, err = ioutil.ReadFile(path)
+	}
 	if err != nil {
 		return nil
 	}
+
 	doc, ok := parser.NewWithExtensions(
 		parser.CommonExtensions | parser.AutoHeadingIDs,
 	).Parse(b).(*ast.Document)
@@ -54,6 +69,11 @@ func MarkdownFileHandler(dir string, info os.FileInfo, query string) Section {
 		return nil
 	}
 	return NewMarkdownSection(doc)
+}
+
+// MarkdownFileHandler is a FileHandler that parses a markdown file.
+func MarkdownFileHandler(dir string, info os.FileInfo, query string) Section {
+	return MarkdownHandler{}.FileHandler(dir, info, query)
 }
 
 // getHeadingText returns the text from an ast.Heading.
