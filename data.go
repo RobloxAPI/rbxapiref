@@ -6,7 +6,6 @@ import (
 	"github.com/alecthomas/chroma"
 	chhtml "github.com/alecthomas/chroma/formatters/html"
 	"github.com/alecthomas/chroma/lexers"
-	"github.com/alecthomas/chroma/styles"
 	"github.com/gomarkdown/markdown/ast"
 	mdhtml "github.com/gomarkdown/markdown/html"
 	"github.com/pkg/errors"
@@ -34,7 +33,6 @@ type Data struct {
 	Entities      *Entities
 	Templates     *template.Template
 	CodeFormatter *chhtml.Formatter
-	CodeStyle     *chroma.Style
 	ResOnly       bool
 }
 
@@ -982,7 +980,6 @@ func (data *Data) GenerateDocuments() {
 		chhtml.WithLineNumbers(),
 		chhtml.LineNumbersInTable(),
 	)
-	data.CodeStyle = styles.Get(data.Settings.CodeStyle)
 
 	if data.ResOnly {
 		return
@@ -1009,7 +1006,7 @@ func (data *Data) GenerateDocuments() {
 					return ast.GoToNext, false
 				}
 				var buf bytes.Buffer
-				if err := data.CodeFormatter.Format(&buf, data.CodeStyle, iterator); err != nil {
+				if err := data.CodeFormatter.Format(&buf, StyleRobloxLight, iterator); err != nil {
 					return ast.GoToNext, false
 				}
 				io.Copy(w, &buf)

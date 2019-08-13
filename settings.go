@@ -21,8 +21,6 @@ type Settings struct {
 	// defined in the Configs setting. Builds from these configs are read
 	// sequentially.
 	UseConfigs []string
-	// CodeStyle specifies the style to use for code syntax highlighting.
-	CodeStyle string
 }
 
 type SettingsInput struct {
@@ -74,7 +72,6 @@ func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 		}
 		Configs    map[string]fetch.Config
 		UseConfigs []string
-		CodeStyle  *string
 	}
 	err = json.NewDecoder(dw).Decode(&jsettings)
 	if err != nil {
@@ -102,7 +99,6 @@ func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 	if len(jsettings.UseConfigs) > 0 {
 		settings.UseConfigs = append(settings.UseConfigs[:0], jsettings.UseConfigs...)
 	}
-	merge(&settings.CodeStyle, jsettings.CodeStyle)
 
 	return dw.Result()
 }

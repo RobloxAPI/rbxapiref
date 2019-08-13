@@ -85,7 +85,6 @@ var DefaultSettings = &Settings{
 		"Archive",
 		"Production",
 	},
-	CodeStyle: "roblox-light",
 }
 
 // Roblox studio light colors:
