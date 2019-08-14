@@ -46,3 +46,15 @@ type Linkable interface {
 	// which can include those within subsections.
 	SetLinks(walk func(link string) string)
 }
+
+// Countable extends a Section by representing a document with countable
+// content.
+type Countable interface {
+	Section
+	// IsEmpty returns whether the section contains any content.
+	IsEmpty() bool
+	// HeadingCount returns the number of headings within the section.
+	HeadingCount() int
+	// CodeBlockCount returns the number of code blocks within the section.
+	CodeBlockCount() int
+}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/patch"
 	"github.com/robloxapi/rbxapi/rbxapijson"
@@ -25,12 +26,45 @@ type Entities struct {
 	TypeCats []TypeCategory
 }
 
+type DocStatus struct {
+	HasDocument     bool
+	SummaryStatus   int // 0:nofile; 1:nosection; 2:empty; 3:filled
+	SummaryOrphaned bool
+
+	DetailsStatus   int // 0:nofile; 1:nosection; 2:empty; 3:filled
+	DetailsSections int
+
+	ExamplesStatus int // 0:nofile; 1:nosection; 2:empty; 3:filled
+	ExampleCount   int
+
+	AggregateStatus   int // 0:nofile; 1:none; 2:some; 3:all
+	AggregateProgress float64
+}
+
+func (s DocStatus) StatusString(status int) string {
+	switch status {
+	case 0:
+		return "d"
+	case 1:
+		return "c"
+	case 2:
+		return "b"
+	case 3:
+		return "a"
+	}
+	return ""
+}
+func (s DocStatus) ProgressString() string {
+	return fmt.Sprintf("%.2f%%", s.AggregateProgress)
+}
+
 type Entity interface {
 	IsRemoved() bool
 }
 
 type Documentable interface {
 	GetDocument() Document
+	GetDocStatus() DocStatus
 }
 
 func QueryDocument(d Documentable, name ...string) documents.Section {
@@ -81,8 +115,9 @@ type ClassEntity struct {
 	Referrers     map[[2]string]Referrer
 	ReferrerList  []Referrer
 
-	Document Document
-	Metadata Metadata
+	Document  Document
+	DocStatus DocStatus
+	Metadata  Metadata
 }
 
 func (e *ClassEntity) IsRemoved() bool    { return e.Removed }
@@ -90,7 +125,8 @@ func (e *ClassEntity) Identifier() string { return e.ID }
 func (e *ClassEntity) ElementType() rbxapijson.Type {
 	return rbxapijson.Type{Category: "Class", Name: e.Element.Name}
 }
-func (e *ClassEntity) GetDocument() Document { return e.Document }
+func (e *ClassEntity) GetDocument() Document   { return e.Document }
+func (e *ClassEntity) GetDocStatus() DocStatus { return e.DocStatus }
 
 type MemberEntity struct {
 	ID      [2]string
@@ -103,12 +139,14 @@ type MemberEntity struct {
 	References    map[rbxapijson.Type]ElementTyper
 	ReferenceList []ElementTyper
 
-	Document Document
-	Metadata Metadata
+	Document  Document
+	DocStatus DocStatus
+	Metadata  Metadata
 }
 
-func (e *MemberEntity) IsRemoved() bool       { return e.Removed }
-func (e *MemberEntity) GetDocument() Document { return e.Document }
+func (e *MemberEntity) IsRemoved() bool         { return e.Removed }
+func (e *MemberEntity) GetDocument() Document   { return e.Document }
+func (e *MemberEntity) GetDocStatus() DocStatus { return e.DocStatus }
 
 type EnumEntity struct {
 	ID      string
@@ -122,8 +160,9 @@ type EnumEntity struct {
 	Referrers    map[[2]string]Referrer
 	ReferrerList []Referrer
 
-	Document Document
-	Metadata Metadata
+	Document  Document
+	DocStatus DocStatus
+	Metadata  Metadata
 }
 
 func (e *EnumEntity) IsRemoved() bool    { return e.Removed }
@@ -131,7 +170,8 @@ func (e *EnumEntity) Identifier() string { return e.ID }
 func (e *EnumEntity) ElementType() rbxapijson.Type {
 	return rbxapijson.Type{Category: "Enum", Name: e.Element.Name}
 }
-func (e *EnumEntity) GetDocument() Document { return e.Document }
+func (e *EnumEntity) GetDocument() Document   { return e.Document }
+func (e *EnumEntity) GetDocStatus() DocStatus { return e.DocStatus }
 
 type EnumItemEntity struct {
 	ID      [2]string
@@ -141,12 +181,14 @@ type EnumItemEntity struct {
 
 	Parent *EnumEntity
 
-	Document Document
-	Metadata Metadata
+	Document  Document
+	DocStatus DocStatus
+	Metadata  Metadata
 }
 
-func (e *EnumItemEntity) IsRemoved() bool       { return e.Removed }
-func (e *EnumItemEntity) GetDocument() Document { return e.Document }
+func (e *EnumItemEntity) IsRemoved() bool         { return e.Removed }
+func (e *EnumItemEntity) GetDocument() Document   { return e.Document }
+func (e *EnumItemEntity) GetDocStatus() DocStatus { return e.DocStatus }
 
 type TypeEntity struct {
 	ID      string
@@ -159,8 +201,9 @@ type TypeEntity struct {
 	RemovedRefs    map[[2]string]Referrer
 	RemovedRefList []Referrer
 
-	Document Document
-	Metadata Metadata
+	Document  Document
+	DocStatus DocStatus
+	Metadata  Metadata
 }
 
 func (e *TypeEntity) IsRemoved() bool    { return e.Removed }
@@ -168,7 +211,8 @@ func (e *TypeEntity) Identifier() string { return e.ID }
 func (e *TypeEntity) ElementType() rbxapijson.Type {
 	return e.Element
 }
-func (e *TypeEntity) GetDocument() Document { return e.Document }
+func (e *TypeEntity) GetDocument() Document   { return e.Document }
+func (e *TypeEntity) GetDocStatus() DocStatus { return e.DocStatus }
 
 type TypeCategory struct {
 	Name  string
@@ -382,6 +426,44 @@ func (entities *Entities) AddEnumItem(action *Action, info BuildInfo) {
 	case patch.Change:
 		eitem.Element.Patch([]patch.Action{action})
 	}
+}
+
+func (entities *Entities) ListAll() []interface{} {
+	n := len(entities.Classes)
+	n += len(entities.Members)
+	n += len(entities.Enums)
+	n += len(entities.EnumItems)
+	n += len(entities.TypeCats)
+	n += len(entities.Types)
+	all := make([]interface{}, 0, n)
+
+	var addClasses func(classes []*ClassEntity)
+	addClasses = func(classes []*ClassEntity) {
+		for _, class := range classes {
+			all = append(all, class)
+			for _, member := range class.MemberList {
+				all = append(all, member)
+			}
+			addClasses(class.Subclasses)
+		}
+	}
+	addClasses(entities.TreeRoots)
+
+	for _, enum := range entities.EnumList {
+		all = append(all, enum)
+		for _, item := range enum.ItemList {
+			all = append(all, item)
+		}
+	}
+
+	for _, cat := range entities.TypeCats {
+		all = append(all, cat)
+		for _, typ := range cat.Types {
+			all = append(all, typ)
+		}
+	}
+
+	return all
 }
 
 var memberTypeOrder = map[string]int{

@@ -193,6 +193,20 @@ func GeneratePageAbout(data *Data) (pages []Page) {
 	}}
 }
 
+func GeneratePageDocmon(data *Data) (pages []Page) {
+	return []Page{{
+		File: data.FilePath("docmon"),
+		Meta: Meta{
+			"Title":       Title("Documentation monitor"),
+			"Description": "Status of documentation on the Roblox API Reference.",
+		},
+		Styles:   []Resource{{Name: "docmon.css", Embed: true}},
+		Scripts:  []Resource{{Name: "docmon.js", Embed: true}},
+		Template: "docmon",
+		Data:     data.Entities,
+	}}
+}
+
 func GeneratePageUpdates(data *Data) (pages []Page) {
 	if len(data.Manifest.Patches) < 2 {
 		return nil

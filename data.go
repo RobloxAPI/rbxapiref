@@ -128,6 +128,8 @@ retry:
 		return "https://github.com/robloxapi/rbxapiref"
 	case "issues":
 		return "https://github.com/robloxapi/rbxapiref/issues"
+	case "docmon":
+		s = "docmon" + FileExt
 	case "search":
 		s = "search.db"
 	case "manifest":
@@ -259,6 +261,14 @@ retry:
 		}
 		v = []interface{}{value.Element}
 		goto retry
+	case TypeCategory:
+		class = "member-icon"
+		title = "TypeCategory"
+		index = 0
+	case *TypeEntity:
+		class = "member-icon"
+		title = "Type"
+		index = 3
 	case *rbxapijson.Class:
 		entity, ok := data.Entities.Classes[value.Name]
 		if !ok {
@@ -1035,7 +1045,9 @@ func (data *Data) GenerateDocuments() {
 				if member.Document, _ = entity.Document.Query("Members", member.ID[1]).(Document); member.Document != nil {
 					member.Document.SetRender(renderer)
 				}
+				member.DocStatus = GenerateDocStatus(member)
 			}
+			entity.DocStatus = GenerateDocStatus(entity)
 		}
 	}
 	for _, entity := range data.Entities.EnumList {
@@ -1045,12 +1057,175 @@ func (data *Data) GenerateDocuments() {
 				if item.Document, _ = entity.Document.Query("Members", item.ID[1]).(Document); item.Document != nil {
 					item.Document.SetRender(renderer)
 				}
+				item.DocStatus = GenerateDocStatus(item)
 			}
+			entity.DocStatus = GenerateDocStatus(entity)
 		}
 	}
 	for _, entity := range data.Entities.TypeList {
 		if entity.Document, _ = apiDir.Query("type", entity.ID).(Document); entity.Document != nil {
 			entity.Document.SetRender(renderer)
 		}
+		entity.DocStatus = GenerateDocStatus(entity)
 	}
+}
+
+func GetDocStatus(entity interface{}) DocStatus {
+	if entity, ok := entity.(Documentable); ok {
+		return entity.GetDocStatus()
+	}
+	return GenerateDocStatus(entity)
+}
+
+func GenerateDocStatus(entity interface{}) (s DocStatus) {
+	setStatus := func(status *int, hasDoc bool, section documents.Section) {
+		if !hasDoc {
+			*status = 0
+		} else if section == nil {
+			*status = 1
+		} else if count, ok := section.(documents.Countable); ok && count.IsEmpty() {
+			*status = 2
+		} else {
+			*status = 3
+		}
+	}
+
+	var document Document
+	if doc, ok := entity.(Documentable); ok {
+		document = doc.GetDocument()
+	}
+	var summary documents.Section
+	var details documents.Section
+	var examples documents.Section
+	if document != nil {
+		s.HasDocument = true
+		if summary = document.Query("Summary"); summary == nil {
+			if summary = document.Query(""); summary != nil {
+				s.SummaryOrphaned = true
+			}
+		}
+		details = document.Query("Details")
+		examples = document.Query("Examples")
+	}
+	setStatus(&s.SummaryStatus, s.HasDocument, summary)
+	setStatus(&s.DetailsStatus, s.HasDocument, details)
+	setStatus(&s.ExamplesStatus, s.HasDocument, examples)
+	if count, ok := details.(documents.Countable); ok {
+		s.DetailsSections = count.HeadingCount()
+	}
+	if count, ok := examples.(documents.Countable); ok {
+		s.ExampleCount = count.CodeBlockCount()
+	}
+
+	var count int
+	var total int
+	switch entity := entity.(type) {
+	case *ClassEntity:
+		total += 3
+		if s.SummaryStatus >= 3 {
+			count++
+		}
+		if s.DetailsStatus >= 3 {
+			count++
+		}
+		if s.ExamplesStatus >= 3 {
+			count++
+		}
+		for _, member := range entity.MemberList {
+			total += 3
+			if member.DocStatus.SummaryStatus >= 3 {
+				count++
+			}
+			if member.DocStatus.DetailsStatus >= 3 {
+				count++
+			}
+			if member.DocStatus.ExamplesStatus >= 3 {
+				count++
+			}
+		}
+	case *MemberEntity:
+		total += 3
+		if s.SummaryStatus >= 3 {
+			count++
+		}
+		if s.DetailsStatus >= 3 {
+			count++
+		}
+		if s.ExamplesStatus >= 3 {
+			count++
+		}
+	case *EnumEntity:
+		total += 3
+		if s.SummaryStatus >= 3 {
+			count++
+		}
+		if s.DetailsStatus >= 3 {
+			count++
+		}
+		if s.ExamplesStatus >= 3 {
+			count++
+		}
+		for _, item := range entity.ItemList {
+			total += 3
+			if item.DocStatus.SummaryStatus >= 3 {
+				count++
+			}
+			if item.DocStatus.DetailsStatus >= 3 {
+				count++
+			}
+			if item.DocStatus.ExamplesStatus >= 3 {
+				count++
+			}
+		}
+	case *EnumItemEntity:
+		total += 3
+		if s.SummaryStatus >= 3 {
+			count++
+		}
+		if s.DetailsStatus >= 3 {
+			count++
+		}
+		if s.ExamplesStatus >= 3 {
+			count++
+		}
+	case TypeCategory:
+		for _, typ := range entity.Types {
+			total += 3
+			if typ.DocStatus.SummaryStatus >= 3 {
+				count++
+			}
+			if typ.DocStatus.DetailsStatus >= 3 {
+				count++
+			}
+			if typ.DocStatus.ExamplesStatus >= 3 {
+				count++
+			}
+		}
+	case *TypeEntity:
+		total += 3
+		if s.SummaryStatus >= 3 {
+			count++
+		}
+		if s.DetailsStatus >= 3 {
+			count++
+		}
+		if s.ExamplesStatus >= 3 {
+			count++
+		}
+	}
+
+	switch {
+	case count == total:
+		s.AggregateStatus = 3
+	case count > 0:
+		s.AggregateStatus = 2
+	case count == 0 && s.HasDocument:
+		s.AggregateStatus = 1
+	}
+	if total > 0 {
+		s.AggregateProgress = float64(count) / float64(total) * 100
+	} else {
+		s.AggregateProgress = 100
+	}
+	return s
 }

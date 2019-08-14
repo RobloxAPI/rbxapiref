@@ -266,3 +266,27 @@ func setLinks(node ast.Node, walk func(string) string) {
 func (s *MarkdownSection) SetLinks(walk func(string) string) {
 	setLinks(s.Document, walk)
 }
+
+func (s *MarkdownSection) IsEmpty() bool {
+	return len(s.Document.Children) == 0
+}
+
+func (s *MarkdownSection) HeadingCount() int {
+	n := 0
+	for _, node := range s.Document.Children {
+		if _, ok := node.(*ast.Heading); ok {
+			n++
+		}
+	}
+	return n
+}
+
+func (s *MarkdownSection) CodeBlockCount() int {
+	n := 0
+	for _, node := range s.Document.Children {
+		if _, ok := node.(*ast.CodeBlock); ok {
+			n++
+		}
+	}
+	return n
+}
