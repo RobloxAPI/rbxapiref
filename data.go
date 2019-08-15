@@ -1166,26 +1166,16 @@ func GenerateDocStatus(entity interface{}) (s DocStatus) {
 			count++
 		}
 		for _, item := range entity.ItemList {
-			total += 3
+			total += 1
 			if item.DocStatus.SummaryStatus >= 3 {
-				count++
-			}
-			if item.DocStatus.DetailsStatus >= 3 {
-				count++
-			}
-			if item.DocStatus.ExamplesStatus >= 3 {
 				count++
 			}
 		}
 	case *EnumItemEntity:
-		total += 3
+		// Only include summary. In most cases, details and examples for every
+		// single enum item is going overboard.
+		total += 1
 		if s.SummaryStatus >= 3 {
-			count++
-		}
-		if s.DetailsStatus >= 3 {
-			count++
-		}
-		if s.ExamplesStatus >= 3 {
 			count++
 		}
 	case TypeCategory:
