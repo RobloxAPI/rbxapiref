@@ -201,7 +201,7 @@ func GeneratePageDocmon(data *Data) (pages []Page) {
 			"Description": "Status of documentation on the Roblox API Reference.",
 		},
 		Styles:   []Resource{{Name: "docmon.css", Embed: true}},
-		Scripts:  []Resource{{Name: "docmon.js", Embed: true}},
+		Scripts:  []Resource{{Name: "docmon.js", Attr: []Attr{{"async", ""}}}},
 		Template: "docmon",
 		Data:     data.Entities,
 	}}
