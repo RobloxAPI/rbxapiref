@@ -1,51 +1,61 @@
-#doc-status {
+summary {
+	cursor : pointer;
+}
+
+#status {
 	table-layout : fixed;
-	font-family  : var(--monospace);
-	color        : var(--theme-table-text);
 	text-align   : center;
 }
-#doc-status th:nth-child(1) { width : 7ch }
-#doc-status th:nth-child(2) { width : 14ch }
-#doc-status th:nth-child(3) { width : 66ch }
-#doc-status th:nth-child(4) { width : 9ch }
-#doc-status th:nth-child(5) { width : 9ch }
-#doc-status th:nth-child(6) { width : 10ch }
-#doc-status th:nth-child(7) { width : 11ch }
-
-#doc-status tr > :nth-child(1) {
+#status tr > :nth-child(1) {
 	text-align : right;
 }
-#doc-status tr > :nth-child(2),
-#doc-status tr > :nth-child(3) {
+#status tr > :nth-child(2),
+#status tr > :nth-child(3) {
 	text-align : left;
 }
-#doc-status th {
+#status th:nth-child(1) { width : 7ch }
+#status th:nth-child(2) { width : 14ch }
+#status th:nth-child(3) { width : 66ch }
+#status th:nth-child(4) { width : 9ch }
+#status th:nth-child(5) { width : 9ch }
+#status th:nth-child(6) { width : 10ch }
+#status th:nth-child(7) { width : 11ch }
+#status tr.p > :nth-child(1),
+#status tr.p > :nth-child(2),
+#status tr.p > :nth-child(3) {
 	background-color : var(--theme-table-header);
 	color            : var(--theme-table-header-text);
 }
 
-#doc-status td {
+table {
+	font-family : var(--monospace);
+	color       : var(--theme-table-text);
+}
+th {
+	background-color : var(--theme-table-header);
+	color            : var(--theme-table-header-text);
+}
+td {
 	background-color : var(--theme-table);
 }
-#doc-status tr.p > :nth-child(1),
-#doc-status tr.p > :nth-child(2),
-#doc-status tr.p > :nth-child(3) {
+
+.d {
 	background-color : var(--theme-table-header);
 	color            : var(--theme-table-header-text);
 }
-#doc-status .d {
-	background-color : var(--theme-table-header);
-	color            : var(--theme-table-header-text);
-}
-#doc-status .c {
+.c {
 	background-color : var(--theme-patch-remove);
 	color            : var(--theme-patch-remove-text);
 }
-#doc-status .b {
+.b {
 	background-color : var(--theme-patch-change);
 	color            : var(--theme-patch-change-text);
 }
-#doc-status .a {
+.a {
 	background-color : var(--theme-patch-add);
 	color            : var(--theme-patch-add-text);
+}
+
+.cell {
+	padding : 0 0.5ch;
 }
