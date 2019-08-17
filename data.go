@@ -1111,7 +1111,7 @@ func GenerateDocStatus(entity interface{}) (s DocStatus) {
 	setStatus(&s.DetailsStatus, s.HasDocument, details)
 	setStatus(&s.ExamplesStatus, s.HasDocument, examples)
 	if count, ok := details.(documents.Countable); ok {
-		s.DetailsSections = count.HeadingCount()
+		s.DetailsSections = count.BlockCount()
 	}
 	if count, ok := examples.(documents.Countable); ok {
 		s.ExampleCount = count.CodeBlockCount()

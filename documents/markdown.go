@@ -271,6 +271,10 @@ func (s *MarkdownSection) IsEmpty() bool {
 	return len(s.Document.Children) == 0
 }
 
+func (s *MarkdownSection) BlockCount() int {
+	return len(s.Document.Children)
+}
+
 func (s *MarkdownSection) HeadingCount() int {
 	n := 0
 	for _, node := range s.Document.Children {
