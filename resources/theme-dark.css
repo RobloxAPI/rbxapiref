@@ -15,9 +15,9 @@
 	--theme-symbol               : #666666;
 	--theme-symbol-hover         : var(--theme-highlight);
 	--theme-table                : #242424;
-	--theme-table-text           : var(--theme-text);
+	--theme-table-text           : #A2A2A2;
 	--theme-table-header         : var(--theme-border);
-	--theme-table-header-text    : var(--theme-text);
+	--theme-table-header-text    : #BEBEBE;
 	--theme-table-border         : var(--theme-border);
 	--theme-table-highlight      : var(--theme-highlight);
 	--theme-table-highlight-text : var(--theme-highlight-text);
