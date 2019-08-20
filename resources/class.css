@@ -99,7 +99,7 @@ main > nav .toc-members {
 	}
 }
 
-#members > section,
-#removed-members > section {
+#members-sections > section,
+#removed-members-sections > section {
 	border-bottom : 1px solid var(--theme-border);
 }
