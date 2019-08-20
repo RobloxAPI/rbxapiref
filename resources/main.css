@@ -208,7 +208,7 @@ main > header .history {
 	font-size : 10pt;
 }
 .truncated-list {
-	max-height    : 61.8vh;
+	max-height    : 38.2vh;
 	overflow-y    : auto;
 	padding-right : var(--scrollbar-width);
 }
