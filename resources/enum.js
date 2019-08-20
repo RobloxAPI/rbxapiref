@@ -4,12 +4,12 @@ function domLoaded() {
 	// ToC
 	rbxapiActions.QuickLink(
 		"#toc-members",
-		"#member-sections",
+		"#members-sections",
 		["HideIfZero", ">*"]
 	);
 	rbxapiActions.QuickLink(
 		"#toc-removed-members",
-		"#removed-member-sections",
+		"#removed-members-sections",
 		["HideIfZero", ">*"]
 	);
 	rbxapiActions.QuickLink(
@@ -26,12 +26,12 @@ function domLoaded() {
 	);
 	rbxapiActions.QuickLink(
 		"#members",
-		"#member-sections",
+		"#members-sections",
 		["HideIfZero", ">*"]
 	);
 	rbxapiActions.QuickLink(
 		"#removed-members",
-		"#removed-member-sections",
+		"#removed-members-sections",
 		["HideIfZero", ">*"]
 	);
 	rbxapiActions.QuickLink(
