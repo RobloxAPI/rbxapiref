@@ -12,6 +12,7 @@
 .doc > div.chroma {
 	background-color : var(--theme-table);
 	border-left      : 2px solid var(--theme-border);
+	margin           : var(--baseline) 0;
 }
 .doc > div.chroma pre {
 	background-color : unset;
