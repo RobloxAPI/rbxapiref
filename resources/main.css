@@ -665,7 +665,7 @@ header .icon,
 	background-color : var(--theme-table);
 	color            : var(--theme-table-text);
 	border           : 1px solid var(--theme-table-border);
-	margin           : var(--card-margin);
+	margin           : var(--baseline) var(--card-margin);
 	padding          : var(--card-padding);
 	border-radius    : var(--card-padding);
 }
