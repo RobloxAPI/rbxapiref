@@ -48,7 +48,8 @@ main > article {
 
 .update:target > .patch-list-toggle,
 .patch-list > li:target {
-	background-color : var(--theme-target);
+	background-color : var(--theme-highlight);
+	color            : var(--theme-highlight-text);
 }
 a.permalink {
 	display : none;
