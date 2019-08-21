@@ -599,7 +599,6 @@ li .element-link .icon {
 	position       : absolute;
 	top            : calc(50% - var(--icon-scale)/2);
 	left           : calc(-1 * var(--icon-offset));
-	pointer-events : none;
 }
 .icon {
 	display             : inline-block;
