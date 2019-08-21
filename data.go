@@ -10,6 +10,7 @@ import (
 	mdhtml "github.com/gomarkdown/markdown/html"
 	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapi"
+	"github.com/robloxapi/rbxapi/patch"
 	"github.com/robloxapi/rbxapi/rbxapijson"
 	"github.com/robloxapi/rbxapiref/documents"
 	"github.com/robloxapi/rbxapiref/fetch"
@@ -334,8 +335,20 @@ finish:
 	return template.HTML(fmt.Sprintf(body, template.HTMLEscapeString(class), template.HTMLEscapeString(title), style))
 }
 
+// Sorted by most to least permissive.
+var securityContexts = map[string]int{
+	"None":                  0,
+	"RobloxPlaceSecurity":   1,
+	"PluginSecurity":        2,
+	"LocalUserSecurity":     3,
+	"RobloxScriptSecurity":  4,
+	"RobloxSecurity":        5,
+	"NotAccessibleSecurity": 6,
+}
+
 func (data *Data) ElementStatusClasses(suffix bool, v ...interface{}) string {
 	var t rbxapi.Taggable
+	var action *Action
 	switch value := v[0].(type) {
 	case rbxapi.Taggable:
 		t = value
@@ -384,11 +397,50 @@ func (data *Data) ElementStatusClasses(suffix bool, v ...interface{}) string {
 		t = value.Element
 	case *EnumItemEntity:
 		t = value.Element
+	case Action:
+		action = &value
+		t, _ = value.GetElement().(rbxapi.Taggable)
 	default:
 		return ""
 	}
 
 	var s []string
+	if action != nil {
+		switch action.Type {
+		case patch.Change:
+			switch action.Field {
+			case "Security", "ReadSecurity", "WriteSecurity":
+				// Select the most permissive context. This will cause changes
+				// to visible contexts to always be displayed.
+				p, _ := action.GetPrev().(string)
+				n, _ := action.GetNext().(string)
+				if securityContexts[p] < securityContexts[n] {
+					if p != "" && p != "None" {
+						s = append(s, "api-sec-"+p)
+					}
+				} else {
+					if n != "" && n != "None" {
+						s = append(s, "api-sec-"+n)
+					}
+				}
+			case "Tags":
+				// Include tag unless it is being changed.
+				p := rbxapijson.Tags(action.GetPrev().([]string))
+				n := rbxapijson.Tags(action.GetNext().([]string))
+				if p.GetTag("Deprecated") && n.GetTag("Deprecated") {
+					s = append(s, "api-deprecated")
+				}
+				if p.GetTag("NotBrowsable") && n.GetTag("NotBrowsable") {
+					s = append(s, "api-not-browsable")
+				}
+				if p.GetTag("Hidden") && n.GetTag("Hidden") {
+					s = append(s, "api-hidden")
+				}
+			}
+			goto finish
+		}
+	}
+
 	for _, tag := range t.GetTags() {
 		switch tag {
 		case "Deprecated":
@@ -415,6 +467,8 @@ func (data *Data) ElementStatusClasses(suffix bool, v ...interface{}) string {
 			s = append(s, "api-sec-"+v)
 		}
 	}
+
+finish:
 	if len(s) == 0 {
 		return ""
 	}

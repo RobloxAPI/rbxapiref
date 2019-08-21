@@ -506,7 +506,7 @@ select {
 /* Status decorations */
 
 /* Deprecated */
-li.api-deprecated > :not(ul),
+li.api-deprecated > :not(ul):not(.diff-values),
 .index-card tr.api-deprecated .col-type > *,
 .index-card tr.api-deprecated .col-member > *,
 .index-card tr.api-deprecated .col-value > *,
@@ -515,7 +515,7 @@ li.api-deprecated > :not(ul),
 }
 
 /* NotBrowsable */
-li.api-not-browsable > :not(ul),
+li.api-not-browsable > :not(ul):not(.diff-values),
 .index-card tr.api-not-browsable .col-type > *,
 .index-card tr.api-not-browsable .col-member > *,
 .index-card tr.api-not-browsable .col-value > *,
@@ -524,7 +524,7 @@ li.api-not-browsable > :not(ul),
 }
 
 /* Hidden */
-li.api-hidden > :not(ul),
+li.api-hidden > :not(ul):not(.diff-values),
 .index-card tr.api-hidden .col-type > *,
 .index-card tr.api-hidden .col-member > *,
 .index-card tr.api-hidden .col-value > *,
