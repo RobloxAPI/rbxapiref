@@ -24,6 +24,22 @@
 	display  : block;
 	overflow : auto;
 }
+.doc table {
+	background-color : var(--theme-border);
+	color            : var(--theme-text);
+	border-collapse  : separate;
+	border-spacing   : 1px;
+}
+.doc table td {
+	background-color : var(--theme-table);
+	color            : var(--theme-table-text);
+	padding          : 0.5ch 1ch;
+}
+.doc table th {
+	background-color : var(--theme-table-header);
+	color            : var(--theme-table-header-text);
+	padding          : 0.5ch 1ch;
+}
 
 /*////////////////////////////////////////////////////////////////*/
 /* Syntax highlighting style */
