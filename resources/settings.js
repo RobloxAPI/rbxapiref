@@ -164,7 +164,7 @@ class Settings {
 	};
 }
 
-function initSettings() {
+function initSettingsMenu() {
 	let container = document.getElementById("main-header-right");
 	if (container === null) {
 		return;
@@ -181,22 +181,9 @@ function initSettings() {
 		return;
 	};
 
-	let rbxapiSettings = new Settings();
 	generateMenu(menu, settings, function(name, value, initial) {
 		rbxapiSettings.Changed(name, value, initial)
 	});
-	for (let setting of settings) {
-		rbxapiSettings.settings.set(setting.name, {
-			"config": setting,
-			"listeners": [],
-		});
-		if (setting.disabled) {
-			continue;
-		};
-		if (window.localStorage.getItem(setting.name) === null) {
-			window.localStorage.setItem(setting.name, setting.default);
-		};
-	};
 
 	button.addEventListener("click", function(event) {
 		menu.style.display = "block";
@@ -211,14 +198,27 @@ function initSettings() {
 		document.addEventListener("click", onClick, true);
 		event.stopPropagation();
 	});
-
-	window.rbxapiSettings = rbxapiSettings;
-	window.dispatchEvent(new Event("rbxapiSettings"));
 };
 
+let rbxapiSettings = new Settings()
+for (let setting of settings) {
+	rbxapiSettings.settings.set(setting.name, {
+		"config": setting,
+		"listeners": [],
+	});
+	if (setting.disabled) {
+		continue;
+	};
+	if (window.localStorage.getItem(setting.name) === null) {
+		window.localStorage.setItem(setting.name, setting.default);
+	};
+};
+window.rbxapiSettings = rbxapiSettings;
+window.dispatchEvent(new Event("rbxapiSettings"));
+
 if (document.readyState === "loading") {
-	document.addEventListener("DOMContentLoaded", initSettings);
+	document.addEventListener("DOMContentLoaded", initSettingsMenu);
 } else {
-	initSettings();
+	initSettingsMenu();
 };
 };
