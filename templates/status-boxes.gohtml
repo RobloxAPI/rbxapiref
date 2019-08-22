@@ -7,7 +7,7 @@
 	{{- template "status-box" pack "low" "This class is player-replicated." "Its data is replicated between the server and only a single client." -}}
 {{- end -}}
 {{- if .GetTag "Service" -}}
-	{{- template "status-box" pack "low" "This class is a service." "It may be acquired with GetService." -}}
+	{{- template "status-box" pack "low" "This class is a service." "It is a singleton that may be acquired with GetService." -}}
 {{- end -}}
 {{- if .GetTag "Settings" -}}
 	{{- template "status-box" pack "low" "This class is a settings container." "It contains settings that affect the behavior of the peer." -}}
