@@ -1,6 +1,7 @@
 package documents
 
 import (
+	"bytes"
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/ast"
 	"github.com/gomarkdown/markdown/html"
@@ -35,6 +36,56 @@ type MarkdownHandler struct {
 	// content will be used. That is, untracked files are ignored, and only
 	// committed modifications to a file are used.
 	UseGit bool
+
+	// StripComments sets whether comments will be removed.
+	StripComments bool
+}
+
+const commentPre = "<!--"
+const commentSuf = "-->"
+
+// Remove HTML comment text.
+func stripCommentText(b []byte) []byte {
+	for n := 0; n < len(b); {
+		i := bytes.Index(b[n:], []byte(commentPre))
+		if i < 0 {
+			break
+		}
+		i += n
+
+		j := bytes.Index(b[i+len(commentPre):], []byte(commentSuf))
+		if j < 0 {
+			n = i + len(commentPre)
+			continue
+		}
+		j += i + len(commentPre) + len(commentSuf)
+
+		copy(b[i:], b[j:])
+		b = b[:len(b)-(j-i)]
+		n = i
+	}
+	return b
+}
+
+// Remove ast.HTMLBlocks that are entirely comments.
+func stripCommentNodes(c *ast.Container) {
+	if c == nil {
+		return
+	}
+	children := c.Children[:0]
+	for _, child := range c.Children {
+		if leaf := child.AsLeaf(); leaf != nil {
+			lit := bytes.TrimSpace(leaf.Literal)
+			if bytes.HasPrefix(lit, []byte(commentPre)) &&
+				bytes.HasSuffix(lit, []byte(commentSuf)) {
+				continue
+			}
+			leaf.Literal = stripCommentText(leaf.Literal)
+		}
+		children = append(children, child)
+		stripCommentNodes(child.AsContainer())
+	}
+	c.Children = children
 }
 
 // FileHandler is a FileHandler that parses a markdown file.
@@ -67,6 +118,9 @@ func (h MarkdownHandler) FileHandler(dir string, info os.FileInfo, query string)
 	).Parse(b).(*ast.Document)
 	if !ok {
 		return nil
+	}
+	if h.StripComments {
+		stripCommentNodes(doc.AsContainer())
 	}
 	return NewMarkdownSection(doc)
 }

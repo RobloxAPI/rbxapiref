@@ -1078,7 +1078,8 @@ func (data *Data) GenerateDocuments() {
 	docDir := documents.NewDirectorySection(
 		data.Settings.Input.Documents,
 		documents.MarkdownHandler{
-			UseGit: data.Settings.Input.UseGit,
+			UseGit:        data.Settings.Input.UseGit,
+			StripComments: true,
 		}.FileHandler,
 	)
 	apiDir := docDir.Query("api")
