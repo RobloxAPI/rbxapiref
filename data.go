@@ -926,14 +926,7 @@ func (data *Data) ParseDocReference(ref string) (scheme, path, link string) {
 		link = data.FileLink("enumitem", path[:slash], path[slash+1:])
 		return
 	case "type":
-		slash := strings.IndexByte(path, '/')
-		if slash < 0 {
-			if typ, ok := data.Entities.Types[path[slash+1:]]; ok {
-				link = data.FileLink("type", typ.Element.Category, typ.ID)
-				return
-			}
-		}
-		link = data.FileLink("type", path[:slash], path[slash+1:])
+		link = data.FileLink("type", path)
 		return
 	case "member":
 		link = data.FileLink("member", path)
