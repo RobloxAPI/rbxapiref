@@ -53,7 +53,8 @@ function initHistoryToggle() {
 	};
 };
 
-function settingsLoaded() {
+let settingsLoaded = false;
+function initSettings() {
 	let head = document.head;
 
 	window.rbxapiSettings.Listen("Theme", function(name, value, initial) {
@@ -135,13 +136,36 @@ function settingsLoaded() {
 		};
 		rbxapiActions.UpdateAll();
 	});
+
+	settingsLoaded = true;
+	window.dispatchEvent(new Event("settingsLoaded"));
 };
 
-function actionsLoaded() {
+function initActions() {
 	if (window.rbxapiSettings) {
-		settingsLoaded();
+		initSettings();
 	} else {
-		window.addEventListener("rbxapiSettings", settingsLoaded);
+		window.addEventListener("rbxapiSettings", initSettings);
+	};
+};
+
+function fixTarget() {
+	if (document.readState !== "completed") {
+		let targetID = document.location.hash.slice(1);
+		if (targetID !== "") {
+			let target = document.getElementById(targetID);
+			if (target) {
+				target.scrollIntoView(true);
+			};
+		};
+	};
+};
+
+function initLoad() {
+	if (settingsLoaded) {
+		fixTarget();
+	} else {
+		window.addEventListener("settingsLoaded", fixTarget);
 	};
 };
 
@@ -156,8 +180,15 @@ if (document.readyState === "loading") {
 };
 
 if (window.rbxapiActions) {
-	actionsLoaded();
+	initActions();
 } else {
-	window.addEventListener("rbxapiActions", actionsLoaded);
+	window.addEventListener("rbxapiActions", initActions);
 };
+
+if (document.readtState === "completed") {
+	initLoad();
+} else {
+	window.addEventListener("load", initLoad);
+};
+
 };
