@@ -102,6 +102,11 @@ function initUpdates() {
 				// target.scrollIntoView(true);
 				return;
 			};
+			let list = target.querySelector(".patch-list")
+			if (list) {
+				list.style.display = "";
+				return;
+			};
 		};
 	};
 
