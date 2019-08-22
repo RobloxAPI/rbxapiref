@@ -115,14 +115,18 @@ retry:
 				(&url.URL{Fragment: MemberAnchorPrefix + args[1]}).String()
 		}
 	case "type":
-		switch strings.ToLower(args[0]) {
-		case "class", "enum":
-			a := make([]string, 2)
-			linkType, a[0] = args[0], args[1]
-			args = a
-			goto retry
+		if len(args) == 1 {
+			s = path.Join(TypePath, doubleEscape(args[0])+FileExt)
+		} else if len(args) == 2 {
+			switch strings.ToLower(args[0]) {
+			case "class", "enum":
+				a := make([]string, 2)
+				linkType, a[0] = args[0], args[1]
+				args = a
+				goto retry
+			}
+			s = path.Join(TypePath, doubleEscape(args[1])+FileExt)
 		}
-		s = path.Join(TypePath, doubleEscape(args[1])+FileExt)
 	case "about":
 		s = "about" + FileExt
 	case "repository":
