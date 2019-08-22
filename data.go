@@ -285,9 +285,6 @@ retry:
 		class = "member-icon"
 		title = value.GetMemberType()
 		index = memberIconIndex[title]
-		if len(v) > 1 && v[1].(bool) == false {
-			goto finish
-		}
 		switch v := value.(type) {
 		case interface{ GetSecurity() (string, string) }:
 			r, w := v.GetSecurity()
