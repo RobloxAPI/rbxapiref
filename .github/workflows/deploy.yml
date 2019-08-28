@@ -2,7 +2,7 @@
     "name": "Deploy website",
     "on": {
         "schedule": {
-            "cron": "0 * * * *", # hourly
+            "cron": "4 * * * *", # hourly
         },
     },
     "jobs": {
