@@ -1,0 +1,71 @@
+{
+	"name": "Deploy website",
+	"on": {
+		"schedule": {
+			"cron": "0 * * * *", # hourly
+		},
+	},
+	"jobs": {
+		"deploy": {
+			"name": "Build and deploy",
+			"timeout-minutes": 5,
+			"runs-on": "ubuntu-latest",
+			"steps": [
+				{
+					"name": "Checkout current repository",
+					"uses": "actions/checkout@v1",
+					"with": {
+						"fetch-depth": 1,
+					},
+				},
+				{
+					"name": "Checkout documentation repository",
+					"uses": "actions/checkout@v1",
+					"with": {
+						"repository": "RobloxAPI/doc",
+						"fetch-depth": 1,
+                        "ref": "master",
+						"path": ".deploy/doc",
+					},
+				},
+				{
+					"name": "Checkout website repository",
+					"uses": "actions/checkout@v1",
+					"with": {
+						"repository": "RobloxAPI/ref",
+						"fetch-depth": 1,
+                        "ref": "gh-pages",
+						"path": ".deploy/robloxapi.github.io/ref",
+					},
+				},
+				{
+					"name": "Generate module",
+					"run": "go mod init github.com/robloxapi/rbxapiref",
+				},
+				{
+					"name": "Get dependencies",
+					"run": "go get -v -d ./...",
+				},
+				{
+					"name": "Build executable",
+					"run": "go build -v .",
+				},
+				{
+					"name": "Rebuild website",
+					"run": "./rbxapiref -s .github/settings.json",
+				},
+				{
+					"name": "Commit website",
+					"run": "
+						git -v -C .deploy/robloxapi.github.io/ref add -A &&
+						git -v -C .deploy/robloxapi.github.io/ref commit -m 'Update reference.'
+					",
+				},
+				{
+					"name": "Deploy website",
+					"run": "git -v -C .deploy/robloxapi.github.io/ref push",
+				},
+			],
+		},
+	},
+}
