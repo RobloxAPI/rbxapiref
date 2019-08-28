@@ -2,7 +2,7 @@
     "name": "Deploy website",
     "on": {
         "schedule": {
-            "cron": "4 * * * *", # hourly
+            "cron": "55 * * * *", # hourly
         },
     },
     "jobs": {
@@ -51,19 +51,8 @@
                     "run": "go build -v .",
                 },
                 {
-                    "name": "Rebuild website",
-                    "run": "./rbxapiref -s .github/settings.json",
-                },
-                {
-                    "name": "Commit website",
-                    "run": "
-                        git -v -C .deploy/robloxapi.github.io/ref add -A &&
-                        git -v -C .deploy/robloxapi.github.io/ref commit -m 'Update reference.'
-                    ",
-                },
-                {
-                    "name": "Deploy website",
-                    "run": "git -v -C .deploy/robloxapi.github.io/ref push",
+                    "name": "List working directory",
+                    "run": "ls -alR",
                 },
             ],
         },
