@@ -102,9 +102,9 @@ func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 	}
 	merge(&settings.Output.Root, jsettings.Output.Root, true)
 	merge(&settings.Output.Sub, jsettings.Output.Sub, false)
-	merge(&settings.Output.Manifest, jsettings.Output.Manifest, true)
-	merge(&settings.Output.Resources, jsettings.Output.Resources, true)
-	merge(&settings.Output.DocResources, jsettings.Output.DocResources, true)
+	merge(&settings.Output.Manifest, jsettings.Output.Manifest, false)
+	merge(&settings.Output.Resources, jsettings.Output.Resources, false)
+	merge(&settings.Output.DocResources, jsettings.Output.DocResources, false)
 	merge(&settings.Output.Host, jsettings.Output.Host, false)
 	for k, v := range jsettings.Configs {
 		settings.Configs[k] = v
