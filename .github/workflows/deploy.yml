@@ -2,7 +2,7 @@
     "name": "Deploy website",
     "on": {
         "schedule": {
-            "cron": "5 * * * *", # hourly
+            "cron": "10 * * * *", # hourly
         },
     },
     "jobs": {
@@ -57,9 +57,9 @@
                 {
                     "name": "Commit and deploy website",
                     "run": "
-                        git -v -C ../.deploy/robloxapi.github.io/ref add -A &&
-                        git -v -C ../.deploy/robloxapi.github.io/ref commit -m 'Update reference.' &&
-                        git -v -C ../.deploy/robloxapi.github.io/ref push
+                        git -C ../.deploy/robloxapi.github.io/ref add -A &&
+                        git -C ../.deploy/robloxapi.github.io/ref commit -m 'Update reference.' &&
+                        git -C ../.deploy/robloxapi.github.io/ref push
                     ",
                 },
             ],
