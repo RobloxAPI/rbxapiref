@@ -2,7 +2,7 @@
     "name": "Deploy website",
     "on": {
         "schedule": {
-            "cron": "21 * * * *", # hourly
+            "cron": "25 * * * *", # hourly
         },
     },
     "jobs": {
@@ -57,8 +57,10 @@
                 {
                     "name": "Commit and deploy website",
                     "run": "
+                        git config user.email 'anaminus@protonmail.com' &&
+                        git config user.name 'Anaminus' &&
                         git -C ../.deploy/robloxapi.github.io/ref add -A &&
-                        git -C ../.deploy/robloxapi.github.io/ref commit -m 'Update reference.' --author='Anaminus <anaminus@protonmail.com>' &&
+                        git -C ../.deploy/robloxapi.github.io/ref commit -m 'Update reference.' &&
                         git -C ../.deploy/robloxapi.github.io/ref push origin gh-pages
                     ",
                 },
