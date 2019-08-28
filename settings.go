@@ -83,24 +83,29 @@ func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 		return dw.BytesRead(), errors.Wrap(err, "decode settings file")
 	}
 
-	merge := func(dst, src *string) {
+	wd, _ := os.Getwd()
+
+	merge := func(dst, src *string, path bool) {
 		if src != nil && *src != "" {
 			*dst = *src
 		}
+		if path {
+			*dst = filepath.Join(wd, *dst)
+		}
 	}
-	merge(&settings.Input.Resources, jsettings.Input.Resources)
-	merge(&settings.Input.Templates, jsettings.Input.Templates)
-	merge(&settings.Input.Documents, jsettings.Input.Documents)
-	merge(&settings.Input.DocResources, jsettings.Input.DocResources)
+	merge(&settings.Input.Resources, jsettings.Input.Resources, true)
+	merge(&settings.Input.Templates, jsettings.Input.Templates, true)
+	merge(&settings.Input.Documents, jsettings.Input.Documents, true)
+	merge(&settings.Input.DocResources, jsettings.Input.DocResources, true)
 	if jsettings.Input.UseGit != nil && *jsettings.Input.UseGit {
 		settings.Input.UseGit = *jsettings.Input.UseGit
 	}
-	merge(&settings.Output.Root, jsettings.Output.Root)
-	merge(&settings.Output.Sub, jsettings.Output.Sub)
-	merge(&settings.Output.Manifest, jsettings.Output.Manifest)
-	merge(&settings.Output.Resources, jsettings.Output.Resources)
-	merge(&settings.Output.DocResources, jsettings.Output.DocResources)
-	merge(&settings.Output.Host, jsettings.Output.Host)
+	merge(&settings.Output.Root, jsettings.Output.Root, true)
+	merge(&settings.Output.Sub, jsettings.Output.Sub, false)
+	merge(&settings.Output.Manifest, jsettings.Output.Manifest, true)
+	merge(&settings.Output.Resources, jsettings.Output.Resources, true)
+	merge(&settings.Output.DocResources, jsettings.Output.DocResources, true)
+	merge(&settings.Output.Host, jsettings.Output.Host, false)
 	for k, v := range jsettings.Configs {
 		settings.Configs[k] = v
 	}
