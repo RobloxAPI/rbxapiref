@@ -2,7 +2,7 @@
     "name": "Deploy website",
     "on": {
         "schedule": {
-            "cron": "35 * * * *", # hourly
+            "cron": "47 * * * *", # hourly
         },
     },
     "jobs": {
@@ -60,6 +60,7 @@
                         pushd ../.deploy/robloxapi.github.io/ref &&
                         git config user.email 'anaminus@protonmail.com' &&
                         git config user.name 'Anaminus' &&
+                        git remote set-url origin git@github.com:RobloxAPI/ref.git &&
                         git add -A &&
                         git commit -m 'Update reference.' &&
                         git push origin gh-pages &&
