@@ -187,6 +187,7 @@ func (data *Data) PathFromLink(l string) string {
 // AbsPathFromLink transforms a link into an absolute path, if possible.
 func (data *Data) AbsPathFromLink(l string) string {
 	l, _ = url.PathUnescape(l)
+	l = strings.TrimPrefix(l, "/")
 	return data.AbsPath(l)
 }
 
