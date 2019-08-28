@@ -1,11 +1,11 @@
 {
 	"Input": {
-		"Documents"    : ".deploy/doc/src/doc/en",
-		"DocResources" : ".deploy/doc/src/res",
+		"Documents"    : "../.deploy/doc/src/doc/en",
+		"DocResources" : "../.deploy/doc/src/res",
 		"UseGit"       : true
 	},
 	"Output": {
-		"Root" : ".deploy/robloxapi.github.io",
+		"Root" : "../.deploy/robloxapi.github.io",
 		"Host" : "robloxapi.github.io"
 	}
 }
