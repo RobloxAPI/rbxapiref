@@ -63,6 +63,7 @@ type FlagOptions struct {
 	Range    Range  `long:"range"`
 	UseGit   bool   `long:"use-git"`
 	NoGit    bool   `long:"no-git"`
+	Stamp    bool   `long:"stamp"`
 }
 
 var options = map[string]*flags.Option{
@@ -85,6 +86,9 @@ var options = map[string]*flags.Option{
 	},
 	"no-git": &flags.Option{
 		Description: "Force git-unaware document parsing.",
+	},
+	"stamp": &flags.Option{
+		Description: "If true, inject a timestamp into the website.",
 	},
 }
 
@@ -118,10 +122,14 @@ func main() {
 	}
 
 	// Initialize root.
+	now := time.Now()
 	data := &Data{
-		CurrentYear: time.Now().Year(),
+		CurrentYear: now.Year(),
 		Manifest:    &Manifest{},
 		ResOnly:     opt.ResOnly,
+	}
+	if opt.Stamp {
+		data.Stamp = template.HTML("<!-- " + now.Format("2006-01-02 15:04:05") + " -->")
 	}
 
 	// Load settings.

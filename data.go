@@ -35,6 +35,7 @@ type Data struct {
 	Templates     *template.Template
 	CodeFormatter *chhtml.Formatter
 	ResOnly       bool
+	Stamp         template.HTML
 }
 
 type Patch struct {
