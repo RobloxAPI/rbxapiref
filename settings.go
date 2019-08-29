@@ -89,7 +89,7 @@ func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 		if src != nil && *src != "" {
 			*dst = *src
 		}
-		if path {
+		if path && !filepath.IsAbs(*dst) {
 			*dst = filepath.Join(wd, *dst)
 		}
 	}
