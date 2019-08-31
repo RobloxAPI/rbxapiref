@@ -899,6 +899,14 @@ func (data *Data) LatestPatch() Patch {
 	return data.Manifest.Patches[len(data.Manifest.Patches)-1]
 }
 
+func unescapeURLPath(path string) string {
+	p, err := url.PathUnescape(path)
+	if err != nil {
+		return path
+	}
+	return p
+}
+
 func (data *Data) ParseDocReference(ref string) (scheme, path, link string) {
 	colon := strings.IndexByte(ref, ':')
 	if colon < 0 {
@@ -911,24 +919,24 @@ func (data *Data) ParseDocReference(ref string) (scheme, path, link string) {
 	case "class":
 		slash := strings.IndexByte(path, '/')
 		if slash < 0 {
-			link = data.FileLink("class", path)
+			link = data.FileLink("class", unescapeURLPath(path))
 			return
 		}
-		link = data.FileLink("member", path[:slash], path[slash+1:])
+		link = data.FileLink("member", unescapeURLPath(path[:slash]), unescapeURLPath(path[slash+1:]))
 		return
 	case "enum":
 		slash := strings.IndexByte(path, '/')
 		if slash < 0 {
-			link = data.FileLink("enum", path)
+			link = data.FileLink("enum", unescapeURLPath(path))
 			return
 		}
-		link = data.FileLink("enumitem", path[:slash], path[slash+1:])
+		link = data.FileLink("enumitem", unescapeURLPath(path[:slash]), unescapeURLPath(path[slash+1:]))
 		return
 	case "type":
-		link = data.FileLink("type", path)
+		link = data.FileLink("type", unescapeURLPath(path))
 		return
 	case "member":
-		link = data.FileLink("member", path)
+		link = data.FileLink("member", unescapeURLPath(path))
 		return
 	}
 	return "", "", ref
