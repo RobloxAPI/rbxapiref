@@ -66,13 +66,14 @@
 }
 /* LineTable */
 .chroma .lntable {
-	border-spacing : 0;
-	padding        : 0;
-	margin         : 0;
-	border         : 0;
-	width          : auto;
-	overflow       : auto;
-	display        : block;
+	border-spacing   : 0;
+	padding          : 0;
+	margin           : 0;
+	border           : 0;
+	width            : auto;
+	overflow         : auto;
+	display          : block;
+	background-color : var(--theme-table):
 }
 /* LineHighlight */
 .chroma .hl {
