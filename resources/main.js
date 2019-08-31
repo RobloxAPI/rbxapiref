@@ -185,7 +185,7 @@ if (window.rbxapiActions) {
 	window.addEventListener("rbxapiActions", initActions);
 };
 
-if (document.readtState === "completed") {
+if (document.readyState === "completed") {
 	initLoad();
 } else {
 	window.addEventListener("load", initLoad);
