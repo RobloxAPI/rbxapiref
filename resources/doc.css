@@ -73,7 +73,8 @@
 	width            : auto;
 	overflow         : auto;
 	display          : block;
-	background-color : var(--theme-table):
+	max-height       : 38.2vh;
+	background-color : var(--theme-table);
 }
 /* LineHighlight */
 .chroma .hl {
