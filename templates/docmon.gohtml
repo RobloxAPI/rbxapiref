@@ -31,21 +31,26 @@
 	the explicit Summary section. If the summary of a secondary entity is within
 	the Summary section, then <code>**</code> will be displayed, indicating that
 	the summary should be within the implicit orphaned section.</p>
+	<p>All entity types require a Summary section.</p>
 
 	<h4>Details</h4>
 	<p>When filled, the number of blocks within the section will be displayed,
 	indicating a rough estimate of the amount of content.</p>
+	<p>All entity types except EnumItems require a Details section.</p>
 
 	<h4>Examples</h4>
 	<p>When filled, the number of code blocks within the section will be
 	displayed, indicating the number of examples.</p>
+	<p>All entity types except Enums and EnumItems require an Examples
+	section.</p>
 
 	<h3>Aggregate</h3>
+
 	<p>The Aggregate column shows the coverage of documentation for the entity
-	overall. For secondary entities, it is the percentage of filled sections of
-	the entity. For primary entities, it is the percentage of the filled
-	sections of the entity and all of its secondary entities. For enum items,
-	only the summary counts towards the total.</p>
+	overall. For secondary entities, it is the percentage of filled required
+	sections of the entity. For primary entities, it is the percentage of filled
+	required sections of the entity and all of its secondary entities.</p>
+
 	<p>Colors in the Aggregate column have the following meaning:</p>
 	<ul>
 		<li><span class="cell d">No file</span>: No associated file.</li>

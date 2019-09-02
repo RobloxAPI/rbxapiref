@@ -1238,15 +1238,17 @@ func GenerateDocStatus(entity interface{}) (s DocStatus) {
 			count++
 		}
 	case *EnumEntity:
-		total += 3
+		// Examples not required for enums.
+		total += 2
 		if s.SummaryStatus >= 3 {
 			count++
 		}
 		if s.DetailsStatus >= 3 {
 			count++
 		}
-		if s.ExamplesStatus >= 3 {
-			count++
+		// Show no status unless section is provided.
+		if s.ExamplesStatus < 2 {
+			s.ExamplesStatus = 0
 		}
 		for _, item := range entity.ItemList {
 			total += 1
@@ -1268,6 +1270,12 @@ func GenerateDocStatus(entity interface{}) (s DocStatus) {
 		total += 1
 		if s.SummaryStatus >= 3 {
 			count++
+		}
+		if s.DetailsStatus < 2 {
+			s.DetailsStatus = 0
+		}
+		if s.ExamplesStatus < 2 {
+			s.ExamplesStatus = 0
 		}
 	case TypeCategory:
 		for _, typ := range entity.Types {
