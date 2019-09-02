@@ -1209,6 +1209,22 @@ func GenerateDocStatus(entity interface{}) (s DocStatus) {
 			if member.DocStatus.ExamplesStatus >= 3 {
 				count++
 			}
+			if s.HasDocument {
+				// Entity has a document, which means all members have a
+				// document.
+				if member.DocStatus.SummaryStatus == 0 {
+					member.DocStatus.SummaryStatus = 1
+				}
+				if member.DocStatus.DetailsStatus == 0 {
+					member.DocStatus.DetailsStatus = 1
+				}
+				if member.DocStatus.ExamplesStatus == 0 {
+					member.DocStatus.ExamplesStatus = 1
+				}
+				if member.DocStatus.AggregateStatus == 0 {
+					member.DocStatus.AggregateStatus = 1
+				}
+			}
 		}
 	case *MemberEntity:
 		total += 3
@@ -1236,6 +1252,14 @@ func GenerateDocStatus(entity interface{}) (s DocStatus) {
 			total += 1
 			if item.DocStatus.SummaryStatus >= 3 {
 				count++
+			}
+			if s.HasDocument {
+				if item.DocStatus.SummaryStatus == 0 {
+					item.DocStatus.SummaryStatus = 1
+				}
+				if item.DocStatus.AggregateStatus == 0 {
+					item.DocStatus.AggregateStatus = 1
+				}
 			}
 		}
 	case *EnumItemEntity:
