@@ -1092,39 +1092,47 @@ func (data *Data) GenerateDocuments() {
 			StripComments: true,
 		}.FileHandler,
 	)
-	apiDir := docDir.Query("api")
-	if apiDir == nil {
-		return
+	if apiDir := docDir.Query("api"); apiDir != nil {
+		for _, entity := range data.Entities.ClassList {
+			if entity.Document, _ = apiDir.Query("class", entity.ID).(Document); entity.Document != nil {
+				entity.Document.SetRender(renderer)
+				for _, member := range entity.MemberList {
+					if member.Document, _ = entity.Document.Query("Members", member.ID[1]).(Document); member.Document != nil {
+						member.Document.SetRender(renderer)
+					}
+				}
+			}
+		}
+		for _, entity := range data.Entities.EnumList {
+			if entity.Document, _ = apiDir.Query("enum", entity.ID).(Document); entity.Document != nil {
+				entity.Document.SetRender(renderer)
+				for _, item := range entity.ItemList {
+					if item.Document, _ = entity.Document.Query("Members", item.ID[1]).(Document); item.Document != nil {
+						item.Document.SetRender(renderer)
+					}
+				}
+			}
+		}
+		for _, entity := range data.Entities.TypeList {
+			if entity.Document, _ = apiDir.Query("type", entity.ID).(Document); entity.Document != nil {
+				entity.Document.SetRender(renderer)
+			}
+		}
 	}
 
 	for _, entity := range data.Entities.ClassList {
-		if entity.Document, _ = apiDir.Query("class", entity.ID).(Document); entity.Document != nil {
-			entity.Document.SetRender(renderer)
-			for _, member := range entity.MemberList {
-				if member.Document, _ = entity.Document.Query("Members", member.ID[1]).(Document); member.Document != nil {
-					member.Document.SetRender(renderer)
-				}
-				member.DocStatus = GenerateDocStatus(member)
-			}
-			entity.DocStatus = GenerateDocStatus(entity)
+		for _, member := range entity.MemberList {
+			member.DocStatus = GenerateDocStatus(member)
 		}
+		entity.DocStatus = GenerateDocStatus(entity)
 	}
 	for _, entity := range data.Entities.EnumList {
-		if entity.Document, _ = apiDir.Query("enum", entity.ID).(Document); entity.Document != nil {
-			entity.Document.SetRender(renderer)
-			for _, item := range entity.ItemList {
-				if item.Document, _ = entity.Document.Query("Members", item.ID[1]).(Document); item.Document != nil {
-					item.Document.SetRender(renderer)
-				}
-				item.DocStatus = GenerateDocStatus(item)
-			}
-			entity.DocStatus = GenerateDocStatus(entity)
+		for _, item := range entity.ItemList {
+			item.DocStatus = GenerateDocStatus(item)
 		}
+		entity.DocStatus = GenerateDocStatus(entity)
 	}
 	for _, entity := range data.Entities.TypeList {
-		if entity.Document, _ = apiDir.Query("type", entity.ID).(Document); entity.Document != nil {
-			entity.Document.SetRender(renderer)
-		}
 		entity.DocStatus = GenerateDocStatus(entity)
 	}
 }
