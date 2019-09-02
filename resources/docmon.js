@@ -78,7 +78,27 @@ function sortDsc(parent, rows, indexes) {
 	};
 };
 
-function initSort() {
+function initDocmon() {
+	let coverage = document.querySelector("#coverage .value");
+	if (coverage) {
+		let value = Number(coverage.firstChild.data.slice(0, -1))/100;
+		if (!Number.isNaN(value)) {
+			let start, end;
+			if (value >= 0.5) {
+				start = "var(--theme-patch-change)"
+				end = "var(--theme-patch-add)"
+				value = value*2 - 1;
+			} else {
+				start = "var(--theme-patch-remove)"
+				end = "var(--theme-patch-change)"
+				value = value*2;
+			};
+			coverage.style.setProperty("--value", String(value));
+			coverage.style.setProperty("--min-color", start);
+			coverage.style.setProperty("--max-color", end);
+		};
+	};
+
 	let cols = [
 		[getNumber, presortNumber],
 		[getCell, presortType],
@@ -148,8 +168,8 @@ function initSort() {
 
 
 if (document.readyState === "loading") {
-	document.addEventListener("DOMContentLoaded", initSort);
+	document.addEventListener("DOMContentLoaded", initDocmon);
 } else {
-	initSort();
+	initDocmon();
 };
 };

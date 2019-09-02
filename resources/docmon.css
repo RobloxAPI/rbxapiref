@@ -72,3 +72,11 @@ td {
 .cell {
 	padding : 0 0.5ch;
 }
+
+#coverage {
+	font-size   : larger;
+	font-weight : bold;
+}
+#coverage .value {
+	background-image : linear-gradient(var(--max-color) calc(var(--baseline)*1.2*256*(var(--value) - 1)), var(--min-color) calc(var(--baseline)*1.2*256*var(--value)));
+}

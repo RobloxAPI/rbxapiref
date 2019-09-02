@@ -24,6 +24,12 @@ type Entities struct {
 	Types    map[string]*TypeEntity
 	TypeList []*TypeEntity
 	TypeCats []TypeCategory
+
+	Coverage float32
+}
+
+func (e *Entities) CoverageString() string {
+	return fmt.Sprintf("%.2f%%", e.Coverage*100)
 }
 
 type DocStatus struct {
@@ -55,7 +61,7 @@ func (s DocStatus) StatusString(status int) string {
 	return ""
 }
 func (s DocStatus) ProgressString() string {
-	return fmt.Sprintf("%.2f%%", s.AggregateProgress)
+	return fmt.Sprintf("%.2f%%", s.AggregateProgress*100)
 }
 
 type Entity interface {

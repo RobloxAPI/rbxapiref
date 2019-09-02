@@ -1120,21 +1120,29 @@ func (data *Data) GenerateDocuments() {
 		}
 	}
 
+	total := float64(len(data.Entities.ClassList) +
+		len(data.Entities.EnumList) +
+		len(data.Entities.TypeList))
+	var count float64
 	for _, entity := range data.Entities.ClassList {
 		for _, member := range entity.MemberList {
 			member.DocStatus = GenerateDocStatus(member)
 		}
 		entity.DocStatus = GenerateDocStatus(entity)
+		count += entity.DocStatus.AggregateProgress
 	}
 	for _, entity := range data.Entities.EnumList {
 		for _, item := range entity.ItemList {
 			item.DocStatus = GenerateDocStatus(item)
 		}
 		entity.DocStatus = GenerateDocStatus(entity)
+		count += entity.DocStatus.AggregateProgress
 	}
 	for _, entity := range data.Entities.TypeList {
 		entity.DocStatus = GenerateDocStatus(entity)
+		count += entity.DocStatus.AggregateProgress
 	}
+	data.Entities.Coverage = float32(count / total)
 }
 
 func GetDocStatus(entity interface{}) DocStatus {
@@ -1312,9 +1320,9 @@ func GenerateDocStatus(entity interface{}) (s DocStatus) {
 		s.AggregateStatus = 1
 	}
 	if total > 0 {
-		s.AggregateProgress = float64(count) / float64(total) * 100
+		s.AggregateProgress = float64(count) / float64(total)
 	} else {
-		s.AggregateProgress = 100
+		s.AggregateProgress = 1
 	}
 	return s
 }
