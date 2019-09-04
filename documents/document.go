@@ -55,6 +55,4 @@ type Countable interface {
 	IsEmpty() bool
 	// BlockCount returns the number of blocks in the section.
 	BlockCount() int
-	// HeadingCount returns the number of headings within the section.
-	HeadingCount() int
 }

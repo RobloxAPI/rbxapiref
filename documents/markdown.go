@@ -328,13 +328,3 @@ func (s *MarkdownSection) IsEmpty() bool {
 func (s *MarkdownSection) BlockCount() int {
 	return len(s.Document.Children)
 }
-
-func (s *MarkdownSection) HeadingCount() int {
-	n := 0
-	for _, node := range s.Document.Children {
-		if _, ok := node.(*ast.Heading); ok {
-			n++
-		}
-	}
-	return n
-}
