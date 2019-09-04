@@ -321,10 +321,6 @@ func (s *MarkdownSection) SetLinks(walk func(string) string) {
 	setLinks(s.Document, walk)
 }
 
-func (s *MarkdownSection) IsEmpty() bool {
-	return len(s.Document.Children) == 0
-}
-
-func (s *MarkdownSection) BlockCount() int {
+func (s *MarkdownSection) Count() int {
 	return len(s.Document.Children)
 }

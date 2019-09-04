@@ -51,8 +51,6 @@ type Linkable interface {
 // content.
 type Countable interface {
 	Section
-	// IsEmpty returns whether the section contains any content.
-	IsEmpty() bool
-	// BlockCount returns the number of blocks in the section.
-	BlockCount() int
+	// Count returns the number of elements in the section.
+	Count() int
 }

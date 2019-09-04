@@ -1158,7 +1158,7 @@ func GenerateDocStatus(entity interface{}) (s DocStatus) {
 			*status = 0
 		} else if section == nil {
 			*status = 1
-		} else if count, ok := section.(documents.Countable); ok && count.IsEmpty() {
+		} else if count, ok := section.(documents.Countable); ok && count.Count() == 0 {
 			*status = 2
 		} else {
 			*status = 3
@@ -1186,10 +1186,10 @@ func GenerateDocStatus(entity interface{}) (s DocStatus) {
 	setStatus(&s.DetailsStatus, s.HasDocument, details)
 	setStatus(&s.ExamplesStatus, s.HasDocument, examples)
 	if count, ok := details.(documents.Countable); ok {
-		s.DetailsSections = count.BlockCount()
+		s.DetailsSections = count.Count()
 	}
 	if count, ok := examples.(documents.Countable); ok {
-		s.ExampleCount = count.BlockCount()
+		s.ExampleCount = count.Count()
 	}
 
 	var count int
