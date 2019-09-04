@@ -57,6 +57,4 @@ type Countable interface {
 	BlockCount() int
 	// HeadingCount returns the number of headings within the section.
 	HeadingCount() int
-	// CodeBlockCount returns the number of code blocks within the section.
-	CodeBlockCount() int
 }

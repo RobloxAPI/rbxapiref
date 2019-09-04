@@ -338,13 +338,3 @@ func (s *MarkdownSection) HeadingCount() int {
 	}
 	return n
 }
-
-func (s *MarkdownSection) CodeBlockCount() int {
-	n := 0
-	for _, node := range s.Document.Children {
-		if _, ok := node.(*ast.CodeBlock); ok {
-			n++
-		}
-	}
-	return n
-}

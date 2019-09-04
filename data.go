@@ -1189,7 +1189,7 @@ func GenerateDocStatus(entity interface{}) (s DocStatus) {
 		s.DetailsSections = count.BlockCount()
 	}
 	if count, ok := examples.(documents.Countable); ok {
-		s.ExampleCount = count.CodeBlockCount()
+		s.ExampleCount = count.BlockCount()
 	}
 
 	var count int
