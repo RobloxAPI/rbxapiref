@@ -65,24 +65,26 @@ func FetchBuilds(settings Settings) (builds []Build, err error) {
 	}
 	builds = b
 
-	// Rewind to current live build.
-	if lives, err := client.Live(); err != nil {
-		but.Logf("fetch live builds: %v\n", err)
-	} else {
-		max := -1
-		for _, live := range lives {
-			for i := len(builds) - 1; i > max; i-- {
-				if builds[i].Info.Hash == live.Hash {
-					max = i
-					break
+	if !settings.Input.DisableRewind {
+		// Rewind to current live build.
+		if lives, err := client.Live(); err != nil {
+			but.Logf("fetch live builds: %v\n", err)
+		} else {
+			max := -1
+			for _, live := range lives {
+				for i := len(builds) - 1; i > max; i-- {
+					if builds[i].Info.Hash == live.Hash {
+						max = i
+						break
+					}
 				}
 			}
-		}
-		if max >= 0 {
-			for i := len(builds) - 1; i > max; i-- {
-				but.Log("REWIND", builds[i].Info.Hash)
+			if max >= 0 {
+				for i := len(builds) - 1; i > max; i-- {
+					but.Log("REWIND", builds[i].Info.Hash)
+				}
+				builds = builds[:max+1]
 			}
-			builds = builds[:max+1]
 		}
 	}
 

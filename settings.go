@@ -36,6 +36,9 @@ type SettingsInput struct {
 	// committed content will be used. That is, untracked files are ignored, and
 	// only committed modifications to a file are used.
 	UseGit bool
+	// DisableRewind sets whether rewinding is enabled. If true, builds that are
+	// not yet live will be included.
+	DisableRewind bool
 }
 
 type SettingsOutput struct {
@@ -61,11 +64,12 @@ func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 	dw := NewDecodeWrapper(r)
 	var jsettings struct {
 		Input struct {
-			Resources    *string
-			Templates    *string
-			Documents    *string
-			DocResources *string
-			UseGit       *bool
+			Resources     *string
+			Templates     *string
+			Documents     *string
+			DocResources  *string
+			UseGit        *bool
+			DisableRewind *bool
 		}
 		Output struct {
 			Root         *string
@@ -85,7 +89,7 @@ func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 
 	wd, _ := os.Getwd()
 
-	merge := func(dst, src *string, path bool) {
+	mergeString := func(dst, src *string, path bool) {
 		if src != nil && *src != "" {
 			*dst = *src
 		}
@@ -93,19 +97,23 @@ func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 			*dst = filepath.Join(wd, *dst)
 		}
 	}
-	merge(&settings.Input.Resources, jsettings.Input.Resources, true)
-	merge(&settings.Input.Templates, jsettings.Input.Templates, true)
-	merge(&settings.Input.Documents, jsettings.Input.Documents, true)
-	merge(&settings.Input.DocResources, jsettings.Input.DocResources, true)
-	if jsettings.Input.UseGit != nil && *jsettings.Input.UseGit {
-		settings.Input.UseGit = *jsettings.Input.UseGit
+	mergeBool := func(dst, src *bool) {
+		if src != nil && *src {
+			*dst = *src
+		}
 	}
-	merge(&settings.Output.Root, jsettings.Output.Root, true)
-	merge(&settings.Output.Sub, jsettings.Output.Sub, false)
-	merge(&settings.Output.Manifest, jsettings.Output.Manifest, false)
-	merge(&settings.Output.Resources, jsettings.Output.Resources, false)
-	merge(&settings.Output.DocResources, jsettings.Output.DocResources, false)
-	merge(&settings.Output.Host, jsettings.Output.Host, false)
+	mergeString(&settings.Input.Resources, jsettings.Input.Resources, true)
+	mergeString(&settings.Input.Templates, jsettings.Input.Templates, true)
+	mergeString(&settings.Input.Documents, jsettings.Input.Documents, true)
+	mergeString(&settings.Input.DocResources, jsettings.Input.DocResources, true)
+	mergeBool(&settings.Input.UseGit, jsettings.Input.UseGit)
+	mergeBool(&settings.Input.DisableRewind, jsettings.Input.DisableRewind)
+	mergeString(&settings.Output.Root, jsettings.Output.Root, true)
+	mergeString(&settings.Output.Sub, jsettings.Output.Sub, false)
+	mergeString(&settings.Output.Manifest, jsettings.Output.Manifest, false)
+	mergeString(&settings.Output.Resources, jsettings.Output.Resources, false)
+	mergeString(&settings.Output.DocResources, jsettings.Output.DocResources, false)
+	mergeString(&settings.Output.Host, jsettings.Output.Host, false)
 	for k, v := range jsettings.Configs {
 		settings.Configs[k] = v
 	}

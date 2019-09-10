@@ -64,6 +64,8 @@ type FlagOptions struct {
 	UseGit   bool   `long:"use-git"`
 	NoGit    bool   `long:"no-git"`
 	Stamp    bool   `long:"stamp"`
+	Rewind   bool   `long:"rewind"`
+	NoRewind bool   `long:"no-rewind"`
 }
 
 var options = map[string]*flags.Option{
@@ -89,6 +91,12 @@ var options = map[string]*flags.Option{
 	},
 	"stamp": &flags.Option{
 		Description: "If true, inject a timestamp into the website.",
+	},
+	"rewind": &flags.Option{
+		Description: "Force rewinding.",
+	},
+	"no-rewind": &flags.Option{
+		Description: "Force no rewinding.",
 	},
 }
 
@@ -139,6 +147,11 @@ func main() {
 		data.Settings.Input.UseGit = false
 	} else if opt.UseGit {
 		data.Settings.Input.UseGit = true
+	}
+	if opt.NoRewind {
+		data.Settings.Input.DisableRewind = true
+	} else if opt.Rewind {
+		data.Settings.Input.DisableRewind = false
 	}
 
 	// Load manifest.
