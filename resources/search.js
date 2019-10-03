@@ -9,6 +9,7 @@ function initStatusFilters() {
 	let deprecated = true;
 	let unbrowsable = true;
 	let hidden = true;
+	let removed = true;
 	window.rbxapiSettings.Listen("SecurityIdentity", function(name, value, initial) {
 		securityID = Number(value);
 	});
@@ -21,6 +22,9 @@ function initStatusFilters() {
 	window.rbxapiSettings.Listen("ShowHidden", function(name, value, initial) {
 		hidden = value;
 	});
+	window.rbxapiSettings.Listen("ShowRemoved", function(name, value, initial) {
+		removed = value;
+	});
 	statusFilter = function(item) {
 		if (item.deprecated && !deprecated) {
 			return true;
@@ -29,6 +33,9 @@ function initStatusFilters() {
 			return true;
 		};
 		if (item.hidden && !hidden) {
+			return true;
+		};
+		if (item.removed && !removed) {
 			return true;
 		};
 
@@ -759,6 +766,9 @@ function initSearch() {
 			if (result[1].hidden) {
 				item.classList.add("api-hidden");
 			};
+			if (result[1].removed) {
+				item.classList.add("api-removed");
+			};
 			let sec = result[1].security;
 			if (sec !== null) {
 				if (typeof(sec) === "string") {
@@ -784,7 +794,7 @@ function initSearch() {
 				link.innerHTML += result[0][2];
 				item.appendChild(link);
 			};
-			{
+			if (!result[1].removed) {
 				let u = generateLink(result[1], true);
 				if (u !== "") {
 					let link = document.createElement("a");
@@ -912,7 +922,7 @@ function initSearch() {
 					return;
 				};
 				let u = generateLink(first[1], true);
-				if (u === "") {
+				if (u === "" || first[1].removed) {
 					renderResults(results);
 					return;
 				};

@@ -352,6 +352,7 @@ var securityContexts = map[string]int{
 func (data *Data) ElementStatusClasses(suffix bool, v ...interface{}) string {
 	var t rbxapi.Taggable
 	var action *Action
+	var removed bool
 	switch value := v[0].(type) {
 	case rbxapi.Taggable:
 		t = value
@@ -362,6 +363,7 @@ func (data *Data) ElementStatusClasses(suffix bool, v ...interface{}) string {
 			if !ok {
 				return ""
 			}
+			removed = class.Removed
 			t = class.Element
 		case "member":
 			class, ok := data.Entities.Classes[v[1].(string)]
@@ -372,12 +374,14 @@ func (data *Data) ElementStatusClasses(suffix bool, v ...interface{}) string {
 			if !ok {
 				return ""
 			}
+			removed = member.Removed
 			t = member.Element
 		case "enum":
 			enum, ok := data.Entities.Enums[v[1].(string)]
 			if !ok {
 				return ""
 			}
+			removed = enum.Removed
 			t = enum.Element
 		case "enumitem":
 			enum, ok := data.Entities.Enums[v[1].(string)]
@@ -388,17 +392,22 @@ func (data *Data) ElementStatusClasses(suffix bool, v ...interface{}) string {
 			if !ok {
 				return ""
 			}
+			removed = item.Removed
 			t = item.Element
 		default:
 			return ""
 		}
 	case *ClassEntity:
+		removed = value.Removed
 		t = value.Element
 	case *MemberEntity:
+		removed = value.Removed
 		t = value.Element
 	case *EnumEntity:
+		removed = value.Removed
 		t = value.Element
 	case *EnumItemEntity:
+		removed = value.Removed
 		t = value.Element
 	case Action:
 		action = &value
@@ -453,6 +462,9 @@ func (data *Data) ElementStatusClasses(suffix bool, v ...interface{}) string {
 		case "Hidden":
 			s = append(s, "api-hidden")
 		}
+	}
+	if removed {
+		s = append(s, "api-removed")
 	}
 	switch m := t.(type) {
 	case interface{ GetSecurity() (string, string) }:

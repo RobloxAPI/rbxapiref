@@ -68,7 +68,7 @@
 			<li id="toc-members"><a href="#members">Members</a>
 				<ol class="toc-members">
 				{{- range $membersSorted -}}
-					{{- $status := status false .Element }}
+					{{- $status := status false . }}
 					<li{{if $status}} class="{{$status}}"{{end}}><a href="#member-{{.Element.GetName}}">{{.Element.GetName}}</a></li>
 				{{- end }}
 				</ol>
@@ -78,7 +78,7 @@
 			<li id="toc-removed-members"><a href="#removed-members">Removed members</a>
 				<ol class="toc-members">
 				{{- range $removedSorted -}}
-					{{- $status := status false .Element }}
+					{{- $status := status false . }}
 					<li{{if $status}} class="{{$status}}"{{end}}><a href="#member-{{.Element.GetName}}">{{.Element.GetName}}</a></li>
 				{{- end }}
 				</ol>
@@ -111,7 +111,7 @@
 		</header>
 		<ul class="truncated-list element-list">
 		{{- range $superclasses -}}
-			{{- $status := status false .Element }}
+			{{- $status := status false . }}
 			<li{{if $status}} class="{{$status}}"{{end}}><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
 		{{- end }}
 		</ul>
@@ -124,7 +124,7 @@
 		</header>
 		<ul class="truncated-list element-list">
 		{{- range $subclasses -}}
-			{{- $status := status false .Element }}
+			{{- $status := status false . }}
 			<li{{if $status}} class="{{$status}}"{{end}}><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
 		{{- end }}
 		</ul>
@@ -204,7 +204,7 @@
 		</header>
 		<ul class="truncated-list element-list">
 		{{- range $classes -}}
-			{{- $status := status false .Element }}
+			{{- $status := status false . }}
 			<li{{if $status}} class="{{$status}}"{{end}}><a class="element-link" href="{{link "class" .ID}}">{{icon .Element}}{{.ID}}</a></li>
 		{{- end }}
 		</ul>
@@ -217,7 +217,7 @@
 		</header>
 		<ul class="truncated-list element-list">
 		{{- range $enums -}}
-			{{- $status := status false .Element }}
+			{{- $status := status false . }}
 			<li{{if $status}} class="{{$status}}"{{end}}><a class="element-link" href="{{link "enum" .ID}}">{{icon .Element}}{{.ID}}</a></li>
 		{{- end }}
 		</ul>

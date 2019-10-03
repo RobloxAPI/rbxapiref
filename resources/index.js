@@ -94,6 +94,11 @@ function domLoaded() {
 		["Count", ">*", formatCount]
 	);
 	rbxapiActions.QuickLink(
+		"#removed-classes",
+		"#removed-class-list",
+		["HideIfZero", ">*"]
+	);
+	rbxapiActions.QuickLink(
 		"#enums > header .element-count",
 		"#enum-list",
 		["Count", ">*", formatCount]
@@ -102,6 +107,21 @@ function domLoaded() {
 		"#removed-enums > header .element-count",
 		"#removed-enum-list",
 		["Count", ">*", formatCount]
+	);
+	rbxapiActions.QuickLink(
+		"#removed-enums",
+		"#removed-enum-list",
+		["HideIfZero", ">*"]
+	);
+	rbxapiActions.QuickLink(
+		"#removed-types > header .element-count",
+		"#removed-type-list",
+		["Count", ">*", formatCount]
+	);
+	rbxapiActions.QuickLink(
+		"#removed-types",
+		"#removed-type-list",
+		["HideIfZero", ">*"]
 	);
 
 	initSortClasses();

@@ -48,6 +48,12 @@ const settings = [
 		"type"     : "checkbox",
 		"default"  : true,
 		"text"     : "Show hidden",
+	},
+	{
+		"name"     : "ShowRemoved",
+		"type"     : "checkbox",
+		"default"  : true,
+		"text"     : "Show removed",
 	}
 ];
 

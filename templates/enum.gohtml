@@ -51,7 +51,7 @@
 					{{- $details := document . "Details" -}}
 					{{- $examples := document . "Examples" -}}
 					{{- if or $details $examples -}}
-					{{- $status := status false .Element }}
+					{{- $status := status false . }}
 					<li{{if $status}} class="{{$status}}"{{end}}><a href="#member-{{.Element.GetName}}">{{.Element.GetName}}</a></li>
 					{{- end -}}
 				{{- end }}
@@ -62,7 +62,7 @@
 			<li id="toc-removed-members"><a href="#removed-members">Removed items</a>
 				<ol class="toc-members">
 				{{- range $removedSorted -}}
-					{{- $status := status false .Element }}
+					{{- $status := status false . }}
 					<li{{if $status}} class="{{$status}}"{{end}}><a href="#member-{{.Element.GetName}}">{{.Element.GetName}}</a></li>
 				{{- end }}
 				</ol>

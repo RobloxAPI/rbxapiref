@@ -14,7 +14,7 @@
 	<ul id="class-list" class="element-list">
 		{{- define "tree" -}}
 		{{- range . -}}
-		{{- $status := status false .Element }}
+		{{- $status := status false . }}
 		<li{{if $status}} class="{{$status}}"{{end}}><a class="element-link" href="{{link "class" .ID}}">{{icon .}}{{.ID}}</a>
 		{{- if .Subclasses }}
 		<ul>
@@ -34,7 +34,7 @@
 		</header>
 		<ul id="removed-class-list" class="element-list">
 		{{- range $removed -}}
-			{{- $status := status false .Element }}
+			{{- $status := status false . }}
 			<li{{if $status}} class="{{$status}}"{{end}}><a class="element-link" href="{{link "class" .ID}}">{{icon .}}{{.ID}}</a>
 		{{- end -}}
 		</ul>
@@ -48,7 +48,7 @@
 	</header>
 	<ul id="enum-list" class="element-list">
 	{{- range $enums -}}
-		{{- $status := status false .Element }}
+		{{- $status := status false . }}
 		<li{{if $status}} class="{{$status}}"{{end}}><a class="element-link" href="{{link "enum" .ID}}">{{icon .}}{{.ID}}</a></li>
 	{{- end }}
 	</ul>
@@ -60,7 +60,7 @@
 		</header>
 		<ul id="removed-enum-list" class="element-list">
 		{{- range $removed -}}
-			{{- $status := status false .Element }}
+			{{- $status := status false . }}
 			<li{{if $status}} class="{{$status}}"{{end}}><a class="element-link" href="{{link "enum" .ID}}">{{icon .}}{{.ID}}</a>
 		{{- end -}}
 		</ul>
@@ -91,7 +91,7 @@
 		</header>
 		<ul id="removed-type-list">
 		{{- range $removed }}
-			<li>{{template "value" .Element}}</li>
+			<li class="api-removed">{{template "value" .Element}}</li>
 		{{- end -}}
 		</ul>
 	</section>

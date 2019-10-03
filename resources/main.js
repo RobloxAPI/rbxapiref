@@ -110,6 +110,21 @@ function initSettings() {
 		rbxapiActions.UpdateAll();
 	});
 
+	let showRemoved = document.createElement("style");
+	showRemoved.innerHTML =
+		".api-removed { display: none; }\n" +
+		"#class-list .api-removed { display: unset; }\n" +
+		"#class-list .api-removed > .element-link { display: none; }\n" +
+		"#class-list .api-removed > ul { padding-left:0; border-left:none; }\n";
+	window.rbxapiSettings.Listen("ShowRemoved", function(name, value, initial) {
+		if (value) {
+			showRemoved.remove();
+		} else {
+			head.appendChild(showRemoved);
+		};
+		rbxapiActions.UpdateAll();
+	});
+
 	let security = [];
 	for (let i=0; i<securityIdentities.length; i++) {
 		let content = "";
