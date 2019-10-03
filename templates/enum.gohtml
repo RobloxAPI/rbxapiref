@@ -11,7 +11,7 @@
 {{- $referrers := filter .ReferrerList "ImplicitAdded" -}}
 <main{{if or $membersSorted $removedSorted}} class="descriptive"{{end}}>
 <header>
-	<h1>{{icon .}}{{.ID}} {{template "devhub-link" link "devhub" "enum" $enum}}</h1>
+	<h1>{{icon .}}{{.ID}}{{if not .Removed}} {{template "devhub-link" link "devhub" "enum" $enum}}{{end}}</h1>
 </header>
 {{- if or $summary .Element.Tags }}
 <section id="summary">

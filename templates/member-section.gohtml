@@ -7,7 +7,7 @@
 {{- with .Element -}}
 	<section id="member-{{.GetName}}"{{if $status}} class="{{$status}}"{{end}}>
 		<header>
-			<h3>{{icon .}}{{.GetName}} {{template "devhub-link" link "devhub" .GetMemberType $entity.Parent.ID .GetName}}</h3>
+			<h3>{{icon .}}{{.GetName}}{{if not $entity.Removed}} {{template "devhub-link" link "devhub" .GetMemberType $entity.Parent.ID .GetName}}{{end}}</h3>
 		</header>
 	{{- if $summary }}
 		<section class="doc">{{renderdoc $summary 3}}</section>

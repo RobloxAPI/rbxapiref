@@ -6,7 +6,7 @@
 {{- with .Element }}
 	<section id="member-{{.Name}}"{{if $status}} class="{{$status}}"{{end}}>
 		<header>
-			<h3>{{icon .}}{{.Name}} {{template "devhub-link" link "devhub" "enumitem" $entity.Parent.ID .Name}}</h3>
+			<h3>{{icon .}}{{.Name}}{{if not $entity.Removed}} {{template "devhub-link" link "devhub" "enumitem" $entity.Parent.ID .Name}}{{end}}</h3>
 		</header>
 		{{- template "status-boxes" . -}}
 	{{- if $details }}

@@ -10,7 +10,7 @@
 {{- end -}}
 <main>
 <header>
-	<h1>{{.ID}} {{template "devhub-link" link "devhub" "type" .ID}}</h1>
+	<h1>{{.ID}}{{if not .Removed}} {{template "devhub-link" link "devhub" "type" .ID}}{{end}}</h1>
 </header>
 {{- if $summary }}
 <section id="summary">
