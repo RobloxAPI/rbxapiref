@@ -817,10 +817,16 @@ li[diff-field="Parameters"] .diff-values .parameter {
 #search-results *:hover > a.devhub-link {
 	display : inline;
 }
+.devhub-link {
+	-ms-user-select     : none;
+	-webkit-user-select : none;
+	-moz-user-select    : none;
+	user-select         : none;
+}
 header .devhub-link {
-	float          : right;
-	font-size      : var(--font-size);
-	font-weight    : normal;
+	float       : right;
+	font-size   : var(--font-size);
+	font-weight : normal;
 }
 :target > header .devhub-link {
 	color : var(--theme-highlight-text);
