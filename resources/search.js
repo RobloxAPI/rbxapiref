@@ -690,8 +690,21 @@ function sortResults(a,b) {
 	// [0][0]: matched bool
 	// [0][1]: score   int
 	// [0][2]: value   string
+	// [1]   : item    DatabaseItem
 	if (a[0][0] === b[0][0]) {
-		return b[0][1] - a[0][1]
+		if (a[1].removed === b[1].removed) {
+			if (a[1].deprecated === b[1].deprecated) {
+				if (a[1].unbrowsable === b[1].unbrowsable) {
+					if (a[1].hidden === b[1].hidden) {
+						return b[0][1] - a[0][1]
+					};
+					return (a[1].hidden && !b[1].hidden) ? 1 : -1;
+				};
+				return (a[1].unbrowsable && !b[1].unbrowsable) ? 1 : -1;
+			};
+			return (a[1].deprecated && !b[1].deprecated) ? 1 : -1;
+		};
+		return (a[1].removed && !b[1].removed) ? 1 : -1;
 	};
 	return (a[0][0] && !b[0][0]) ? 1 : -1;
 };
