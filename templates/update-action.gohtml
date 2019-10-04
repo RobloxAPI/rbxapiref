@@ -45,7 +45,7 @@
 	{{.Type.String}} <a class="element-link" href="{{link "enum" .Enum.Name}}">{{icon .Enum}}{{.Enum.Name}}</a>
 	<ul>
 	{{- if $sub -}}
-	{{- range subactions . }}
+	{{- range subactions . -}}
 		{{- $status := status false .EnumItem }}
 		<li{{if $status}} class="{{$status}}"{{end}}>{{.Type.String}} <a class="element-link" href="{{link "enumitem" .Enum.Name .EnumItem.Name}}">{{icon .EnumItem}}{{.EnumItem.Name}}</a></li>
 	{{- end -}}

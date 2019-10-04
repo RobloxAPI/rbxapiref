@@ -1,7 +1,7 @@
 {{- $entity := . -}}
 {{- $details := document . "Details" -}}
 {{- $examples := document . "Examples" -}}
-{{- if or $details $examples }}
+{{- if or $details $examples -}}
 {{- $status := status false . }}
 {{- with .Element }}
 	<section id="member-{{.Name}}"{{if $status}} class="{{$status}}"{{end}}>

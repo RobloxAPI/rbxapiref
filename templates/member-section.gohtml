@@ -3,8 +3,8 @@
 {{- if not $summary -}}{{- $summary = document . "" -}}{{- end -}}
 {{- $details := document . "Details" -}}
 {{- $examples := document . "Examples" -}}
-{{- $status := status false . }}
-{{- with .Element -}}
+{{- $status := status false . -}}
+{{- with .Element }}
 	<section id="member-{{.GetName}}"{{if $status}} class="{{$status}}"{{end}}>
 		<header>
 			<h3>{{icon .}}{{.GetName}}{{if not $entity.Removed}} {{template "devhub-link" link "devhub" .GetMemberType $entity.Parent.ID .GetName}}{{end}}</h3>

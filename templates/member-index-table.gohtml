@@ -12,8 +12,8 @@
 {{- $class := .Class -}}
 {{- range .Members -}}
 	{{- $entity := . -}}
-	{{- $status := status true . }}
-	{{- with .Element -}}
+	{{- $status := status true . -}}
+	{{- with .Element }}
 		<tr class="member-{{.GetName}} row-{{.GetMemberType}}{{$status}}">
 		{{- if eq .GetMemberType "Property" }}
 			<td class="col-type">{{template "value" .ValueType}}</td>
