@@ -5,7 +5,6 @@ import (
 	"github.com/anaminus/but"
 	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapi/rbxapijson"
-	"github.com/robloxapi/rbxapi/rbxapijson/diff"
 	"github.com/robloxapi/rbxapiref/fetch"
 	"sort"
 	"time"
@@ -141,7 +140,7 @@ loop:
 		var actions []Action
 		if latest == nil {
 			// First build; compare with nothing.
-			actions = WrapActions((&diff.Diff{Prev: nil, Next: build.API}).Diff())
+			actions = WrapActions((&rbxapijson.Diff{Prev: nil, Next: build.API}).Diff())
 		} else {
 			if latest.API == nil {
 				// Previous build was cached; fetch its data to compare with
@@ -153,7 +152,7 @@ loop:
 				}
 				latest.API = root
 			}
-			actions = WrapActions((&diff.Diff{Prev: latest.API, Next: build.API}).Diff())
+			actions = WrapActions((&rbxapijson.Diff{Prev: latest.API, Next: build.API}).Diff())
 		}
 		patch := Patch{Stale: true, Info: build.Info, Config: build.Config, Actions: actions}
 		if latest != nil {
