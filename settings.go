@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/kirsle/configdir"
 	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapiref/fetch"
 	"io"
@@ -136,25 +135,32 @@ func (settings *Settings) WriteTo(w io.Writer) (n int64, err error) {
 	return ew.Result()
 }
 
-func (settings *Settings) filename(name string) string {
+func (settings *Settings) filename(name string) (string, error) {
 	// User-defined.
 	if name != "" {
-		return name
+		return name, nil
 	}
 
 	// Portable, if present.
 	name = SettingsFile
 	if _, err := os.Stat(name); !os.IsNotExist(err) {
-		return name
+		return name, nil
 	}
 
 	// Local config.
-	name = filepath.Join(configdir.LocalConfig(ToolName), SettingsFile)
-	return name
+	config, err := os.UserConfigDir()
+	if err != nil {
+		return "", err
+	}
+	name = filepath.Join(config, ToolName, SettingsFile)
+	return name, nil
 }
 
 func (settings *Settings) ReadFile(filename string) error {
-	filename = settings.filename(filename)
+	filename, err := settings.filename(filename)
+	if err != nil {
+		return errors.Wrap(err, "settings file name")
+	}
 	file, err := os.Open(filename)
 	if err != nil {
 		return errors.Wrap(err, "open settings file")
@@ -165,7 +171,10 @@ func (settings *Settings) ReadFile(filename string) error {
 }
 
 func (settings *Settings) WriteFile(filename string) error {
-	filename = settings.filename(filename)
+	filename, err := settings.filename(filename)
+	if err != nil {
+		return errors.Wrap(err, "settings file name")
+	}
 	file, err := os.Create(filename)
 	if err != nil {
 		return errors.Wrap(err, "create settings file")
