@@ -1,14 +1,47 @@
 "use strict";
-const securityIdentities = [7, 4, 5, 6, 3, 2];
-const securityContexts = [
-	"NotAccessibleSecurity",
-	"RobloxSecurity",
-	"RobloxScriptSecurity",
-	"LocalUserSecurity",
-	"PluginSecurity",
-	"RobloxPlaceSecurity",
-	"None",
+const securityIdentities = [
+	"All",
+	"Server",
+	"CoreScript",
+	"BuiltinPlugin",
+	"Command",
+	"Plugin",
+	"Script",
 ];
+const securityPermissions = new Map([
+	//                          ALL SVR CSC BPL CMD PLG SCR
+	["None"                  , [ 1 , 1 , 1 , 1 , 1 , 1 , 1 ]],
+	["RobloxPlaceSecurity"   , [ 1 , 1 , 1 , 1 , 1 , 1 , 0 ]],
+	["PluginSecurity"        , [ 1 , 1 , 1 , 1 , 1 , 1 , 0 ]],
+	["LocalUserSecurity"     , [ 1 , 1 , 1 , 0 , 1 , 0 , 0 ]],
+	["RobloxScriptSecurity"  , [ 1 , 1 , 1 , 1 , 0 , 0 , 0 ]],
+	["RobloxSecurity"        , [ 1 , 1 , 0 , 0 , 0 , 0 , 0 ]],
+	["NotAccessibleSecurity" , [ 1 , 0 , 0 , 0 , 0 , 0 , 0 ]],
+]);
+const securityContexts = Array.from(securityPermissions.keys());
+function secIDHasContext(id, ctx) {
+	if (ctx instanceof Array) {
+		// Return true if any context returns true.
+		for (let c of ctx) {
+			if (secIDHasContext(id, c)) {
+				return true;
+			};
+		};
+		return false;
+	} else if (typeof(ctx) === "number") {
+		ctx = securityContexts[ctx];
+		if (!ctx) {
+			return false;
+		};
+	};
+	if (typeof(id) === "string") {
+		id = securityIdentities.indexOf(id);
+		if (id < 0) {
+			return false;
+		};
+	};
+	return securityPermissions.get(ctx)[id] === 1;
+};
 {
 function initTopNav() {
 	let topnav = document.getElementById("top-nav");
@@ -125,28 +158,39 @@ function initSettings() {
 		rbxapiActions.UpdateAll();
 	});
 
-	let security = [];
-	for (let i=0; i<securityIdentities.length; i++) {
+	let security = new Map();
+	for (let i = 0; i < securityIdentities.length; i++) {
 		let content = "";
-		for (let c=0; c<=i; c++) {
-			content += ".api-sec-" + securityContexts[c];
-			for (let n=i+1; n<securityContexts.length; n++) {
-				content += ":not(.api-sec-" + securityContexts[n] + ")";
+		for (let primary of securityPermissions) {
+			if (primary[1][i] !== 0) {
+				continue;
 			};
-			if (c < i) {
-				content += ", ";
+			content += ".api-sec-" + primary[0];
+			for (let secondary of securityPermissions) {
+				if (secondary[1][i] !== 1) {
+					continue;
+				};
+				content += ":not(.api-sec-" + secondary[0] + ")";
 			};
+			content += ",\n";
 		};
-		content += " { display: none; }\n";
-		security[i] = document.createElement("style");
-		security[i].innerHTML = content;
+		if (content === "") {
+			continue;
+		};
+		content = content.slice(0, -2) + " {\n\tdisplay: none;\n}\n";
+		let style = document.createElement("style");
+		style.innerHTML = content;
+		security.set(securityIdentities[i], style);
+		console.log("CHECK", securityIdentities[i]);
+		console.log(content);
+		console.log("---------------------------------------------------");
 	};
 	window.rbxapiSettings.Listen("SecurityIdentity", function(name, value, initial) {
-		for (let i=0; i<security.length; i++) {
-			if (Number(value) === securityIdentities[i]) {
-				head.appendChild(security[i]);
+		for (let entry of security) {
+			if (value === entry[0]) {
+				head.appendChild(entry[1]);
 			} else {
-				security[i].remove();
+				entry[1].remove();
 			};
 		};
 		rbxapiActions.UpdateAll();

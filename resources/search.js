@@ -5,13 +5,13 @@ const maxResults = 50;
 
 let statusFilter = null;
 function initStatusFilters() {
-	let securityID = 0;
+	let security = 0;
 	let deprecated = true;
 	let unbrowsable = true;
 	let hidden = true;
 	let removed = true;
 	window.rbxapiSettings.Listen("SecurityIdentity", function(name, value, initial) {
-		securityID = Number(value);
+		security = value;
 	});
 	window.rbxapiSettings.Listen("ShowDeprecated", function(name, value, initial) {
 		deprecated = value;
@@ -39,22 +39,12 @@ function initStatusFilters() {
 			return true;
 		};
 
-		if (securityIdentities && securityContexts && securityID > 0) {
-			let ctxIndex = -1;
+		if (secIDHasContext && security !== "All") {
 			let sec = item.security;
 			if (sec && typeof(sec) == "string") {
-				ctxIndex = securityContexts.indexOf(sec);
+				return !secIDHasContext(security, sec);
 			} else if (sec) {
-				let r = securityContexts.indexOf(sec.read);
-				let w = securityContexts.indexOf(sec.write);
-				r = r < 0 ? securityContexts.length-1 : r;
-				w = w < 0 ? securityContexts.length-1 : w;
-				ctxIndex = r > w ? r : w;
-			};
-			ctxIndex = ctxIndex < 0 ? securityContexts.length-1 : ctxIndex;
-			let idIndex = securityIdentities.indexOf(securityID);
-			if (ctxIndex <= idIndex) {
-				return true;
+				return !secIDHasContext(security, [sec.read, sec.write]);
 			};
 		};
 		return false;
@@ -371,7 +361,7 @@ function securityString(sec) {
 		return "None";
 	};
 	sec = sec >= securityContexts.length ? 0 : sec;
-	return securityContexts[securityContexts.length-1-sec];
+	return securityContexts[sec];
 };
 
 let validEntityTypes = new Set([
@@ -421,14 +411,14 @@ class DatabaseItem {
 		if (getbits(this.data, 8, 11) > 0) {
 			return true;
 		};
-		return type == 4 && getbits(this.data, 11, 14) > 0
+		return type === 4 && getbits(this.data, 11, 14) > 0;
 	};
 	get security() {
 		let type = getbits(this.data, 0, 3);
 		if (type < 4) {
 			return null;
 		};
-		if (type == 4) {
+		if (type === 4) {
 			return {
 				read:  securityString(getbits(this.data, 8, 11)),
 				write: securityString(getbits(this.data, 11, 14)),
