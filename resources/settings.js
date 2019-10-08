@@ -212,6 +212,9 @@ for (let setting of settings) {
 		"config": setting,
 		"listeners": [],
 	});
+	if (setting.migrate) {
+		setting.migrate(window.localStorage);
+	};
 	if (setting.disabled) {
 		continue;
 	};
