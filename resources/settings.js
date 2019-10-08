@@ -101,7 +101,7 @@ function generateMenu(parent, settings, changed) {
 
 				let label = document.createElement("label");
 				label.htmlFor = input.id;
-				label.textContent = option.text;
+				label.textContent = option.text || option.value;
 
 				section.appendChild(input);
 				section.appendChild(label);
@@ -113,7 +113,7 @@ function generateMenu(parent, settings, changed) {
 			for (let option of setting.options) {
 				let element = document.createElement("option");
 				element.value = option.value;
-				element.text = option.text;
+				element.text = option.text || option.value;
 				element.disabled = setting.disabled || option.disabled;
 				element.defaultSelected = value === option.value;
 				select.appendChild(element);
