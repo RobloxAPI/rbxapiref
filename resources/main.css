@@ -514,15 +514,6 @@ li.api-deprecated > :not(ul):not(.diff-values),
 	text-decoration : line-through var(--theme-text-decor);
 }
 
-/* NotBrowsable */
-li.api-not-browsable > :not(ul):not(.diff-values),
-.index-card tr.api-not-browsable .col-type > *,
-.index-card tr.api-not-browsable .col-member > *,
-.index-card tr.api-not-browsable .col-value > *,
-.element-link.api-not-browsable {
-	filter : blur(0.8px);
-}
-
 /* Hidden */
 li.api-hidden > :not(ul):not(.diff-values),
 .index-card tr.api-hidden .col-type > *,
