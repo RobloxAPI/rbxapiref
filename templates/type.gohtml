@@ -1,6 +1,10 @@
 {{- $summary := document . "Summary" -}}
 {{- if not $summary -}}{{- $summary = document . "" -}}{{- end -}}
 {{- $details := document . "Details" -}}
+{{- $constructors := document . "Constructors" -}}
+{{- $fields := document . "Fields" -}}
+{{- $methods := document . "Methods" -}}
+{{- $operators := document . "Operators" -}}
 {{- $examples := document . "Examples" -}}
 {{- $referrers := filter .ReferrerList "ImplicitAdded" -}}
 {{- $removed := false -}}
@@ -27,6 +31,26 @@
 				{{- template "outline" (.Document.Query "Details").Subsections }}
 			</li>
 		{{- end -}}
+		{{- if $constructors }}
+			<li><a href="#constructors">Constructors</a>
+				{{- template "outline" (.Document.Query "Constructors").Subsections }}
+			</li>
+		{{- end -}}
+		{{- if $fields }}
+			<li><a href="#fields">Fields</a>
+				{{- template "outline" (.Document.Query "Fields").Subsections }}
+			</li>
+		{{- end -}}
+		{{- if $methods }}
+			<li><a href="#methods">Methods</a>
+				{{- template "outline" (.Document.Query "Methods").Subsections }}
+			</li>
+		{{- end -}}
+		{{- if $operators }}
+			<li><a href="#operators">Operators</a>
+				{{- template "outline" (.Document.Query "Operators").Subsections }}
+			</li>
+		{{- end -}}
 		{{- if $examples }}
 			<li><a href="#examples">Examples</a>
 				{{- template "outline" (.Document.Query "Examples").Subsections }}
@@ -45,6 +69,38 @@
 		<h2>Details</h2>
 	</header>
 	<section class="doc">{{renderdoc $details 2}}</section>
+</section>
+{{- end -}}
+{{- if $constructors }}
+<section id="constructors">
+	<header>
+		<h2>Constructors</h2>
+	</header>
+	<section class="doc">{{renderdoc $constructors 2}}</section>
+</section>
+{{- end -}}
+{{- if $fields }}
+<section id="fields">
+	<header>
+		<h2>Fields</h2>
+	</header>
+	<section class="doc">{{renderdoc $fields 2}}</section>
+</section>
+{{- end -}}
+{{- if $methods }}
+<section id="methods">
+	<header>
+		<h2>Methods</h2>
+	</header>
+	<section class="doc">{{renderdoc $methods 2}}</section>
+</section>
+{{- end -}}
+{{- if $operators }}
+<section id="operators">
+	<header>
+		<h2>Operators</h2>
+	</header>
+	<section class="doc">{{renderdoc $operators 2}}</section>
 </section>
 {{- end -}}
 {{- if $examples }}

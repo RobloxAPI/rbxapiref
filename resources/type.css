@@ -2,22 +2,30 @@ main {
 	display  : grid;
 	grid-gap : 0 var(--section-spacing);
 }
-main > header     { grid-area : header }
-main > #summary   { grid-area : summary }
-main > nav        { grid-area : nav }
-main > #details   { grid-area : details }
-main > #examples  { grid-area : examples }
-main > #referrers { grid-area : referrers }
+main > header        { grid-area : header }
+main > #summary      { grid-area : summary }
+main > nav           { grid-area : nav }
+main > #details      { grid-area : details }
+main > #constructors { grid-area : constructors }
+main > #fields       { grid-area : fields }
+main > #methods      { grid-area : methods }
+main > #operators    { grid-area : operators }
+main > #examples     { grid-area : examples }
+main > #referrers    { grid-area : referrers }
 
 main {
 	grid-template-columns : auto;
 	grid-template-areas   :
-		"header   "
-		"summary  "
-		"nav      "
-		"details  "
-		"examples "
-		"referrers"
+		"header      "
+		"summary     "
+		"nav         "
+		"details     "
+		"constructors"
+		"fields      "
+		"methods     "
+		"operators   "
+		"examples    "
+		"referrers   "
 	;
 }
 main > nav > section {
@@ -33,11 +41,15 @@ main > nav .toc-members {
 	main {
 		grid-template-columns : 1fr auto;
 		grid-template-areas   :
-			"header    header"
-			"summary   nav   "
-			"details   nav   "
-			"examples  nav   "
-			"referrers nav   "
+			"header       header"
+			"summary      nav   "
+			"details      nav   "
+			"constructors nav   "
+			"fields       nav   "
+			"methods      nav   "
+			"operators    nav   "
+			"examples     nav   "
+			"referrers    nav   "
 		;
 		justify-content    : start;
 		grid-template-rows : repeat(4,auto) 1fr;
