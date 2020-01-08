@@ -1065,37 +1065,39 @@ func (data *Data) GenerateDocuments() {
 		return
 	}
 
-	renderer := mdhtml.NewRenderer(mdhtml.RendererOptions{
-		HeadingIDPrefix: "doc-",
-		RenderNodeHook: func(w io.Writer, node ast.Node, entering bool) (ast.WalkStatus, bool) {
-			switch node := node.(type) {
-			case *ast.CodeBlock:
-				// io.WriteString
-				i := bytes.IndexAny(node.Info, "\t ")
-				if i < 0 {
-					i = len(node.Info)
-				}
-				lang := string(node.Info[:i])
-				lexer := lexers.Get(lang)
-				if lexer == nil {
-					return ast.GoToNext, false
-				}
-				lexer = chroma.Coalesce(lexer)
-				iterator, err := lexer.Tokenise(nil, string(node.Literal))
-				if err != nil {
-					return ast.GoToNext, false
-				}
-				var buf bytes.Buffer
-				if err := data.CodeFormatter.Format(&buf, StyleRobloxLight, iterator); err != nil {
-					return ast.GoToNext, false
-				}
-				io.Copy(w, &buf)
+	renderer := func() *mdhtml.Renderer {
+		return mdhtml.NewRenderer(mdhtml.RendererOptions{
+			HeadingIDPrefix: "doc-",
+			RenderNodeHook: func(w io.Writer, node ast.Node, entering bool) (ast.WalkStatus, bool) {
+				switch node := node.(type) {
+				case *ast.CodeBlock:
+					// io.WriteString
+					i := bytes.IndexAny(node.Info, "\t ")
+					if i < 0 {
+						i = len(node.Info)
+					}
+					lang := string(node.Info[:i])
+					lexer := lexers.Get(lang)
+					if lexer == nil {
+						return ast.GoToNext, false
+					}
+					lexer = chroma.Coalesce(lexer)
+					iterator, err := lexer.Tokenise(nil, string(node.Literal))
+					if err != nil {
+						return ast.GoToNext, false
+					}
+					var buf bytes.Buffer
+					if err := data.CodeFormatter.Format(&buf, StyleRobloxLight, iterator); err != nil {
+						return ast.GoToNext, false
+					}
+					io.Copy(w, &buf)
 
-				return ast.SkipChildren, true
-			}
-			return ast.GoToNext, false
-		},
-	})
+					return ast.SkipChildren, true
+				}
+				return ast.GoToNext, false
+			},
+		})
+	}
 
 	docDir := documents.NewDirectorySection(
 		data.Settings.Input.Documents,
@@ -1107,27 +1109,27 @@ func (data *Data) GenerateDocuments() {
 	if apiDir := docDir.Query("api"); apiDir != nil {
 		for _, entity := range data.Entities.ClassList {
 			if entity.Document, _ = apiDir.Query("class", entity.ID).(Document); entity.Document != nil {
-				entity.Document.SetRender(renderer)
+				entity.Document.SetRender(renderer())
 				for _, member := range entity.MemberList {
 					if member.Document, _ = entity.Document.Query("Members", member.ID[1]).(Document); member.Document != nil {
-						member.Document.SetRender(renderer)
+						member.Document.SetRender(renderer())
 					}
 				}
 			}
 		}
 		for _, entity := range data.Entities.EnumList {
 			if entity.Document, _ = apiDir.Query("enum", entity.ID).(Document); entity.Document != nil {
-				entity.Document.SetRender(renderer)
+				entity.Document.SetRender(renderer())
 				for _, item := range entity.ItemList {
 					if item.Document, _ = entity.Document.Query("Members", item.ID[1]).(Document); item.Document != nil {
-						item.Document.SetRender(renderer)
+						item.Document.SetRender(renderer())
 					}
 				}
 			}
 		}
 		for _, entity := range data.Entities.TypeList {
 			if entity.Document, _ = apiDir.Query("type", entity.ID).(Document); entity.Document != nil {
-				entity.Document.SetRender(renderer)
+				entity.Document.SetRender(renderer())
 			}
 		}
 	}
