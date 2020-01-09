@@ -2,6 +2,7 @@
 {{- $summary := document . "Summary" -}}
 {{- if not $summary -}}{{- $summary = document . "" -}}{{- end -}}
 {{- $details := document . "Details" -}}
+{{- $constructors := document . "Constructors" -}}
 {{- $examples := document . "Examples" -}}
 {{- $history := history . false false -}}
 {{- $superclasses := filter .Superclasses "Added" -}}
@@ -57,6 +58,11 @@
 		{{- end }}
 		{{- if $details }}
 			<li><a href="#details">Details</a></li>
+		{{- end -}}
+		{{- if $constructors }}
+			<li><a href="#constructors">Constructors</a>
+				{{- template "outline" (.Document.Query "Constructors").Subsections }}
+			</li>
 		{{- end -}}
 		{{- if $examples }}
 			<li><a href="#examples">Examples</a></li>
@@ -152,6 +158,14 @@
 		<h2>Details</h2>
 	</header>
 	<section class="doc">{{renderdoc $details 2}}</section>
+</section>
+{{- end -}}
+{{- if $constructors }}
+<section id="constructors">
+	<header>
+		<h2>Constructors</h2>
+	</header>
+	<section class="doc">{{renderdoc $constructors 2}}</section>
 </section>
 {{- end -}}
 {{- if $examples }}

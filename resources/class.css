@@ -9,6 +9,7 @@ main > #tree                  { grid-area : tree }
 main > #members-index         { grid-area : index }
 main > #removed-members-index { grid-area : rindex }
 main > #details               { grid-area : details }
+main > #constructors          { grid-area : constructors }
 main > #examples              { grid-area : examples }
 main > #history               { grid-area : history }
 main > #members               { grid-area : members }
@@ -18,18 +19,19 @@ main > #references            { grid-area : references }
 main {
 	grid-template-columns : auto;
 	grid-template-areas   :
-		"header    "
-		"summary   "
-		"nav       "
-		"tree      "
-		"index     "
-		"rindex    "
-		"details   "
-		"examples  "
-		"history   "
-		"members   "
-		"rmembers  "
-		"references"
+		"header      "
+		"summary     "
+		"nav         "
+		"tree        "
+		"index       "
+		"rindex      "
+		"details     "
+		"constructors"
+		"examples    "
+		"history     "
+		"members     "
+		"rmembers    "
+		"references  "
 	;
 }
 main > nav > section {
@@ -45,17 +47,18 @@ main > nav .toc-members {
 	main {
 		grid-template-columns : 1fr auto;
 		grid-template-areas   :
-			"header     header"
-			"summary    nav   "
-			"tree       nav   "
-			"index      nav   "
-			"rindex     nav   "
-			"details    nav   "
-			"examples   nav   "
-			"history    nav   "
-			"members    nav   "
-			"rmembers   nav   "
-			"references nav   "
+			"header       header"
+			"summary      nav   "
+			"tree         nav   "
+			"index        nav   "
+			"rindex       nav   "
+			"details      nav   "
+			"constructors nav   "
+			"examples     nav   "
+			"history      nav   "
+			"members      nav   "
+			"rmembers     nav   "
+			"references   nav   "
 		;
 		justify-content    : start;
 		grid-template-rows : repeat(10,auto) 1fr;
@@ -79,16 +82,17 @@ main > nav .toc-members {
 	main {
 		grid-template-columns : auto 1fr auto;
 		grid-template-areas   :
-			"header     header     header"
-			"tree       summary    nav   "
-			"index      index      nav   "
-			"rindex     rindex     nav   "
-			"details    details    nav   "
-			"examples   examples   nav   "
-			"history    history    nav   "
-			"members    members    nav   "
-			"rmembers   rmembers   nav   "
-			"references references nav   "
+			"header       header       header"
+			"tree         summary      nav   "
+			"index        index        nav   "
+			"rindex       rindex       nav   "
+			"details      details      nav   "
+			"constructors constructors nav   "
+			"examples     examples     nav   "
+			"history      history      nav   "
+			"members      members      nav   "
+			"rmembers     rmembers     nav   "
+			"references   references   nav   "
 		;
 		justify-content    : start;
 		grid-template-rows : repeat(9,auto) 1fr;
