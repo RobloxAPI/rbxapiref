@@ -132,14 +132,13 @@ func MarkdownFileHandler(dir string, info os.FileInfo, query string) Section {
 
 // getHeadingText returns the text from an ast.Heading.
 func getHeadingText(heading *ast.Heading) string {
-	if len(heading.Children) != 1 {
-		return ""
+	var text []byte
+	for _, child := range heading.Children {
+		if leaf := child.AsLeaf(); leaf != nil {
+			text = append(text, leaf.Literal...)
+		}
 	}
-	text, ok := heading.Children[0].(*ast.Text)
-	if !ok {
-		return ""
-	}
-	return string(text.Literal)
+	return string(text)
 }
 
 func parseMarkdownSection(section *MarkdownSection, level int, orphan bool) {
