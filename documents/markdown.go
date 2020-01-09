@@ -114,7 +114,7 @@ func (h MarkdownHandler) FileHandler(dir string, info os.FileInfo, query string)
 	}
 
 	doc, ok := parser.NewWithExtensions(
-		parser.CommonExtensions | parser.AutoHeadingIDs,
+		parser.CommonExtensions | parser.AutoHeadingIDs | parser.Footnotes,
 	).Parse(b).(*ast.Document)
 	if !ok {
 		return nil
