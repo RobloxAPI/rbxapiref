@@ -6,9 +6,10 @@ require (
 	github.com/alecthomas/chroma v0.6.7
 	github.com/anaminus/but v0.2.0
 	github.com/gomarkdown/markdown v0.0.0-20190912180731-281270bc6d83
+	github.com/jarcoal/httpmock v1.0.4 // indirect
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/pkg/errors v0.8.1
 	github.com/robloxapi/rbxapi v0.1.0
 	github.com/robloxapi/rbxdhist v0.1.0
-	github.com/robloxapi/rbxfile v0.1.0
+	github.com/robloxapi/rbxfile v0.1.1
 )
