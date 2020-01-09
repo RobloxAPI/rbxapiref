@@ -23,6 +23,8 @@ type MarkdownSection struct {
 	ID string
 	// Document is the raw content of the section.
 	Document *ast.Document
+	// HeadingNode is the node of the outer heading enclosing the section.
+	HeadingNode *ast.Heading
 	// Sections contains each subsection.
 	Sections []*MarkdownSection
 	// Renderer specifies a custom renderer to use when rendering the section
@@ -146,6 +148,7 @@ func parseMarkdownSection(section *MarkdownSection, level int, orphan bool) {
 
 	var i int
 	var name string
+	var node *ast.Heading
 	var id string
 	for k, child := range children {
 		heading, ok := child.(*ast.Heading)
@@ -153,11 +156,12 @@ func parseMarkdownSection(section *MarkdownSection, level int, orphan bool) {
 			continue
 		}
 		sub := MarkdownSection{
-			Heading:  name,
-			Level:    level,
-			ID:       id,
-			Document: &ast.Document{},
-			Renderer: section.Renderer,
+			Heading:     name,
+			HeadingNode: node,
+			Level:       level,
+			ID:          id,
+			Document:    &ast.Document{},
+			Renderer:    section.Renderer,
 		}
 		if i < k {
 			sub.Document.Children = children[i:k]
@@ -168,14 +172,16 @@ func parseMarkdownSection(section *MarkdownSection, level int, orphan bool) {
 		section.Sections = append(section.Sections, &sub)
 		i = k + 1
 		name = getHeadingText(heading)
+		node = heading
 		id = heading.HeadingID
 	}
 	sub := MarkdownSection{
-		Heading:  name,
-		Level:    level,
-		ID:       id,
-		Document: &ast.Document{},
-		Renderer: section.Renderer,
+		Heading:     name,
+		HeadingNode: node,
+		Level:       level,
+		ID:          id,
+		Document:    &ast.Document{},
+		Renderer:    section.Renderer,
 	}
 	if i < len(children) {
 		sub.Document.Children = children[i:]
@@ -286,6 +292,13 @@ func (s *MarkdownSection) RootLevel() (level int) {
 
 func (s *MarkdownSection) HeadingID() string {
 	return s.ID
+}
+
+func (s *MarkdownSection) SetHeadingID(id string) {
+	s.ID = id
+	if s.HeadingNode != nil {
+		s.HeadingNode.HeadingID = id
+	}
 }
 
 func getLinks(node ast.Node, walk func(string)) {
