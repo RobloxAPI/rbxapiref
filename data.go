@@ -1110,6 +1110,7 @@ func (data *Data) GenerateDocuments() {
 		for _, entity := range data.Entities.ClassList {
 			if entity.Document, _ = apiDir.Query("class", entity.ID).(Document); entity.Document != nil {
 				entity.Document.SetRender(renderer())
+				GenerateDocumentTypeIDs(entity.Document)
 				for _, member := range entity.MemberList {
 					if member.Document, _ = entity.Document.Query("Members", member.ID[1]).(Document); member.Document != nil {
 						member.Document.SetRender(renderer())
@@ -1130,6 +1131,7 @@ func (data *Data) GenerateDocuments() {
 		for _, entity := range data.Entities.TypeList {
 			if entity.Document, _ = apiDir.Query("type", entity.ID).(Document); entity.Document != nil {
 				entity.Document.SetRender(renderer())
+				GenerateDocumentTypeIDs(entity.Document)
 			}
 		}
 	}
