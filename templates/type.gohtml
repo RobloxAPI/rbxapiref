@@ -32,24 +32,16 @@
 			</li>
 		{{- end -}}
 		{{- if $constructors }}
-			<li><a href="#constructors">Constructors</a>
-				{{- template "outline" (.Document.Query "Constructors").Subsections }}
-			</li>
+			<li><a href="#constructors">Constructors</a></li>
 		{{- end -}}
 		{{- if $fields }}
-			<li><a href="#fields">Fields</a>
-				{{- template "outline" (.Document.Query "Fields").Subsections }}
-			</li>
+			<li><a href="#fields">Fields</a></li>
 		{{- end -}}
 		{{- if $methods }}
-			<li><a href="#methods">Methods</a>
-				{{- template "outline" (.Document.Query "Methods").Subsections }}
-			</li>
+			<li><a href="#methods">Methods</a></li>
 		{{- end -}}
 		{{- if $operators }}
-			<li><a href="#operators">Operators</a>
-				{{- template "outline" (.Document.Query "Operators").Subsections }}
-			</li>
+			<li><a href="#operators">Operators</a></li>
 		{{- end -}}
 		{{- if $examples }}
 			<li><a href="#examples">Examples</a>
