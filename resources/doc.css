@@ -4,7 +4,7 @@
 	padding          : 1em 1.618em;
 	white-space      : pre-wrap;
 }
-.doc :not(pre) code {
+.doc :not(pre):not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) code {
 	background-color : var(--theme-table);
 	padding          : 0 0.5ch;
 }
