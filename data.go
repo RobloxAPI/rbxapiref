@@ -435,6 +435,7 @@ func (data *Data) ElementStatusClasses(suffix bool, v ...interface{}) string {
 						s = append(s, "api-sec-"+n)
 					}
 				}
+				goto finish
 			case "Tags":
 				// Include tag unless it is being changed.
 				p := rbxapijson.Tags(action.GetPrev().([]string))
@@ -448,8 +449,8 @@ func (data *Data) ElementStatusClasses(suffix bool, v ...interface{}) string {
 				if p.GetTag("Hidden") && n.GetTag("Hidden") {
 					s = append(s, "api-hidden")
 				}
+				goto finish
 			}
-			goto finish
 		}
 	}
 
