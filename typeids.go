@@ -143,7 +143,7 @@ type typeDecCtor struct {
 	Name       string
 	Parameters []typeDecField
 	Returns    []typeDecField
-	First      bool
+	Short      bool
 }
 
 func parseTypeDecCtor(s string) *typeDecCtor {
@@ -166,7 +166,7 @@ func parseTypeDecCtor(s string) *typeDecCtor {
 }
 
 func (t typeDecCtor) ID() string {
-	if t.First {
+	if t.Short {
 		return "ctor-" + t.Name
 	}
 	s := make([]string, len(t.Parameters)+2)
@@ -337,21 +337,20 @@ func GenerateDocumentTypeIDs(document Document) {
 	if sec := document.Query("Constructors"); sec != nil {
 		subs := sec.Subsections()
 		ctors := make([]*typeDecCtor, len(subs))
-		firsts := map[string]*typeDecCtor{}
+		count := map[string]int{}
 		for i, sub := range subs {
 			ctor := parseTypeDecCtor(strings.TrimSpace(sub.Name()))
 			ctors[i] = ctor
-			if ctor != nil && (len(ctor.Parameters) == 0 || firsts[ctor.Name] == nil) {
-				ctor.First = true
-				if c, ok := firsts[ctor.Name]; ok {
-					c.First = false
-				}
-				firsts[ctor.Name] = ctor
+			if ctor != nil {
+				count[ctor.Name]++
 			}
 		}
 		for i, sub := range subs {
 			if sub, ok := sub.(documents.Headingable); ok {
 				if ctors[i] != nil {
+					if count[ctors[i].Name] > 0 {
+						ctors[i].Short = true
+					}
 					sub.SetHeadingID(ctors[i].ID())
 				}
 			}
