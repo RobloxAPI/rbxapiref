@@ -867,6 +867,12 @@ header .devhub-link {
 
 /*////////////////////////////////////////////////////////////////*/
 /* Swatches */
+.swatch {
+	width            : calc(var(--baseline) * 5);
+	height           : var(--baseline);
+	border           : 1px solid var(--theme-border);
+	background-color : var(--0);
+}
 .swatches {
 	width            : calc(var(--baseline) * 5);
 	height           : var(--baseline);
