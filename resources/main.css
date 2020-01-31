@@ -864,3 +864,17 @@ header .devhub-link {
 .status-high   { border-left-color : var(--theme-status-high) }
 .status-medium { border-left-color : var(--theme-status-medium) }
 .status-low    { border-left-color : var(--theme-status-low) }
+
+/*////////////////////////////////////////////////////////////////*/
+/* Swatches */
+.swatches {
+	width            : calc(var(--baseline) * 5);
+	height           : var(--baseline);
+	border           : 1px solid var(--theme-border);
+	background-image : linear-gradient(to right,
+		var(--0) 0% 20%,
+		var(--1) 20% 40%,
+		var(--2) 40% 60%,
+		var(--3) 60% 80%,
+		var(--4) 80% 100%);
+}
