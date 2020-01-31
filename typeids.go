@@ -348,7 +348,7 @@ func GenerateDocumentTypeIDs(document Document) {
 		for i, sub := range subs {
 			if sub, ok := sub.(documents.Headingable); ok {
 				if ctors[i] != nil {
-					if count[ctors[i].Name] > 0 {
+					if count[ctors[i].Name] <= 1 {
 						ctors[i].Short = true
 					}
 					sub.SetHeadingID(ctors[i].ID())
