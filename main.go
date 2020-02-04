@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"github.com/anaminus/but"
 	"github.com/jessevdk/go-flags"
@@ -253,14 +254,11 @@ func main() {
 
 	// Generate search database.
 	{
-		var buf bytes.Buffer
-		db := dbWriter{data: data, w: &buf}
-		db.GenerateDatabase()
-		but.IfFatal(db.err, "generate search database")
-
 		f, err := os.Create(data.AbsFilePath("search"))
 		but.IfFatal(err, "create search database file")
-		buf.WriteTo(f)
+		w := bufio.NewWriter(f)
+		but.IfFatal(GenerateDatabase(w, data.Entities), "generate search database")
+		but.IfFatal(w.Flush(), "write search database")
 		f.Close()
 	}
 

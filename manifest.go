@@ -117,8 +117,8 @@ func (man *Manifest) writeBuildInfo(bw *binio.Writer, info *BuildInfo) {
 func (man *Manifest) readAction(br *binio.Reader, action *Action) {
 	var data uint8
 	br.Number(&data)
-	action.Type = patch.Type(getbits(uint64(data), 0, 2) - 1)
-	switch getbits(uint64(data), 2, 5) {
+	action.Type = patch.Type(binio.GetBits(uint64(data), 0, 2) - 1)
+	switch binio.GetBits(uint64(data), 2, 5) {
 	case 1:
 		man.readClass(br, &action.Class)
 		man.readProperty(br, &action.Property)
@@ -151,46 +151,46 @@ func (man *Manifest) readAction(br *binio.Reader, action *Action) {
 
 func (man *Manifest) writeAction(bw *binio.Writer, action *Action) {
 	var data uint64
-	setbits(&data, 0, 2, int(action.Type)+1)
+	data = binio.SetBits(data, 0, 2, int(action.Type)+1)
 	switch {
 	case action.Property != nil:
-		setbits(&data, 2, 5, 1)
+		data = binio.SetBits(data, 2, 5, 1)
 		bw.Number(uint8(data))
 		man.writeClass(bw, action.Class)
 		man.writeProperty(bw, action.Property)
 	case action.Function != nil:
-		setbits(&data, 2, 5, 2)
+		data = binio.SetBits(data, 2, 5, 2)
 		bw.Number(uint8(data))
 		man.writeClass(bw, action.Class)
 		man.writeFunction(bw, action.Function)
 	case action.Event != nil:
-		setbits(&data, 2, 5, 3)
+		data = binio.SetBits(data, 2, 5, 3)
 		bw.Number(uint8(data))
 		man.writeClass(bw, action.Class)
 		man.writeEvent(bw, action.Event)
 	case action.Callback != nil:
-		setbits(&data, 2, 5, 4)
+		data = binio.SetBits(data, 2, 5, 4)
 		bw.Number(uint8(data))
 		man.writeClass(bw, action.Class)
 		man.writeCallback(bw, action.Callback)
 	case action.Class != nil:
-		setbits(&data, 2, 5, 5)
+		data = binio.SetBits(data, 2, 5, 5)
 		bw.Number(uint8(data))
 		man.writeClass(bw, action.Class)
 	case action.EnumItem != nil:
-		setbits(&data, 2, 5, 6)
+		data = binio.SetBits(data, 2, 5, 6)
 		bw.Number(uint8(data))
 		man.writeEnum(bw, action.Enum)
 		man.writeEnumItem(bw, action.EnumItem)
 	case action.Enum != nil:
-		setbits(&data, 2, 5, 7)
+		data = binio.SetBits(data, 2, 5, 7)
 		bw.Number(uint8(data))
 		man.writeEnum(bw, action.Enum)
 	default:
 		bw.Err = errors.New("invalid action")
 		return
 	}
-	if getbits(data, 0, 2) == 1 {
+	if binio.GetBits(data, 0, 2) == 1 {
 		bw.String(action.Field)
 		man.writeValue(bw, action.Prev)
 		man.writeValue(bw, action.Next)
@@ -272,8 +272,8 @@ func (man *Manifest) readProperty(br *binio.Reader, p **rbxapijson.Property) {
 	br.String(&member.WriteSecurity)
 	var ser uint8
 	br.Number(&ser)
-	member.CanLoad = getbit(uint64(ser), 0)
-	member.CanSave = getbit(uint64(ser), 1)
+	member.CanLoad = binio.GetBit(uint64(ser), 0)
+	member.CanSave = binio.GetBit(uint64(ser), 1)
 	var tags []string
 	man.readTags(br, &tags)
 	member.Tags = rbxapijson.Tags(tags)
@@ -288,8 +288,8 @@ func (man *Manifest) writeProperty(bw *binio.Writer, member *rbxapijson.Property
 	bw.String(member.ReadSecurity)
 	bw.String(member.WriteSecurity)
 	var ser uint64
-	setbit(&ser, 0, member.CanLoad)
-	setbit(&ser, 1, member.CanSave)
+	ser = binio.SetBit(ser, 0, member.CanLoad)
+	ser = binio.SetBit(ser, 1, member.CanSave)
 	bw.Number(uint8(ser))
 	man.writeTags(bw, []string(member.Tags))
 }

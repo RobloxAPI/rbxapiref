@@ -1,10 +1,11 @@
 package main
 
 import (
-	"encoding/binary"
+	"io"
+
 	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/rbxapijson"
-	"io"
+	"github.com/robloxapi/rbxapiref/internal/binio"
 )
 
 /*
@@ -78,102 +79,7 @@ Item struct {
 
 */
 
-// Writer wrapper that keeps track of the number of bytes written.
-type dbWriter struct {
-	data *Data
-	w    io.Writer
-	n    int64
-	err  error
-}
-
-func (f *dbWriter) write(p []byte) (failed bool) {
-	if f.err != nil {
-		return true
-	}
-
-	var n int
-	n, f.err = f.w.Write(p)
-	f.n += int64(n)
-
-	if n < len(p) {
-		return true
-	}
-
-	return false
-}
-
-func (f *dbWriter) end() (n int64, err error) {
-	return f.n, f.err
-}
-
-func (f *dbWriter) writeNumber(data interface{}) (failed bool) {
-	if f.err != nil {
-		return true
-	}
-	m := 0
-	b := make([]byte, 8)
-	switch data := data.(type) {
-	case int8:
-		m = 1
-		b[0] = uint8(data)
-	case uint8:
-		m = 1
-		b[0] = data
-	case int16:
-		m = 2
-		binary.LittleEndian.PutUint16(b, uint16(data))
-	case uint16:
-		m = 2
-		binary.LittleEndian.PutUint16(b, data)
-	case int32:
-		m = 4
-		binary.LittleEndian.PutUint32(b, uint32(data))
-	case uint32:
-		m = 4
-		binary.LittleEndian.PutUint32(b, data)
-	case int64:
-		m = 8
-		binary.LittleEndian.PutUint64(b, uint64(data))
-	case uint64:
-		m = 8
-		binary.LittleEndian.PutUint64(b, data)
-	default:
-		panic("invalid type")
-	}
-	return f.write(b[:m])
-}
-
-func (f *dbWriter) writeString(data string) (failed bool) {
-	if f.err != nil {
-		return true
-	}
-
-	if f.writeNumber(uint8(len(data))) {
-		return true
-	}
-
-	return f.write([]byte(data))
-}
-
-func setbit(p *uint64, a int, v bool) {
-	if v {
-		*p |= 1 << uint(a)
-		return
-	}
-	*p &= ^(1 << uint(a))
-}
-func setbits(p *uint64, a, b, v int) {
-	var m uint64 = 1<<uint(b-a) - 1
-	*p = *p&^(m<<uint(a)) | (uint64(v)&m)<<uint(a)
-}
-func getbit(p uint64, a int) bool {
-	return (p>>uint(a))&1 == 1
-}
-func getbits(p uint64, a, b int) int {
-	return int((p >> uint(a)) & (1<<uint(b-a) - 1))
-}
-
-func (dw *dbWriter) writeSecurity(data *uint64, i int, security string) {
+func writeDatabaseSecurity(data uint64, i int, security string) uint64 {
 	var sec int
 	switch security {
 	case "RobloxPlaceSecurity":
@@ -189,10 +95,10 @@ func (dw *dbWriter) writeSecurity(data *uint64, i int, security string) {
 	case "NotAccessibleSecurity":
 		sec = 6
 	}
-	setbits(data, i, i+3, sec)
+	return binio.SetBits(data, i, i+3, sec)
 }
 
-func (dw *dbWriter) writeItem(v interface{}, removed bool) bool {
+func writeDatabaseItem(v interface{}, removed bool) uint16 {
 	var data uint64
 
 	var typ int
@@ -214,133 +120,135 @@ func (dw *dbWriter) writeItem(v interface{}, removed bool) bool {
 	case *rbxapijson.Callback:
 		typ = 7
 	}
-	setbits(&data, 0, 3, typ)
-	setbit(&data, 3, removed)
+	data = binio.SetBits(data, 0, 3, typ)
+	data = binio.SetBit(data, 3, removed)
 
 	if v, ok := v.(rbxapi.Taggable); ok {
-		setbit(&data, 4, v.GetTag("Deprecated"))
-		setbit(&data, 5, v.GetTag("NotBrowsable"))
+		data = binio.SetBit(data, 4, v.GetTag("Deprecated"))
+		data = binio.SetBit(data, 5, v.GetTag("NotBrowsable"))
 		switch typ {
 		case 0: // Class
-			setbit(&data, 6, v.GetTag("NotCreatable"))
+			data = binio.SetBit(data, 6, v.GetTag("NotCreatable"))
 		case 4: // Property
-			setbit(&data, 6, v.GetTag("Hidden"))
+			data = binio.SetBit(data, 6, v.GetTag("Hidden"))
 		}
 	}
 
 	if v, ok := v.(interface{ GetSecurity() string }); ok {
-		dw.writeSecurity(&data, 8, v.GetSecurity())
+		data = writeDatabaseSecurity(data, 8, v.GetSecurity())
 	} else if v, ok := v.(interface{ GetSecurity() (string, string) }); ok {
 		r, w := v.GetSecurity()
-		dw.writeSecurity(&data, 8, r)
-		dw.writeSecurity(&data, 11, w)
+		data = writeDatabaseSecurity(data, 8, r)
+		data = writeDatabaseSecurity(data, 11, w)
 	}
 
-	return dw.writeNumber(uint16(data))
+	return uint16(data)
 }
 
-func (dw *dbWriter) GenerateDatabase() bool {
+func GenerateDatabase(w io.Writer, ent *Entities) error {
+	bw := binio.NewWriter(w)
+
 	// Version
-	if dw.writeNumber(uint8(1)) {
-		return true
+	if !bw.Number(uint8(1)) {
+		return bw.Err
 	}
 
 	// IconCount
-	if dw.writeNumber(uint16(len(dw.data.Entities.ClassList))) {
-		return true
+	if !bw.Number(uint16(len(ent.ClassList))) {
+		return bw.Err
 	}
 
 	items := 0
-	items += len(dw.data.Entities.TypeList)
+	items += len(ent.TypeList)
 	// ClassOffset
-	if dw.writeNumber(uint16(items)) {
-		return true
+	if !bw.Number(uint16(items)) {
+		return bw.Err
 	}
-	items += len(dw.data.Entities.ClassList)
-	items += len(dw.data.Entities.EnumList)
-	for _, class := range dw.data.Entities.ClassList {
+	items += len(ent.ClassList)
+	items += len(ent.EnumList)
+	for _, class := range ent.ClassList {
 		items += len(class.MemberList)
 	}
-	for _, enum := range dw.data.Entities.EnumList {
+	for _, enum := range ent.EnumList {
 		items += len(enum.ItemList)
 	}
 	// ItemCount
-	if dw.writeNumber(uint16(items)) {
-		return true
+	if !bw.Number(uint16(items)) {
+		return bw.Err
 	}
 
 	// Icons
-	for _, class := range dw.data.Entities.ClassList {
+	for _, class := range ent.ClassList {
 		var icon int
 		if class.Metadata.Instance != nil {
 			icon = GetMetadataInt(class.Metadata, "ExplorerImageIndex")
 		}
-		if dw.writeNumber(uint8(icon)) {
-			return true
+		if !bw.Number(uint8(icon)) {
+			return bw.Err
 		}
 	}
 
 	// Items
-	for _, typ := range dw.data.Entities.TypeList {
-		if dw.writeItem(typ.Element, typ.Removed) {
-			return true
+	for _, typ := range ent.TypeList {
+		if !bw.Number(writeDatabaseItem(typ.Element, typ.Removed)) {
+			return bw.Err
 		}
 	}
-	for _, class := range dw.data.Entities.ClassList {
-		if dw.writeItem(class.Element, class.Removed) {
-			return true
+	for _, class := range ent.ClassList {
+		if !bw.Number(writeDatabaseItem(class.Element, class.Removed)) {
+			return bw.Err
 		}
 	}
-	for _, enum := range dw.data.Entities.EnumList {
-		if dw.writeItem(enum.Element, enum.Removed) {
-			return true
+	for _, enum := range ent.EnumList {
+		if !bw.Number(writeDatabaseItem(enum.Element, enum.Removed)) {
+			return bw.Err
 		}
 	}
-	for _, class := range dw.data.Entities.ClassList {
+	for _, class := range ent.ClassList {
 		for _, member := range class.MemberList {
-			if dw.writeItem(member.Element, member.Removed) {
-				return true
+			if !bw.Number(writeDatabaseItem(member.Element, member.Removed)) {
+				return bw.Err
 			}
 		}
 	}
-	for _, enum := range dw.data.Entities.EnumList {
+	for _, enum := range ent.EnumList {
 		for _, item := range enum.ItemList {
-			if dw.writeItem(item.Element, item.Removed) {
-				return true
+			if !bw.Number(writeDatabaseItem(item.Element, item.Removed)) {
+				return bw.Err
 			}
 		}
 	}
 
 	// Strings
-	for _, typ := range dw.data.Entities.TypeList {
-		if dw.writeString(typ.ID) {
-			return true
+	for _, typ := range ent.TypeList {
+		if !bw.String(typ.ID) {
+			return bw.Err
 		}
 	}
-	for _, class := range dw.data.Entities.ClassList {
-		if dw.writeString(class.ID) {
-			return true
+	for _, class := range ent.ClassList {
+		if !bw.String(class.ID) {
+			return bw.Err
 		}
 	}
-	for _, enum := range dw.data.Entities.EnumList {
-		if dw.writeString(enum.ID) {
-			return true
+	for _, enum := range ent.EnumList {
+		if !bw.String(enum.ID) {
+			return bw.Err
 		}
 	}
-	for _, class := range dw.data.Entities.ClassList {
+	for _, class := range ent.ClassList {
 		for _, member := range class.MemberList {
-			if dw.writeString(member.ID[0] + "." + member.ID[1]) {
-				return true
+			if !bw.String(member.ID[0] + "." + member.ID[1]) {
+				return bw.Err
 			}
 		}
 	}
-	for _, enum := range dw.data.Entities.EnumList {
+	for _, enum := range ent.EnumList {
 		for _, item := range enum.ItemList {
-			if dw.writeString(item.ID[0] + "." + item.ID[1]) {
-				return true
+			if !bw.String(item.ID[0] + "." + item.ID[1]) {
+				return bw.Err
 			}
 		}
 	}
 
-	return false
+	return nil
 }
