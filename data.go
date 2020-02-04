@@ -130,10 +130,6 @@ retry:
 		}
 	case "about":
 		s = "about" + FileExt
-	case "repository":
-		return "https://github.com/robloxapi/rbxapiref"
-	case "issues":
-		return "https://github.com/robloxapi/rbxapiref/issues"
 	case "docmon":
 		s = "docmon" + FileExt
 	case "search":
