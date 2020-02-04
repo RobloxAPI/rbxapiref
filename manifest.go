@@ -1,241 +1,29 @@
 package main
 
 import (
-	"encoding/binary"
 	"encoding/json"
 	"errors"
+	"io"
+
 	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/patch"
 	"github.com/robloxapi/rbxapi/rbxapijson"
-	"io"
-	"io/ioutil"
+	"github.com/robloxapi/rbxapiref/internal/binio"
 )
-
-// Reader wrapper that keeps track of the number of bytes written.
-type binaryReader struct {
-	r   io.Reader
-	buf []byte
-	n   int64
-	err error
-}
-
-func (f *binaryReader) Buf(n int) []byte {
-	if cap(f.buf) < n {
-		f.buf = make([]byte, n)
-	}
-	return f.buf[:n]
-}
-
-func (f *binaryReader) End() (n int64, err error) {
-	return f.n, f.err
-}
-
-func (f *binaryReader) Bytes(p []byte) (failed bool) {
-	if f.err != nil {
-		return true
-	}
-
-	var n int
-	n, f.err = io.ReadFull(f.r, p)
-	f.n += int64(n)
-
-	if f.err != nil {
-		return true
-	}
-
-	return false
-}
-
-func (f *binaryReader) ReadAll() (data []byte, failed bool) {
-	if f.err != nil {
-		return nil, true
-	}
-
-	data, f.err = ioutil.ReadAll(f.r)
-	f.n += int64(len(data))
-
-	if f.err != nil {
-		return nil, true
-	}
-
-	return data, false
-}
-
-func (f *binaryReader) Number(data interface{}) (failed bool) {
-	if f.err != nil {
-		return true
-	}
-
-	var b []byte
-	switch data.(type) {
-	case *int8, *uint8:
-		b = f.Buf(1)
-	case *int16, *uint16:
-		b = f.Buf(2)
-	case *int32, *uint32:
-		b = f.Buf(4)
-	case *int64, *uint64:
-		b = f.Buf(8)
-	default:
-		goto invalid
-	}
-
-	if f.Bytes(b) {
-		return true
-	}
-	switch data := data.(type) {
-	case *int8:
-		*data = int8(b[0])
-	case *uint8:
-		*data = b[0]
-	case *int16:
-		*data = int16(binary.LittleEndian.Uint16(b))
-	case *uint16:
-		*data = binary.LittleEndian.Uint16(b)
-	case *int32:
-		*data = int32(binary.LittleEndian.Uint32(b))
-	case *uint32:
-		*data = binary.LittleEndian.Uint32(b)
-	case *int64:
-		*data = int64(binary.LittleEndian.Uint64(b))
-	case *uint64:
-		*data = binary.LittleEndian.Uint64(b)
-	default:
-		goto invalid
-	}
-	return false
-invalid:
-	panic("invalid type")
-}
-
-func (f *binaryReader) String(data *string) (failed bool) {
-	if f.err != nil {
-		return true
-	}
-
-	var length uint8
-	if f.Number(&length) {
-		return true
-	}
-
-	s := f.Buf(int(length))
-	if f.Bytes(s) {
-		return true
-	}
-
-	*data = string(s)
-
-	return false
-}
-
-// Writer wrapper that keeps track of the number of bytes written.
-type binaryWriter struct {
-	w   io.Writer
-	buf []byte
-	n   int64
-	err error
-}
-
-func (f *binaryWriter) Buf(n int) []byte {
-	if cap(f.buf) < n {
-		f.buf = make([]byte, n)
-	}
-	return f.buf[:n]
-}
-
-func (f *binaryWriter) End() (n int64, err error) {
-	return f.n, f.err
-}
-
-func (f *binaryWriter) Bytes(p []byte) (failed bool) {
-	if f.err != nil {
-		return true
-	}
-
-	var n int
-	n, f.err = f.w.Write(p)
-	f.n += int64(n)
-
-	if n < len(p) {
-		return true
-	}
-
-	return false
-}
-
-func (f *binaryWriter) Number(data interface{}) (failed bool) {
-	if f.err != nil {
-		return true
-	}
-
-	var b []byte
-	switch data.(type) {
-	case int8, uint8:
-		b = f.Buf(1)
-	case int16, uint16:
-		b = f.Buf(2)
-	case int32, uint32:
-		b = f.Buf(4)
-	case int64, uint64:
-		b = f.Buf(8)
-	default:
-		goto invalid
-	}
-
-	switch data := data.(type) {
-	case int8:
-		b[0] = uint8(data)
-	case uint8:
-		b[0] = data
-	case int16:
-		binary.LittleEndian.PutUint16(b, uint16(data))
-	case uint16:
-		binary.LittleEndian.PutUint16(b, data)
-	case int32:
-		binary.LittleEndian.PutUint32(b, uint32(data))
-	case uint32:
-		binary.LittleEndian.PutUint32(b, data)
-	case int64:
-		binary.LittleEndian.PutUint64(b, uint64(data))
-	case uint64:
-		binary.LittleEndian.PutUint64(b, data)
-	default:
-		goto invalid
-	}
-	return f.Bytes(b)
-
-invalid:
-	panic("invalid type")
-}
-
-func (f *binaryWriter) String(data string) (failed bool) {
-	if f.err != nil {
-		return true
-	}
-
-	if len(data) >= 1<<8 {
-		panic("string too large")
-	}
-	if f.Number(uint8(len(data))) {
-		return true
-	}
-
-	return f.Bytes([]byte(data))
-}
 
 type Manifest struct {
 	Patches []Patch
 }
 
 func (man *Manifest) ReadFrom(r io.Reader) (n int64, err error) {
-	br := &binaryReader{r: r, buf: make([]byte, 256)}
+	br := binio.NewReader(r)
 	var length uint32
 	br.Number(&length)
 	man.Patches = make([]Patch, length)
 	for i, patch := range man.Patches {
 		man.readPatch(br, &patch)
 		man.Patches[i] = patch
-		if br.err != nil {
+		if br.Err != nil {
 			break
 		}
 	}
@@ -243,18 +31,18 @@ func (man *Manifest) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 func (man *Manifest) WriteTo(w io.Writer) (n int64, err error) {
-	bw := &binaryWriter{w: w, buf: make([]byte, 256)}
+	bw := binio.NewWriter(w)
 	bw.Number(uint32(len(man.Patches)))
 	for _, patch := range man.Patches {
 		man.writePatch(bw, &patch)
-		if bw.err != nil {
+		if bw.Err != nil {
 			break
 		}
 	}
 	return bw.End()
 }
 
-func (man *Manifest) readPatch(br *binaryReader, patch *Patch) {
+func (man *Manifest) readPatch(br *binio.Reader, patch *Patch) {
 	man.readBuildInfo(br, &patch.Info)
 	var b uint8
 	br.Number(&b)
@@ -269,13 +57,13 @@ func (man *Manifest) readPatch(br *binaryReader, patch *Patch) {
 	for i, action := range patch.Actions {
 		man.readAction(br, &action)
 		patch.Actions[i] = action
-		if br.err != nil {
+		if br.Err != nil {
 			return
 		}
 	}
 }
 
-func (man *Manifest) writePatch(bw *binaryWriter, patch *Patch) {
+func (man *Manifest) writePatch(bw *binio.Writer, patch *Patch) {
 	man.writeBuildInfo(bw, &patch.Info)
 	if patch.Prev != nil {
 		bw.Number(uint8(1))
@@ -287,18 +75,18 @@ func (man *Manifest) writePatch(bw *binaryWriter, patch *Patch) {
 	bw.Number(uint32(len(patch.Actions)))
 	for _, action := range patch.Actions {
 		man.writeAction(bw, &action)
-		if bw.err != nil {
+		if bw.Err != nil {
 			return
 		}
 	}
 }
 
-func (man *Manifest) readBuildInfo(br *binaryReader, info *BuildInfo) {
+func (man *Manifest) readBuildInfo(br *binio.Reader, info *BuildInfo) {
 	br.String(&info.Hash)
 	var date string
 	br.String(&date)
 	if err := info.Date.UnmarshalBinary([]byte(date)); err != nil {
-		br.err = err
+		br.Err = err
 		return
 	}
 	var v uint32
@@ -312,11 +100,11 @@ func (man *Manifest) readBuildInfo(br *binaryReader, info *BuildInfo) {
 	info.Version.Build = int(v)
 }
 
-func (man *Manifest) writeBuildInfo(bw *binaryWriter, info *BuildInfo) {
+func (man *Manifest) writeBuildInfo(bw *binio.Writer, info *BuildInfo) {
 	bw.String(info.Hash)
 	date, err := info.Date.MarshalBinary()
 	if err != nil {
-		bw.err = err
+		bw.Err = err
 		return
 	}
 	bw.String(string(date))
@@ -326,7 +114,7 @@ func (man *Manifest) writeBuildInfo(bw *binaryWriter, info *BuildInfo) {
 	bw.Number(uint32(info.Version.Build))
 }
 
-func (man *Manifest) readAction(br *binaryReader, action *Action) {
+func (man *Manifest) readAction(br *binio.Reader, action *Action) {
 	var data uint8
 	br.Number(&data)
 	action.Type = patch.Type(getbits(uint64(data), 0, 2) - 1)
@@ -351,7 +139,7 @@ func (man *Manifest) readAction(br *binaryReader, action *Action) {
 	case 7:
 		man.readEnum(br, &action.Enum)
 	default:
-		br.err = errors.New("invalid action")
+		br.Err = errors.New("invalid action")
 		return
 	}
 	if action.Type == patch.Change {
@@ -361,7 +149,7 @@ func (man *Manifest) readAction(br *binaryReader, action *Action) {
 	}
 }
 
-func (man *Manifest) writeAction(bw *binaryWriter, action *Action) {
+func (man *Manifest) writeAction(bw *binio.Writer, action *Action) {
 	var data uint64
 	setbits(&data, 0, 2, int(action.Type)+1)
 	switch {
@@ -399,7 +187,7 @@ func (man *Manifest) writeAction(bw *binaryWriter, action *Action) {
 		bw.Number(uint8(data))
 		man.writeEnum(bw, action.Enum)
 	default:
-		bw.err = errors.New("invalid action")
+		bw.Err = errors.New("invalid action")
 		return
 	}
 	if getbits(data, 0, 2) == 1 {
@@ -409,7 +197,7 @@ func (man *Manifest) writeAction(bw *binaryWriter, action *Action) {
 	}
 }
 
-func (man *Manifest) readClass(br *binaryReader, p **rbxapijson.Class) {
+func (man *Manifest) readClass(br *binio.Reader, p **rbxapijson.Class) {
 	class := rbxapijson.Class{}
 	br.String(&class.Name)
 	br.String(&class.Superclass)
@@ -438,9 +226,9 @@ func (man *Manifest) readClass(br *binaryReader, p **rbxapijson.Class) {
 			man.readCallback(br, &member)
 			class.Members[i] = member
 		default:
-			br.err = errors.New("invalid member type")
+			br.Err = errors.New("invalid member type")
 		}
-		if br.err != nil {
+		if br.Err != nil {
 			return
 		}
 	}
@@ -450,7 +238,7 @@ func (man *Manifest) readClass(br *binaryReader, p **rbxapijson.Class) {
 	*p = &class
 }
 
-func (man *Manifest) writeClass(bw *binaryWriter, class *rbxapijson.Class) {
+func (man *Manifest) writeClass(bw *binio.Writer, class *rbxapijson.Class) {
 	bw.String(class.Name)
 	bw.String(class.Superclass)
 	bw.String(class.MemoryCategory)
@@ -474,7 +262,7 @@ func (man *Manifest) writeClass(bw *binaryWriter, class *rbxapijson.Class) {
 	man.writeTags(bw, []string(class.Tags))
 }
 
-func (man *Manifest) readProperty(br *binaryReader, p **rbxapijson.Property) {
+func (man *Manifest) readProperty(br *binio.Reader, p **rbxapijson.Property) {
 	member := rbxapijson.Property{}
 	br.String(&member.Name)
 	br.String(&member.ValueType.Category)
@@ -492,7 +280,7 @@ func (man *Manifest) readProperty(br *binaryReader, p **rbxapijson.Property) {
 	*p = &member
 }
 
-func (man *Manifest) writeProperty(bw *binaryWriter, member *rbxapijson.Property) {
+func (man *Manifest) writeProperty(bw *binio.Writer, member *rbxapijson.Property) {
 	bw.String(member.Name)
 	bw.String(member.ValueType.Category)
 	bw.String(member.ValueType.Name)
@@ -506,7 +294,7 @@ func (man *Manifest) writeProperty(bw *binaryWriter, member *rbxapijson.Property
 	man.writeTags(bw, []string(member.Tags))
 }
 
-func (man *Manifest) readFunction(br *binaryReader, p **rbxapijson.Function) {
+func (man *Manifest) readFunction(br *binio.Reader, p **rbxapijson.Function) {
 	member := rbxapijson.Function{}
 	br.String(&member.Name)
 	man.readParameters(br, &member.Parameters)
@@ -519,7 +307,7 @@ func (man *Manifest) readFunction(br *binaryReader, p **rbxapijson.Function) {
 	*p = &member
 }
 
-func (man *Manifest) writeFunction(bw *binaryWriter, member *rbxapijson.Function) {
+func (man *Manifest) writeFunction(bw *binio.Writer, member *rbxapijson.Function) {
 	bw.String(member.Name)
 	man.writeParameters(bw, member.Parameters)
 	bw.String(member.ReturnType.Category)
@@ -528,7 +316,7 @@ func (man *Manifest) writeFunction(bw *binaryWriter, member *rbxapijson.Function
 	man.writeTags(bw, []string(member.Tags))
 }
 
-func (man *Manifest) readEvent(br *binaryReader, p **rbxapijson.Event) {
+func (man *Manifest) readEvent(br *binio.Reader, p **rbxapijson.Event) {
 	member := rbxapijson.Event{}
 	br.String(&member.Name)
 	man.readParameters(br, &member.Parameters)
@@ -539,14 +327,14 @@ func (man *Manifest) readEvent(br *binaryReader, p **rbxapijson.Event) {
 	*p = &member
 }
 
-func (man *Manifest) writeEvent(bw *binaryWriter, member *rbxapijson.Event) {
+func (man *Manifest) writeEvent(bw *binio.Writer, member *rbxapijson.Event) {
 	bw.String(member.Name)
 	man.writeParameters(bw, member.Parameters)
 	bw.String(member.Security)
 	man.writeTags(bw, []string(member.Tags))
 }
 
-func (man *Manifest) readCallback(br *binaryReader, p **rbxapijson.Callback) {
+func (man *Manifest) readCallback(br *binio.Reader, p **rbxapijson.Callback) {
 	member := rbxapijson.Callback{}
 	br.String(&member.Name)
 	man.readParameters(br, &member.Parameters)
@@ -559,7 +347,7 @@ func (man *Manifest) readCallback(br *binaryReader, p **rbxapijson.Callback) {
 	*p = &member
 }
 
-func (man *Manifest) writeCallback(bw *binaryWriter, member *rbxapijson.Callback) {
+func (man *Manifest) writeCallback(bw *binio.Writer, member *rbxapijson.Callback) {
 	bw.String(member.Name)
 	man.writeParameters(bw, member.Parameters)
 	bw.String(member.ReturnType.Category)
@@ -568,7 +356,7 @@ func (man *Manifest) writeCallback(bw *binaryWriter, member *rbxapijson.Callback
 	man.writeTags(bw, []string(member.Tags))
 }
 
-func (man *Manifest) readParameters(br *binaryReader, params *[]rbxapijson.Parameter) {
+func (man *Manifest) readParameters(br *binio.Reader, params *[]rbxapijson.Parameter) {
 	var length uint32
 	br.Number(&length)
 	*params = make([]rbxapijson.Parameter, length)
@@ -586,7 +374,7 @@ func (man *Manifest) readParameters(br *binaryReader, params *[]rbxapijson.Param
 	}
 }
 
-func (man *Manifest) writeParameters(bw *binaryWriter, params []rbxapijson.Parameter) {
+func (man *Manifest) writeParameters(bw *binio.Writer, params []rbxapijson.Parameter) {
 	bw.Number(uint32(len(params)))
 	for _, param := range params {
 		bw.String(param.Type.Category)
@@ -601,7 +389,7 @@ func (man *Manifest) writeParameters(bw *binaryWriter, params []rbxapijson.Param
 	}
 }
 
-func (man *Manifest) readEnum(br *binaryReader, p **rbxapijson.Enum) {
+func (man *Manifest) readEnum(br *binio.Reader, p **rbxapijson.Enum) {
 	enum := rbxapijson.Enum{}
 	br.String(&enum.Name)
 	var length uint32
@@ -616,7 +404,7 @@ func (man *Manifest) readEnum(br *binaryReader, p **rbxapijson.Enum) {
 	*p = &enum
 }
 
-func (man *Manifest) writeEnum(bw *binaryWriter, enum *rbxapijson.Enum) {
+func (man *Manifest) writeEnum(bw *binio.Writer, enum *rbxapijson.Enum) {
 	bw.String(enum.Name)
 	bw.Number(uint32(len(enum.Items)))
 	for _, item := range enum.Items {
@@ -625,7 +413,7 @@ func (man *Manifest) writeEnum(bw *binaryWriter, enum *rbxapijson.Enum) {
 	man.writeTags(bw, []string(enum.Tags))
 }
 
-func (man *Manifest) readEnumItem(br *binaryReader, p **rbxapijson.EnumItem) {
+func (man *Manifest) readEnumItem(br *binio.Reader, p **rbxapijson.EnumItem) {
 	item := rbxapijson.EnumItem{}
 	br.String(&item.Name)
 	var value uint32
@@ -637,13 +425,13 @@ func (man *Manifest) readEnumItem(br *binaryReader, p **rbxapijson.EnumItem) {
 	*p = &item
 }
 
-func (man *Manifest) writeEnumItem(bw *binaryWriter, item *rbxapijson.EnumItem) {
+func (man *Manifest) writeEnumItem(bw *binio.Writer, item *rbxapijson.EnumItem) {
 	bw.String(item.Name)
 	bw.Number(uint32(item.Value))
 	man.writeTags(bw, []string(item.Tags))
 }
 
-func (man *Manifest) readValue(br *binaryReader, p **Value) {
+func (man *Manifest) readValue(br *binio.Reader, p **Value) {
 	value := Value{}
 	var valueType uint8
 	br.Number(&valueType)
@@ -677,7 +465,7 @@ func (man *Manifest) readValue(br *binaryReader, p **Value) {
 	*p = &value
 }
 
-func (man *Manifest) writeValue(bw *binaryWriter, value *Value) {
+func (man *Manifest) writeValue(bw *binio.Writer, value *Value) {
 	switch value := value.V.(type) {
 	case bool:
 		if !value {
@@ -708,7 +496,7 @@ func (man *Manifest) writeValue(bw *binaryWriter, value *Value) {
 	}
 }
 
-func (man *Manifest) readTags(br *binaryReader, tags *[]string) {
+func (man *Manifest) readTags(br *binio.Reader, tags *[]string) {
 	var length uint32
 	br.Number(&length)
 	*tags = make([]string, length)
@@ -718,7 +506,7 @@ func (man *Manifest) readTags(br *binaryReader, tags *[]string) {
 	}
 }
 
-func (man *Manifest) writeTags(bw *binaryWriter, tags []string) {
+func (man *Manifest) writeTags(bw *binio.Writer, tags []string) {
 	bw.Number(uint32(len(tags)))
 	for _, tag := range tags {
 		bw.String(tag)
