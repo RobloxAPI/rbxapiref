@@ -2,14 +2,16 @@ package main
 
 import (
 	"bytes"
-	"github.com/anaminus/but"
-	"github.com/pkg/errors"
-	"github.com/robloxapi/rbxapiref/fetch"
 	"html/template"
 	"image/png"
 	"path"
 	"strconv"
 	"strings"
+
+	"github.com/anaminus/but"
+	"github.com/pkg/errors"
+	"github.com/robloxapi/rbxapiref/builds"
+	"github.com/robloxapi/rbxapiref/fetch"
 )
 
 type PageGenerator func(*Data) []Page
@@ -147,7 +149,7 @@ func GeneratePageMain(data *Data) (pages []Page) {
 		// Fetch explorer icons.
 		latest := data.LatestPatch()
 		client := &fetch.Client{
-			Config:    data.Settings.Configs[latest.Config],
+			Config:    data.Settings.Build.Configs[latest.Config],
 			CacheMode: fetch.CacheTemp,
 		}
 		icon, err := client.ExplorerIcons(latest.Info.Hash)
@@ -213,7 +215,7 @@ func GeneratePageUpdates(data *Data) (pages []Page) {
 	}
 
 	// Patches will be displayed latest-first.
-	patches := make([]*Patch, len(data.Manifest.Patches))
+	patches := make([]*builds.Patch, len(data.Manifest.Patches))
 	for i := len(data.Manifest.Patches) / 2; i >= 0; i-- {
 		j := len(data.Manifest.Patches) - 1 - i
 		patches[i], patches[j] = &data.Manifest.Patches[j], &data.Manifest.Patches[i]
@@ -224,7 +226,7 @@ func GeneratePageUpdates(data *Data) (pages []Page) {
 	type PatchSet struct {
 		Year    int
 		Years   []int
-		Patches []*Patch
+		Patches []*builds.Patch
 	}
 
 	var latestPatches PatchSet

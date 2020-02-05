@@ -1,4 +1,4 @@
-package main
+package builds
 
 import (
 	"encoding/json"
@@ -7,6 +7,59 @@ import (
 	"github.com/robloxapi/rbxapi/rbxapijson"
 	"reflect"
 )
+
+type Patch struct {
+	Stale   bool  `json:"-"`
+	Prev    *Info `json:",omitempty"`
+	Info    Info
+	Config  string
+	Actions []Action
+}
+
+func MergePatches(left, right []Patch, filter func(*Action) bool) []Patch {
+	var patches []Patch
+	for _, l := range left {
+		patch := Patch{
+			Info:    l.Info,
+			Actions: make([]Action, len(l.Actions)),
+		}
+		copy(patch.Actions, l.Actions)
+		patches = append(patches, patch)
+	}
+loop:
+	for _, r := range right {
+		for p, patch := range patches {
+			if patch.Info.Equal(r.Info) {
+				if filter == nil {
+					patches[p].Actions = append(patches[p].Actions, r.Actions...)
+				} else {
+					for _, action := range r.Actions {
+						if filter(&action) {
+							patches[p].Actions = append(patches[p].Actions, action)
+						}
+					}
+				}
+				continue loop
+			}
+		}
+		patch := Patch{
+			Info:    r.Info,
+			Actions: make([]Action, len(r.Actions)),
+		}
+		if filter == nil {
+			copy(patch.Actions, r.Actions)
+		} else {
+			patch.Actions = patch.Actions[:0]
+			for _, action := range r.Actions {
+				if filter(&action) {
+					patch.Actions = append(patch.Actions, action)
+				}
+			}
+		}
+		patches = append(patches, patch)
+	}
+	return patches
+}
 
 var patchTypeStrings = [3]map[string]string{
 	patch.Remove + 1: {
@@ -313,6 +366,32 @@ func (v *Value) UnmarshalJSON(b []byte) (err error) {
 			return err
 		}
 		v.V = value.Value
+	}
+	return nil
+}
+
+// Generates a list of actions for each member of the element.
+func MakeSubactions(action Action) []Action {
+	if class := action.Class; class != nil {
+		actions := make([]Action, len(class.Members))
+		for i, member := range class.Members {
+			actions[i] = Action{
+				Type:  action.GetType(),
+				Class: class,
+			}
+			actions[i].SetMember(member)
+		}
+		return actions
+	} else if enum := action.Enum; enum != nil {
+		actions := make([]Action, len(enum.Items))
+		for i, item := range enum.Items {
+			actions[i] = Action{
+				Type:     action.GetType(),
+				Enum:     enum,
+				EnumItem: item,
+			}
+		}
+		return actions
 	}
 	return nil
 }

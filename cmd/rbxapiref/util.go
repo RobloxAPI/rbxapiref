@@ -1,9 +1,6 @@
 package main
 
 import (
-	"github.com/pkg/errors"
-	"github.com/robloxapi/rbxapi/rbxapijson"
-	"github.com/robloxapi/rbxfile"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -13,6 +10,11 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/pkg/errors"
+	"github.com/robloxapi/rbxapi/rbxapijson"
+	"github.com/robloxapi/rbxapiref/builds"
+	"github.com/robloxapi/rbxfile"
 )
 
 ////////////////////////////////////////////////////////////////
@@ -87,7 +89,7 @@ func (w *EncodeWrapper) Error() error {
 // structures.
 func ToString(v interface{}) string {
 	switch v := v.(type) {
-	case Value:
+	case builds.Value:
 		return ToString(v.V)
 	case bool:
 		if v {
@@ -117,32 +119,6 @@ func ToString(v interface{}) string {
 		return "(" + strings.Join(ss, ", ") + ")"
 	}
 	return "<unknown value " + reflect.TypeOf(v).String() + ">"
-}
-
-// Generates a list of actions for each member of the element.
-func MakeSubactions(action Action) []Action {
-	if class := action.Class; class != nil {
-		actions := make([]Action, len(class.Members))
-		for i, member := range class.Members {
-			actions[i] = Action{
-				Type:  action.GetType(),
-				Class: class,
-			}
-			actions[i].SetMember(member)
-		}
-		return actions
-	} else if enum := action.Enum; enum != nil {
-		actions := make([]Action, len(enum.Items))
-		for i, item := range enum.Items {
-			actions[i] = Action{
-				Type:     action.GetType(),
-				Enum:     enum,
-				EnumItem: item,
-			}
-		}
-		return actions
-	}
-	return nil
 }
 
 type listFilter struct {
@@ -387,53 +363,6 @@ func UnpackValues(a []interface{}, args ...string) interface{} {
 		reflect.Indirect(v).Field(i).Set(reflect.ValueOf(arg))
 	}
 	return v.Interface()
-}
-
-////////////////////////////////////////////////////////////////
-
-func MergePatches(left, right []Patch, filter func(*Action) bool) []Patch {
-	var patches []Patch
-	for _, l := range left {
-		patch := Patch{
-			Info:    l.Info,
-			Actions: make([]Action, len(l.Actions)),
-		}
-		copy(patch.Actions, l.Actions)
-		patches = append(patches, patch)
-	}
-loop:
-	for _, r := range right {
-		for p, patch := range patches {
-			if patch.Info.Equal(r.Info) {
-				if filter == nil {
-					patches[p].Actions = append(patches[p].Actions, r.Actions...)
-				} else {
-					for _, action := range r.Actions {
-						if filter(&action) {
-							patches[p].Actions = append(patches[p].Actions, action)
-						}
-					}
-				}
-				continue loop
-			}
-		}
-		patch := Patch{
-			Info:    r.Info,
-			Actions: make([]Action, len(r.Actions)),
-		}
-		if filter == nil {
-			copy(patch.Actions, r.Actions)
-		} else {
-			patch.Actions = patch.Actions[:0]
-			for _, action := range r.Actions {
-				if filter(&action) {
-					patch.Actions = append(patch.Actions, action)
-				}
-			}
-		}
-		patches = append(patches, patch)
-	}
-	return patches
 }
 
 ////////////////////////////////////////////////////////////////

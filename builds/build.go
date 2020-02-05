@@ -1,4 +1,4 @@
-package main
+package builds
 
 import (
 	"fmt"
@@ -12,17 +12,17 @@ import (
 
 type Build struct {
 	Config string
-	Info   BuildInfo
+	Info   Info
 	API    *rbxapijson.Root
 }
 
-type BuildInfo struct {
+type Info struct {
 	Hash    string
 	Date    time.Time
 	Version fetch.Version
 }
 
-func (a BuildInfo) Equal(b BuildInfo) bool {
+func (a Info) Equal(b Info) bool {
 	if a.Hash != b.Hash {
 		return false
 	}
@@ -35,11 +35,23 @@ func (a BuildInfo) Equal(b BuildInfo) bool {
 	return true
 }
 
-func (m BuildInfo) String() string {
+func (m Info) String() string {
 	return fmt.Sprintf("%s; %s; %s", m.Hash, m.Date, m.Version)
 }
 
-func FetchBuilds(settings Settings) (builds []Build, err error) {
+type Settings struct {
+	// Configs maps an identifying name to a fetch configuration.
+	Configs map[string]fetch.Config
+	// UseConfigs specifies the logical concatenation of the fetch configs
+	// defined in the Configs setting. Builds from these configs are read
+	// sequentially.
+	UseConfigs []string
+	// DisableRewind sets whether rewinding is enabled. If true, builds that are
+	// not yet live will be included.
+	DisableRewind bool
+}
+
+func (settings Settings) Fetch() (builds []Build, err error) {
 	client := &fetch.Client{CacheMode: fetch.CacheNone}
 	for _, cfg := range settings.UseConfigs {
 		client.Config = settings.Configs[cfg]
@@ -48,7 +60,7 @@ func FetchBuilds(settings Settings) (builds []Build, err error) {
 			return nil, errors.WithMessage(err, "fetch build")
 		}
 		for _, b := range bs {
-			builds = append(builds, Build{Config: cfg, Info: BuildInfo(b)})
+			builds = append(builds, Build{Config: cfg, Info: Info(b)})
 		}
 	}
 
@@ -64,7 +76,7 @@ func FetchBuilds(settings Settings) (builds []Build, err error) {
 	}
 	builds = b
 
-	if !settings.Input.DisableRewind {
+	if !settings.DisableRewind {
 		// Rewind to current live build.
 		if lives, err := client.Live(); err != nil {
 			but.Logf("fetch live builds: %v\n", err)
@@ -93,7 +105,7 @@ func FetchBuilds(settings Settings) (builds []Build, err error) {
 	return builds, nil
 }
 
-func MergeBuilds(settings Settings, cached []Patch, builds []Build) (patches []Patch, err error) {
+func (settings Settings) Merge(cached []Patch, builds []Build) (patches []Patch, err error) {
 	client := &fetch.Client{CacheMode: fetch.CacheTemp}
 	var latest *Build
 loop:

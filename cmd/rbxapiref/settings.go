@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"github.com/pkg/errors"
+	"github.com/robloxapi/rbxapiref/builds"
 	"github.com/robloxapi/rbxapiref/fetch"
 	"io"
 	"os"
@@ -14,12 +15,8 @@ type Settings struct {
 	Input SettingsInput
 	// Output specifies output settings.
 	Output SettingsOutput
-	// Configs maps an identifying name to a fetch configuration.
-	Configs map[string]fetch.Config
-	// UseConfigs specifies the logical concatenation of the fetch configs
-	// defined in the Configs setting. Builds from these configs are read
-	// sequentially.
-	UseConfigs []string
+	// Build specifies build settings.
+	Build builds.Settings
 }
 
 type SettingsInput struct {
@@ -35,9 +32,6 @@ type SettingsInput struct {
 	// committed content will be used. That is, untracked files are ignored, and
 	// only committed modifications to a file are used.
 	UseGit bool
-	// DisableRewind sets whether rewinding is enabled. If true, builds that are
-	// not yet live will be included.
-	DisableRewind bool
 }
 
 type SettingsOutput struct {
@@ -63,12 +57,11 @@ func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 	dw := NewDecodeWrapper(r)
 	var jsettings struct {
 		Input struct {
-			Resources     *string
-			Templates     *string
-			Documents     *string
-			DocResources  *string
-			UseGit        *bool
-			DisableRewind *bool
+			Resources    *string
+			Templates    *string
+			Documents    *string
+			DocResources *string
+			UseGit       *bool
 		}
 		Output struct {
 			Root         *string
@@ -78,8 +71,11 @@ func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 			Manifest     *string
 			Host         *string
 		}
-		Configs    map[string]fetch.Config
-		UseConfigs []string
+		Build struct {
+			Configs       map[string]fetch.Config
+			UseConfigs    []string
+			DisableRewind *bool
+		}
 	}
 	err = json.NewDecoder(dw).Decode(&jsettings)
 	if err != nil {
@@ -106,18 +102,18 @@ func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 	mergeString(&settings.Input.Documents, jsettings.Input.Documents, true)
 	mergeString(&settings.Input.DocResources, jsettings.Input.DocResources, true)
 	mergeBool(&settings.Input.UseGit, jsettings.Input.UseGit)
-	mergeBool(&settings.Input.DisableRewind, jsettings.Input.DisableRewind)
+	mergeBool(&settings.Build.DisableRewind, jsettings.Build.DisableRewind)
 	mergeString(&settings.Output.Root, jsettings.Output.Root, true)
 	mergeString(&settings.Output.Sub, jsettings.Output.Sub, false)
 	mergeString(&settings.Output.Manifest, jsettings.Output.Manifest, false)
 	mergeString(&settings.Output.Resources, jsettings.Output.Resources, false)
 	mergeString(&settings.Output.DocResources, jsettings.Output.DocResources, false)
 	mergeString(&settings.Output.Host, jsettings.Output.Host, false)
-	for k, v := range jsettings.Configs {
-		settings.Configs[k] = v
+	for k, v := range jsettings.Build.Configs {
+		settings.Build.Configs[k] = v
 	}
-	if len(jsettings.UseConfigs) > 0 {
-		settings.UseConfigs = append(settings.UseConfigs[:0], jsettings.UseConfigs...)
+	if len(jsettings.Build.UseConfigs) > 0 {
+		settings.Build.UseConfigs = append(settings.Build.UseConfigs[:0], jsettings.Build.UseConfigs...)
 	}
 
 	return dw.Result()
@@ -186,11 +182,11 @@ func (settings *Settings) WriteFile(filename string) error {
 
 func (settings *Settings) Copy() *Settings {
 	c := *settings
-	c.Configs = make(map[string]fetch.Config, len(settings.Configs))
-	for k, v := range settings.Configs {
-		c.Configs[k] = v
+	c.Build.Configs = make(map[string]fetch.Config, len(settings.Build.Configs))
+	for k, v := range settings.Build.Configs {
+		c.Build.Configs[k] = v
 	}
-	c.UseConfigs = make([]string, len(settings.UseConfigs))
-	copy(c.UseConfigs, settings.UseConfigs)
+	c.Build.UseConfigs = make([]string, len(settings.Build.UseConfigs))
+	copy(c.Build.UseConfigs, settings.Build.UseConfigs)
 	return &c
 }

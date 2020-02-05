@@ -3,17 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/alecthomas/chroma"
-	chhtml "github.com/alecthomas/chroma/formatters/html"
-	"github.com/alecthomas/chroma/lexers"
-	"github.com/gomarkdown/markdown/ast"
-	mdhtml "github.com/gomarkdown/markdown/html"
-	"github.com/pkg/errors"
-	"github.com/robloxapi/rbxapi"
-	"github.com/robloxapi/rbxapi/patch"
-	"github.com/robloxapi/rbxapi/rbxapijson"
-	"github.com/robloxapi/rbxapiref/documents"
-	"github.com/robloxapi/rbxapiref/fetch"
 	"html"
 	"html/template"
 	"io"
@@ -25,6 +14,19 @@ import (
 	"sort"
 	"strings"
 	"unicode"
+
+	"github.com/alecthomas/chroma"
+	chhtml "github.com/alecthomas/chroma/formatters/html"
+	"github.com/alecthomas/chroma/lexers"
+	"github.com/gomarkdown/markdown/ast"
+	mdhtml "github.com/gomarkdown/markdown/html"
+	"github.com/pkg/errors"
+	"github.com/robloxapi/rbxapi"
+	"github.com/robloxapi/rbxapi/patch"
+	"github.com/robloxapi/rbxapi/rbxapijson"
+	"github.com/robloxapi/rbxapiref/builds"
+	"github.com/robloxapi/rbxapiref/documents"
+	"github.com/robloxapi/rbxapiref/fetch"
 )
 
 type Data struct {
@@ -36,14 +38,6 @@ type Data struct {
 	CodeFormatter *chhtml.Formatter
 	ResOnly       bool
 	Stamp         template.HTML
-}
-
-type Patch struct {
-	Stale   bool       `json:"-"`
-	Prev    *BuildInfo `json:",omitempty"`
-	Info    BuildInfo
-	Config  string
-	Actions []Action
 }
 
 // Escape once to escape the file name, then again to escape the URL.
@@ -347,7 +341,7 @@ var securityContexts = map[string]int{
 
 func (data *Data) ElementStatusClasses(suffix bool, v ...interface{}) string {
 	var t rbxapi.Taggable
-	var action *Action
+	var action *builds.Action
 	var removed bool
 	switch value := v[0].(type) {
 	case rbxapi.Taggable:
@@ -405,7 +399,7 @@ func (data *Data) ElementStatusClasses(suffix bool, v ...interface{}) string {
 	case *EnumItemEntity:
 		removed = value.Removed
 		t = value.Element
-	case Action:
+	case builds.Action:
 		action = &value
 		t, _ = value.GetElement().(rbxapi.Taggable)
 	default:
@@ -619,27 +613,27 @@ func (data *Data) GenerateCardElements(pages ...*Page) (elements []template.HTML
 }
 
 func (data *Data) GenerateHistoryElements(entity interface{}, button bool, ascending bool) (template.HTML, error) {
-	var patches []Patch
+	var patches []builds.Patch
 	switch entity := entity.(type) {
 	case *ClassEntity:
-		patches = MergePatches(entity.Patches, nil, nil)
+		patches = builds.MergePatches(entity.Patches, nil, nil)
 		for _, member := range entity.MemberList {
-			patches = MergePatches(patches, member.Patches, func(action *Action) bool {
+			patches = builds.MergePatches(patches, member.Patches, func(action *builds.Action) bool {
 				// Filter actions where the parent entity is the cause.
 				return action.GetMember() != nil
 			})
 		}
 	case *MemberEntity:
-		patches = MergePatches(entity.Patches, nil, nil)
+		patches = builds.MergePatches(entity.Patches, nil, nil)
 	case *EnumEntity:
-		patches = MergePatches(entity.Patches, nil, nil)
+		patches = builds.MergePatches(entity.Patches, nil, nil)
 		for _, item := range entity.ItemList {
-			patches = MergePatches(patches, item.Patches, func(action *Action) bool {
+			patches = builds.MergePatches(patches, item.Patches, func(action *builds.Action) bool {
 				return action.GetEnumItem() != nil
 			})
 		}
 	case *EnumItemEntity:
-		patches = MergePatches(entity.Patches, nil, nil)
+		patches = builds.MergePatches(entity.Patches, nil, nil)
 	default:
 		return "", nil
 	}
@@ -659,8 +653,8 @@ func (data *Data) GenerateHistoryElements(entity interface{}, button bool, ascen
 		})
 	}
 	return data.ExecuteTemplate("history", struct {
-		First   BuildInfo
-		Patches []Patch
+		First   builds.Info
+		Patches []builds.Patch
 		Button  bool
 	}{data.Manifest.Patches[0].Info, patches, button})
 }
@@ -904,7 +898,7 @@ func (data *Data) RenderPages(pages []Page) error {
 	return nil
 }
 
-func (data *Data) LatestPatch() Patch {
+func (data *Data) LatestPatch() builds.Patch {
 	return data.Manifest.Patches[len(data.Manifest.Patches)-1]
 }
 
@@ -985,7 +979,7 @@ func (data *Data) GenerateMetadata() error {
 
 	latest := data.LatestPatch()
 	client := &fetch.Client{
-		Config:    data.Settings.Configs[latest.Config],
+		Config:    data.Settings.Build.Configs[latest.Config],
 		CacheMode: fetch.CacheTemp,
 	}
 	rmd, err := client.ReflectionMetadata(latest.Info.Hash)

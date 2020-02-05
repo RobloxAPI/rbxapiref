@@ -8,18 +8,19 @@ import (
 	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/patch"
 	"github.com/robloxapi/rbxapi/rbxapijson"
+	"github.com/robloxapi/rbxapiref/builds"
 	"github.com/robloxapi/rbxapiref/internal/binio"
 )
 
 type Manifest struct {
-	Patches []Patch
+	Patches []builds.Patch
 }
 
 func (man *Manifest) ReadFrom(r io.Reader) (n int64, err error) {
 	br := binio.NewReader(r)
 	var length uint32
 	br.Number(&length)
-	man.Patches = make([]Patch, length)
+	man.Patches = make([]builds.Patch, length)
 	for i, patch := range man.Patches {
 		man.readPatch(br, &patch)
 		man.Patches[i] = patch
@@ -42,18 +43,18 @@ func (man *Manifest) WriteTo(w io.Writer) (n int64, err error) {
 	return bw.End()
 }
 
-func (man *Manifest) readPatch(br *binio.Reader, patch *Patch) {
+func (man *Manifest) readPatch(br *binio.Reader, patch *builds.Patch) {
 	man.readBuildInfo(br, &patch.Info)
 	var b uint8
 	br.Number(&b)
 	if b != 0 {
-		patch.Prev = &BuildInfo{}
+		patch.Prev = &builds.Info{}
 		man.readBuildInfo(br, patch.Prev)
 	}
 	br.String(&patch.Config)
 	var length uint32
 	br.Number(&length)
-	patch.Actions = make([]Action, length)
+	patch.Actions = make([]builds.Action, length)
 	for i, action := range patch.Actions {
 		man.readAction(br, &action)
 		patch.Actions[i] = action
@@ -63,7 +64,7 @@ func (man *Manifest) readPatch(br *binio.Reader, patch *Patch) {
 	}
 }
 
-func (man *Manifest) writePatch(bw *binio.Writer, patch *Patch) {
+func (man *Manifest) writePatch(bw *binio.Writer, patch *builds.Patch) {
 	man.writeBuildInfo(bw, &patch.Info)
 	if patch.Prev != nil {
 		bw.Number(uint8(1))
@@ -81,7 +82,7 @@ func (man *Manifest) writePatch(bw *binio.Writer, patch *Patch) {
 	}
 }
 
-func (man *Manifest) readBuildInfo(br *binio.Reader, info *BuildInfo) {
+func (man *Manifest) readBuildInfo(br *binio.Reader, info *builds.Info) {
 	br.String(&info.Hash)
 	var date string
 	br.String(&date)
@@ -100,7 +101,7 @@ func (man *Manifest) readBuildInfo(br *binio.Reader, info *BuildInfo) {
 	info.Version.Build = int(v)
 }
 
-func (man *Manifest) writeBuildInfo(bw *binio.Writer, info *BuildInfo) {
+func (man *Manifest) writeBuildInfo(bw *binio.Writer, info *builds.Info) {
 	bw.String(info.Hash)
 	date, err := info.Date.MarshalBinary()
 	if err != nil {
@@ -114,7 +115,7 @@ func (man *Manifest) writeBuildInfo(bw *binio.Writer, info *BuildInfo) {
 	bw.Number(uint32(info.Version.Build))
 }
 
-func (man *Manifest) readAction(br *binio.Reader, action *Action) {
+func (man *Manifest) readAction(br *binio.Reader, action *builds.Action) {
 	var data uint8
 	br.Number(&data)
 	action.Type = patch.Type(binio.GetBits(uint64(data), 0, 2) - 1)
@@ -149,7 +150,7 @@ func (man *Manifest) readAction(br *binio.Reader, action *Action) {
 	}
 }
 
-func (man *Manifest) writeAction(bw *binio.Writer, action *Action) {
+func (man *Manifest) writeAction(bw *binio.Writer, action *builds.Action) {
 	var data uint64
 	data = binio.SetBits(data, 0, 2, int(action.Type)+1)
 	switch {
@@ -431,8 +432,8 @@ func (man *Manifest) writeEnumItem(bw *binio.Writer, item *rbxapijson.EnumItem) 
 	man.writeTags(bw, []string(item.Tags))
 }
 
-func (man *Manifest) readValue(br *binio.Reader, p **Value) {
-	value := Value{}
+func (man *Manifest) readValue(br *binio.Reader, p **builds.Value) {
+	value := builds.Value{}
 	var valueType uint8
 	br.Number(&valueType)
 	switch valueType {
@@ -465,7 +466,7 @@ func (man *Manifest) readValue(br *binio.Reader, p **Value) {
 	*p = &value
 }
 
-func (man *Manifest) writeValue(bw *binio.Writer, value *Value) {
+func (man *Manifest) writeValue(bw *binio.Writer, value *builds.Value) {
 	switch value := value.V.(type) {
 	case bool:
 		if !value {

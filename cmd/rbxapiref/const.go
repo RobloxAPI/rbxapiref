@@ -1,10 +1,12 @@
 package main
 
 import (
+	"net/url"
+
 	"github.com/alecthomas/chroma"
 	"github.com/alecthomas/chroma/styles"
+	"github.com/robloxapi/rbxapiref/builds"
 	"github.com/robloxapi/rbxapiref/fetch"
-	"net/url"
 )
 
 const (
@@ -49,41 +51,43 @@ var DefaultSettings = &Settings{
 		DocResources: "docres",
 		Manifest:     "manifest",
 	},
-	Configs: map[string]fetch.Config{
-		"Archive": {
-			Builds:             fetch.NewLocations(ArchiveURL + "builds.json"),
-			Latest:             fetch.NewLocations(ArchiveURL + "latest.json"),
-			APIDump:            fetch.NewLocations(ArchiveURL + "data/api-dump/json/$HASH.json"),
-			ReflectionMetadata: fetch.NewLocations(ArchiveURL + "data/reflection-metadata/xml/$HASH.xml"),
-			ExplorerIcons: fetch.NewLocations(
-				CDNURL+"$HASH-content-textures2.zip#ClassImages.PNG",
-				CDNURL+"$HASH-RobloxStudio.zip#RobloxStudioBeta.exe",
-			),
-		},
-		"Production": {
-			Builds:             fetch.NewLocations(CDNURL + "DeployHistory.txt"),
-			Latest:             fetch.NewLocations(CDNURL + "versionQTStudio"),
-			APIDump:            fetch.NewLocations(CDNURL + "$HASH-API-Dump.json"),
-			ReflectionMetadata: fetch.NewLocations(CDNURL + "$HASH-RobloxStudio.zip#ReflectionMetadata.xml"),
-			ExplorerIcons: fetch.NewLocations(
-				CDNURL+"$HASH-content-textures2.zip#ClassImages.PNG",
-				CDNURL+"$HASH-RobloxStudio.zip#RobloxStudioBeta.exe",
-			),
-			Live: []fetch.Location{
-				fetch.Location{
-					Format: ".json",
-					URL:    mustParseURL("https://versioncompatibility.api.roblox.com/GetCurrentClientVersionUpload/?apiKey=76e5a40c-3ae1-4028-9f10-7c62520bd94f&binaryType=WindowsStudio"),
-				},
-				fetch.Location{
-					Format: ".json",
-					URL:    mustParseURL("https://versioncompatibility.api.roblox.com/GetCurrentClientVersionUpload/?apiKey=76e5a40c-3ae1-4028-9f10-7c62520bd94f&binaryType=WindowsStudio64"),
+	Build: builds.Settings{
+		Configs: map[string]fetch.Config{
+			"Archive": {
+				Builds:             fetch.NewLocations(ArchiveURL + "builds.json"),
+				Latest:             fetch.NewLocations(ArchiveURL + "latest.json"),
+				APIDump:            fetch.NewLocations(ArchiveURL + "data/api-dump/json/$HASH.json"),
+				ReflectionMetadata: fetch.NewLocations(ArchiveURL + "data/reflection-metadata/xml/$HASH.xml"),
+				ExplorerIcons: fetch.NewLocations(
+					CDNURL+"$HASH-content-textures2.zip#ClassImages.PNG",
+					CDNURL+"$HASH-RobloxStudio.zip#RobloxStudioBeta.exe",
+				),
+			},
+			"Production": {
+				Builds:             fetch.NewLocations(CDNURL + "DeployHistory.txt"),
+				Latest:             fetch.NewLocations(CDNURL + "versionQTStudio"),
+				APIDump:            fetch.NewLocations(CDNURL + "$HASH-API-Dump.json"),
+				ReflectionMetadata: fetch.NewLocations(CDNURL + "$HASH-RobloxStudio.zip#ReflectionMetadata.xml"),
+				ExplorerIcons: fetch.NewLocations(
+					CDNURL+"$HASH-content-textures2.zip#ClassImages.PNG",
+					CDNURL+"$HASH-RobloxStudio.zip#RobloxStudioBeta.exe",
+				),
+				Live: []fetch.Location{
+					fetch.Location{
+						Format: ".json",
+						URL:    mustParseURL("https://versioncompatibility.api.roblox.com/GetCurrentClientVersionUpload/?apiKey=76e5a40c-3ae1-4028-9f10-7c62520bd94f&binaryType=WindowsStudio"),
+					},
+					fetch.Location{
+						Format: ".json",
+						URL:    mustParseURL("https://versioncompatibility.api.roblox.com/GetCurrentClientVersionUpload/?apiKey=76e5a40c-3ae1-4028-9f10-7c62520bd94f&binaryType=WindowsStudio64"),
+					},
 				},
 			},
 		},
-	},
-	UseConfigs: []string{
-		"Archive",
-		"Production",
+		UseConfigs: []string{
+			"Archive",
+			"Production",
+		},
 	},
 }
 

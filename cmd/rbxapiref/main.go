@@ -3,14 +3,16 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"github.com/anaminus/but"
-	"github.com/jessevdk/go-flags"
 	"html/template"
 	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/anaminus/but"
+	"github.com/jessevdk/go-flags"
+	"github.com/robloxapi/rbxapiref/builds"
 )
 
 type Range struct {
@@ -150,9 +152,9 @@ func main() {
 		data.Settings.Input.UseGit = true
 	}
 	if opt.NoRewind {
-		data.Settings.Input.DisableRewind = true
+		data.Settings.Build.DisableRewind = true
 	} else if opt.Rewind {
-		data.Settings.Input.DisableRewind = false
+		data.Settings.Build.DisableRewind = false
 	}
 
 	// Load manifest.
@@ -166,7 +168,7 @@ func main() {
 
 	if !opt.ResOnly {
 		// Fetch builds.
-		builds, err := FetchBuilds(data.Settings)
+		builds, err := data.Settings.Build.Fetch()
 		but.IfFatal(err)
 
 		if opt.Range.Count > 0 {
@@ -175,7 +177,7 @@ func main() {
 		}
 
 		// Merge uncached builds.
-		data.Manifest.Patches, err = MergeBuilds(data.Settings, data.Manifest.Patches, builds)
+		data.Manifest.Patches, err = data.Settings.Build.Merge(data.Manifest.Patches, builds)
 		but.IfFatal(err)
 	}
 
@@ -211,13 +213,13 @@ func main() {
 				return data.FileLink(linkType, sargs...)
 			},
 			"pack":       PackValues,
-			"patchtype":  PatchTypeString,
+			"patchtype":  builds.PatchTypeString,
 			"quantity":   FormatQuantity,
 			"renderdoc":  RenderDocument,
 			"resources":  data.GenerateResourceElements,
 			"sortedlist": SortedList,
 			"status":     data.ElementStatusClasses,
-			"subactions": MakeSubactions,
+			"subactions": builds.MakeSubactions,
 			"tolower":    strings.ToLower,
 			"tostring":   ToString,
 			"type":       GetType,

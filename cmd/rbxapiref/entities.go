@@ -2,13 +2,15 @@ package main
 
 import (
 	"fmt"
+	"html/template"
+	"sort"
+
 	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/patch"
 	"github.com/robloxapi/rbxapi/rbxapijson"
+	"github.com/robloxapi/rbxapiref/builds"
 	"github.com/robloxapi/rbxapiref/documents"
 	"github.com/robloxapi/rbxfile"
-	"html/template"
-	"sort"
 )
 
 type Entities struct {
@@ -107,7 +109,7 @@ type Metadata struct {
 type ClassEntity struct {
 	ID      string
 	Element *rbxapijson.Class
-	Patches []Patch
+	Patches []builds.Patch
 	Removed bool
 
 	Superclasses []*ClassEntity
@@ -137,7 +139,7 @@ func (e *ClassEntity) GetDocStatus() DocStatus { return e.DocStatus }
 type MemberEntity struct {
 	ID      [2]string
 	Element rbxapi.Member
-	Patches []Patch
+	Patches []builds.Patch
 	Removed bool
 
 	Parent *ClassEntity
@@ -157,7 +159,7 @@ func (e *MemberEntity) GetDocStatus() DocStatus { return e.DocStatus }
 type EnumEntity struct {
 	ID      string
 	Element *rbxapijson.Enum
-	Patches []Patch
+	Patches []builds.Patch
 	Removed bool
 
 	Items    map[string]*EnumItemEntity
@@ -182,7 +184,7 @@ func (e *EnumEntity) GetDocStatus() DocStatus { return e.DocStatus }
 type EnumItemEntity struct {
 	ID      [2]string
 	Element *rbxapijson.EnumItem
-	Patches []Patch
+	Patches []builds.Patch
 	Removed bool
 
 	Parent *EnumEntity
@@ -230,20 +232,20 @@ type Referrer struct {
 	Parameter *rbxapijson.Parameter
 }
 
-func addPatch(patches *[]Patch, action *Action, info BuildInfo) {
+func addPatch(patches *[]builds.Patch, action *builds.Action, info builds.Info) {
 	for i := len(*patches) - 1; i >= 0; i-- {
 		if (*patches)[i].Info.Equal(info) {
 			(*patches)[i].Actions = append((*patches)[i].Actions, *action)
 			return
 		}
 	}
-	*patches = append(*patches, Patch{
+	*patches = append(*patches, builds.Patch{
 		Info:    info,
-		Actions: []Action{*action},
+		Actions: []builds.Action{*action},
 	})
 }
 
-func (entities *Entities) AddClass(action *Action, info BuildInfo) {
+func (entities *Entities) AddClass(action *builds.Action, info builds.Info) {
 	class := action.Class
 	id := class.Name
 	eclass := entities.Classes[id]
@@ -314,7 +316,7 @@ func (entities *Entities) AddClass(action *Action, info BuildInfo) {
 	addPatch(&eclass.Patches, action, info)
 }
 
-func (entities *Entities) AddMember(action *Action, info BuildInfo) {
+func (entities *Entities) AddMember(action *builds.Action, info builds.Info) {
 	class := action.Class
 	member := action.GetMember()
 	id := [2]string{class.Name, member.GetName()}
@@ -346,7 +348,7 @@ func (entities *Entities) AddMember(action *Action, info BuildInfo) {
 	}
 }
 
-func (entities *Entities) AddEnum(action *Action, info BuildInfo) {
+func (entities *Entities) AddEnum(action *builds.Action, info builds.Info) {
 	enum := action.Enum
 	id := enum.Name
 	eenum := entities.Enums[id]
@@ -403,7 +405,7 @@ func (entities *Entities) AddEnum(action *Action, info BuildInfo) {
 	addPatch(&eenum.Patches, action, info)
 }
 
-func (entities *Entities) AddEnumItem(action *Action, info BuildInfo) {
+func (entities *Entities) AddEnumItem(action *builds.Action, info builds.Info) {
 	enum := action.Enum
 	item := action.EnumItem
 	id := [2]string{enum.Name, item.Name}
@@ -479,7 +481,7 @@ var memberTypeOrder = map[string]int{
 	"Callback": 3,
 }
 
-func GenerateEntities(patches []Patch) (entities *Entities) {
+func GenerateEntities(patches []builds.Patch) (entities *Entities) {
 	entities = &Entities{
 		Classes:   make(map[string]*ClassEntity),
 		Members:   make(map[[2]string]*MemberEntity),
