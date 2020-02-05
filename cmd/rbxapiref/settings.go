@@ -144,7 +144,7 @@ func (settings *Settings) filename(name string) (string, error) {
 	}
 
 	// Local config.
-	config, err := userConfigDir()
+	config, err := os.UserConfigDir()
 	if err != nil {
 		return "", err
 	}
