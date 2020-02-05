@@ -27,11 +27,12 @@ import (
 	"github.com/robloxapi/rbxapiref/builds"
 	"github.com/robloxapi/rbxapiref/documents"
 	"github.com/robloxapi/rbxapiref/fetch"
+	"github.com/robloxapi/rbxapiref/manifest"
 )
 
 type Data struct {
 	Settings      Settings
-	Manifest      *Manifest
+	Manifest      *manifest.Manifest
 	CurrentYear   int
 	Entities      *Entities
 	Templates     *template.Template

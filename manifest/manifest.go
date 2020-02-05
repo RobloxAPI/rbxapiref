@@ -1,4 +1,4 @@
-package main
+package manifest
 
 import (
 	"encoding/json"
@@ -514,26 +514,26 @@ func (man *Manifest) writeTags(bw *binio.Writer, tags []string) {
 	}
 }
 
-func ReadManifestJSON(r io.Reader) (manifest *Manifest, err error) {
+func DecodeJSON(r io.Reader) (manifest *Manifest, err error) {
 	manifest = &Manifest{}
 	err = json.NewDecoder(r).Decode(manifest)
 	return manifest, err
 }
 
-func WriteManifestJSON(w io.Writer, manifest *Manifest) (err error) {
+func EncodeJSON(w io.Writer, manifest *Manifest) (err error) {
 	je := json.NewEncoder(w)
 	je.SetEscapeHTML(false)
 	je.SetIndent("", "\t")
 	return je.Encode(manifest)
 }
 
-func ReadManifest(r io.Reader) (manifest *Manifest, err error) {
+func Decode(r io.Reader) (manifest *Manifest, err error) {
 	manifest = &Manifest{}
 	_, err = manifest.ReadFrom(r)
 	return manifest, err
 }
 
-func WriteManifest(w io.Writer, manifest *Manifest) (err error) {
+func Encode(w io.Writer, manifest *Manifest) (err error) {
 	_, err = manifest.WriteTo(w)
 	return err
 }

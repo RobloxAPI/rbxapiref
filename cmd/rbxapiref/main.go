@@ -13,6 +13,7 @@ import (
 	"github.com/anaminus/but"
 	"github.com/jessevdk/go-flags"
 	"github.com/robloxapi/rbxapiref/builds"
+	"github.com/robloxapi/rbxapiref/manifest"
 )
 
 type Range struct {
@@ -136,7 +137,7 @@ func main() {
 	now := time.Now()
 	data := &Data{
 		CurrentYear: now.Year(),
-		Manifest:    &Manifest{},
+		Manifest:    &manifest.Manifest{},
 		ResOnly:     opt.ResOnly,
 	}
 	if opt.Stamp {
@@ -161,7 +162,7 @@ func main() {
 	manifestPath := data.AbsFilePath("manifest")
 	if !opt.Force {
 		if b, err := ioutil.ReadFile(manifestPath); err == nil {
-			data.Manifest, err = ReadManifest(bytes.NewReader(b))
+			data.Manifest, err = manifest.Decode(bytes.NewReader(b))
 			but.IfFatal(err, "read manifest")
 		}
 	}
@@ -267,7 +268,7 @@ func main() {
 	// Save manifest.
 	{
 		var buf bytes.Buffer
-		err := WriteManifest(&buf, data.Manifest)
+		err := manifest.Encode(&buf, data.Manifest)
 		but.IfFatal(err, "encode manifest")
 
 		f, err := os.Create(manifestPath)
