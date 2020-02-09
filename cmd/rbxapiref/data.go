@@ -26,6 +26,7 @@ import (
 	"github.com/robloxapi/rbxapi/rbxapijson"
 	"github.com/robloxapi/rbxapiref/builds"
 	"github.com/robloxapi/rbxapiref/documents"
+	"github.com/robloxapi/rbxapiref/entities"
 	"github.com/robloxapi/rbxapiref/fetch"
 	"github.com/robloxapi/rbxapiref/manifest"
 )
@@ -34,7 +35,7 @@ type Data struct {
 	Settings      Settings
 	Manifest      *manifest.Manifest
 	CurrentYear   int
-	Entities      *Entities
+	Entities      *entities.Entities
 	Templates     *template.Template
 	CodeFormatter *chhtml.Formatter
 	ResOnly       bool
@@ -234,36 +235,36 @@ retry:
 			title = "EnumItem"
 			index = -1
 		}
-	case *ClassEntity:
+	case *entities.ClassEntity:
 		class = "class-icon"
 		title = "Class"
 		if value.Metadata.Instance == nil {
 			goto finish
 		}
 		index = GetMetadataInt(value.Metadata, "ExplorerImageIndex")
-	case *MemberEntity:
+	case *entities.MemberEntity:
 		if value.Element == nil {
 			goto finish
 		}
 		v = []interface{}{value.Element}
 		goto retry
-	case *EnumEntity:
+	case *entities.EnumEntity:
 		if value.Element == nil {
 			goto finish
 		}
 		v = []interface{}{value.Element}
 		goto retry
-	case *EnumItemEntity:
+	case *entities.EnumItemEntity:
 		if value.Element == nil {
 			goto finish
 		}
 		v = []interface{}{value.Element}
 		goto retry
-	case TypeCategory:
+	case entities.TypeCategory:
 		class = "member-icon"
 		title = "TypeCategory"
 		index = 0
-	case *TypeEntity:
+	case *entities.TypeEntity:
 		class = "member-icon"
 		title = "Type"
 		index = 3
@@ -388,16 +389,16 @@ func (data *Data) ElementStatusClasses(suffix bool, v ...interface{}) string {
 		default:
 			return ""
 		}
-	case *ClassEntity:
+	case *entities.ClassEntity:
 		removed = value.Removed
 		t = value.Element
-	case *MemberEntity:
+	case *entities.MemberEntity:
 		removed = value.Removed
 		t = value.Element
-	case *EnumEntity:
+	case *entities.EnumEntity:
 		removed = value.Removed
 		t = value.Element
-	case *EnumItemEntity:
+	case *entities.EnumItemEntity:
 		removed = value.Removed
 		t = value.Element
 	case builds.Action:
@@ -616,7 +617,7 @@ func (data *Data) GenerateCardElements(pages ...*Page) (elements []template.HTML
 func (data *Data) GenerateHistoryElements(entity interface{}, button bool, ascending bool) (template.HTML, error) {
 	var patches []builds.Patch
 	switch entity := entity.(type) {
-	case *ClassEntity:
+	case *entities.ClassEntity:
 		patches = builds.MergePatches(entity.Patches, nil, nil)
 		for _, member := range entity.MemberList {
 			patches = builds.MergePatches(patches, member.Patches, func(action *builds.Action) bool {
@@ -624,16 +625,16 @@ func (data *Data) GenerateHistoryElements(entity interface{}, button bool, ascen
 				return action.GetMember() != nil
 			})
 		}
-	case *MemberEntity:
+	case *entities.MemberEntity:
 		patches = builds.MergePatches(entity.Patches, nil, nil)
-	case *EnumEntity:
+	case *entities.EnumEntity:
 		patches = builds.MergePatches(entity.Patches, nil, nil)
 		for _, item := range entity.ItemList {
 			patches = builds.MergePatches(patches, item.Patches, func(action *builds.Action) bool {
 				return action.GetEnumItem() != nil
 			})
 		}
-	case *EnumItemEntity:
+	case *entities.EnumItemEntity:
 		patches = builds.MergePatches(entity.Patches, nil, nil)
 	default:
 		return "", nil
@@ -948,7 +949,7 @@ func (data *Data) ParseDocReference(ref string) (scheme, path, link string) {
 
 // Normalizes the references within a document according to ParseDocReference,
 // and returns any resources that the document refers to.
-func (data *Data) NormalizeDocReferences(document Document) []Resource {
+func (data *Data) NormalizeDocReferences(document entities.Document) []Resource {
 	doc, ok := document.(documents.Linkable)
 	if !ok {
 		return nil
@@ -1100,28 +1101,28 @@ func (data *Data) GenerateDocuments() {
 	)
 	if apiDir := docDir.Query("api"); apiDir != nil {
 		for _, entity := range data.Entities.ClassList {
-			if entity.Document, _ = apiDir.Query("class", entity.ID).(Document); entity.Document != nil {
+			if entity.Document, _ = apiDir.Query("class", entity.ID).(entities.Document); entity.Document != nil {
 				entity.Document.SetRender(renderer())
 				GenerateDocumentTypeIDs(entity.Document)
 				for _, member := range entity.MemberList {
-					if member.Document, _ = entity.Document.Query("Members", member.ID[1]).(Document); member.Document != nil {
+					if member.Document, _ = entity.Document.Query("Members", member.ID[1]).(entities.Document); member.Document != nil {
 						member.Document.SetRender(renderer())
 					}
 				}
 			}
 		}
 		for _, entity := range data.Entities.EnumList {
-			if entity.Document, _ = apiDir.Query("enum", entity.ID).(Document); entity.Document != nil {
+			if entity.Document, _ = apiDir.Query("enum", entity.ID).(entities.Document); entity.Document != nil {
 				entity.Document.SetRender(renderer())
 				for _, item := range entity.ItemList {
-					if item.Document, _ = entity.Document.Query("Members", item.ID[1]).(Document); item.Document != nil {
+					if item.Document, _ = entity.Document.Query("Members", item.ID[1]).(entities.Document); item.Document != nil {
 						item.Document.SetRender(renderer())
 					}
 				}
 			}
 		}
 		for _, entity := range data.Entities.TypeList {
-			if entity.Document, _ = apiDir.Query("type", entity.ID).(Document); entity.Document != nil {
+			if entity.Document, _ = apiDir.Query("type", entity.ID).(entities.Document); entity.Document != nil {
 				entity.Document.SetRender(renderer())
 				GenerateDocumentTypeIDs(entity.Document)
 			}
@@ -1153,14 +1154,14 @@ func (data *Data) GenerateDocuments() {
 	data.Entities.Coverage = float32(count / total)
 }
 
-func GetDocStatus(entity interface{}) DocStatus {
-	if entity, ok := entity.(Documentable); ok {
+func GetDocStatus(entity interface{}) entities.DocStatus {
+	if entity, ok := entity.(entities.Documentable); ok {
 		return entity.GetDocStatus()
 	}
 	return GenerateDocStatus(entity)
 }
 
-func GenerateDocStatus(entity interface{}) (s DocStatus) {
+func GenerateDocStatus(entity interface{}) (s entities.DocStatus) {
 	setStatus := func(status *int, hasDoc bool, section documents.Section) {
 		if !hasDoc {
 			*status = 0
@@ -1173,8 +1174,8 @@ func GenerateDocStatus(entity interface{}) (s DocStatus) {
 		}
 	}
 
-	var document Document
-	if doc, ok := entity.(Documentable); ok {
+	var document entities.Document
+	if doc, ok := entity.(entities.Documentable); ok {
 		document = doc.GetDocument()
 	}
 	var summary documents.Section
@@ -1203,7 +1204,7 @@ func GenerateDocStatus(entity interface{}) (s DocStatus) {
 	var count int
 	var total int
 	switch entity := entity.(type) {
-	case *ClassEntity:
+	case *entities.ClassEntity:
 		total += 3
 		if s.SummaryStatus >= 3 {
 			count++
@@ -1242,7 +1243,7 @@ func GenerateDocStatus(entity interface{}) (s DocStatus) {
 				}
 			}
 		}
-	case *MemberEntity:
+	case *entities.MemberEntity:
 		total += 3
 		if s.SummaryStatus >= 3 {
 			count++
@@ -1253,7 +1254,7 @@ func GenerateDocStatus(entity interface{}) (s DocStatus) {
 		if s.ExamplesStatus >= 3 {
 			count++
 		}
-	case *EnumEntity:
+	case *entities.EnumEntity:
 		// Examples not required for enums.
 		total += 2
 		if s.SummaryStatus >= 3 {
@@ -1280,7 +1281,7 @@ func GenerateDocStatus(entity interface{}) (s DocStatus) {
 				}
 			}
 		}
-	case *EnumItemEntity:
+	case *entities.EnumItemEntity:
 		// Only include summary. In most cases, details and examples for every
 		// single enum item is going overboard.
 		total += 1
@@ -1293,7 +1294,7 @@ func GenerateDocStatus(entity interface{}) (s DocStatus) {
 		if s.ExamplesStatus < 2 {
 			s.ExamplesStatus = 0
 		}
-	case TypeCategory:
+	case entities.TypeCategory:
 		for _, typ := range entity.Types {
 			total += 3
 			if typ.DocStatus.SummaryStatus >= 3 {
@@ -1306,7 +1307,7 @@ func GenerateDocStatus(entity interface{}) (s DocStatus) {
 				count++
 			}
 		}
-	case *TypeEntity:
+	case *entities.TypeEntity:
 		total += 3
 		if s.SummaryStatus >= 3 {
 			count++

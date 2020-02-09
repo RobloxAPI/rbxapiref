@@ -6,6 +6,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/robloxapi/rbxapiref/documents"
+	"github.com/robloxapi/rbxapiref/entities"
 )
 
 type typeDecParser struct {
@@ -333,7 +334,7 @@ func (t typeDecOperator) ID() string {
 // GenerateDocumentTypeIDs scans a document for sections that indicate the
 // documentation of a type entity, then ID heading IDs that follow a
 // standard format.
-func GenerateDocumentTypeIDs(document Document) {
+func GenerateDocumentTypeIDs(document entities.Document) {
 	if sec := document.Query("Constructors"); sec != nil {
 		subs := sec.Subsections()
 		ctors := make([]*typeDecCtor, len(subs))

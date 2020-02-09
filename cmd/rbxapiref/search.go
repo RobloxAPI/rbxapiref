@@ -5,6 +5,7 @@ import (
 
 	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/rbxapijson"
+	"github.com/robloxapi/rbxapiref/entities"
 	"github.com/robloxapi/rbxapiref/internal/binio"
 )
 
@@ -145,7 +146,7 @@ func writeDatabaseItem(v interface{}, removed bool) uint16 {
 	return uint16(data)
 }
 
-func GenerateDatabase(w io.Writer, ent *Entities) error {
+func GenerateDatabase(w io.Writer, ent *entities.Entities) error {
 	bw := binio.NewWriter(w)
 
 	// Version

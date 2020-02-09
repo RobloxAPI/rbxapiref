@@ -1,10 +1,11 @@
-package main
+package entities
 
 import (
 	"fmt"
 	"html/template"
 	"sort"
 
+	"github.com/gomarkdown/markdown"
 	"github.com/robloxapi/rbxapi"
 	"github.com/robloxapi/rbxapi/patch"
 	"github.com/robloxapi/rbxapi/rbxapijson"
@@ -68,6 +69,12 @@ func (s DocStatus) ProgressString() string {
 
 type Entity interface {
 	IsRemoved() bool
+}
+
+type Document interface {
+	Query(name ...string) documents.Section
+	SetRender(renderer markdown.Renderer)
+	Render() template.HTML
 }
 
 type Documentable interface {

@@ -13,6 +13,7 @@ import (
 	"github.com/anaminus/but"
 	"github.com/jessevdk/go-flags"
 	"github.com/robloxapi/rbxapiref/builds"
+	"github.com/robloxapi/rbxapiref/entities"
 	"github.com/robloxapi/rbxapiref/manifest"
 )
 
@@ -183,7 +184,7 @@ func main() {
 	}
 
 	// Generate entities.
-	data.Entities = GenerateEntities(data.Manifest.Patches)
+	data.Entities = entities.GenerateEntities(data.Manifest.Patches)
 	but.IfFatal(data.GenerateMetadata())
 	data.GenerateDocuments()
 
@@ -192,7 +193,7 @@ func main() {
 		data.Templates, err = CompileTemplates(data.Settings.Input.Templates, template.FuncMap{
 			"cards":     data.GenerateCardElements,
 			"docstatus": GetDocStatus,
-			"document":  QueryDocument,
+			"document":  entities.QueryDocument,
 			"embed":     data.EmbedResource,
 			"execute":   data.ExecuteTemplate,
 			"filter":    FilterList,
@@ -216,7 +217,7 @@ func main() {
 			"pack":       PackValues,
 			"patchtype":  builds.PatchTypeString,
 			"quantity":   FormatQuantity,
-			"renderdoc":  RenderDocument,
+			"renderdoc":  entities.RenderDocument,
 			"resources":  data.GenerateResourceElements,
 			"sortedlist": SortedList,
 			"status":     data.ElementStatusClasses,
