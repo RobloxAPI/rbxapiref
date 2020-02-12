@@ -386,14 +386,14 @@ func (data *Data) RenderPages(pages []Page) error {
 
 // Normalizes the references within a document according to ParseDocReference,
 // and returns any resources that the document refers to.
-func (data *Data) NormalizeDocReferences(document entities.Document) []Resource {
+func NormalizeDocReferences(outputSettings settings.Output, document entities.Document) []Resource {
 	doc, ok := document.(documents.Linkable)
 	if !ok {
 		return nil
 	}
 	resources := map[string]*Resource{}
 	doc.SetLinks(func(link string) string {
-		scheme, path, link := data.Settings.Output.ParseDocReference(link)
+		scheme, path, link := outputSettings.ParseDocReference(link)
 		if scheme == "res" {
 			if _, ok := resources[path]; !ok {
 				resources[path] = &Resource{Name: path}

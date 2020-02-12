@@ -322,7 +322,7 @@ func GeneratePageClass(data *Data) (pages []Page) {
 				"Description": "Information about the " + class.ID + " class in the Roblox Lua API."},
 			Styles:       styles,
 			Scripts:      scripts,
-			DocResources: data.NormalizeDocReferences(class.Document),
+			DocResources: NormalizeDocReferences(data.Settings.Output, class.Document),
 			Template:     "class",
 			Data:         class,
 		}
@@ -342,7 +342,7 @@ func GeneratePageEnum(data *Data) (pages []Page) {
 				"Description": "Information about the " + enum.ID + " enum in the Roblox Lua API."},
 			Styles:       styles,
 			Scripts:      scripts,
-			DocResources: data.NormalizeDocReferences(enum.Document),
+			DocResources: NormalizeDocReferences(data.Settings.Output, enum.Document),
 			Template:     "enum",
 			Data:         enum,
 		}
@@ -362,7 +362,7 @@ func GeneratePageType(data *Data) (pages []Page) {
 				"Description": "Information about the " + typ.ID + " type in the Roblox Lua API."},
 			Styles:       styles,
 			Scripts:      scripts,
-			DocResources: data.NormalizeDocReferences(typ.Document),
+			DocResources: NormalizeDocReferences(data.Settings.Output, typ.Document),
 			Template:     "type",
 			Data:         typ,
 		}
