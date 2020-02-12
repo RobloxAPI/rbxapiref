@@ -317,15 +317,3 @@ func ParseStringList(v interface{}) []string {
 }
 
 ////////////////////////////////////////////////////////////////
-
-func GetMetadataInt(metadata entities.Metadata, prop string) (i int) {
-	switch v := metadata.Get(prop).(type) {
-	case rbxfile.ValueInt:
-		i = int(v)
-	case rbxfile.ValueString:
-		i, _ = strconv.Atoi(string(v))
-	}
-	return i
-}
-
-////////////////////////////////////////////////////////////////

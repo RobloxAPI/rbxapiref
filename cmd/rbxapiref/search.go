@@ -182,7 +182,7 @@ func GenerateDatabase(w io.Writer, ent *entities.Entities) error {
 	for _, class := range ent.ClassList {
 		var icon int
 		if class.Metadata.Instance != nil {
-			icon = GetMetadataInt(class.Metadata, "ExplorerImageIndex")
+			icon = class.Metadata.GetInt("ExplorerImageIndex")
 		}
 		if !bw.Number(uint8(icon)) {
 			return bw.Err

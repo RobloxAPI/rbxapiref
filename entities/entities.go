@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"sort"
+	"strconv"
 
 	"github.com/gomarkdown/markdown"
 	"github.com/robloxapi/rbxapi"
@@ -111,6 +112,16 @@ type ElementTyper interface {
 
 type Metadata struct {
 	*rbxfile.Instance
+}
+
+func (m Metadata) GetInt(prop string) (i int) {
+	switch v := m.Get(prop).(type) {
+	case rbxfile.ValueInt:
+		i = int(v)
+	case rbxfile.ValueString:
+		i, _ = strconv.Atoi(string(v))
+	}
+	return i
 }
 
 type ClassEntity struct {

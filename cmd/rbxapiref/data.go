@@ -90,7 +90,7 @@ retry:
 		if value.Metadata.Instance == nil {
 			goto finish
 		}
-		index = GetMetadataInt(value.Metadata, "ExplorerImageIndex")
+		index = value.Metadata.GetInt("ExplorerImageIndex")
 	case *entities.MemberEntity:
 		if value.Element == nil {
 			goto finish
