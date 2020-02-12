@@ -78,37 +78,37 @@
 {{- range $i, $entity := .ListAll -}}
 	{{- $status := docstatus $entity -}}
 	{{- $type := "" -}}
-	{{- if istype $entity "*entities.ClassEntity" -}}
+	{{- if istype $entity "*entities.Class" -}}
 		{{- $type = "p" -}}
-	{{- else if istype $entity "*entities.EnumEntity" -}}
+	{{- else if istype $entity "*entities.Enum" -}}
 		{{- $type = "p" -}}
 	{{- else if istype $entity "entities.TypeCategory" -}}
 		{{- $type = "p" -}}
 	{{- end }}
 	<tr{{if $type}} class="{{$type}}"{{end}}>
 		<td>{{$i}}</td>
-	{{- if istype $entity "*entities.ClassEntity"}}
+	{{- if istype $entity "*entities.Class"}}
 		<td>Class</td>
 		<td><a class="element-link" href="{{link "class" $entity.ID}}">{{$entity.ID}}</a></td>
 		<td{{if $status.StatusString $status.SummaryStatus}} class="{{$status.StatusString $status.SummaryStatus}}"{{end}}>{{if and (ge $status.SummaryStatus 3) $status.SummaryOrphaned}}*{{end}}</td>
 		<td{{if $status.StatusString $status.DetailsStatus}} class="{{$status.StatusString $status.DetailsStatus}}"{{end}}>{{if ge $status.DetailsStatus 3}}{{$status.DetailsSections}}{{end}}</td>
 		<td{{if $status.StatusString $status.ExamplesStatus}} class="{{$status.StatusString $status.ExamplesStatus}}"{{end}}>{{if ge $status.ExamplesStatus 3}}{{$status.ExampleCount}}{{end}}</td>
 		<td{{if $status.StatusString $status.AggregateStatus}} class="{{$status.StatusString $status.AggregateStatus}}"{{end}}>{{if ge $status.AggregateStatus 1}}{{$status.ProgressString}}{{end}}</td>
-	{{- else if istype $entity "*entities.MemberEntity"}}
+	{{- else if istype $entity "*entities.Member"}}
 		<td>{{$entity.Element.GetMemberType}}</td>
 		<td><a class="element-link" href="{{link "member" (index $entity.ID 0) (index $entity.ID 1)}}">{{index $entity.ID 0}}.{{index $entity.ID 1}}</a></td>
 		<td{{if $status.StatusString $status.SummaryStatus}} class="{{$status.StatusString $status.SummaryStatus}}"{{end}}>{{if and (ge $status.SummaryStatus 3) (not $status.SummaryOrphaned)}}**{{end}}</td>
 		<td{{if $status.StatusString $status.DetailsStatus}} class="{{$status.StatusString $status.DetailsStatus}}"{{end}}>{{if ge $status.DetailsStatus 3}}{{$status.DetailsSections}}{{end}}</td>
 		<td{{if $status.StatusString $status.ExamplesStatus}} class="{{$status.StatusString $status.ExamplesStatus}}"{{end}}>{{if ge $status.ExamplesStatus 3}}{{$status.ExampleCount}}{{end}}</td>
 		<td{{if $status.StatusString $status.AggregateStatus}} class="{{$status.StatusString $status.AggregateStatus}}"{{end}}>{{if ge $status.AggregateStatus 1}}{{$status.ProgressString}}{{end}}</td>
-	{{- else if istype $entity "*entities.EnumEntity"}}
+	{{- else if istype $entity "*entities.Enum"}}
 		<td>Enum</td>
 		<td><a class="element-link" href="{{link "enum" $entity.ID}}">{{$entity.ID}}</td>
 		<td{{if $status.StatusString $status.SummaryStatus}} class="{{$status.StatusString $status.SummaryStatus}}"{{end}}>{{if and (ge $status.SummaryStatus 3) $status.SummaryOrphaned}}*{{end}}</td>
 		<td{{if $status.StatusString $status.DetailsStatus}} class="{{$status.StatusString $status.DetailsStatus}}"{{end}}>{{if ge $status.DetailsStatus 3}}{{$status.DetailsSections}}{{end}}</td>
 		<td{{if $status.StatusString $status.ExamplesStatus}} class="{{$status.StatusString $status.ExamplesStatus}}"{{end}}>{{if ge $status.ExamplesStatus 3}}{{$status.ExampleCount}}{{end}}</td>
 		<td{{if $status.StatusString $status.AggregateStatus}} class="{{$status.StatusString $status.AggregateStatus}}"{{end}}>{{if ge $status.AggregateStatus 1}}{{$status.ProgressString}}{{end}}</td>
-	{{- else if istype $entity "*entities.EnumItemEntity"}}
+	{{- else if istype $entity "*entities.EnumItem"}}
 		<td>EnumItem</td>
 		<td><a class="element-link" href="{{link "enumitem" (index $entity.ID 0) (index $entity.ID 1)}}">{{index $entity.ID 0}}.{{index $entity.ID 1}}</a></td>
 		<td{{if $status.StatusString $status.SummaryStatus}} class="{{$status.StatusString $status.SummaryStatus}}"{{end}}>{{if and (ge $status.SummaryStatus 3) (not $status.SummaryOrphaned)}}**{{end}}</td>
@@ -122,7 +122,7 @@
 		<td></td>
 		<td></td>
 		<td{{if $status.StatusString $status.AggregateStatus}} class="{{$status.StatusString $status.AggregateStatus}}"{{end}}>{{if ge $status.AggregateStatus 1}}{{$status.ProgressString}}{{end}}</td>
-	{{- else if istype $entity "*entities.TypeEntity"}}
+	{{- else if istype $entity "*entities.Type"}}
 		<td>Type</td>
 		<td>{{template "value" $entity.Element}}</td>
 		<td{{if $status.StatusString $status.SummaryStatus}} class="{{$status.StatusString $status.SummaryStatus}}"{{end}}>{{if and (ge $status.SummaryStatus 3) $status.SummaryOrphaned}}*{{end}}</td>

@@ -17,17 +17,17 @@ import (
 )
 
 type Entities struct {
-	Classes   map[string]*ClassEntity
-	ClassList []*ClassEntity
-	Members   map[[2]string]*MemberEntity
-	TreeRoots []*ClassEntity
+	Classes   map[string]*Class
+	ClassList []*Class
+	Members   map[[2]string]*Member
+	TreeRoots []*Class
 
-	Enums     map[string]*EnumEntity
-	EnumList  []*EnumEntity
-	EnumItems map[[2]string]*EnumItemEntity
+	Enums     map[string]*Enum
+	EnumList  []*Enum
+	EnumItems map[[2]string]*EnumItem
 
-	Types    map[string]*TypeEntity
-	TypeList []*TypeEntity
+	Types    map[string]*Type
+	TypeList []*Type
 	TypeCats []TypeCategory
 
 	Coverage float32
@@ -96,16 +96,16 @@ func (e *Entities) ElementStatusClasses(suffix bool, v ...interface{}) string {
 		default:
 			return ""
 		}
-	case *ClassEntity:
+	case *Class:
 		removed = value.Removed
 		t = value.Element
-	case *MemberEntity:
+	case *Member:
 		removed = value.Removed
 		t = value.Element
-	case *EnumEntity:
+	case *Enum:
 		removed = value.Removed
 		t = value.Element
-	case *EnumItemEntity:
+	case *EnumItem:
 		removed = value.Removed
 		t = value.Element
 	case builds.Action:
@@ -246,26 +246,26 @@ retry:
 			title = "EnumItem"
 			index = -1
 		}
-	case *ClassEntity:
+	case *Class:
 		class = "class-icon"
 		title = "Class"
 		if value.Metadata.Instance == nil {
 			goto finish
 		}
 		index = value.Metadata.GetInt("ExplorerImageIndex")
-	case *MemberEntity:
+	case *Member:
 		if value.Element == nil {
 			goto finish
 		}
 		v = []interface{}{value.Element}
 		goto retry
-	case *EnumEntity:
+	case *Enum:
 		if value.Element == nil {
 			goto finish
 		}
 		v = []interface{}{value.Element}
 		goto retry
-	case *EnumItemEntity:
+	case *EnumItem:
 		if value.Element == nil {
 			goto finish
 		}
@@ -275,7 +275,7 @@ retry:
 		class = "member-icon"
 		title = "TypeCategory"
 		index = 0
-	case *TypeEntity:
+	case *Type:
 		class = "member-icon"
 		title = "Type"
 		index = 3
@@ -429,17 +429,17 @@ func (m Metadata) GetInt(prop string) (i int) {
 	return i
 }
 
-type ClassEntity struct {
+type Class struct {
 	ID      string
 	Element *rbxapijson.Class
 	Patches []builds.Patch
 	Removed bool
 
-	Superclasses []*ClassEntity
-	Subclasses   []*ClassEntity
+	Superclasses []*Class
+	Subclasses   []*Class
 
-	Members    map[string]*MemberEntity
-	MemberList []*MemberEntity
+	Members    map[string]*Member
+	MemberList []*Member
 
 	References    map[rbxapijson.Type]ElementTyper
 	ReferenceList []ElementTyper
@@ -451,21 +451,21 @@ type ClassEntity struct {
 	Metadata  Metadata
 }
 
-func (e *ClassEntity) IsRemoved() bool    { return e.Removed }
-func (e *ClassEntity) Identifier() string { return e.ID }
-func (e *ClassEntity) ElementType() rbxapijson.Type {
+func (e *Class) IsRemoved() bool    { return e.Removed }
+func (e *Class) Identifier() string { return e.ID }
+func (e *Class) ElementType() rbxapijson.Type {
 	return rbxapijson.Type{Category: "Class", Name: e.Element.Name}
 }
-func (e *ClassEntity) GetDocument() Document   { return e.Document }
-func (e *ClassEntity) GetDocStatus() DocStatus { return e.DocStatus }
+func (e *Class) GetDocument() Document   { return e.Document }
+func (e *Class) GetDocStatus() DocStatus { return e.DocStatus }
 
-type MemberEntity struct {
+type Member struct {
 	ID      [2]string
 	Element rbxapi.Member
 	Patches []builds.Patch
 	Removed bool
 
-	Parent *ClassEntity
+	Parent *Class
 
 	References    map[rbxapijson.Type]ElementTyper
 	ReferenceList []ElementTyper
@@ -475,18 +475,18 @@ type MemberEntity struct {
 	Metadata  Metadata
 }
 
-func (e *MemberEntity) IsRemoved() bool         { return e.Removed }
-func (e *MemberEntity) GetDocument() Document   { return e.Document }
-func (e *MemberEntity) GetDocStatus() DocStatus { return e.DocStatus }
+func (e *Member) IsRemoved() bool         { return e.Removed }
+func (e *Member) GetDocument() Document   { return e.Document }
+func (e *Member) GetDocStatus() DocStatus { return e.DocStatus }
 
-type EnumEntity struct {
+type Enum struct {
 	ID      string
 	Element *rbxapijson.Enum
 	Patches []builds.Patch
 	Removed bool
 
-	Items    map[string]*EnumItemEntity
-	ItemList []*EnumItemEntity
+	Items    map[string]*EnumItem
+	ItemList []*EnumItem
 
 	Referrers    map[[2]string]Referrer
 	ReferrerList []Referrer
@@ -496,32 +496,32 @@ type EnumEntity struct {
 	Metadata  Metadata
 }
 
-func (e *EnumEntity) IsRemoved() bool    { return e.Removed }
-func (e *EnumEntity) Identifier() string { return e.ID }
-func (e *EnumEntity) ElementType() rbxapijson.Type {
+func (e *Enum) IsRemoved() bool    { return e.Removed }
+func (e *Enum) Identifier() string { return e.ID }
+func (e *Enum) ElementType() rbxapijson.Type {
 	return rbxapijson.Type{Category: "Enum", Name: e.Element.Name}
 }
-func (e *EnumEntity) GetDocument() Document   { return e.Document }
-func (e *EnumEntity) GetDocStatus() DocStatus { return e.DocStatus }
+func (e *Enum) GetDocument() Document   { return e.Document }
+func (e *Enum) GetDocStatus() DocStatus { return e.DocStatus }
 
-type EnumItemEntity struct {
+type EnumItem struct {
 	ID      [2]string
 	Element *rbxapijson.EnumItem
 	Patches []builds.Patch
 	Removed bool
 
-	Parent *EnumEntity
+	Parent *Enum
 
 	Document  Document
 	DocStatus DocStatus
 	Metadata  Metadata
 }
 
-func (e *EnumItemEntity) IsRemoved() bool         { return e.Removed }
-func (e *EnumItemEntity) GetDocument() Document   { return e.Document }
-func (e *EnumItemEntity) GetDocStatus() DocStatus { return e.DocStatus }
+func (e *EnumItem) IsRemoved() bool         { return e.Removed }
+func (e *EnumItem) GetDocument() Document   { return e.Document }
+func (e *EnumItem) GetDocStatus() DocStatus { return e.DocStatus }
 
-type TypeEntity struct {
+type Type struct {
 	ID      string
 	Element rbxapijson.Type
 	Removed bool
@@ -537,21 +537,21 @@ type TypeEntity struct {
 	Metadata  Metadata
 }
 
-func (e *TypeEntity) IsRemoved() bool    { return e.Removed }
-func (e *TypeEntity) Identifier() string { return e.ID }
-func (e *TypeEntity) ElementType() rbxapijson.Type {
+func (e *Type) IsRemoved() bool    { return e.Removed }
+func (e *Type) Identifier() string { return e.ID }
+func (e *Type) ElementType() rbxapijson.Type {
 	return e.Element
 }
-func (e *TypeEntity) GetDocument() Document   { return e.Document }
-func (e *TypeEntity) GetDocStatus() DocStatus { return e.DocStatus }
+func (e *Type) GetDocument() Document   { return e.Document }
+func (e *Type) GetDocStatus() DocStatus { return e.DocStatus }
 
 type TypeCategory struct {
 	Name  string
-	Types []*TypeEntity
+	Types []*Type
 }
 
 type Referrer struct {
-	Member    *MemberEntity
+	Member    *Member
 	Parameter *rbxapijson.Parameter
 }
 
@@ -573,10 +573,10 @@ func (entities *Entities) AddClass(action *builds.Action, info builds.Info) {
 	id := class.Name
 	eclass := entities.Classes[id]
 	if eclass == nil {
-		eclass = &ClassEntity{
+		eclass = &Class{
 			ID:         id,
 			Element:    class.Copy().(*rbxapijson.Class),
-			Members:    map[string]*MemberEntity{},
+			Members:    map[string]*Member{},
 			References: map[rbxapijson.Type]ElementTyper{},
 			Referrers:  map[[2]string]Referrer{},
 		}
@@ -588,7 +588,7 @@ func (entities *Entities) AddClass(action *builds.Action, info builds.Info) {
 			id := [2]string{class.Name, member.GetName()}
 			emember := eclass.Members[id[1]]
 			if emember == nil {
-				emember = &MemberEntity{
+				emember = &Member{
 					ID:         id,
 					Element:    member.Copy(),
 					References: map[rbxapijson.Type]ElementTyper{},
@@ -649,7 +649,7 @@ func (entities *Entities) AddMember(action *builds.Action, info builds.Info) {
 	}
 	emember := eclass.Members[id[1]]
 	if emember == nil {
-		emember = &MemberEntity{
+		emember = &Member{
 			ID:         id,
 			Element:    member.Copy(),
 			References: map[rbxapijson.Type]ElementTyper{},
@@ -676,10 +676,10 @@ func (entities *Entities) AddEnum(action *builds.Action, info builds.Info) {
 	id := enum.Name
 	eenum := entities.Enums[id]
 	if eenum == nil {
-		eenum = &EnumEntity{
+		eenum = &Enum{
 			ID:        id,
 			Element:   enum.Copy().(*rbxapijson.Enum),
-			Items:     map[string]*EnumItemEntity{},
+			Items:     map[string]*EnumItem{},
 			Referrers: map[[2]string]Referrer{},
 		}
 		entities.Enums[id] = eenum
@@ -690,7 +690,7 @@ func (entities *Entities) AddEnum(action *builds.Action, info builds.Info) {
 			id := [2]string{enum.Name, item.Name}
 			eitem := eenum.Items[id[1]]
 			if eitem == nil {
-				eitem = &EnumItemEntity{
+				eitem = &EnumItem{
 					ID:      id,
 					Element: item.Copy().(*rbxapijson.EnumItem),
 					Parent:  eenum,
@@ -738,7 +738,7 @@ func (entities *Entities) AddEnumItem(action *builds.Action, info builds.Info) {
 	}
 	eitem := eenum.Items[id[1]]
 	if eitem == nil {
-		eitem = &EnumItemEntity{
+		eitem = &EnumItem{
 			ID:      id,
 			Element: item.Copy().(*rbxapijson.EnumItem),
 			Parent:  eenum,
@@ -768,8 +768,8 @@ func (entities *Entities) ListAll() []interface{} {
 	n += len(entities.Types)
 	all := make([]interface{}, 0, n)
 
-	var addClasses func(classes []*ClassEntity)
-	addClasses = func(classes []*ClassEntity) {
+	var addClasses func(classes []*Class)
+	addClasses = func(classes []*Class) {
 		for _, class := range classes {
 			all = append(all, class)
 			for _, member := range class.MemberList {
@@ -806,11 +806,11 @@ var memberTypeOrder = map[string]int{
 
 func GenerateEntities(patches []builds.Patch) (entities *Entities) {
 	entities = &Entities{
-		Classes:   make(map[string]*ClassEntity),
-		Members:   make(map[[2]string]*MemberEntity),
-		Enums:     make(map[string]*EnumEntity),
-		EnumItems: make(map[[2]string]*EnumItemEntity),
-		Types:     make(map[string]*TypeEntity),
+		Classes:   make(map[string]*Class),
+		Members:   make(map[[2]string]*Member),
+		Enums:     make(map[string]*Enum),
+		EnumItems: make(map[[2]string]*EnumItem),
+		Types:     make(map[string]*Type),
 	}
 
 	for _, patch := range patches {
@@ -866,7 +866,7 @@ func GenerateEntities(patches []builds.Patch) (entities *Entities) {
 		default:
 			etype := entities.Types[typ.Name]
 			if etype == nil {
-				etype = &TypeEntity{
+				etype = &Type{
 					ID:          typ.Name,
 					Element:     typ,
 					Removed:     true,
@@ -1025,13 +1025,13 @@ func GenerateEntities(patches []builds.Patch) (entities *Entities) {
 	}
 
 	{
-		entities.ClassList = make([]*ClassEntity, len(entities.Classes))
+		entities.ClassList = make([]*Class, len(entities.Classes))
 		i := 0
 		for _, eclass := range entities.Classes {
 			entities.ClassList[i] = eclass
 			i++
 
-			eclass.MemberList = make([]*MemberEntity, len(eclass.Members))
+			eclass.MemberList = make([]*Member, len(eclass.Members))
 			j := 0
 			for _, emember := range eclass.Members {
 				eclass.MemberList[j] = emember
@@ -1052,13 +1052,13 @@ func GenerateEntities(patches []builds.Patch) (entities *Entities) {
 	}
 
 	{
-		entities.EnumList = make([]*EnumEntity, len(entities.Enums))
+		entities.EnumList = make([]*Enum, len(entities.Enums))
 		i := 0
 		for _, eenum := range entities.Enums {
 			entities.EnumList[i] = eenum
 			i++
 
-			eenum.ItemList = make([]*EnumItemEntity, len(eenum.Items))
+			eenum.ItemList = make([]*EnumItem, len(eenum.Items))
 			j := 0
 			for _, emember := range eenum.Items {
 				eenum.ItemList[j] = emember
@@ -1076,7 +1076,7 @@ func GenerateEntities(patches []builds.Patch) (entities *Entities) {
 		})
 	}
 
-	entities.TypeList = make([]*TypeEntity, 0, len(entities.Types))
+	entities.TypeList = make([]*Type, 0, len(entities.Types))
 loop:
 	for _, etype := range entities.Types {
 		entities.TypeList = append(entities.TypeList, etype)
@@ -1088,7 +1088,7 @@ loop:
 		}
 		entities.TypeCats = append(entities.TypeCats, TypeCategory{
 			Name:  etype.Element.Category,
-			Types: []*TypeEntity{etype},
+			Types: []*Type{etype},
 		})
 	}
 	sort.Slice(entities.TypeList, func(i, j int) bool {

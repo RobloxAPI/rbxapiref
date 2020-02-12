@@ -94,7 +94,7 @@ func (data *Data) GenerateResourceElements(resources []Resource) (v []interface{
 func (data *Data) GenerateHistoryElements(entity interface{}, button bool, ascending bool) (template.HTML, error) {
 	var patches []builds.Patch
 	switch entity := entity.(type) {
-	case *entities.ClassEntity:
+	case *entities.Class:
 		patches = builds.MergePatches(entity.Patches, nil, nil)
 		for _, member := range entity.MemberList {
 			patches = builds.MergePatches(patches, member.Patches, func(action *builds.Action) bool {
@@ -102,16 +102,16 @@ func (data *Data) GenerateHistoryElements(entity interface{}, button bool, ascen
 				return action.GetMember() != nil
 			})
 		}
-	case *entities.MemberEntity:
+	case *entities.Member:
 		patches = builds.MergePatches(entity.Patches, nil, nil)
-	case *entities.EnumEntity:
+	case *entities.Enum:
 		patches = builds.MergePatches(entity.Patches, nil, nil)
 		for _, item := range entity.ItemList {
 			patches = builds.MergePatches(patches, item.Patches, func(action *builds.Action) bool {
 				return action.GetEnumItem() != nil
 			})
 		}
-	case *entities.EnumItemEntity:
+	case *entities.EnumItem:
 		patches = builds.MergePatches(entity.Patches, nil, nil)
 	default:
 		return "", nil
@@ -292,7 +292,7 @@ func generateDocStatus(entity interface{}) (s entities.DocStatus) {
 	var count int
 	var total int
 	switch entity := entity.(type) {
-	case *entities.ClassEntity:
+	case *entities.Class:
 		total += 3
 		if s.SummaryStatus >= 3 {
 			count++
@@ -331,7 +331,7 @@ func generateDocStatus(entity interface{}) (s entities.DocStatus) {
 				}
 			}
 		}
-	case *entities.MemberEntity:
+	case *entities.Member:
 		total += 3
 		if s.SummaryStatus >= 3 {
 			count++
@@ -342,7 +342,7 @@ func generateDocStatus(entity interface{}) (s entities.DocStatus) {
 		if s.ExamplesStatus >= 3 {
 			count++
 		}
-	case *entities.EnumEntity:
+	case *entities.Enum:
 		// Examples not required for enums.
 		total += 2
 		if s.SummaryStatus >= 3 {
@@ -369,7 +369,7 @@ func generateDocStatus(entity interface{}) (s entities.DocStatus) {
 				}
 			}
 		}
-	case *entities.EnumItemEntity:
+	case *entities.EnumItem:
 		// Only include summary. In most cases, details and examples for every
 		// single enum item is going overboard.
 		total += 1
@@ -395,7 +395,7 @@ func generateDocStatus(entity interface{}) (s entities.DocStatus) {
 				count++
 			}
 		}
-	case *entities.TypeEntity:
+	case *entities.Type:
 		total += 3
 		if s.SummaryStatus >= 3 {
 			count++

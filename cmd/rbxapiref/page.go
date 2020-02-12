@@ -338,7 +338,7 @@ func NormalizeDocReferences(output settings.Output, document entities.Document) 
 	return docres
 }
 
-func generatePageClass(output settings.Output, classes []*entities.ClassEntity) (pages []Page) {
+func generatePageClass(output settings.Output, classes []*entities.Class) (pages []Page) {
 	styles := []Resource{{Name: "class.css"}}
 	scripts := []Resource{{Name: "class.js", Attr: []Attr{{"async", ""}}}}
 	pages = make([]Page, len(classes))
@@ -358,7 +358,7 @@ func generatePageClass(output settings.Output, classes []*entities.ClassEntity) 
 	return pages
 }
 
-func generatePageEnum(output settings.Output, enums []*entities.EnumEntity) (pages []Page) {
+func generatePageEnum(output settings.Output, enums []*entities.Enum) (pages []Page) {
 	styles := []Resource{{Name: "enum.css"}}
 	scripts := []Resource{{Name: "enum.js", Attr: []Attr{{"async", ""}}}}
 	pages = make([]Page, len(enums))
@@ -378,7 +378,7 @@ func generatePageEnum(output settings.Output, enums []*entities.EnumEntity) (pag
 	return pages
 }
 
-func generatePageType(output settings.Output, types []*entities.TypeEntity) (pages []Page) {
+func generatePageType(output settings.Output, types []*entities.Type) (pages []Page) {
 	styles := []Resource{{Name: "type.css"}}
 	scripts := []Resource{{Name: "type.js", Attr: []Attr{{"async", ""}}}}
 	pages = make([]Page, len(types))
