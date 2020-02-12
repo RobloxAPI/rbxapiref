@@ -175,3 +175,46 @@ func (o *Output) AbsPath(p string) string {
 	}
 	return filepath.Join(o.Root, p)
 }
+
+func unescapeURLPath(path string) string {
+	p, err := url.PathUnescape(path)
+	if err != nil {
+		return path
+	}
+	return p
+}
+
+func (o *Output) ParseDocReference(ref string) (scheme, path, link string) {
+	colon := strings.IndexByte(ref, ':')
+	if colon < 0 {
+		return "", "", ref
+	}
+	switch scheme, path = ref[:colon], ref[colon+1:]; scheme {
+	case "res":
+		link = o.FileLink("docres", path)
+		return
+	case "class":
+		slash := strings.IndexByte(path, '/')
+		if slash < 0 {
+			link = o.FileLink("class", unescapeURLPath(path))
+			return
+		}
+		link = o.FileLink("member", unescapeURLPath(path[:slash]), unescapeURLPath(path[slash+1:]))
+		return
+	case "enum":
+		slash := strings.IndexByte(path, '/')
+		if slash < 0 {
+			link = o.FileLink("enum", unescapeURLPath(path))
+			return
+		}
+		link = o.FileLink("enumitem", unescapeURLPath(path[:slash]), unescapeURLPath(path[slash+1:]))
+		return
+	case "type":
+		link = o.FileLink("type", unescapeURLPath(path))
+		return
+	case "member":
+		link = o.FileLink("member", unescapeURLPath(path))
+		return
+	}
+	return "", "", ref
+}

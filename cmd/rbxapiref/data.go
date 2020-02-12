@@ -6,11 +6,9 @@ import (
 	"html/template"
 	"io"
 	"io/ioutil"
-	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
-	"strings"
 	"time"
 
 	"github.com/alecthomas/chroma"
@@ -386,49 +384,6 @@ func (data *Data) RenderPages(pages []Page) error {
 	return nil
 }
 
-func unescapeURLPath(path string) string {
-	p, err := url.PathUnescape(path)
-	if err != nil {
-		return path
-	}
-	return p
-}
-
-func (data *Data) ParseDocReference(ref string) (scheme, path, link string) {
-	colon := strings.IndexByte(ref, ':')
-	if colon < 0 {
-		return "", "", ref
-	}
-	switch scheme, path = ref[:colon], ref[colon+1:]; scheme {
-	case "res":
-		link = data.Settings.Output.FileLink("docres", path)
-		return
-	case "class":
-		slash := strings.IndexByte(path, '/')
-		if slash < 0 {
-			link = data.Settings.Output.FileLink("class", unescapeURLPath(path))
-			return
-		}
-		link = data.Settings.Output.FileLink("member", unescapeURLPath(path[:slash]), unescapeURLPath(path[slash+1:]))
-		return
-	case "enum":
-		slash := strings.IndexByte(path, '/')
-		if slash < 0 {
-			link = data.Settings.Output.FileLink("enum", unescapeURLPath(path))
-			return
-		}
-		link = data.Settings.Output.FileLink("enumitem", unescapeURLPath(path[:slash]), unescapeURLPath(path[slash+1:]))
-		return
-	case "type":
-		link = data.Settings.Output.FileLink("type", unescapeURLPath(path))
-		return
-	case "member":
-		link = data.Settings.Output.FileLink("member", unescapeURLPath(path))
-		return
-	}
-	return "", "", ref
-}
-
 // Normalizes the references within a document according to ParseDocReference,
 // and returns any resources that the document refers to.
 func (data *Data) NormalizeDocReferences(document entities.Document) []Resource {
@@ -438,7 +393,7 @@ func (data *Data) NormalizeDocReferences(document entities.Document) []Resource 
 	}
 	resources := map[string]*Resource{}
 	doc.SetLinks(func(link string) string {
-		scheme, path, link := data.ParseDocReference(link)
+		scheme, path, link := data.Settings.Output.ParseDocReference(link)
 		if scheme == "res" {
 			if _, ok := resources[path]; !ok {
 				resources[path] = &Resource{Name: path}
