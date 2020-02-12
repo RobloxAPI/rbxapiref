@@ -39,7 +39,6 @@ type Data struct {
 	Templates     *template.Template
 	CodeFormatter *chhtml.Formatter
 	ResOnly       bool
-	Stamp         template.HTML
 }
 
 const IconSize = 16
