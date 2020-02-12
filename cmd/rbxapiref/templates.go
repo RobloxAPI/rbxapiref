@@ -147,7 +147,7 @@ func TemplateFuncs(data *Data) template.FuncMap {
 	funcs := template.FuncMap{}
 
 	{
-		outputSettings := data.Settings.Output
+		output := data.Settings.Output
 		funcs["cards"] = func(pages ...*Page) (elements []template.HTML, err error) {
 			getField := func(name string) (value string, ok bool) {
 				for _, page := range pages {
@@ -176,7 +176,7 @@ func TemplateFuncs(data *Data) template.FuncMap {
 				)
 			}
 			if image, ok := getField("Image"); ok {
-				u := (&url.URL{Scheme: "https", Host: outputSettings.Host, Path: outputSettings.FileLink("resource", image)}).String()
+				u := (&url.URL{Scheme: "https", Host: output.Host, Path: output.FileLink("resource", image)}).String()
 				elements = append(elements,
 					generateMetaTag("property", "og:image", u),
 					generateMetaTag("name", "twitter:image", u),

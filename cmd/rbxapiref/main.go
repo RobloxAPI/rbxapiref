@@ -51,26 +51,26 @@ func (files *FileSet) Files() []string {
 	return fs
 }
 
-func ComparePages(outputSettings settings.Output, pages []Page) error {
+func ComparePages(output settings.Output, pages []Page) error {
 	// Accumulate generated files.
 	files := NewFileSet("")
-	files.Add(outputSettings.FilePath("manifest"))
-	files.Add(outputSettings.FilePath("search"))
+	files.Add(output.FilePath("manifest"))
+	files.Add(output.FilePath("search"))
 	for _, page := range pages {
 		if page.File != "" {
 			files.Add(page.File)
 		}
 		for _, res := range page.Styles {
-			files.Add(outputSettings.FilePath("resource", res.Name))
+			files.Add(output.FilePath("resource", res.Name))
 		}
 		for _, res := range page.Scripts {
-			files.Add(outputSettings.FilePath("resource", res.Name))
+			files.Add(output.FilePath("resource", res.Name))
 		}
 		for _, res := range page.Resources {
-			files.Add(outputSettings.FilePath("resource", res.Name))
+			files.Add(output.FilePath("resource", res.Name))
 		}
 		for _, res := range page.DocResources {
-			files.Add(outputSettings.FilePath("docres", res.Name))
+			files.Add(output.FilePath("docres", res.Name))
 		}
 	}
 	// Include directories.
@@ -87,8 +87,8 @@ func ComparePages(outputSettings settings.Output, pages []Page) error {
 
 	// Walk the output tree.
 	dirs := []string{}
-	root := filepath.Dir(outputSettings.AbsFilePath(""))
-	err := filepath.Walk(outputSettings.AbsFilePath(""), func(path string, info os.FileInfo, err error) error {
+	root := filepath.Dir(output.AbsFilePath(""))
+	err := filepath.Walk(output.AbsFilePath(""), func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -138,7 +138,7 @@ func RenderPageDirs(root string, pages []Page) error {
 	return nil
 }
 
-func copyResources(outputSettings settings.Output, srcPath, dstType string, resources map[string]*Resource) error {
+func copyResources(output settings.Output, srcPath, dstType string, resources map[string]*Resource) error {
 	dirs := map[string]struct{}{}
 	for name, resource := range resources {
 		var src io.ReadCloser
@@ -150,7 +150,7 @@ func copyResources(outputSettings settings.Output, srcPath, dstType string, reso
 				return fmt.Errorf("open resource: %w", err)
 			}
 		}
-		dstname := outputSettings.AbsFilePath(dstType, name)
+		dstname := output.AbsFilePath(dstType, name)
 		dir := filepath.Dir(dstname)
 		if _, ok := dirs[dir]; !ok {
 			if err := os.MkdirAll(dir, 0755); err != nil {
