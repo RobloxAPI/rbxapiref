@@ -13,6 +13,7 @@ import (
 
 	"github.com/anaminus/but"
 	"github.com/jessevdk/go-flags"
+	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapiref/entities"
 	"github.com/robloxapi/rbxapiref/manifest"
 	"github.com/robloxapi/rbxapiref/settings"
@@ -117,6 +118,21 @@ func ComparePages(outputSettings settings.Output, pages []Page) error {
 		if err := os.Remove(filepath.Join(root, path)); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func RenderPageDirs(root string, pages []Page) error {
+	dirs := map[string]struct{}{}
+	for _, page := range pages {
+		dir := filepath.Join(root, filepath.Dir(page.File))
+		if _, ok := dirs[dir]; ok {
+			continue
+		}
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return errors.WithMessage(err, "make directory")
+		}
+		dirs[dir] = struct{}{}
 	}
 	return nil
 }

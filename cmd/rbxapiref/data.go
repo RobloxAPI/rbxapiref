@@ -149,21 +149,6 @@ func (data *Data) GeneratePages(generators []PageGenerator) (pages []Page) {
 	return pages
 }
 
-func RenderPageDirs(root string, pages []Page) error {
-	dirs := map[string]struct{}{}
-	for _, page := range pages {
-		dir := filepath.Join(root, filepath.Dir(page.File))
-		if _, ok := dirs[dir]; ok {
-			continue
-		}
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			return errors.WithMessage(err, "make directory")
-		}
-		dirs[dir] = struct{}{}
-	}
-	return nil
-}
-
 func copyResources(outputSettings settings.Output, srcPath, dstType string, resources map[string]*Resource) error {
 	dirs := map[string]struct{}{}
 	for name, resource := range resources {
