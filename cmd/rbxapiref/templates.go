@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"html"
 	"html/template"
 	"io/ioutil"
 	"net/url"
@@ -135,6 +136,10 @@ func reflectLength(item interface{}) (int, error) {
 		return int(v.Int()), nil
 	}
 	return 0, errors.Errorf("len of type %s", v.Type())
+}
+
+func generateMetaTag(a, b, c string) template.HTML {
+	return template.HTML("<meta " + html.EscapeString(a) + "=\"" + html.EscapeString(b) + "\" content=\"" + html.EscapeString(c) + "\" />")
 }
 
 func TemplateFuncs(data *Data) template.FuncMap {

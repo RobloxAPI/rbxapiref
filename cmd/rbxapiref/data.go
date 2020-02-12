@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"html"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -89,10 +88,6 @@ func (data *Data) GenerateResourceElements(resources []Resource) (v []interface{
 		v = append(v, template.HTML(buf.String()))
 	}
 	return v, nil
-}
-
-func generateMetaTag(a, b, c string) template.HTML {
-	return template.HTML("<meta " + html.EscapeString(a) + "=\"" + html.EscapeString(b) + "\" content=\"" + html.EscapeString(c) + "\" />")
 }
 
 func (data *Data) GenerateHistoryElements(entity interface{}, button bool, ascending bool) (template.HTML, error) {
