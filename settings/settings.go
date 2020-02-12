@@ -36,25 +36,6 @@ type Input struct {
 	UseGit bool
 }
 
-type Output struct {
-	// Root is the directory to which generated files will be written.
-	Root string
-	// Sub is a path that follows the output directory and precedes a
-	// generated file path.
-	Sub string
-	// Resources is the path relative to Sub where generated resource files
-	// will be written.
-	Resources string
-	// DocResources is the path relative to Sub where document resource files
-	// will be written.
-	DocResources string
-	// Manifest is the path relative to Sub that points to the manifest file.
-	Manifest string
-
-	// Host is the host part of the absolute URL of the site.
-	Host string
-}
-
 func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 	dw := binio.NewReader(r)
 	var jsettings struct {

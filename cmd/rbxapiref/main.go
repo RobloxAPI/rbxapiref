@@ -161,7 +161,7 @@ func main() {
 	}
 
 	// Load manifest.
-	manifestPath := data.AbsFilePath("manifest")
+	manifestPath := data.Settings.Output.AbsFilePath("manifest")
 	if !opt.Force {
 		if b, err := ioutil.ReadFile(manifestPath); err == nil {
 			data.Manifest, err = manifest.Decode(bytes.NewReader(b))
@@ -213,7 +213,7 @@ func main() {
 						sargs[i] = arg.(string)
 					}
 				}
-				return data.FileLink(linkType, sargs...)
+				return data.Settings.Output.FileLink(linkType, sargs...)
 			},
 			"pack":       PackValues,
 			"patchtype":  builds.PatchTypeString,
@@ -259,7 +259,7 @@ func main() {
 
 	// Generate search database.
 	{
-		f, err := os.Create(data.AbsFilePath("search"))
+		f, err := os.Create(data.Settings.Output.AbsFilePath("search"))
 		but.IfFatal(err, "create search database file")
 		w := bufio.NewWriter(f)
 		but.IfFatal(GenerateDatabase(w, data.Entities), "generate search database")

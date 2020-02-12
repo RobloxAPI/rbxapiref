@@ -174,7 +174,7 @@ func GeneratePageMain(data *Data) (pages []Page) {
 
 func GeneratePageIndex(data *Data) (pages []Page) {
 	return []Page{{
-		File:     data.FilePath("index"),
+		File:     data.Settings.Output.FilePath("index"),
 		Styles:   []Resource{{Name: "index.css", Embed: true}},
 		Scripts:  []Resource{{Name: "index.js", Attr: []Attr{{"async", ""}}}},
 		Template: "index",
@@ -183,7 +183,7 @@ func GeneratePageIndex(data *Data) (pages []Page) {
 
 func GeneratePageAbout(data *Data) (pages []Page) {
 	return []Page{{
-		File: data.FilePath("about"),
+		File: data.Settings.Output.FilePath("about"),
 		Meta: Meta{
 			"Title":       Title("About"),
 			"Description": "About the Roblox API Reference.",
@@ -198,7 +198,7 @@ func GeneratePageAbout(data *Data) (pages []Page) {
 
 func GeneratePageDocmon(data *Data) (pages []Page) {
 	return []Page{{
-		File: data.FilePath("docmon"),
+		File: data.Settings.Output.FilePath("docmon"),
 		Meta: Meta{
 			"Title":       Title("Documentation monitor"),
 			"Description": "Status of documentation on the Roblox API Reference.",
@@ -286,7 +286,7 @@ func GeneratePageUpdates(data *Data) (pages []Page) {
 	for i, patches := range patchesByYear {
 		year := strconv.Itoa(patches.Year)
 		pages[i] = Page{
-			File: data.FilePath("updates", year),
+			File: data.Settings.Output.FilePath("updates", year),
 			Meta: Meta{
 				"Title":       Title("Updates in " + year),
 				"Description": "A list of updates to the Roblox Lua API in " + year + ".",
@@ -298,7 +298,7 @@ func GeneratePageUpdates(data *Data) (pages []Page) {
 		}
 	}
 	pages[len(pages)-1] = Page{
-		File: data.FilePath("updates"),
+		File: data.Settings.Output.FilePath("updates"),
 		Meta: Meta{
 			"Title":       Title("Recent Updates"),
 			"Description": "A list of recent updates to the Roblox Lua API."},
@@ -316,7 +316,7 @@ func GeneratePageClass(data *Data) (pages []Page) {
 	pages = make([]Page, len(data.Entities.ClassList))
 	for i, class := range data.Entities.ClassList {
 		pages[i] = Page{
-			File: data.FilePath("class", class.ID),
+			File: data.Settings.Output.FilePath("class", class.ID),
 			Meta: Meta{
 				"Title":       Title(class.ID),
 				"Description": "Information about the " + class.ID + " class in the Roblox Lua API."},
@@ -336,7 +336,7 @@ func GeneratePageEnum(data *Data) (pages []Page) {
 	pages = make([]Page, len(data.Entities.EnumList))
 	for i, enum := range data.Entities.EnumList {
 		pages[i] = Page{
-			File: data.FilePath("enum", enum.ID),
+			File: data.Settings.Output.FilePath("enum", enum.ID),
 			Meta: Meta{
 				"Title":       Title(enum.ID),
 				"Description": "Information about the " + enum.ID + " enum in the Roblox Lua API."},
@@ -356,7 +356,7 @@ func GeneratePageType(data *Data) (pages []Page) {
 	pages = make([]Page, len(data.Entities.TypeList))
 	for i, typ := range data.Entities.TypeList {
 		pages[i] = Page{
-			File: data.FilePath("type", typ.Element.Category, typ.Element.Name),
+			File: data.Settings.Output.FilePath("type", typ.Element.Category, typ.Element.Name),
 			Meta: Meta{
 				"Title":       Title(typ.ID),
 				"Description": "Information about the " + typ.ID + " type in the Roblox Lua API."},
