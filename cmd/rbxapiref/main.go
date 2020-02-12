@@ -132,11 +132,10 @@ func main() {
 	}
 
 	// Initialize root.
-	now := time.Now()
 	data := &Data{
-		CurrentYear: now.Year(),
-		Manifest:    &manifest.Manifest{},
-		ResOnly:     opt.ResOnly,
+		Time:     time.Now(),
+		Manifest: &manifest.Manifest{},
+		ResOnly:  opt.ResOnly,
 	}
 
 	// Load settings.

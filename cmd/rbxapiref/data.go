@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/alecthomas/chroma"
 	chhtml "github.com/alecthomas/chroma/formatters/html"
@@ -33,7 +34,7 @@ import (
 type Data struct {
 	Settings      settings.Settings
 	Manifest      *manifest.Manifest
-	CurrentYear   int
+	Time          time.Time
 	Entities      *entities.Entities
 	Templates     *template.Template
 	CodeFormatter *chhtml.Formatter
