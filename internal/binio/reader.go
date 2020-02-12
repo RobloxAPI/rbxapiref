@@ -17,6 +17,19 @@ func NewReader(r io.Reader) *Reader {
 	return &Reader{r: r, buf: make([]byte, 256)}
 }
 
+// Read implements the io.Reader interface.
+func (r *Reader) Read(p []byte) (n int, err error) {
+	n, err = r.r.Read(p)
+	r.n += int64(n)
+	r.Err = err
+	return n, err
+}
+
+// BytesRead returns the number of bytes read.
+func (r *Reader) BytesRead() int64 {
+	return r.n
+}
+
 // End returns the number of read bytes and any error that occurred.
 func (r *Reader) End() (n int64, err error) {
 	return r.n, r.Err

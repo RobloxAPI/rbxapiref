@@ -2,12 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/pkg/errors"
-	"github.com/robloxapi/rbxapiref/builds"
-	"github.com/robloxapi/rbxapiref/fetch"
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/pkg/errors"
+	"github.com/robloxapi/rbxapiref/builds"
+	"github.com/robloxapi/rbxapiref/fetch"
+	"github.com/robloxapi/rbxapiref/internal/binio"
 )
 
 type Settings struct {
@@ -54,7 +56,7 @@ type SettingsOutput struct {
 }
 
 func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
-	dw := NewDecodeWrapper(r)
+	dw := binio.NewReader(r)
 	var jsettings struct {
 		Input struct {
 			Resources    *string
@@ -116,19 +118,19 @@ func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 		settings.Build.UseConfigs = append(settings.Build.UseConfigs[:0], jsettings.Build.UseConfigs...)
 	}
 
-	return dw.Result()
+	return dw.End()
 }
 
 func (settings *Settings) WriteTo(w io.Writer) (n int64, err error) {
-	ew := NewEncodeWrapper(w)
+	ew := binio.NewWriter(w)
 	je := json.NewEncoder(ew)
 	je.SetEscapeHTML(true)
 	je.SetIndent("", "\t")
 	err = je.Encode(settings)
 	if err != nil {
-		return ew.BytesRead(), errors.Wrap(err, "encode settings file")
+		return ew.BytesWritten(), errors.Wrap(err, "encode settings file")
 	}
-	return ew.Result()
+	return ew.End()
 }
 
 func (settings *Settings) filename(name string) (string, error) {

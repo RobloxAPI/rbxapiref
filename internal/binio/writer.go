@@ -17,6 +17,19 @@ func NewWriter(w io.Writer) *Writer {
 	return &Writer{w: w, buf: make([]byte, 8)}
 }
 
+// Write implements the io.Writer interface.
+func (w *Writer) Write(p []byte) (n int, err error) {
+	n, err = w.w.Write(p)
+	w.n += int64(n)
+	w.Err = err
+	return n, err
+}
+
+// BytesWritten returns the number of bytes written.
+func (w *Writer) BytesWritten() int64 {
+	return w.n
+}
+
 // End returns the number of written bytes and any error that occurred.
 func (w *Writer) End() (n int64, err error) {
 	return w.n, w.Err
