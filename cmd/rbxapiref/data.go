@@ -187,33 +187,6 @@ func (data *Data) RenderPages(pages []Page) error {
 	return nil
 }
 
-// Normalizes the references within a document according to ParseDocReference,
-// and returns any resources that the document refers to.
-func NormalizeDocReferences(outputSettings settings.Output, document entities.Document) []Resource {
-	doc, ok := document.(documents.Linkable)
-	if !ok {
-		return nil
-	}
-	resources := map[string]*Resource{}
-	doc.SetLinks(func(link string) string {
-		scheme, path, link := outputSettings.ParseDocReference(link)
-		if scheme == "res" {
-			if _, ok := resources[path]; !ok {
-				resources[path] = &Resource{Name: path}
-			}
-		}
-		return link
-	})
-	docres := make([]Resource, 0, len(resources))
-	for _, resource := range resources {
-		docres = append(docres, *resource)
-	}
-	sort.Slice(docres, func(i, j int) bool {
-		return docres[i].Name < docres[j].Name
-	})
-	return docres
-}
-
 func (data *Data) GenerateMetadata() error {
 	if data.ResOnly {
 		return nil
