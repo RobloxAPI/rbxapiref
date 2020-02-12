@@ -187,26 +187,26 @@ func (files *FileSet) Files() []string {
 	return fs
 }
 
-func (data *Data) ComparePages(pages []Page) error {
+func ComparePages(outputSettings settings.Output, pages []Page) error {
 	// Accumulate generated files.
 	files := NewFileSet("")
-	files.Add(data.Settings.Output.FilePath("manifest"))
-	files.Add(data.Settings.Output.FilePath("search"))
+	files.Add(outputSettings.FilePath("manifest"))
+	files.Add(outputSettings.FilePath("search"))
 	for _, page := range pages {
 		if page.File != "" {
 			files.Add(page.File)
 		}
 		for _, res := range page.Styles {
-			files.Add(data.Settings.Output.FilePath("resource", res.Name))
+			files.Add(outputSettings.FilePath("resource", res.Name))
 		}
 		for _, res := range page.Scripts {
-			files.Add(data.Settings.Output.FilePath("resource", res.Name))
+			files.Add(outputSettings.FilePath("resource", res.Name))
 		}
 		for _, res := range page.Resources {
-			files.Add(data.Settings.Output.FilePath("resource", res.Name))
+			files.Add(outputSettings.FilePath("resource", res.Name))
 		}
 		for _, res := range page.DocResources {
-			files.Add(data.Settings.Output.FilePath("docres", res.Name))
+			files.Add(outputSettings.FilePath("docres", res.Name))
 		}
 	}
 	// Include directories.
@@ -223,8 +223,8 @@ func (data *Data) ComparePages(pages []Page) error {
 
 	// Walk the output tree.
 	dirs := []string{}
-	root := filepath.Dir(data.Settings.Output.AbsFilePath(""))
-	err := filepath.Walk(data.Settings.Output.AbsFilePath(""), func(path string, info os.FileInfo, err error) error {
+	root := filepath.Dir(outputSettings.AbsFilePath(""))
+	err := filepath.Walk(outputSettings.AbsFilePath(""), func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}

@@ -196,7 +196,7 @@ func main() {
 		GeneratePageEnum,
 		GeneratePageType,
 	})
-	but.IfFatal(data.ComparePages(pages), "remove unreferenced file")
+	but.IfFatal(ComparePages(data.Settings.Output, pages), "remove unreferenced file")
 	if len(filters) > 0 {
 		pages, err = FilterPages(pages, filters)
 		but.IfFatal(err)
