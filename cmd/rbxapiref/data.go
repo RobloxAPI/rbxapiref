@@ -809,9 +809,7 @@ func (data *Data) copyResources(srcPath, dstType string, resources map[string]*R
 		dst, err := os.Create(dstname)
 		if err != nil {
 			src.Close()
-			if err != nil {
-				return errors.WithMessage(err, "create resource")
-			}
+			return errors.WithMessage(err, "create resource")
 		}
 		_, err = io.Copy(dst, src)
 		dst.Close()
