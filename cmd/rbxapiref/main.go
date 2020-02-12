@@ -5,6 +5,8 @@ import (
 	"bytes"
 	"io/ioutil"
 	"os"
+	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -15,6 +17,109 @@ import (
 	"github.com/robloxapi/rbxapiref/manifest"
 	"github.com/robloxapi/rbxapiref/settings"
 )
+
+type FileSet struct {
+	root string
+	set  map[string]struct{}
+}
+
+func NewFileSet(root string, file ...string) *FileSet {
+	files := &FileSet{root: root, set: map[string]struct{}{}}
+	for _, file := range file {
+		files.Add(file)
+	}
+	return files
+}
+
+func (files *FileSet) Add(file string) {
+	files.set[file] = struct{}{}
+}
+
+func (files *FileSet) Has(file string) bool {
+	_, ok := files.set[file]
+	return ok
+}
+
+func (files *FileSet) Files() []string {
+	fs := make([]string, 0, len(files.set))
+	for file := range files.set {
+		fs = append(fs, file)
+	}
+	sort.Strings(fs)
+	return fs
+}
+
+func ComparePages(outputSettings settings.Output, pages []Page) error {
+	// Accumulate generated files.
+	files := NewFileSet("")
+	files.Add(outputSettings.FilePath("manifest"))
+	files.Add(outputSettings.FilePath("search"))
+	for _, page := range pages {
+		if page.File != "" {
+			files.Add(page.File)
+		}
+		for _, res := range page.Styles {
+			files.Add(outputSettings.FilePath("resource", res.Name))
+		}
+		for _, res := range page.Scripts {
+			files.Add(outputSettings.FilePath("resource", res.Name))
+		}
+		for _, res := range page.Resources {
+			files.Add(outputSettings.FilePath("resource", res.Name))
+		}
+		for _, res := range page.DocResources {
+			files.Add(outputSettings.FilePath("docres", res.Name))
+		}
+	}
+	// Include directories.
+	for _, file := range files.Files() {
+		for {
+			dir := filepath.Dir(file)
+			if dir == file || dir == string(filepath.Separator) || dir == "." {
+				break
+			}
+			file = dir
+			files.Add(dir)
+		}
+	}
+
+	// Walk the output tree.
+	dirs := []string{}
+	root := filepath.Dir(outputSettings.AbsFilePath(""))
+	err := filepath.Walk(outputSettings.AbsFilePath(""), func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return nil
+		}
+		if path, err = filepath.Rel(root, path); err != nil {
+			return nil
+		}
+		// Skip "hidden" files that start with a dot.
+		if info.Name()[0] == '.' {
+			if info.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		// Skip generated files.
+		if files.Has(path) {
+			return nil
+		}
+		if info.IsDir() {
+			dirs = append(dirs, path)
+			return nil
+		}
+		return os.Remove(filepath.Join(root, path))
+	})
+	if err != nil {
+		return err
+	}
+	for _, path := range dirs {
+		if err := os.Remove(filepath.Join(root, path)); err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
 type Range struct {
 	Min, Max int
