@@ -205,7 +205,7 @@ func main() {
 		}
 	}
 	but.IfFatal(RenderPageDirs(data.Settings.Output.Root, pages))
-	but.IfFatal(data.RenderResources(pages))
+	but.IfFatal(RenderResources(data.Settings, pages))
 	if opt.ResOnly {
 		return
 	}

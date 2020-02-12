@@ -274,7 +274,7 @@ func RenderPageDirs(root string, pages []Page) error {
 	return nil
 }
 
-func (data *Data) copyResources(srcPath, dstType string, resources map[string]*Resource) error {
+func copyResources(outputSettings settings.Output, srcPath, dstType string, resources map[string]*Resource) error {
 	dirs := map[string]struct{}{}
 	for name, resource := range resources {
 		var src io.ReadCloser
@@ -286,7 +286,7 @@ func (data *Data) copyResources(srcPath, dstType string, resources map[string]*R
 				return errors.WithMessage(err, "open resource")
 			}
 		}
-		dstname := data.Settings.Output.AbsFilePath(dstType, name)
+		dstname := outputSettings.AbsFilePath(dstType, name)
 		dir := filepath.Dir(dstname)
 		if _, ok := dirs[dir]; !ok {
 			if err := os.MkdirAll(dir, 0755); err != nil {
@@ -325,7 +325,7 @@ func (r Resources) Add(resource *Resource) {
 	r[resource.Name] = resource
 }
 
-func (data *Data) RenderResources(pages []Page) error {
+func RenderResources(settings settings.Settings, pages []Page) error {
 	resources := Resources{}
 	docres := Resources{}
 	for _, page := range pages {
@@ -342,10 +342,10 @@ func (data *Data) RenderResources(pages []Page) error {
 			docres.Add(&page.DocResources[i])
 		}
 	}
-	if err := data.copyResources(data.Settings.Input.Resources, "resource", resources); err != nil {
+	if err := copyResources(settings.Output, settings.Input.Resources, "resource", resources); err != nil {
 		return err
 	}
-	return data.copyResources(data.Settings.Input.DocResources, "docres", docres)
+	return copyResources(settings.Output, settings.Input.DocResources, "docres", docres)
 }
 
 func (data *Data) RenderPages(pages []Page) error {
