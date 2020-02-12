@@ -900,10 +900,6 @@ func (data *Data) RenderPages(pages []Page) error {
 	return nil
 }
 
-func (data *Data) LatestPatch() builds.Patch {
-	return data.Manifest.Patches[len(data.Manifest.Patches)-1]
-}
-
 func unescapeURLPath(path string) string {
 	p, err := url.PathUnescape(path)
 	if err != nil {
@@ -979,7 +975,7 @@ func (data *Data) GenerateMetadata() error {
 		return nil
 	}
 
-	latest := data.LatestPatch()
+	latest := data.Manifest.Patches[len(data.Manifest.Patches)-1]
 	client := &fetch.Client{
 		Config:    data.Settings.Build.Configs[latest.Config],
 		CacheMode: fetch.CacheTemp,

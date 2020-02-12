@@ -147,7 +147,7 @@ func GeneratePageMain(data *Data) (pages []Page) {
 		)
 	} else {
 		// Fetch explorer icons.
-		latest := data.LatestPatch()
+		latest := data.Manifest.Patches[len(data.Manifest.Patches)-1]
 		client := &fetch.Client{
 			Config:    data.Settings.Build.Configs[latest.Config],
 			CacheMode: fetch.CacheTemp,
