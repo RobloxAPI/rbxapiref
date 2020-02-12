@@ -259,10 +259,10 @@ func ComparePages(outputSettings settings.Output, pages []Page) error {
 	return nil
 }
 
-func (data *Data) RenderPageDirs(pages []Page) error {
+func RenderPageDirs(root string, pages []Page) error {
 	dirs := map[string]struct{}{}
 	for _, page := range pages {
-		dir := filepath.Join(data.Settings.Output.Root, filepath.Dir(page.File))
+		dir := filepath.Join(root, filepath.Dir(page.File))
 		if _, ok := dirs[dir]; ok {
 			continue
 		}

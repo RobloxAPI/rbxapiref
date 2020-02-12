@@ -204,7 +204,7 @@ func main() {
 			but.Log("INCLUDE PAGE", page.File)
 		}
 	}
-	but.IfFatal(data.RenderPageDirs(pages))
+	but.IfFatal(RenderPageDirs(data.Settings.Output.Root, pages))
 	but.IfFatal(data.RenderResources(pages))
 	if opt.ResOnly {
 		return
