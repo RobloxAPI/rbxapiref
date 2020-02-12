@@ -40,8 +40,6 @@ type Data struct {
 	ResOnly       bool
 }
 
-const IconSize = 16
-
 var memberIconIndex = map[string]int{
 	"Property": 6,
 	"Function": 4,
