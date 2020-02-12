@@ -347,12 +347,6 @@ finish:
 	return classes
 }
 
-func (data *Data) ExecuteTemplate(name string, tdata interface{}) (template.HTML, error) {
-	var buf bytes.Buffer
-	err := data.Templates.ExecuteTemplate(&buf, name, tdata)
-	return template.HTML(buf.String()), err
-}
-
 func (data *Data) GenerateResourceElements(resources []Resource) (v []interface{}, err error) {
 	for _, resource := range resources {
 		var ResData struct {
@@ -399,11 +393,12 @@ func (data *Data) GenerateResourceElements(resources []Resource) (v []interface{
 			}
 		}
 		ResData.Resource.Attr.Merge(resource.Attr)
-		r, err := data.ExecuteTemplate("resource", ResData)
-		if err != nil {
+
+		var buf bytes.Buffer
+		if err := data.Templates.ExecuteTemplate(&buf, "resource", ResData); err != nil {
 			return nil, err
 		}
-		v = append(v, r)
+		v = append(v, template.HTML(buf.String()))
 	}
 	return v, nil
 }
@@ -452,11 +447,16 @@ func (data *Data) GenerateHistoryElements(entity interface{}, button bool, ascen
 			return patches[i].Info.Date.After(patches[j].Info.Date)
 		})
 	}
-	return data.ExecuteTemplate("history", struct {
+	var buf bytes.Buffer
+	err := data.Templates.ExecuteTemplate(&buf, "history", struct {
 		First   builds.Info
 		Patches []builds.Patch
 		Button  bool
 	}{data.Manifest.Patches[0].Info, patches, button})
+	if err != nil {
+		return "", err
+	}
+	return template.HTML(buf.String()), nil
 }
 
 func (data *Data) GeneratePages(generators []PageGenerator) (pages []Page) {

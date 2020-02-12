@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"html/template"
 	"io/ioutil"
 	"net/url"
@@ -201,7 +202,11 @@ func TemplateFuncs(data *Data) template.FuncMap {
 			return string(b), err
 		}
 	}
-	funcs["execute"] = data.ExecuteTemplate
+	funcs["execute"] = func(name string, tdata interface{}) (template.HTML, error) {
+		var buf bytes.Buffer
+		err := data.Templates.ExecuteTemplate(&buf, name, tdata)
+		return template.HTML(buf.String()), err
+	}
 	funcs["filter"] = FilterList
 	funcs["history"] = data.GenerateHistoryElements
 	funcs["icon"] = data.Icon
