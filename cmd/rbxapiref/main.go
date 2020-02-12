@@ -69,7 +69,6 @@ type FlagOptions struct {
 	Range    Range  `long:"range"`
 	UseGit   bool   `long:"use-git"`
 	NoGit    bool   `long:"no-git"`
-	Stamp    bool   `long:"stamp"`
 	Rewind   bool   `long:"rewind"`
 	NoRewind bool   `long:"no-rewind"`
 }
@@ -94,9 +93,6 @@ var options = map[string]*flags.Option{
 	},
 	"no-git": &flags.Option{
 		Description: "Force git-unaware document parsing.",
-	},
-	"stamp": &flags.Option{
-		Description: "If true, inject a timestamp into the website.",
 	},
 	"rewind": &flags.Option{
 		Description: "Force rewinding.",
@@ -141,9 +137,6 @@ func main() {
 		CurrentYear: now.Year(),
 		Manifest:    &manifest.Manifest{},
 		ResOnly:     opt.ResOnly,
-	}
-	if opt.Stamp {
-		data.Stamp = template.HTML("<!-- " + now.Format("2006-01-02 15:04:05") + " -->")
 	}
 
 	// Load settings.
