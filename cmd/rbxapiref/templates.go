@@ -189,7 +189,7 @@ func TemplateFuncs(data *Data) template.FuncMap {
 		if entity, ok := entity.(entities.Documentable); ok {
 			return entity.GetDocStatus()
 		}
-		return GenerateDocStatus(entity)
+		return generateDocStatus(entity)
 	}
 	funcs["document"] = entities.QueryDocument
 	{

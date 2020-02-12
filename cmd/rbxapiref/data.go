@@ -255,119 +255,7 @@ func (data *Data) GenerateMetadata() error {
 	return nil
 }
 
-func (data *Data) GenerateDocuments() {
-	if data.Settings.Input.Documents == "" {
-		return
-	}
-
-	data.CodeFormatter = chhtml.New(
-		chhtml.WithClasses(),
-		chhtml.TabWidth(4),
-		chhtml.WithLineNumbers(),
-		chhtml.LineNumbersInTable(),
-	)
-
-	if data.ResOnly {
-		return
-	}
-
-	renderer := func() *mdhtml.Renderer {
-		return mdhtml.NewRenderer(mdhtml.RendererOptions{
-			HeadingIDPrefix: "doc-",
-			RenderNodeHook: func(w io.Writer, node ast.Node, entering bool) (ast.WalkStatus, bool) {
-				switch node := node.(type) {
-				case *ast.CodeBlock:
-					// io.WriteString
-					i := bytes.IndexAny(node.Info, "\t ")
-					if i < 0 {
-						i = len(node.Info)
-					}
-					lang := string(node.Info[:i])
-					lexer := lexers.Get(lang)
-					if lexer == nil {
-						return ast.GoToNext, false
-					}
-					lexer = chroma.Coalesce(lexer)
-					iterator, err := lexer.Tokenise(nil, string(node.Literal))
-					if err != nil {
-						return ast.GoToNext, false
-					}
-					var buf bytes.Buffer
-					if err := data.CodeFormatter.Format(&buf, settings.StyleRobloxLight, iterator); err != nil {
-						return ast.GoToNext, false
-					}
-					io.Copy(w, &buf)
-
-					return ast.SkipChildren, true
-				}
-				return ast.GoToNext, false
-			},
-		})
-	}
-
-	docDir := documents.NewDirectorySection(
-		data.Settings.Input.Documents,
-		documents.MarkdownHandler{
-			UseGit:        data.Settings.Input.UseGit,
-			StripComments: true,
-		}.FileHandler,
-	)
-	if apiDir := docDir.Query("api"); apiDir != nil {
-		for _, entity := range data.Entities.ClassList {
-			if entity.Document, _ = apiDir.Query("class", entity.ID).(entities.Document); entity.Document != nil {
-				entity.Document.SetRender(renderer())
-				GenerateDocumentTypeIDs(entity.Document)
-				for _, member := range entity.MemberList {
-					if member.Document, _ = entity.Document.Query("Members", member.ID[1]).(entities.Document); member.Document != nil {
-						member.Document.SetRender(renderer())
-					}
-				}
-			}
-		}
-		for _, entity := range data.Entities.EnumList {
-			if entity.Document, _ = apiDir.Query("enum", entity.ID).(entities.Document); entity.Document != nil {
-				entity.Document.SetRender(renderer())
-				for _, item := range entity.ItemList {
-					if item.Document, _ = entity.Document.Query("Members", item.ID[1]).(entities.Document); item.Document != nil {
-						item.Document.SetRender(renderer())
-					}
-				}
-			}
-		}
-		for _, entity := range data.Entities.TypeList {
-			if entity.Document, _ = apiDir.Query("type", entity.ID).(entities.Document); entity.Document != nil {
-				entity.Document.SetRender(renderer())
-				GenerateDocumentTypeIDs(entity.Document)
-			}
-		}
-	}
-
-	total := float64(len(data.Entities.ClassList) +
-		len(data.Entities.EnumList) +
-		len(data.Entities.TypeList))
-	var count float64
-	for _, entity := range data.Entities.ClassList {
-		for _, member := range entity.MemberList {
-			member.DocStatus = GenerateDocStatus(member)
-		}
-		entity.DocStatus = GenerateDocStatus(entity)
-		count += entity.DocStatus.AggregateProgress
-	}
-	for _, entity := range data.Entities.EnumList {
-		for _, item := range entity.ItemList {
-			item.DocStatus = GenerateDocStatus(item)
-		}
-		entity.DocStatus = GenerateDocStatus(entity)
-		count += entity.DocStatus.AggregateProgress
-	}
-	for _, entity := range data.Entities.TypeList {
-		entity.DocStatus = GenerateDocStatus(entity)
-		count += entity.DocStatus.AggregateProgress
-	}
-	data.Entities.Coverage = float32(count / total)
-}
-
-func GenerateDocStatus(entity interface{}) (s entities.DocStatus) {
+func generateDocStatus(entity interface{}) (s entities.DocStatus) {
 	setStatus := func(status *int, hasDoc bool, section documents.Section) {
 		if !hasDoc {
 			*status = 0
@@ -540,4 +428,116 @@ func GenerateDocStatus(entity interface{}) (s entities.DocStatus) {
 		s.AggregateProgress = 1
 	}
 	return s
+}
+
+func (data *Data) GenerateDocuments() {
+	if data.Settings.Input.Documents == "" {
+		return
+	}
+
+	data.CodeFormatter = chhtml.New(
+		chhtml.WithClasses(),
+		chhtml.TabWidth(4),
+		chhtml.WithLineNumbers(),
+		chhtml.LineNumbersInTable(),
+	)
+
+	if data.ResOnly {
+		return
+	}
+
+	renderer := func() *mdhtml.Renderer {
+		return mdhtml.NewRenderer(mdhtml.RendererOptions{
+			HeadingIDPrefix: "doc-",
+			RenderNodeHook: func(w io.Writer, node ast.Node, entering bool) (ast.WalkStatus, bool) {
+				switch node := node.(type) {
+				case *ast.CodeBlock:
+					// io.WriteString
+					i := bytes.IndexAny(node.Info, "\t ")
+					if i < 0 {
+						i = len(node.Info)
+					}
+					lang := string(node.Info[:i])
+					lexer := lexers.Get(lang)
+					if lexer == nil {
+						return ast.GoToNext, false
+					}
+					lexer = chroma.Coalesce(lexer)
+					iterator, err := lexer.Tokenise(nil, string(node.Literal))
+					if err != nil {
+						return ast.GoToNext, false
+					}
+					var buf bytes.Buffer
+					if err := data.CodeFormatter.Format(&buf, settings.StyleRobloxLight, iterator); err != nil {
+						return ast.GoToNext, false
+					}
+					io.Copy(w, &buf)
+
+					return ast.SkipChildren, true
+				}
+				return ast.GoToNext, false
+			},
+		})
+	}
+
+	docDir := documents.NewDirectorySection(
+		data.Settings.Input.Documents,
+		documents.MarkdownHandler{
+			UseGit:        data.Settings.Input.UseGit,
+			StripComments: true,
+		}.FileHandler,
+	)
+	if apiDir := docDir.Query("api"); apiDir != nil {
+		for _, entity := range data.Entities.ClassList {
+			if entity.Document, _ = apiDir.Query("class", entity.ID).(entities.Document); entity.Document != nil {
+				entity.Document.SetRender(renderer())
+				GenerateDocumentTypeIDs(entity.Document)
+				for _, member := range entity.MemberList {
+					if member.Document, _ = entity.Document.Query("Members", member.ID[1]).(entities.Document); member.Document != nil {
+						member.Document.SetRender(renderer())
+					}
+				}
+			}
+		}
+		for _, entity := range data.Entities.EnumList {
+			if entity.Document, _ = apiDir.Query("enum", entity.ID).(entities.Document); entity.Document != nil {
+				entity.Document.SetRender(renderer())
+				for _, item := range entity.ItemList {
+					if item.Document, _ = entity.Document.Query("Members", item.ID[1]).(entities.Document); item.Document != nil {
+						item.Document.SetRender(renderer())
+					}
+				}
+			}
+		}
+		for _, entity := range data.Entities.TypeList {
+			if entity.Document, _ = apiDir.Query("type", entity.ID).(entities.Document); entity.Document != nil {
+				entity.Document.SetRender(renderer())
+				GenerateDocumentTypeIDs(entity.Document)
+			}
+		}
+	}
+
+	total := float64(len(data.Entities.ClassList) +
+		len(data.Entities.EnumList) +
+		len(data.Entities.TypeList))
+	var count float64
+	for _, entity := range data.Entities.ClassList {
+		for _, member := range entity.MemberList {
+			member.DocStatus = generateDocStatus(member)
+		}
+		entity.DocStatus = generateDocStatus(entity)
+		count += entity.DocStatus.AggregateProgress
+	}
+	for _, entity := range data.Entities.EnumList {
+		for _, item := range entity.ItemList {
+			item.DocStatus = generateDocStatus(item)
+		}
+		entity.DocStatus = generateDocStatus(entity)
+		count += entity.DocStatus.AggregateProgress
+	}
+	for _, entity := range data.Entities.TypeList {
+		entity.DocStatus = generateDocStatus(entity)
+		count += entity.DocStatus.AggregateProgress
+	}
+	data.Entities.Coverage = float32(count / total)
 }
