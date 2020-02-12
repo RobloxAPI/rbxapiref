@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -135,6 +136,80 @@ func RenderPageDirs(root string, pages []Page) error {
 		dirs[dir] = struct{}{}
 	}
 	return nil
+}
+
+func copyResources(outputSettings settings.Output, srcPath, dstType string, resources map[string]*Resource) error {
+	dirs := map[string]struct{}{}
+	for name, resource := range resources {
+		var src io.ReadCloser
+		if resource.Content != nil {
+			src = ioutil.NopCloser(bytes.NewReader(resource.Content))
+		} else {
+			var err error
+			if src, err = os.Open(filepath.Join(srcPath, name)); err != nil {
+				return errors.WithMessage(err, "open resource")
+			}
+		}
+		dstname := outputSettings.AbsFilePath(dstType, name)
+		dir := filepath.Dir(dstname)
+		if _, ok := dirs[dir]; !ok {
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				return errors.WithMessage(err, "make directory")
+			}
+			dirs[dir] = struct{}{}
+		}
+		dst, err := os.Create(dstname)
+		if err != nil {
+			src.Close()
+			return errors.WithMessage(err, "create resource")
+		}
+		_, err = io.Copy(dst, src)
+		dst.Close()
+		src.Close()
+		if err != nil {
+			return errors.WithMessage(err, "write resource")
+		}
+	}
+	return nil
+}
+
+type Resources map[string]*Resource
+
+func (r Resources) Add(resource *Resource) {
+	// Avoid empty, embedded, or ignored resources.
+	if resource.Name == "" || resource.Embed || resource.Ignore {
+		return
+	}
+	if res, ok := r[resource.Name]; ok {
+		// Prioritize resources with internal content.
+		if res.Content != nil {
+			return
+		}
+	}
+	r[resource.Name] = resource
+}
+
+func RenderResources(settings settings.Settings, pages []Page) error {
+	resources := Resources{}
+	docres := Resources{}
+	for _, page := range pages {
+		for i := range page.Styles {
+			resources.Add(&page.Styles[i])
+		}
+		for i := range page.Scripts {
+			resources.Add(&page.Scripts[i])
+		}
+		for i := range page.Resources {
+			resources.Add(&page.Resources[i])
+		}
+		for i := range page.DocResources {
+			docres.Add(&page.DocResources[i])
+		}
+	}
+	if err := copyResources(settings.Output, settings.Input.Resources, "resource", resources); err != nil {
+		return err
+	}
+	return copyResources(settings.Output, settings.Input.DocResources, "docres", docres)
 }
 
 type Range struct {
