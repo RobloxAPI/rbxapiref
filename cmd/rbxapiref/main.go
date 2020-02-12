@@ -15,6 +15,7 @@ import (
 	"github.com/robloxapi/rbxapiref/builds"
 	"github.com/robloxapi/rbxapiref/entities"
 	"github.com/robloxapi/rbxapiref/manifest"
+	"github.com/robloxapi/rbxapiref/settings"
 )
 
 type Range struct {
@@ -146,7 +147,7 @@ func main() {
 	}
 
 	// Load settings.
-	data.Settings = *DefaultSettings.Copy()
+	data.Settings = *settings.DefaultSettings.Copy()
 	but.IfFatal(data.Settings.ReadFile(opt.Settings))
 	if opt.NoGit {
 		data.Settings.Input.UseGit = false

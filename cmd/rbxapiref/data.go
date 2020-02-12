@@ -29,10 +29,11 @@ import (
 	"github.com/robloxapi/rbxapiref/entities"
 	"github.com/robloxapi/rbxapiref/fetch"
 	"github.com/robloxapi/rbxapiref/manifest"
+	"github.com/robloxapi/rbxapiref/settings"
 )
 
 type Data struct {
-	Settings      Settings
+	Settings      settings.Settings
 	Manifest      *manifest.Manifest
 	CurrentYear   int
 	Entities      *entities.Entities
@@ -82,38 +83,38 @@ func (data *Data) FileLink(linkType string, args ...string) (s string) {
 retry:
 	switch strings.ToLower(linkType) {
 	case "index":
-		s = "index" + FileExt
+		s = "index" + settings.FileExt
 	case "resource":
 		s = path.Join(data.Settings.Output.Resources, path.Join(args...))
 	case "docres":
 		s = path.Join(data.Settings.Output.DocResources, path.Join(args...))
 	case "updates":
 		if len(args) > 0 {
-			s = path.Join("updates", doubleEscape(args[0])+FileExt)
+			s = path.Join("updates", doubleEscape(args[0])+settings.FileExt)
 		} else {
-			s = "updates" + FileExt
+			s = "updates" + settings.FileExt
 		}
 	case "class":
-		s = path.Join(ClassPath, doubleEscape(args[0])+FileExt)
+		s = path.Join(settings.ClassPath, doubleEscape(args[0])+settings.FileExt)
 	case "member":
 		if len(args) == 1 {
-			return (&url.URL{Fragment: MemberAnchorPrefix + args[0]}).String()
+			return (&url.URL{Fragment: settings.MemberAnchorPrefix + args[0]}).String()
 		} else if len(args) == 2 {
-			s = path.Join(ClassPath, doubleEscape(args[0])+FileExt) +
-				(&url.URL{Fragment: MemberAnchorPrefix + args[1]}).String()
+			s = path.Join(settings.ClassPath, doubleEscape(args[0])+settings.FileExt) +
+				(&url.URL{Fragment: settings.MemberAnchorPrefix + args[1]}).String()
 		}
 	case "enum":
-		s = path.Join(EnumPath, doubleEscape(args[0])+FileExt)
+		s = path.Join(settings.EnumPath, doubleEscape(args[0])+settings.FileExt)
 	case "enumitem":
 		if len(args) == 1 {
-			return (&url.URL{Fragment: MemberAnchorPrefix + args[0]}).String()
+			return (&url.URL{Fragment: settings.MemberAnchorPrefix + args[0]}).String()
 		} else if len(args) == 2 {
-			s = path.Join(EnumPath, doubleEscape(args[0])+FileExt) +
-				(&url.URL{Fragment: MemberAnchorPrefix + args[1]}).String()
+			s = path.Join(settings.EnumPath, doubleEscape(args[0])+settings.FileExt) +
+				(&url.URL{Fragment: settings.MemberAnchorPrefix + args[1]}).String()
 		}
 	case "type":
 		if len(args) == 1 {
-			s = path.Join(TypePath, doubleEscape(args[0])+FileExt)
+			s = path.Join(settings.TypePath, doubleEscape(args[0])+settings.FileExt)
 		} else if len(args) == 2 {
 			switch strings.ToLower(args[0]) {
 			case "class", "enum":
@@ -122,12 +123,12 @@ retry:
 				args = a
 				goto retry
 			}
-			s = path.Join(TypePath, doubleEscape(args[1])+FileExt)
+			s = path.Join(settings.TypePath, doubleEscape(args[1])+settings.FileExt)
 		}
 	case "about":
-		s = "about" + FileExt
+		s = "about" + settings.FileExt
 	case "docmon":
-		s = "docmon" + FileExt
+		s = "docmon" + settings.FileExt
 	case "search":
 		s = "search.db"
 	case "manifest":
@@ -135,13 +136,13 @@ retry:
 	case "devhub":
 		switch linkType = strings.ToLower(args[0]); linkType {
 		case "class", "enum":
-			return "https://" + path.Join(DevHubURL, linkType, pathText(args[1]))
+			return "https://" + path.Join(settings.DevHubURL, linkType, pathText(args[1]))
 		case "property", "function", "event", "callback":
-			return "https://" + path.Join(DevHubURL, linkType, pathText(args[1]), pathText(args[2]))
+			return "https://" + path.Join(settings.DevHubURL, linkType, pathText(args[1]), pathText(args[2]))
 		case "enumitem":
-			return "https://" + path.Join(DevHubURL, "enum", pathText(args[1])) + "#" + anchorText(args[2])
+			return "https://" + path.Join(settings.DevHubURL, "enum", pathText(args[1])) + "#" + anchorText(args[2])
 		case "type":
-			return "https://" + path.Join(DevHubURL, "datatype", pathText(args[1]))
+			return "https://" + path.Join(settings.DevHubURL, "datatype", pathText(args[1]))
 		}
 	}
 	s = path.Join("/", data.Settings.Output.Sub, s)
@@ -1074,7 +1075,7 @@ func (data *Data) GenerateDocuments() {
 						return ast.GoToNext, false
 					}
 					var buf bytes.Buffer
-					if err := data.CodeFormatter.Format(&buf, StyleRobloxLight, iterator); err != nil {
+					if err := data.CodeFormatter.Format(&buf, settings.StyleRobloxLight, iterator); err != nil {
 						return ast.GoToNext, false
 					}
 					io.Copy(w, &buf)

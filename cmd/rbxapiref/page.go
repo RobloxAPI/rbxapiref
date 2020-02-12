@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapiref/builds"
 	"github.com/robloxapi/rbxapiref/fetch"
+	"github.com/robloxapi/rbxapiref/settings"
 )
 
 type PageGenerator func(*Data) []Page
@@ -85,9 +86,9 @@ type Resource struct {
 
 func Title(sub string) string {
 	if sub != "" {
-		return sub + " " + TitleSep + " " + MainTitle
+		return sub + " " + settings.TitleSep + " " + settings.MainTitle
 	}
-	return MainTitle
+	return settings.MainTitle
 }
 
 func FilterPages(pages []Page, filters []string) ([]Page, error) {
@@ -122,7 +123,7 @@ func FilterPages(pages []Page, filters []string) ([]Page, error) {
 func GeneratePageMain(data *Data) (pages []Page) {
 	page := Page{
 		Meta: Meta{
-			"Title":       MainTitle,
+			"Title":       settings.MainTitle,
 			"Description": "Reference for the Roblox Lua API.",
 			"Image":       "favicons/favicon-512x512.png",
 		},
