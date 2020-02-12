@@ -143,13 +143,6 @@ func (data *Data) GenerateHistoryElements(entity interface{}, button bool, ascen
 	return template.HTML(buf.String()), nil
 }
 
-func (data *Data) GeneratePages(generators []PageGenerator) (pages []Page) {
-	for _, generator := range generators {
-		pages = append(pages, generator(data)...)
-	}
-	return pages
-}
-
 func (data *Data) RenderPages(pages []Page) error {
 	var rootData struct {
 		Data     *Data

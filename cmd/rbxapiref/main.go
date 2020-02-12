@@ -382,16 +382,7 @@ func main() {
 	}
 
 	// Generate pages.
-	pages := data.GeneratePages([]PageGenerator{
-		GeneratePageMain,
-		GeneratePageIndex,
-		GeneratePageAbout,
-		GeneratePageDocmon,
-		GeneratePageUpdates,
-		GeneratePageClass,
-		GeneratePageEnum,
-		GeneratePageType,
-	})
+	pages := GeneratePages(data)
 	but.IfFatal(ComparePages(data.Settings.Output, pages), "remove unreferenced file")
 	if len(filters) > 0 {
 		pages, err = FilterPages(pages, filters)

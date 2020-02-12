@@ -18,8 +18,6 @@ import (
 	"github.com/robloxapi/rbxapiref/settings"
 )
 
-type PageGenerator func(*Data) []Page
-
 type Page struct {
 	// File is the path to the output file.
 	File string
@@ -123,7 +121,7 @@ func FilterPages(pages []Page, filters []string) ([]Page, error) {
 
 ////////////////////////////////////////////////////////////////
 
-func GeneratePageMain(data *Data) (pages []Page) {
+func generatePageMain(data *Data) (pages []Page) {
 	page := Page{
 		Meta: Meta{
 			"Title":       settings.MainTitle,
@@ -175,18 +173,18 @@ func GeneratePageMain(data *Data) (pages []Page) {
 	return []Page{page}
 }
 
-func GeneratePageIndex(data *Data) (pages []Page) {
+func generatePageIndex(output settings.Output) (pages []Page) {
 	return []Page{{
-		File:     data.Settings.Output.FilePath("index"),
+		File:     output.FilePath("index"),
 		Styles:   []Resource{{Name: "index.css", Embed: true}},
 		Scripts:  []Resource{{Name: "index.js", Attr: []Attr{{"async", ""}}}},
 		Template: "index",
 	}}
 }
 
-func GeneratePageAbout(data *Data) (pages []Page) {
+func generatePageAbout(output settings.Output) (pages []Page) {
 	return []Page{{
-		File: data.Settings.Output.FilePath("about"),
+		File: output.FilePath("about"),
 		Meta: Meta{
 			"Title":       Title("About"),
 			"Description": "About the Roblox API Reference.",
@@ -199,9 +197,9 @@ func GeneratePageAbout(data *Data) (pages []Page) {
 	}}
 }
 
-func GeneratePageDocmon(data *Data) (pages []Page) {
+func generatePageDocmon(output settings.Output, entities *entities.Entities) (pages []Page) {
 	return []Page{{
-		File: data.Settings.Output.FilePath("docmon"),
+		File: output.FilePath("docmon"),
 		Meta: Meta{
 			"Title":       Title("Documentation monitor"),
 			"Description": "Status of documentation on the Roblox API Reference.",
@@ -209,23 +207,23 @@ func GeneratePageDocmon(data *Data) (pages []Page) {
 		Styles:   []Resource{{Name: "docmon.css", Embed: true}},
 		Scripts:  []Resource{{Name: "docmon.js", Attr: []Attr{{"async", ""}}}},
 		Template: "docmon",
-		Data:     data.Entities,
+		Data:     entities,
 	}}
 }
 
-func GeneratePageUpdates(data *Data) (pages []Page) {
-	if len(data.Manifest.Patches) < 2 {
+func generatePageUpdates(output settings.Output, patches []builds.Patch) (pages []Page) {
+	if len(patches) <= 1 {
 		return nil
 	}
 
-	// Patches will be displayed latest-first.
-	patches := make([]*builds.Patch, len(data.Manifest.Patches))
-	for i := len(data.Manifest.Patches) / 2; i >= 0; i-- {
-		j := len(data.Manifest.Patches) - 1 - i
-		patches[i], patches[j] = &data.Manifest.Patches[j], &data.Manifest.Patches[i]
+	// Patches are displayed latest-first.
+	patchlist := make([]*builds.Patch, len(patches))
+	for i := len(patches) / 2; i >= 0; i-- {
+		j := len(patches) - 1 - i
+		patchlist[i], patchlist[j] = &patches[j], &patches[i]
 	}
 	// Exclude earliest patch.
-	patches = patches[:len(patches)-1]
+	patchlist = patchlist[:len(patchlist)-1]
 
 	type PatchSet struct {
 		Year    int
@@ -234,8 +232,8 @@ func GeneratePageUpdates(data *Data) (pages []Page) {
 	}
 
 	var latestPatches PatchSet
-	latestYear := patches[0].Info.Date.Year()
-	earliestYear := patches[len(patches)-1].Info.Date.Year()
+	latestYear := patchlist[0].Info.Date.Year()
+	earliestYear := patchlist[len(patchlist)-1].Info.Date.Year()
 	patchesByYear := make([]PatchSet, latestYear-earliestYear+1)
 	years := make([]int, len(patchesByYear))
 	for i := range years {
@@ -246,32 +244,32 @@ func GeneratePageUpdates(data *Data) (pages []Page) {
 		// Populate patchesByYear.
 		i := 0
 		current := latestYear
-		for j, patch := range patches {
+		for j, patch := range patchlist {
 			year := patch.Info.Date.Year()
 			if year < current {
 				if j > i {
 					patchesByYear[latestYear-current] = PatchSet{
 						Year:    current,
 						Years:   years,
-						Patches: patches[i:j],
+						Patches: patchlist[i:j],
 					}
 				}
 				current = year
 				i = j
 			}
 		}
-		if len(patches) > i {
+		if len(patchlist) > i {
 			patchesByYear[latestYear-current] = PatchSet{
 				Year:    current,
 				Years:   years,
-				Patches: patches[i:],
+				Patches: patchlist[i:],
 			}
 		}
 
 		// Populate latestPatches.
-		i = len(patches)
-		epoch := patches[0].Info.Date.AddDate(0, -3, 0)
-		for j, patch := range patches {
+		i = len(patchlist)
+		epoch := patchlist[0].Info.Date.AddDate(0, -3, 0)
+		for j, patch := range patchlist {
 			if patch.Info.Date.Before(epoch) {
 				i = j - 1
 				break
@@ -279,7 +277,7 @@ func GeneratePageUpdates(data *Data) (pages []Page) {
 		}
 		latestPatches = PatchSet{
 			Years:   years,
-			Patches: patches[:i],
+			Patches: patchlist[:i],
 		}
 	}
 
@@ -289,7 +287,7 @@ func GeneratePageUpdates(data *Data) (pages []Page) {
 	for i, patches := range patchesByYear {
 		year := strconv.Itoa(patches.Year)
 		pages[i] = Page{
-			File: data.Settings.Output.FilePath("updates", year),
+			File: output.FilePath("updates", year),
 			Meta: Meta{
 				"Title":       Title("Updates in " + year),
 				"Description": "A list of updates to the Roblox Lua API in " + year + ".",
@@ -301,7 +299,7 @@ func GeneratePageUpdates(data *Data) (pages []Page) {
 		}
 	}
 	pages[len(pages)-1] = Page{
-		File: data.Settings.Output.FilePath("updates"),
+		File: output.FilePath("updates"),
 		Meta: Meta{
 			"Title":       Title("Recent Updates"),
 			"Description": "A list of recent updates to the Roblox Lua API."},
@@ -340,19 +338,19 @@ func NormalizeDocReferences(outputSettings settings.Output, document entities.Do
 	return docres
 }
 
-func GeneratePageClass(data *Data) (pages []Page) {
+func generatePageClass(output settings.Output, classes []*entities.ClassEntity) (pages []Page) {
 	styles := []Resource{{Name: "class.css"}}
 	scripts := []Resource{{Name: "class.js", Attr: []Attr{{"async", ""}}}}
-	pages = make([]Page, len(data.Entities.ClassList))
-	for i, class := range data.Entities.ClassList {
+	pages = make([]Page, len(classes))
+	for i, class := range classes {
 		pages[i] = Page{
-			File: data.Settings.Output.FilePath("class", class.ID),
+			File: output.FilePath("class", class.ID),
 			Meta: Meta{
 				"Title":       Title(class.ID),
 				"Description": "Information about the " + class.ID + " class in the Roblox Lua API."},
 			Styles:       styles,
 			Scripts:      scripts,
-			DocResources: NormalizeDocReferences(data.Settings.Output, class.Document),
+			DocResources: NormalizeDocReferences(output, class.Document),
 			Template:     "class",
 			Data:         class,
 		}
@@ -360,19 +358,19 @@ func GeneratePageClass(data *Data) (pages []Page) {
 	return pages
 }
 
-func GeneratePageEnum(data *Data) (pages []Page) {
+func generatePageEnum(output settings.Output, enums []*entities.EnumEntity) (pages []Page) {
 	styles := []Resource{{Name: "enum.css"}}
 	scripts := []Resource{{Name: "enum.js", Attr: []Attr{{"async", ""}}}}
-	pages = make([]Page, len(data.Entities.EnumList))
-	for i, enum := range data.Entities.EnumList {
+	pages = make([]Page, len(enums))
+	for i, enum := range enums {
 		pages[i] = Page{
-			File: data.Settings.Output.FilePath("enum", enum.ID),
+			File: output.FilePath("enum", enum.ID),
 			Meta: Meta{
 				"Title":       Title(enum.ID),
 				"Description": "Information about the " + enum.ID + " enum in the Roblox Lua API."},
 			Styles:       styles,
 			Scripts:      scripts,
-			DocResources: NormalizeDocReferences(data.Settings.Output, enum.Document),
+			DocResources: NormalizeDocReferences(output, enum.Document),
 			Template:     "enum",
 			Data:         enum,
 		}
@@ -380,22 +378,34 @@ func GeneratePageEnum(data *Data) (pages []Page) {
 	return pages
 }
 
-func GeneratePageType(data *Data) (pages []Page) {
+func generatePageType(output settings.Output, types []*entities.TypeEntity) (pages []Page) {
 	styles := []Resource{{Name: "type.css"}}
 	scripts := []Resource{{Name: "type.js", Attr: []Attr{{"async", ""}}}}
-	pages = make([]Page, len(data.Entities.TypeList))
-	for i, typ := range data.Entities.TypeList {
+	pages = make([]Page, len(types))
+	for i, typ := range types {
 		pages[i] = Page{
-			File: data.Settings.Output.FilePath("type", typ.Element.Category, typ.Element.Name),
+			File: output.FilePath("type", typ.Element.Category, typ.Element.Name),
 			Meta: Meta{
 				"Title":       Title(typ.ID),
 				"Description": "Information about the " + typ.ID + " type in the Roblox Lua API."},
 			Styles:       styles,
 			Scripts:      scripts,
-			DocResources: NormalizeDocReferences(data.Settings.Output, typ.Document),
+			DocResources: NormalizeDocReferences(output, typ.Document),
 			Template:     "type",
 			Data:         typ,
 		}
 	}
+	return pages
+}
+
+func GeneratePages(data *Data) (pages []Page) {
+	pages = append(pages, generatePageMain(data)...)
+	pages = append(pages, generatePageIndex(data.Settings.Output)...)
+	pages = append(pages, generatePageAbout(data.Settings.Output)...)
+	pages = append(pages, generatePageDocmon(data.Settings.Output, data.Entities)...)
+	pages = append(pages, generatePageUpdates(data.Settings.Output, data.Manifest.Patches)...)
+	pages = append(pages, generatePageClass(data.Settings.Output, data.Entities.ClassList)...)
+	pages = append(pages, generatePageEnum(data.Settings.Output, data.Entities.EnumList)...)
+	pages = append(pages, generatePageType(data.Settings.Output, data.Entities.TypeList)...)
 	return pages
 }
