@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"image/png"
 	"path"
@@ -10,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/anaminus/but"
-	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapiref/builds"
 	"github.com/robloxapi/rbxapiref/documents"
 	"github.com/robloxapi/rbxapiref/entities"
@@ -109,7 +109,7 @@ func FilterPages(pages []Page, filters []string) ([]Page, error) {
 					p = append(p, page)
 					break
 				} else if err != nil {
-					return nil, errors.WithMessagef(err, "filter #%d", i)
+					return nil, fmt.Errorf("filter #%d: %w", i, err)
 				}
 				dir = path.Dir(dir)
 				if dir == "." || dir == "/" || dir == "" {

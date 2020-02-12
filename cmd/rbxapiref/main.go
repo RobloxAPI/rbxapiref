@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -14,7 +15,6 @@ import (
 
 	"github.com/anaminus/but"
 	"github.com/jessevdk/go-flags"
-	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapiref/entities"
 	"github.com/robloxapi/rbxapiref/manifest"
 	"github.com/robloxapi/rbxapiref/settings"
@@ -131,7 +131,7 @@ func RenderPageDirs(root string, pages []Page) error {
 			continue
 		}
 		if err := os.MkdirAll(dir, 0755); err != nil {
-			return errors.WithMessage(err, "make directory")
+			return fmt.Errorf("make directory: %w", err)
 		}
 		dirs[dir] = struct{}{}
 	}
@@ -147,27 +147,27 @@ func copyResources(outputSettings settings.Output, srcPath, dstType string, reso
 		} else {
 			var err error
 			if src, err = os.Open(filepath.Join(srcPath, name)); err != nil {
-				return errors.WithMessage(err, "open resource")
+				return fmt.Errorf("open resource: %w", err)
 			}
 		}
 		dstname := outputSettings.AbsFilePath(dstType, name)
 		dir := filepath.Dir(dstname)
 		if _, ok := dirs[dir]; !ok {
 			if err := os.MkdirAll(dir, 0755); err != nil {
-				return errors.WithMessage(err, "make directory")
+				return fmt.Errorf("make directory: %w", err)
 			}
 			dirs[dir] = struct{}{}
 		}
 		dst, err := os.Create(dstname)
 		if err != nil {
 			src.Close()
-			return errors.WithMessage(err, "create resource")
+			return fmt.Errorf("create resource: %w", err)
 		}
 		_, err = io.Copy(dst, src)
 		dst.Close()
 		src.Close()
 		if err != nil {
-			return errors.WithMessage(err, "write resource")
+			return fmt.Errorf("write resource: %w", err)
 		}
 	}
 	return nil

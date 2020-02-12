@@ -3,7 +3,6 @@ package builds
 import (
 	"fmt"
 	"github.com/anaminus/but"
-	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapi/rbxapijson"
 	"github.com/robloxapi/rbxapiref/fetch"
 	"sort"
@@ -57,7 +56,7 @@ func (settings Settings) Fetch() (builds []Build, err error) {
 		client.Config = settings.Configs[cfg]
 		bs, err := client.Builds()
 		if err != nil {
-			return nil, errors.WithMessage(err, "fetch build")
+			return nil, fmt.Errorf("fetch build: %w", err)
 		}
 		for _, b := range bs {
 			builds = append(builds, Build{Config: cfg, Info: Info(b)})

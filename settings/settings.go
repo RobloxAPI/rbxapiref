@@ -2,11 +2,11 @@ package settings
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 
-	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapiref/builds"
 	"github.com/robloxapi/rbxapiref/fetch"
 	"github.com/robloxapi/rbxapiref/internal/binio"
@@ -62,7 +62,7 @@ func (settings *Settings) ReadFrom(r io.Reader) (n int64, err error) {
 	}
 	err = json.NewDecoder(dw).Decode(&jsettings)
 	if err != nil {
-		return dw.BytesRead(), errors.Wrap(err, "decode settings file")
+		return dw.BytesRead(), fmt.Errorf("decode settings file: %w", err)
 	}
 
 	wd, _ := os.Getwd()
@@ -109,7 +109,7 @@ func (settings *Settings) WriteTo(w io.Writer) (n int64, err error) {
 	je.SetIndent("", "\t")
 	err = je.Encode(settings)
 	if err != nil {
-		return ew.BytesWritten(), errors.Wrap(err, "encode settings file")
+		return ew.BytesWritten(), fmt.Errorf("encode settings file: %w", err)
 	}
 	return ew.End()
 }
@@ -138,11 +138,11 @@ func (settings *Settings) filename(name string) (string, error) {
 func (settings *Settings) ReadFile(filename string) error {
 	filename, err := settings.filename(filename)
 	if err != nil {
-		return errors.Wrap(err, "settings file name")
+		return fmt.Errorf("settings file name: %w", err)
 	}
 	file, err := os.Open(filename)
 	if err != nil {
-		return errors.Wrap(err, "open settings file")
+		return fmt.Errorf("open settings file: %w", err)
 	}
 	defer file.Close()
 	_, err = settings.ReadFrom(file)
@@ -152,11 +152,11 @@ func (settings *Settings) ReadFile(filename string) error {
 func (settings *Settings) WriteFile(filename string) error {
 	filename, err := settings.filename(filename)
 	if err != nil {
-		return errors.Wrap(err, "settings file name")
+		return fmt.Errorf("settings file name: %w", err)
 	}
 	file, err := os.Create(filename)
 	if err != nil {
-		return errors.Wrap(err, "create settings file")
+		return fmt.Errorf("create settings file: %w", err)
 	}
 	defer file.Close()
 	_, err = settings.WriteTo(file)

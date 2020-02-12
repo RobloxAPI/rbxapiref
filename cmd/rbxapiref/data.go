@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -15,7 +17,6 @@ import (
 	"github.com/alecthomas/chroma/lexers"
 	"github.com/gomarkdown/markdown/ast"
 	mdhtml "github.com/gomarkdown/markdown/html"
-	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapiref/builds"
 	"github.com/robloxapi/rbxapiref/documents"
 	"github.com/robloxapi/rbxapiref/entities"
@@ -172,7 +173,7 @@ func (data *Data) RenderPages(pages []Page) error {
 		}
 		file, err := os.Create(filepath.Join(data.Settings.Output.Root, page.File))
 		if err != nil {
-			return errors.WithMessage(err, "create file")
+			return fmt.Errorf("create file: %w", err)
 		}
 		if page.Data == nil {
 			page.Data = data
@@ -181,7 +182,7 @@ func (data *Data) RenderPages(pages []Page) error {
 		err = data.Templates.ExecuteTemplate(file, rootData.MainPage.Template, rootData)
 		file.Close()
 		if err != nil {
-			return errors.WithMessage(err, "generate page")
+			return fmt.Errorf("generate page: %w", err)
 		}
 	}
 	return nil
@@ -199,7 +200,7 @@ func (data *Data) GenerateMetadata() error {
 	}
 	rmd, err := client.ReflectionMetadata(latest.Info.Hash)
 	if err != nil {
-		return errors.WithMessagef(err, "fetch metadata %s:", latest.Info.Hash)
+		return fmt.Errorf("fetch metadata %s: %w", latest.Info.Hash, err)
 	}
 
 	for _, list := range rmd.Instances {

@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"html"
 	"html/template"
 	"io/ioutil"
@@ -13,7 +15,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pkg/errors"
 	"github.com/robloxapi/rbxapi/rbxapijson"
 	"github.com/robloxapi/rbxapiref/builds"
 	"github.com/robloxapi/rbxapiref/entities"
@@ -135,7 +136,7 @@ func reflectLength(item interface{}) (int, error) {
 	case reflect.Int:
 		return int(v.Int()), nil
 	}
-	return 0, errors.Errorf("len of type %s", v.Type())
+	return 0, fmt.Errorf("len of type %s", v.Type())
 }
 
 func generateMetaTag(a, b, c string) template.HTML {
