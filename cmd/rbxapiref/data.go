@@ -353,19 +353,6 @@ func (data *Data) ExecuteTemplate(name string, tdata interface{}) (template.HTML
 	return template.HTML(buf.String()), err
 }
 
-func (data *Data) EmbedResource(resource string) (interface{}, error) {
-	b, err := ioutil.ReadFile(filepath.Join(data.Settings.Input.Resources, resource))
-	switch filepath.Ext(resource) {
-	case ".css":
-		return template.CSS(b), err
-	case ".js":
-		return template.JS(b), err
-	case ".html", ".svg":
-		return template.HTML(b), err
-	}
-	return string(b), err
-}
-
 func (data *Data) GenerateResourceElements(resources []Resource) (v []interface{}, err error) {
 	for _, resource := range resources {
 		var ResData struct {
@@ -423,44 +410,6 @@ func (data *Data) GenerateResourceElements(resources []Resource) (v []interface{
 
 func generateMetaTag(a, b, c string) template.HTML {
 	return template.HTML("<meta " + html.EscapeString(a) + "=\"" + html.EscapeString(b) + "\" content=\"" + html.EscapeString(c) + "\" />")
-}
-
-func (data *Data) GenerateCardElements(pages ...*Page) (elements []template.HTML, err error) {
-	getField := func(name string) (value string, ok bool) {
-		for _, page := range pages {
-			if v, k := page.Meta[name]; k {
-				value = v
-				ok = true
-			}
-		}
-		return value, ok
-	}
-
-	elements = append(elements,
-		generateMetaTag("property", "og:type", "website"),
-		generateMetaTag("name", "twitter:card", "summary"),
-	)
-	if title, ok := getField("Title"); ok {
-		elements = append(elements,
-			generateMetaTag("property", "og:title", title),
-			generateMetaTag("name", "twitter:title", title),
-		)
-	}
-	if desc, ok := getField("Description"); ok {
-		elements = append(elements,
-			generateMetaTag("property", "og:description", desc),
-			generateMetaTag("name", "twitter:description", desc),
-		)
-	}
-	if image, ok := getField("Image"); ok {
-		u := (&url.URL{Scheme: "https", Host: data.Settings.Output.Host, Path: data.Settings.Output.FileLink("resource", image)}).String()
-		elements = append(elements,
-			generateMetaTag("property", "og:image", u),
-			generateMetaTag("name", "twitter:image", u),
-		)
-	}
-
-	return elements, nil
 }
 
 func (data *Data) GenerateHistoryElements(entity interface{}, button bool, ascending bool) (template.HTML, error) {
@@ -995,13 +944,6 @@ func (data *Data) GenerateDocuments() {
 		count += entity.DocStatus.AggregateProgress
 	}
 	data.Entities.Coverage = float32(count / total)
-}
-
-func GetDocStatus(entity interface{}) entities.DocStatus {
-	if entity, ok := entity.(entities.Documentable); ok {
-		return entity.GetDocStatus()
-	}
-	return GenerateDocStatus(entity)
 }
 
 func GenerateDocStatus(entity interface{}) (s entities.DocStatus) {

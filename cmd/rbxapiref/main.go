@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"html/template"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -12,7 +11,6 @@ import (
 
 	"github.com/anaminus/but"
 	"github.com/jessevdk/go-flags"
-	"github.com/robloxapi/rbxapiref/builds"
 	"github.com/robloxapi/rbxapiref/entities"
 	"github.com/robloxapi/rbxapiref/manifest"
 	"github.com/robloxapi/rbxapiref/settings"
@@ -183,43 +181,7 @@ func main() {
 
 	if !opt.ResOnly {
 		// Compile templates.
-		data.Templates, err = CompileTemplates(data.Settings.Input.Templates, template.FuncMap{
-			"cards":     data.GenerateCardElements,
-			"docstatus": GetDocStatus,
-			"document":  entities.QueryDocument,
-			"embed":     data.EmbedResource,
-			"execute":   data.ExecuteTemplate,
-			"filter":    FilterList,
-			"history":   data.GenerateHistoryElements,
-			"icon":      data.Icon,
-			"istype":    IsType,
-			"last":      LastIndex,
-			"list":      ParseStringList,
-			"link": func(linkType string, args ...interface{}) string {
-				sargs := make([]string, len(args))
-				for i, arg := range args {
-					switch arg := arg.(type) {
-					case int:
-						sargs[i] = strconv.Itoa(arg)
-					default:
-						sargs[i] = arg.(string)
-					}
-				}
-				return data.Settings.Output.FileLink(linkType, sargs...)
-			},
-			"pack":       PackValues,
-			"patchtype":  builds.PatchTypeString,
-			"quantity":   FormatQuantity,
-			"renderdoc":  entities.RenderDocument,
-			"resources":  data.GenerateResourceElements,
-			"sortedlist": SortedList,
-			"status":     data.ElementStatusClasses,
-			"subactions": builds.MakeSubactions,
-			"tolower":    strings.ToLower,
-			"tostring":   ToString,
-			"type":       GetType,
-			"unpack":     UnpackValues,
-		})
+		data.Templates, err = CompileTemplates(data.Settings.Input.Templates, TemplateFuncs(data))
 		but.IfFatal(err, "open template")
 	}
 
