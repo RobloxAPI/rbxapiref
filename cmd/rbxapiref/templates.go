@@ -209,7 +209,7 @@ func TemplateFuncs(data *Data) template.FuncMap {
 	}
 	funcs["filter"] = FilterList
 	funcs["history"] = data.GenerateHistoryElements
-	funcs["icon"] = data.Icon
+	funcs["icon"] = data.Entities.Icon
 	funcs["istype"] = func(v interface{}, t string) bool {
 		if v == nil {
 			return "nil" == t

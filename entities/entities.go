@@ -205,6 +205,142 @@ finish:
 	return classes
 }
 
+var memberIconIndex = map[string]int{
+	"Property": 6,
+	"Function": 4,
+	"Event":    11,
+	"Callback": 16,
+}
+
+func (e *Entities) Icon(v ...interface{}) template.HTML {
+	if len(v) == 0 {
+		return ""
+	}
+	var class string
+	var title string
+	var index int
+retry:
+	switch value := v[0].(type) {
+	case string:
+		switch strings.ToLower(value) {
+		case "class":
+			entity, ok := e.Classes[v[1].(string)]
+			if !ok {
+				goto finish
+			}
+			v = []interface{}{entity}
+			goto retry
+		case "member":
+			entity := e.Members[[2]string{v[1].(string), v[2].(string)}]
+			if entity == nil {
+				goto finish
+			}
+			v = []interface{}{entity.Element}
+			goto retry
+		case "enum":
+			class = "enum-icon"
+			title = "Enum"
+			index = -1
+		case "enumitem":
+			class = "enum-item-icon"
+			title = "EnumItem"
+			index = -1
+		}
+	case *ClassEntity:
+		class = "class-icon"
+		title = "Class"
+		if value.Metadata.Instance == nil {
+			goto finish
+		}
+		index = value.Metadata.GetInt("ExplorerImageIndex")
+	case *MemberEntity:
+		if value.Element == nil {
+			goto finish
+		}
+		v = []interface{}{value.Element}
+		goto retry
+	case *EnumEntity:
+		if value.Element == nil {
+			goto finish
+		}
+		v = []interface{}{value.Element}
+		goto retry
+	case *EnumItemEntity:
+		if value.Element == nil {
+			goto finish
+		}
+		v = []interface{}{value.Element}
+		goto retry
+	case TypeCategory:
+		class = "member-icon"
+		title = "TypeCategory"
+		index = 0
+	case *TypeEntity:
+		class = "member-icon"
+		title = "Type"
+		index = 3
+	case *rbxapijson.Class:
+		entity, ok := e.Classes[value.Name]
+		if !ok {
+			goto finish
+		}
+		v = []interface{}{entity}
+		goto retry
+	case rbxapi.Member:
+		class = "member-icon"
+		title = value.GetMemberType()
+		index = memberIconIndex[title]
+		switch v := value.(type) {
+		case interface{ GetSecurity() (string, string) }:
+			r, w := v.GetSecurity()
+			if r == "None" {
+				r = ""
+			}
+			if w == "None" {
+				w = ""
+			}
+			switch {
+			case r != "" && w != "":
+				title = "Protected " + title
+				if r == w {
+					title += " (Read/Write: " + r + ")"
+				} else {
+					title += " (Read: " + r + " / Write: " + w + ")"
+				}
+				index++
+			case r != "":
+				title = "Protected " + title + " (Read: " + r + ")"
+				index++
+			case w != "":
+				title = "Protected " + title + " (Write: " + w + ")"
+				index++
+			default:
+			}
+		case interface{ GetSecurity() string }:
+			s := v.GetSecurity()
+			if s != "" && s != "None" {
+				title = "Protected " + title + " (" + s + ")"
+				index++
+			}
+		}
+	case *rbxapijson.Enum:
+		class = "enum-icon"
+		title = "Enum"
+		index = -1
+	case *rbxapijson.EnumItem:
+		class = "enum-item-icon"
+		title = "EnumItem"
+		index = -1
+	}
+finish:
+	var style string
+	if index >= 0 {
+		style = fmt.Sprintf(` style="--icon-index: %d"`, index)
+	}
+	const body = `<span class="icon %s" title="%s"%s></span>`
+	return template.HTML(fmt.Sprintf(body, template.HTMLEscapeString(class), template.HTMLEscapeString(title), style))
+}
+
 type DocStatus struct {
 	HasDocument     bool
 	SummaryStatus   int // 0:nofile; 1:nosection; 2:empty; 3:filled
