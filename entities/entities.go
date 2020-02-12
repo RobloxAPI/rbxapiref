@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/gomarkdown/markdown"
 	"github.com/robloxapi/rbxapi"
@@ -34,6 +35,174 @@ type Entities struct {
 
 func (e *Entities) CoverageString() string {
 	return fmt.Sprintf("%.2f%%", e.Coverage*100)
+}
+
+// Sorted by most to least permissive.
+var securityContexts = map[string]int{
+	"None":                  0,
+	"RobloxPlaceSecurity":   1,
+	"PluginSecurity":        2,
+	"LocalUserSecurity":     3,
+	"RobloxScriptSecurity":  4,
+	"RobloxSecurity":        5,
+	"NotAccessibleSecurity": 6,
+}
+
+func (e *Entities) ElementStatusClasses(suffix bool, v ...interface{}) string {
+	var t rbxapi.Taggable
+	var action *builds.Action
+	var removed bool
+	switch value := v[0].(type) {
+	case rbxapi.Taggable:
+		t = value
+	case string:
+		switch value {
+		case "class":
+			class, ok := e.Classes[v[1].(string)]
+			if !ok {
+				return ""
+			}
+			removed = class.Removed
+			t = class.Element
+		case "member":
+			class, ok := e.Classes[v[1].(string)]
+			if !ok {
+				return ""
+			}
+			member, ok := class.Members[v[2].(string)]
+			if !ok {
+				return ""
+			}
+			removed = member.Removed
+			t = member.Element
+		case "enum":
+			enum, ok := e.Enums[v[1].(string)]
+			if !ok {
+				return ""
+			}
+			removed = enum.Removed
+			t = enum.Element
+		case "enumitem":
+			enum, ok := e.Enums[v[1].(string)]
+			if !ok {
+				return ""
+			}
+			item, ok := enum.Items[v[2].(string)]
+			if !ok {
+				return ""
+			}
+			removed = item.Removed
+			t = item.Element
+		default:
+			return ""
+		}
+	case *ClassEntity:
+		removed = value.Removed
+		t = value.Element
+	case *MemberEntity:
+		removed = value.Removed
+		t = value.Element
+	case *EnumEntity:
+		removed = value.Removed
+		t = value.Element
+	case *EnumItemEntity:
+		removed = value.Removed
+		t = value.Element
+	case builds.Action:
+		action = &value
+		t, _ = value.GetElement().(rbxapi.Taggable)
+	default:
+		return ""
+	}
+
+	var s []string
+	if action != nil {
+		switch action.Type {
+		case patch.Change:
+			switch action.Field {
+			case "Security", "ReadSecurity", "WriteSecurity":
+				// Select the most permissive context. This will cause changes
+				// to visible contexts to always be displayed.
+				p, _ := action.GetPrev().(string)
+				n, _ := action.GetNext().(string)
+				if securityContexts[p] < securityContexts[n] {
+					if p != "" && p != "None" {
+						s = append(s, "api-sec-"+p)
+					}
+				} else {
+					if n != "" && n != "None" {
+						s = append(s, "api-sec-"+n)
+					}
+				}
+				goto finish
+			case "Tags":
+				// Include tag unless it is being changed.
+				p := rbxapijson.Tags(action.GetPrev().([]string))
+				n := rbxapijson.Tags(action.GetNext().([]string))
+				if p.GetTag("Deprecated") && n.GetTag("Deprecated") {
+					s = append(s, "api-deprecated")
+				}
+				if p.GetTag("NotBrowsable") && n.GetTag("NotBrowsable") {
+					s = append(s, "api-not-browsable")
+				}
+				if p.GetTag("Hidden") && n.GetTag("Hidden") {
+					s = append(s, "api-hidden")
+				}
+				goto finish
+			}
+		}
+	}
+
+	for _, tag := range t.GetTags() {
+		switch tag {
+		case "Deprecated":
+			s = append(s, "api-deprecated")
+		case "NotBrowsable":
+			s = append(s, "api-not-browsable")
+		case "Hidden":
+			s = append(s, "api-hidden")
+		}
+	}
+	if removed {
+		s = append(s, "api-removed")
+	}
+	switch m := t.(type) {
+	case interface{ GetSecurity() (string, string) }:
+		r, w := m.GetSecurity()
+		if r == w {
+			if r != "" && r != "None" {
+				s = append(s, "api-sec-"+r)
+			}
+		} else {
+			s = append(s, "api-sec-"+r)
+			s = append(s, "api-sec-"+w)
+		}
+	case interface{ GetSecurity() string }:
+		if v := m.GetSecurity(); v != "" && v != "None" {
+			s = append(s, "api-sec-"+v)
+		}
+	}
+
+finish:
+	if len(s) == 0 {
+		return ""
+	}
+
+	sort.Strings(s)
+	j := 0
+	for i := 1; i < len(s); i++ {
+		if s[j] != s[i] {
+			j++
+			s[j] = s[i]
+		}
+	}
+	s = s[:j+1]
+
+	classes := strings.Join(s, " ")
+	if suffix {
+		classes = " " + classes
+	}
+	return classes
 }
 
 type DocStatus struct {

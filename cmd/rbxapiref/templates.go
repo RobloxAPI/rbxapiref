@@ -300,7 +300,7 @@ func TemplateFuncs(data *Data) template.FuncMap {
 		}
 		return list
 	}
-	funcs["status"] = data.ElementStatusClasses
+	funcs["status"] = data.Entities.ElementStatusClasses
 	funcs["subactions"] = builds.MakeSubactions
 	funcs["tolower"] = strings.ToLower
 	// Converts a value into a string. Only handles types found in rbxapi
