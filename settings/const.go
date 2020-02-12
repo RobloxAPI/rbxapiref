@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	ToolName     = "rbxapiref"
-	SettingsFile = "settings.json"
+	ToolName = "rbxapiref"
+	FileName = "settings.json"
 )
 
 const (
@@ -39,12 +39,12 @@ func mustParseURL(rawurl string) url.URL {
 	return *u
 }
 
-var DefaultSettings = &Settings{
-	Input: SettingsInput{
+var Default = &Settings{
+	Input: Input{
 		Resources: "resources",
 		Templates: "templates",
 	},
-	Output: SettingsOutput{
+	Output: Output{
 		Root:         ".",
 		Sub:          "ref",
 		Resources:    "res",

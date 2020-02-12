@@ -147,7 +147,7 @@ func main() {
 	}
 
 	// Load settings.
-	data.Settings = *settings.DefaultSettings.Copy()
+	data.Settings = *settings.Default.Copy()
 	but.IfFatal(data.Settings.ReadFile(opt.Settings))
 	if opt.NoGit {
 		data.Settings.Input.UseGit = false

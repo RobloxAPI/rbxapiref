@@ -14,14 +14,14 @@ import (
 
 type Settings struct {
 	// Input specifies input settings.
-	Input SettingsInput
+	Input Input
 	// Output specifies output settings.
-	Output SettingsOutput
+	Output Output
 	// Build specifies build settings.
 	Build builds.Settings
 }
 
-type SettingsInput struct {
+type Input struct {
 	// Resources is the directory containing resource files.
 	Resources string
 	// Templates is the directory containing template files.
@@ -36,7 +36,7 @@ type SettingsInput struct {
 	UseGit bool
 }
 
-type SettingsOutput struct {
+type Output struct {
 	// Root is the directory to which generated files will be written.
 	Root string
 	// Sub is a path that follows the output directory and precedes a
@@ -140,7 +140,7 @@ func (settings *Settings) filename(name string) (string, error) {
 	}
 
 	// Portable, if present.
-	name = SettingsFile
+	name = FileName
 	if _, err := os.Stat(name); !os.IsNotExist(err) {
 		return name, nil
 	}
@@ -150,7 +150,7 @@ func (settings *Settings) filename(name string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	name = filepath.Join(config, ToolName, SettingsFile)
+	name = filepath.Join(config, ToolName, FileName)
 	return name, nil
 }
 
