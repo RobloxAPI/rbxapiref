@@ -155,7 +155,7 @@ func generatePageMain(data *Data) (pages []Page) {
 			CacheMode: fetch.CacheTemp,
 		}
 		icon, err := client.ExplorerIcons(latest.Info.Hash)
-		but.IfFatalf(err, "%s: fetch icons %s", latest.Info.Hash)
+		but.IfFatalf(err, "%s: fetch icons", latest.Info.Hash)
 		var buf bytes.Buffer
 		but.IfFatal(png.Encode(&buf, icon), "encode icons file")
 		page.Resources = append(page.Resources,
