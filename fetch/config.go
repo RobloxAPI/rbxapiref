@@ -17,11 +17,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/robloxapi/rbxapi"
-	"github.com/robloxapi/rbxapi/rbxapijson"
-	"github.com/robloxapi/rbxdhist"
-	"github.com/robloxapi/rbxfile"
-	"github.com/robloxapi/rbxfile/xml"
+	"fmt"
 	"image"
 	"image/png"
 	"io"
@@ -34,6 +30,12 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/robloxapi/rbxapi"
+	"github.com/robloxapi/rbxapi/rbxapijson"
+	"github.com/robloxapi/rbxdhist"
+	"github.com/robloxapi/rbxfile"
+	"github.com/robloxapi/rbxfile/xml"
 )
 
 func userCacheDir() (string, error) {
@@ -382,7 +384,7 @@ func (client *Client) download(dst io.Writer, loc Location) (err error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return errors.New("bad status")
+		return fmt.Errorf("download from %s: bad status (%s)", loc.URL.String(), resp.Status)
 	}
 	_, err = io.Copy(dst, resp.Body)
 	return err
