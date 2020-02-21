@@ -142,6 +142,9 @@ func (settings *Settings) ReadFile(filename string) error {
 	}
 	file, err := os.Open(filename)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
 		return fmt.Errorf("open settings file: %w", err)
 	}
 	defer file.Close()
