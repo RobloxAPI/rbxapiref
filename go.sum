@@ -46,8 +46,8 @@ github.com/robloxapi/rbxapi v0.1.0 h1:xcve5EgsdXRBfRu6e5y03lHbcELkAjTuRCDw8OX060
 github.com/robloxapi/rbxapi v0.1.0/go.mod h1:YOxBbPE55ssodC1fGi8urHCDwntYrJg9FVjyY3sRX5o=
 github.com/robloxapi/rbxdhist v0.1.0 h1:zFHuAd/fYxKKRgko8giFrJE87wKbiMfkMC99IcQUHq0=
 github.com/robloxapi/rbxdhist v0.1.0/go.mod h1:LDwGu1rAliCi600a4apj6L1Uo7wiPPko+NA1RU/fHsM=
-github.com/robloxapi/rbxfile v0.1.1 h1:ncsXNRGX5jAifjtSQDa1yHqNt7h0kVqb9P4NYdBYfNE=
-github.com/robloxapi/rbxfile v0.1.1/go.mod h1:WxL42b4u+4douat8iRiomMkX02AfcdRlvju3+D9uxCk=
+github.com/robloxapi/rbxfile v0.1.2 h1:tbOa5LitKkFI1x3Nd0PiBlOugezZcoFe9Sd0LsjTpxc=
+github.com/robloxapi/rbxfile v0.1.2/go.mod h1:WxL42b4u+4douat8iRiomMkX02AfcdRlvju3+D9uxCk=
 github.com/sergi/go-diff v1.0.0 h1:Kpca3qRNrduNnOQeazBd0ysaKrUJiIuISHxogkT9RPQ=
 github.com/sergi/go-diff v1.0.0/go.mod h1:0CfEIISq7TuYL3j771MWULgwwjU+GofnZX9QAmXWZgo=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
