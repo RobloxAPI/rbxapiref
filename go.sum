@@ -44,8 +44,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/robloxapi/rbxapi v0.1.0 h1:xcve5EgsdXRBfRu6e5y03lHbcELkAjTuRCDw8OX060I=
 github.com/robloxapi/rbxapi v0.1.0/go.mod h1:YOxBbPE55ssodC1fGi8urHCDwntYrJg9FVjyY3sRX5o=
-github.com/robloxapi/rbxdhist v0.1.0 h1:zFHuAd/fYxKKRgko8giFrJE87wKbiMfkMC99IcQUHq0=
-github.com/robloxapi/rbxdhist v0.1.0/go.mod h1:LDwGu1rAliCi600a4apj6L1Uo7wiPPko+NA1RU/fHsM=
+github.com/robloxapi/rbxdhist v0.2.0 h1:Lxd+jCzZuFp9j5UCwe7QXueM+IOEJftjaohtHoLg5pc=
+github.com/robloxapi/rbxdhist v0.2.0/go.mod h1:LDwGu1rAliCi600a4apj6L1Uo7wiPPko+NA1RU/fHsM=
 github.com/robloxapi/rbxfile v0.1.2 h1:tbOa5LitKkFI1x3Nd0PiBlOugezZcoFe9Sd0LsjTpxc=
 github.com/robloxapi/rbxfile v0.1.2/go.mod h1:WxL42b4u+4douat8iRiomMkX02AfcdRlvju3+D9uxCk=
 github.com/sergi/go-diff v1.0.0 h1:Kpca3qRNrduNnOQeazBd0ysaKrUJiIuISHxogkT9RPQ=
