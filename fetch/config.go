@@ -598,11 +598,17 @@ func (client *Client) Builds() (builds []Build, err error) {
 						continue
 					}
 					// Only completed builds.
-					if i+1 >= len(stream) {
-						continue
-					}
-					if status, ok := stream[i+1].(*rbxdhist.Status); !ok || *status != "Done" {
-						continue
+					if job.GitHash == "" {
+						// Jobs that have a git hash are not accompanied by a
+						// Status, so just assume that they're Done.
+						//
+						//TODO: May be better to use another epoch instead.
+						if i+1 >= len(stream) {
+							continue
+						}
+						if status, ok := stream[i+1].(*rbxdhist.Status); !ok || *status != "Done" {
+							continue
+						}
 					}
 					builds = append(builds, Build{
 						Hash:    job.Hash,
