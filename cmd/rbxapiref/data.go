@@ -23,6 +23,7 @@ import (
 	"github.com/robloxapi/rbxapiref/fetch"
 	"github.com/robloxapi/rbxapiref/manifest"
 	"github.com/robloxapi/rbxapiref/settings"
+	"github.com/robloxapi/rbxfile"
 )
 
 type Data struct {
@@ -186,14 +187,24 @@ func (data *Data) GenerateMetadata() error {
 		return nil
 	}
 
-	latest := data.Manifest.Patches[len(data.Manifest.Patches)-1]
-	client := &fetch.Client{
-		Config:    data.Settings.Build.Configs[latest.Config],
-		CacheMode: fetch.CacheTemp,
-	}
-	rmd, err := client.ReflectionMetadata(latest.Info.Hash)
-	if err != nil {
-		return fmt.Errorf("fetch metadata %s: %w", latest.Info.Hash, err)
+	// If latest metadata fails, retry with previous metadata.
+	var rmd *rbxfile.Root
+	const retryCount = 3
+	for i := range data.Manifest.Patches {
+		latest := data.Manifest.Patches[len(data.Manifest.Patches)-1-i]
+		client := &fetch.Client{
+			Config:    data.Settings.Build.Configs[latest.Config],
+			CacheMode: fetch.CacheTemp,
+		}
+		var err error
+		rmd, err = client.ReflectionMetadata(latest.Info.Hash)
+		if err != nil {
+			if i <= retryCount {
+				continue
+			}
+			return fmt.Errorf("fetch metadata %s: %w", latest.Info.Hash, err)
+		}
+		break
 	}
 
 	for _, list := range rmd.Instances {
