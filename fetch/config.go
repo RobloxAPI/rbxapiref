@@ -589,14 +589,23 @@ func (client *Client) Builds() (builds []Build, err error) {
 			}
 			stream := rbxdhist.Lex(b)
 			// Builds after this date are interoperable.
-			epoch := time.Date(2023, 6, 1, 0, 0, 0, 0, rbxdhist.ZonePST())
+			epoch := time.Date(2018, 8, 7, 0, 0, 0, 0, rbxdhist.ZonePST())
+			// Builds after this date use Studio64 instead of Studio.
+			epoch64 := time.Date(2023, 6, 1, 0, 0, 0, 0, rbxdhist.ZonePST())
 			for i := 0; i < len(stream); i++ {
 				switch job := stream[i].(type) {
 				case *rbxdhist.Job:
 					// Only Studio builds.
-					if job.Build != "Studio64" || !job.Time.After(epoch) {
+					if job.Build != "Studio" && job.Build != "Studio64" {
 						continue
 					}
+					if !job.Time.After(epoch) {
+						continue
+					}
+					if job.Build == "Studio64" && !job.Time.After(epoch64) {
+						continue
+					}
+
 					// Only completed builds.
 					if job.GitHash == "" {
 						// Jobs that have a git hash are not accompanied by a
